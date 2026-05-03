@@ -267,7 +267,7 @@ eaglercraft.command.skull.error.invalid.skin=Image with size %dx%d is not a vali
 eaglercraft.command.clientStub=This command is client side!
 
 menu.game=Game menu
-menu.singleplayer=Singleplayer
+menu.singleplayer=Single_player_Test
 menu.multiplayer=Multiplayer
 menu.online=Minecraft Realms
 menu.options=Options...
