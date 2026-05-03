@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.command.CommandWorldEdit;
 import net.minecraft.command.server.CommandBlockLogic;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
@@ -518,6 +519,13 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
 				return;
 			} else {
 				if (c07packetplayerdigging.getStatus() == C07PacketPlayerDigging.Action.START_DESTROY_BLOCK) {
+					if (worldserver.getWorldBorder().contains(blockpos)
+							&& CommandWorldEdit.isWorldEditWand(this.playerEntity.inventory.getCurrentItem())) {
+						CommandWorldEdit.setWandPos1(this.playerEntity, blockpos);
+						this.playerEntity.playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldserver, blockpos));
+						return;
+					}
+
 					if (!this.serverController.isBlockProtected(worldserver, blockpos, this.playerEntity)
 							&& worldserver.getWorldBorder().contains(blockpos)) {
 						this.playerEntity.theItemInWorldManager.onBlockClicked(blockpos,
@@ -569,12 +577,21 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable {
 			if (this.hasMoved
 					&& this.playerEntity.getDistanceSq((double) blockpos.getX() + 0.5D, (double) blockpos.getY() + 0.5D,
 							(double) blockpos.getZ() + 0.5D) < 64.0D
-					&& !this.serverController.isBlockProtected(worldserver, blockpos, this.playerEntity)
 					&& worldserver.getWorldBorder().contains(blockpos)) {
-				this.playerEntity.theItemInWorldManager.activateBlockOrUseItem(this.playerEntity, worldserver,
-						itemstack, blockpos, enumfacing, c08packetplayerblockplacement.getPlacedBlockOffsetX(),
-						c08packetplayerblockplacement.getPlacedBlockOffsetY(),
-						c08packetplayerblockplacement.getPlacedBlockOffsetZ());
+				if (CommandWorldEdit.isWorldEditWand(itemstack)) {
+					CommandWorldEdit.setWandPos2(this.playerEntity, blockpos);
+					this.playerEntity.playerNetServerHandler.sendPacket(new S23PacketBlockChange(worldserver, blockpos));
+					this.playerEntity.playerNetServerHandler
+							.sendPacket(new S23PacketBlockChange(worldserver, blockpos.offset(enumfacing)));
+					return;
+				}
+
+				if (!this.serverController.isBlockProtected(worldserver, blockpos, this.playerEntity)) {
+					this.playerEntity.theItemInWorldManager.activateBlockOrUseItem(this.playerEntity, worldserver,
+							itemstack, blockpos, enumfacing, c08packetplayerblockplacement.getPlacedBlockOffsetX(),
+							c08packetplayerblockplacement.getPlacedBlockOffsetY(),
+							c08packetplayerblockplacement.getPlacedBlockOffsetZ());
+				}
 			}
 
 			flag = true;

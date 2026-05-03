@@ -91,6 +91,12 @@ public class ServerCommandManager extends CommandHandler implements IAdminComman
 		this.registerCommand(new CommandServerKick());
 		this.registerCommand(new CommandListPlayers());
 		this.registerCommand(new CommandSetPlayerTimeout());
+		this.registerCommand(new CommandWorldEdit("pos1"));
+		this.registerCommand(new CommandWorldEdit("pos2"));
+		this.registerCommand(new CommandWorldEdit("copy"));
+		this.registerCommand(new CommandWorldEdit("paste"));
+		this.registerCommand(new CommandWorldEdit("clear"));
+		this.registerCommand(new CommandWorldEdit("wand"));
 		this.registerCommand(new ClientCommandDummy("eagskull", 2, "command.skull.usage"));
 		CommandBase.setAdminCommander(this);
 	}
