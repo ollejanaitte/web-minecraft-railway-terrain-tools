@@ -17,6 +17,7 @@ import net.lax1dude.eaglercraft.v1_8.EaglercraftUUID;
 import net.lax1dude.eaglercraft.v1_8.futures.FutureTask;
 import net.lax1dude.eaglercraft.v1_8.sp.server.EaglerIntegratedServerWorker;
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandWorldEdit;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ICommandSender;
@@ -520,6 +521,7 @@ public abstract class MinecraftServer implements Runnable, ICommandSender, IThre
 		}
 
 		EaglerIntegratedServerWorker.tick();
+		CommandWorldEdit.tick();
 		this.serverConfigManager.onTick();
 
 		for (int k = 0; k < this.playersOnline.size(); ++k) {

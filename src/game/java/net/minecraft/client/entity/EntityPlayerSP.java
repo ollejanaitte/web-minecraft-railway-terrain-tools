@@ -13,6 +13,7 @@ import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.GuiRepair;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiScreenBook;
+import net.minecraft.client.gui.GuiWorldEdit;
 import net.minecraft.client.gui.inventory.GuiBeacon;
 import net.minecraft.client.gui.inventory.GuiBrewingStand;
 import net.minecraft.client.gui.inventory.GuiChest;
@@ -251,6 +252,11 @@ public class EntityPlayerSP extends AbstractClientPlayer {
 	 * Sends a chat message from the player. Args: chatMessage
 	 */
 	public void sendChatMessage(String message) {
+		if (message.equalsIgnoreCase("/weui")) {
+			System.out.println("WEUI: /weui detected");
+			Minecraft.getMinecraft().displayGuiScreen(new GuiWorldEdit());
+			return;
+		}
 		if (((sendQueue.getNetworkManager() instanceof ClientIntegratedServerNetworkManager)
 				|| (sendQueue.getNetworkManager() instanceof LANClientNetworkManager))
 				&& message.startsWith("/eagskull")) {

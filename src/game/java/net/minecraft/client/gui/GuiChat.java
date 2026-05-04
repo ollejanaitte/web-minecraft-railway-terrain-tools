@@ -147,6 +147,12 @@ public class GuiChat extends GuiScreenVisualViewport {
 			} else {
 				String s = this.inputField.getText().trim();
 				if (s.length() > 0) {
+					if (s.equalsIgnoreCase("/weui")) {
+						System.out.println("WEUI: /weui detected");
+						this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
+						this.mc.displayGuiScreen(new GuiWorldEdit());
+						return;
+					}
 					this.sendChatMessage(s);
 				}
 
