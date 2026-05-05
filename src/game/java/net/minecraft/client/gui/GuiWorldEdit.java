@@ -2,49 +2,48 @@ package net.minecraft.client.gui;
 
 public class GuiWorldEdit extends GuiScreen {
 
-	private int step = 5;
+	private static final int PANEL_LEFT = 6;
+	private static final int PANEL_TOP = 8;
+
+	private static boolean localClipboardCopied;
+	private static boolean previewSet;
+	private static int previewOffsetX;
+	private static int previewOffsetY;
+	private static int previewOffsetZ;
+	private static String localJobState = "Idle";
+	private static int step = 5;
 
 	public void initGui() {
 		this.buttonList.clear();
 
-		int buttonWidth = this.width < 330 ? 90 : 100;
-		int buttonHeight = this.height < 300 ? 18 : 20;
-		int gap = 5;
-		int yStep = this.height < 300 ? 20 : 24;
-		int columns = this.width < 295 ? 2 : 3;
-		int startX = this.width / 2 - (columns * buttonWidth + (columns - 1) * gap) / 2;
-		int y = Math.max(82, this.height / 2 - 104);
-		int index = 0;
+		int panelWidth = getPanelWidth();
+		int controlsLeft = panelWidth + 14;
+		int availableWidth = Math.max(130, this.width - controlsLeft - 6);
+		int columns = availableWidth >= 230 ? 3 : 2;
+		int buttonWidth = Math.max(56, Math.min(74, (availableWidth - (columns - 1) * 4) / columns));
+		int buttonHeight = this.height < 300 ? 14 : 16;
+		int gap = 4;
+		int left = this.width < 300 ? PANEL_LEFT + 8 : controlsLeft;
+		int y = this.height < 300 ? 34 : 42;
 
-		addGridButton(1, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Pos1");
-		addGridButton(2, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Pos2");
-		addGridButton(3, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Copy");
-		addGridButton(4, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Paste");
-		addGridButton(5, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Preview X+");
-		addGridButton(6, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Preview X-");
-		addGridButton(7, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Preview Z+");
-		addGridButton(8, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Preview Z-");
-		addGridButton(9, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Paste Preview");
-		addGridButton(10, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Clear Preview");
-		addGridButton(11, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Undo");
-		addGridButton(12, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Desel");
-		addGridButton(13, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Step 1");
-		addGridButton(14, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Step 5");
-		addGridButton(15, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Step 10");
-		addGridButton(16, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Offset X+");
-		addGridButton(17, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Offset X-");
-		addGridButton(18, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Offset Z+");
-		addGridButton(19, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Offset Z-");
-		addGridButton(20, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Offset Reset");
-		addGridButton(21, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Stack X");
-		addGridButton(22, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Stack Z");
-		addGridButton(23, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Fill Stone");
-		addGridButton(24, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Fill Held/Look");
-		addGridButton(25, startX, y, buttonWidth, buttonHeight, gap, columns, index++, "Clear");
+		y = addSectionButtons("Selection", y, left, buttonWidth, buttonHeight, gap,
+				new int[] { 30, 12 }, new String[] { "Wand", "Desel" });
+		y = addSectionButtons("Clipboard", y, left, buttonWidth, buttonHeight, gap,
+				new int[] { 3, 4, 11 }, new String[] { "Copy", "Paste", "Undo" });
+		y = addSectionButtons("Preview", y, left, buttonWidth, buttonHeight, gap,
+				new int[] { 5, 6, 26, 27, 7, 8, 9, 10 }, new String[] { "Prev X+", "Prev X-", "Prev Y+", "Prev Y-",
+						"Prev Z+", "Prev Z-", "Paste Prev", "Clear Prev" });
+		y = addSectionButtons("Transform", y, left, buttonWidth, buttonHeight, gap,
+				new int[] { 16, 17, 28, 29, 18, 19, 20, 21, 31, 22 }, new String[] { "Off X+", "Off X-", "Off Y+",
+						"Off Y-", "Off Z+", "Off Z-", "Reset", "Stack X", "Stack Y", "Stack Z" });
+		y = addSectionButtons("Fill", y, left, buttonWidth, buttonHeight, gap,
+				new int[] { 23, 24, 25 }, new String[] { "Stone", "Held/Look", "Clear" });
+		y = addSectionButtons("Step", y, left, buttonWidth, buttonHeight, gap,
+				new int[] { 13, 14, 15 }, new String[] { step == 1 ? "Step: 1" : "Step 1",
+						step == 5 ? "Step: 5" : "Step 5", step == 10 ? "Step: 10" : "Step 10" });
 
-		int rows = (index + columns - 1) / columns;
-		int closeY = Math.min(this.height - 28, y + rows * yStep + 8);
-		this.buttonList.add(new GuiButton(0, this.width / 2 - 50, closeY, 100, 20, "Close"));
+		this.buttonList.add(new GuiButton(0, left, Math.max(6, this.height - buttonHeight - 6),
+				Math.min(buttonWidth * columns + gap * (columns - 1), availableWidth), buttonHeight, "Close"));
 	}
 
 	private void addButton(int id, int x, int y, int width, int height, String text) {
@@ -55,8 +54,20 @@ public class GuiWorldEdit extends GuiScreen {
 			String text) {
 		int col = index % columns;
 		int row = index / columns;
-		int yStep = this.height < 300 ? 20 : 24;
+		int yStep = this.height < 300 ? 20 : 23;
 		addButton(id, startX + col * (width + gap), startY + row * yStep, width, height, text);
+	}
+
+	private int addSectionButtons(String title, int y, int x, int width, int height, int gap, int[] ids, String[] labels) {
+		int yStep = this.height < 300 ? 15 : 18;
+		int columns = this.width - x >= 230 ? 3 : 2;
+		y += this.height < 300 ? 1 : 3;
+		for (int i = 0; i < ids.length; ++i) {
+			int col = i % columns;
+			int row = i / columns;
+			addButton(ids[i], x + col * (width + gap), y + row * yStep, width, height, labels[i]);
+		}
+		return y + ((ids.length + columns - 1) / columns) * yStep + (this.height < 300 ? 1 : 4);
 	}
 
 	protected void actionPerformed(GuiButton button) {
@@ -68,84 +79,128 @@ public class GuiWorldEdit extends GuiScreen {
 		case 0:
 			this.mc.displayGuiScreen(null);
 			return;
-		case 1:
-			sendCommand("/pos1");
-			return;
-		case 2:
-			sendCommand("/pos2");
+		case 30:
+			sendCommand("/wand");
+			localJobState = "Idle";
 			return;
 		case 3:
+			localClipboardCopied = true;
 			sendCommand("/copy");
+			localJobState = "Idle";
 			return;
 		case 4:
-			sendCommand("/paste");
+			sendJobCommand("/paste");
 			return;
 		case 5:
-			sendCommand("/preview x " + this.step);
+			setPreview(step, 0, 0);
+			sendCommand("/preview x " + step);
 			return;
 		case 6:
-			sendCommand("/preview x -" + this.step);
+			setPreview(-step, 0, 0);
+			sendCommand("/preview x -" + step);
 			return;
 		case 7:
-			sendCommand("/preview z " + this.step);
+			setPreview(0, 0, step);
+			sendCommand("/preview z " + step);
 			return;
 		case 8:
-			sendCommand("/preview z -" + this.step);
+			setPreview(0, 0, -step);
+			sendCommand("/preview z -" + step);
 			return;
 		case 9:
-			sendCommand("/pastepreview");
+			clearPreviewLocal();
+			sendJobCommand("/pastepreview");
 			return;
 		case 10:
+			clearPreviewLocal();
 			sendCommand("/previewclear");
+			localJobState = "Idle";
 			return;
 		case 11:
-			sendCommand("/undo");
+			sendJobCommand("/undo");
 			return;
 		case 12:
+			clearPreviewLocal();
 			sendCommand("/desel");
+			localJobState = "Idle";
 			return;
 		case 13:
-			this.step = 1;
+			step = 1;
+			localJobState = "Idle";
+			this.initGui();
 			return;
 		case 14:
-			this.step = 5;
+			step = 5;
+			localJobState = "Idle";
+			this.initGui();
 			return;
 		case 15:
-			this.step = 10;
+			step = 10;
+			localJobState = "Idle";
+			this.initGui();
 			return;
 		case 16:
-			sendCommand("/offset x " + this.step);
+			addPreviewOffset(step, 0, 0);
+			sendCommand("/offset x " + step);
 			return;
 		case 17:
-			sendCommand("/offset x -" + this.step);
+			addPreviewOffset(-step, 0, 0);
+			sendCommand("/offset x -" + step);
 			return;
 		case 18:
-			sendCommand("/offset z " + this.step);
+			addPreviewOffset(0, 0, step);
+			sendCommand("/offset z " + step);
 			return;
 		case 19:
-			sendCommand("/offset z -" + this.step);
+			addPreviewOffset(0, 0, -step);
+			sendCommand("/offset z -" + step);
 			return;
 		case 20:
+			setPreview(0, 0, 0);
 			sendCommand("/offsetreset");
 			return;
 		case 21:
-			sendCommand("/stack x 2");
+			sendJobCommand("/stack x 2");
 			return;
 		case 22:
-			sendCommand("/stack z 2");
+			sendJobCommand("/stack z 2");
 			return;
 		case 23:
-			sendCommand("/fill stone");
+			sendJobCommand("/fill stone");
 			return;
 		case 24:
-			sendCommand("/fill");
+			sendJobCommand("/fill");
 			return;
 		case 25:
-			sendCommand("/clear");
+			sendJobCommand("/clear");
+			return;
+		case 26:
+			setPreview(0, step, 0);
+			sendCommand("/preview y " + step);
+			return;
+		case 27:
+			setPreview(0, -step, 0);
+			sendCommand("/preview y -" + step);
+			return;
+		case 28:
+			addPreviewOffset(0, step, 0);
+			sendCommand("/offset y " + step);
+			return;
+		case 29:
+			addPreviewOffset(0, -step, 0);
+			sendCommand("/offset y -" + step);
+			return;
+		case 31:
+			sendJobCommand("/stack y 2");
 			return;
 		default:
 			return;
 		}
+	}
+
+	private void sendJobCommand(String command) {
+		localJobState = "Sent";
+		sendCommand(command);
 	}
 
 	private void sendCommand(String command) {
@@ -154,16 +209,92 @@ public class GuiWorldEdit extends GuiScreen {
 		}
 	}
 
+	private void setPreview(int x, int y, int z) {
+		previewSet = true;
+		previewOffsetX = x;
+		previewOffsetY = y;
+		previewOffsetZ = z;
+		localJobState = "Idle";
+	}
+
+	private void addPreviewOffset(int x, int y, int z) {
+		previewSet = true;
+		previewOffsetX += x;
+		previewOffsetY += y;
+		previewOffsetZ += z;
+		localJobState = "Idle";
+	}
+
+	private void clearPreviewLocal() {
+		previewSet = false;
+		previewOffsetX = 0;
+		previewOffsetY = 0;
+		previewOffsetZ = 0;
+	}
+
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		this.drawDefaultBackground();
-		this.drawCenteredString(this.fontRendererObj, "WorldEdit Control Panel", this.width / 2, 24, 0xFFFFFF);
-		this.drawCenteredString(this.fontRendererObj, "Step: " + this.step, this.width / 2, 38, 0xDDDDDD);
-		this.drawCenteredString(this.fontRendererObj, "/wand: left click pos1, right click pos2", this.width / 2, 50,
-				0xAAAAAA);
-		this.drawCenteredString(this.fontRendererObj, "Preview buttons use current step", this.width / 2, 62, 0xAAAAAA);
-		this.drawCenteredString(this.fontRendererObj, "Commands are sent as chat commands", this.width / 2, 74,
-				0xAAAAAA);
+		drawPanel();
 		super.drawScreen(mouseX, mouseY, partialTicks);
+	}
+
+	private void drawPanel() {
+		int panelWidth = getPanelWidth();
+		int panelLeft = PANEL_LEFT;
+		int panelTop = PANEL_TOP;
+		int panelBottom = this.height - 6;
+		drawRect(panelLeft, panelTop, panelLeft + panelWidth, panelBottom, 0xAA000000);
+		drawRect(panelLeft, panelTop, panelLeft + panelWidth, panelTop + 22, 0xCC111111);
+
+		int x = panelLeft + 8;
+		int y = panelTop + 8;
+		drawLine("WorldEdit", x, y, 0xFFFFFF);
+		y += 20;
+		y = drawSectionHeader("Selection", x, y);
+		drawLine("Use Wand", x, y, 0xDDDDDD);
+		y += 12;
+		drawLine("Left click: Pos1", x, y, 0xDDDDDD);
+		y += 12;
+		drawLine("Right click: Pos2", x, y, 0xDDDDDD);
+		y += 12;
+		drawLine("Shown by particles", x, y, 0xAAAAAA);
+		y += 14;
+		y = drawSectionHeader("Clipboard", x, y);
+		drawLine("Clipboard: " + (localClipboardCopied ? "Copied" : "Empty"), x, y,
+				localClipboardCopied ? 0xA6FFAA : 0xCCCCCC);
+		y += 12;
+		drawLine("Limit: 64x64x64", x, y, 0xDDDDDD);
+		y += 12;
+		drawLine("= 262144", x, y, 0xDDDDDD);
+		y += 14;
+		y = drawSectionHeader("Preview", x, y);
+		drawLine("Offset: " + getPreviewText(), x, y, previewSet ? 0xA6D8FF : 0xCCCCCC);
+		y += 12;
+		drawLine("Step: " + step, x, y, 0xFFFFAA);
+		y += 14;
+		y = drawSectionHeader("Job", x, y);
+		drawLine("Job: " + localJobState, x, y, "Idle".equals(localJobState) ? 0xDDDDDD : 0xFFFFAA);
+		y += 12;
+		drawLine("Local UI state only", x, y, 0xAAAAAA);
+		y += 12;
+		drawLine("Wand selections may not sync", x, y, 0x888888);
+	}
+
+	private void drawLine(String text, int x, int y, int color) {
+		this.drawString(this.fontRendererObj, text, x, y, color);
+	}
+
+	private int drawSectionHeader(String text, int x, int y) {
+		drawLine(text, x, y, 0xFFE08A);
+		return y + 12;
+	}
+
+	private int getPanelWidth() {
+		return Math.min(182, Math.max(146, this.width / 2 - 12));
+	}
+
+	private String getPreviewText() {
+		return previewSet ? previewOffsetX + " " + previewOffsetY + " " + previewOffsetZ : "None";
 	}
 
 	public boolean doesGuiPauseGame() {

@@ -1,6 +1,8 @@
 package net.minecraft.entity.item;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import com.carrotsearch.hppc.IntObjectHashMap;
 import com.carrotsearch.hppc.IntObjectMap;
 import net.minecraft.block.Block;
@@ -52,6 +54,12 @@ import net.minecraft.world.WorldServer;
  * 
  */
 public abstract class EntityMinecart extends Entity implements IWorldNameable {
+	private static final Map<String, Integer> selectedMinecartByPlayer = new HashMap<>();
+	private static final double LINKED_CART_TARGET_DISTANCE = 1.8D;
+	private static final double LINKED_CART_FOLLOW_STRENGTH = 0.08D;
+	private static final double LINKED_CART_MAX_PULL = 0.12D;
+	public int linkedPrevEntityId = -1;
+	public int linkedNextEntityId = -1;
 	private boolean isInReverse;
 	private String entityName;
 	/**+
@@ -204,6 +212,74 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable {
 
 	}
 
+	protected boolean handleWrenchInteraction(EntityPlayer playerIn) {
+		ItemStack itemstack = playerIn.getCurrentEquippedItem();
+		if (itemstack == null || itemstack.getItem() != Items.wrench) {
+			return false;
+		}
+
+		if (!this.worldObj.isRemote) {
+			String playerKey = playerIn.getUniqueID().toString();
+			Integer selectedId = selectedMinecartByPlayer.get(playerKey);
+			int thisId = this.getEntityId();
+			if (selectedId == null) {
+				selectedMinecartByPlayer.put(playerKey, Integer.valueOf(thisId));
+				playerIn.addChatMessage(new ChatComponentText("Selected minecart: " + thisId + " prev="
+						+ this.linkedPrevEntityId + " next=" + this.linkedNextEntityId));
+			} else if (selectedId.intValue() == thisId) {
+				playerIn.addChatMessage(new ChatComponentText("Cannot link minecart to itself: " + thisId));
+			} else {
+				Entity selectedEntity = this.worldObj.getEntityByID(selectedId.intValue());
+				if (selectedEntity instanceof EntityMinecart) {
+					EntityMinecart selectedMinecart = (EntityMinecart) selectedEntity;
+					// Phase 5-B+: reject invalid formations instead of allowing simple overwrites.
+					selectedMinecart.clearLinkedNext();
+					this.clearLinkedPrev();
+					selectedMinecart.linkedNextEntityId = thisId;
+					this.linkedPrevEntityId = selectedMinecart.getEntityId();
+					selectedMinecartByPlayer.remove(playerKey);
+					playerIn.addChatMessage(new ChatComponentText("Linked minecart " + selectedMinecart.getEntityId()
+							+ " -> " + thisId + " | A(prev=" + selectedMinecart.linkedPrevEntityId + ", next="
+							+ selectedMinecart.linkedNextEntityId + ") B(prev=" + this.linkedPrevEntityId + ", next="
+							+ this.linkedNextEntityId + ")"));
+					this.worldObj.playSoundAtEntity(this, "random.click", 0.5F, 1.2F);
+				} else {
+					selectedMinecartByPlayer.remove(playerKey);
+					playerIn.addChatMessage(new ChatComponentText("Selected minecart no longer exists: " + selectedId));
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private EntityMinecart getLinkedMinecartById(int entityId) {
+		if (entityId < 0) {
+			return null;
+		}
+
+		Entity entity = this.worldObj.getEntityByID(entityId);
+		return entity instanceof EntityMinecart ? (EntityMinecart) entity : null;
+	}
+
+	private void clearLinkedNext() {
+		EntityMinecart nextMinecart = this.getLinkedMinecartById(this.linkedNextEntityId);
+		if (nextMinecart != null && nextMinecart.linkedPrevEntityId == this.getEntityId()) {
+			nextMinecart.linkedPrevEntityId = -1;
+		}
+
+		this.linkedNextEntityId = -1;
+	}
+
+	private void clearLinkedPrev() {
+		EntityMinecart prevMinecart = this.getLinkedMinecartById(this.linkedPrevEntityId);
+		if (prevMinecart != null && prevMinecart.linkedNextEntityId == this.getEntityId()) {
+			prevMinecart.linkedNextEntityId = -1;
+		}
+
+		this.linkedPrevEntityId = -1;
+	}
+
 	/**+
 	 * Setups the entity to do the hurt animation. Only used by
 	 * packets in multiplayer.
@@ -321,6 +397,7 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable {
 				this.moveDerailedMinecart();
 			}
 
+			this.updateLinkedMinecartFollow();
 			this.doBlockCollisions();
 			this.rotationPitch = 0.0F;
 			double d0 = this.prevPosX - this.posX;
@@ -366,6 +443,72 @@ public abstract class EntityMinecart extends Entity implements IWorldNameable {
 	 */
 	protected double getMaximumSpeed() {
 		return 0.4D;
+	}
+
+	private void updateLinkedMinecartFollow() {
+		if (this.worldObj.isRemote || this.linkedPrevEntityId < 0) {
+			return;
+		}
+
+		if (this.linkedPrevEntityId == this.getEntityId()) {
+			this.linkedPrevEntityId = -1;
+			return;
+		}
+
+		Entity frontEntity = this.worldObj.getEntityByID(this.linkedPrevEntityId);
+		if (!(frontEntity instanceof EntityMinecart) || frontEntity.isDead) {
+			return;
+		}
+
+		EntityMinecart frontMinecart = (EntityMinecart) frontEntity;
+		if (!this.isLinkedFollowRailActive() || !frontMinecart.isLinkedFollowRailActive()) {
+			return;
+		}
+
+		double yDistance = Math.abs(frontMinecart.posY - this.posY);
+		if (yDistance > 3.0D) {
+			return;
+		}
+
+		double deltaX = frontMinecart.posX - this.posX;
+		double deltaZ = frontMinecart.posZ - this.posZ;
+		double distance = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+		if (distance < 0.001D || distance <= LINKED_CART_TARGET_DISTANCE) {
+			return;
+		}
+
+		double pull = (distance - LINKED_CART_TARGET_DISTANCE) * LINKED_CART_FOLLOW_STRENGTH;
+		double yDamping = yDistance > 1.25D ? 0.35D : 1.0D;
+		double addX = deltaX / distance * pull * yDamping + frontMinecart.motionX * 0.05D;
+		double addZ = deltaZ / distance * pull * yDamping + frontMinecart.motionZ * 0.05D;
+		double addDistance = Math.sqrt(addX * addX + addZ * addZ);
+		if (addDistance > LINKED_CART_MAX_PULL) {
+			addX = addX / addDistance * LINKED_CART_MAX_PULL;
+			addZ = addZ / addDistance * LINKED_CART_MAX_PULL;
+		}
+
+		// Debug hook for Phase 5-B tuning:
+		// System.out.println("Linked cart follow " + this.getEntityId() + " <- " + frontMinecart.getEntityId());
+		this.motionX += addX;
+		this.motionZ += addZ;
+		this.clampLinkedMinecartHorizontalMotion();
+	}
+
+	private boolean isLinkedFollowRailActive() {
+		int x = MathHelper.floor_double(this.posX);
+		int y = MathHelper.floor_double(this.posY);
+		int z = MathHelper.floor_double(this.posZ);
+		return BlockRailBase.isRailBlock(this.worldObj, new BlockPos(x, y, z))
+				|| BlockRailBase.isRailBlock(this.worldObj, new BlockPos(x, y - 1, z));
+	}
+
+	private void clampLinkedMinecartHorizontalMotion() {
+		double maxSpeed = this.getMaximumSpeed();
+		double speed = Math.sqrt(this.motionX * this.motionX + this.motionZ * this.motionZ);
+		if (speed > maxSpeed) {
+			this.motionX = this.motionX / speed * maxSpeed;
+			this.motionZ = this.motionZ / speed * maxSpeed;
+		}
 	}
 
 	/**+

@@ -78,6 +78,12 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemRecord;
+import net.minecraft.rail.RailGraph;
+import net.minecraft.rail.RailNode;
+import net.minecraft.rail.RailPosition;
+import net.minecraft.rail.RailSegment;
+import net.minecraft.rail.RailSegmentType;
+import net.minecraft.rail.RailSystemManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.AxisAlignedBB;
@@ -123,6 +129,9 @@ import net.optifine.CustomSky;
  */
 public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListener {
 	private static final Logger logger = LogManager.getLogger();
+	private static final boolean RAIL_SYSTEM_DEBUG_RENDER = true;
+	private static final int RAIL_SYSTEM_DEBUG_CURVE_SAMPLES = 24;
+	private static final int RAIL_SYSTEM_DEBUG_VEHICLE_CYCLE_TICKS = 100;
 	private static final ResourceLocation locationMoonPhasesPng = new ResourceLocation(
 			"textures/environment/moon_phases.png");
 	private static final ResourceLocation locationSunPng = new ResourceLocation("textures/environment/sun.png");
@@ -194,6 +203,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 	private boolean displayListEntitiesDirty = true;
 	private final DeduplicatedLongQueue alfheim$lightUpdatesQueue = new DeduplicatedLongQueue(8192);
 	public final EaglerCloudRenderer cloudRenderer;
+	private RailPosition debugRailVehiclePosition;
 
 	public RenderGlobal(Minecraft mcIn) {
 		this.mc = mcIn;
@@ -1634,6 +1644,141 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 			GlStateManager.popMatrix();
 			GlStateManager.depthMask(true);
 		}
+	}
+
+	public void renderRailSystemDebug(Entity viewEntity, float partialTicks) {
+		if (!RAIL_SYSTEM_DEBUG_RENDER || !this.mc.gameSettings.showDebugInfo || this.mc.gameSettings.hideGUI
+				|| viewEntity == null) {
+			return;
+		}
+
+		RailGraph graph = RailSystemManager.getGraphForWorld(this.mc.theWorld);
+		if (graph.getNodes().isEmpty() && graph.getSegments().isEmpty()) {
+			return;
+		}
+
+		double cameraX = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * (double) partialTicks;
+		double cameraY = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * (double) partialTicks;
+		double cameraZ = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * (double) partialTicks;
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+		GlStateManager.disableTexture2D();
+		GlStateManager.disableLighting();
+		GlStateManager.depthMask(false);
+		EaglercraftGPU.glLineWidth(2.0F);
+
+		for (RailSegment segment : graph.getSegments()) {
+			RailNode start = graph.getNode(segment.getStartNodeId());
+			RailNode end = graph.getNode(segment.getEndNodeId());
+			if (start != null && end != null) {
+				if (segment.getType() == RailSegmentType.CURVE && segment.hasCurveData()) {
+					this.renderRailDebugCurve(segment, start, end, cameraX, cameraY, cameraZ);
+				} else {
+					this.renderRailDebugLine(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(),
+							end.getZ(), cameraX, cameraY, cameraZ, 80, 220, 255, 220);
+				}
+			}
+		}
+
+		for (RailNode node : graph.getNodes()) {
+			this.renderRailDebugNode(node, cameraX, cameraY, cameraZ);
+		}
+
+		this.renderRailDebugVehicle(graph, cameraX, cameraY, cameraZ);
+
+		GlStateManager.depthMask(true);
+		GlStateManager.enableLighting();
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+	}
+
+	private void renderRailDebugVehicle(RailGraph graph, double cameraX, double cameraY, double cameraZ) {
+		RailSegment segment = this.getDebugRailVehicleSegment(graph);
+		if (segment == null) {
+			this.debugRailVehiclePosition = null;
+			return;
+		}
+
+		RailNode start = graph.getNode(segment.getStartNodeId());
+		RailNode end = graph.getNode(segment.getEndNodeId());
+		if (start == null || end == null) {
+			return;
+		}
+
+		if (this.debugRailVehiclePosition == null
+				|| this.debugRailVehiclePosition.getSegmentId() != segment.getId()) {
+			this.debugRailVehiclePosition = new RailPosition(segment.getId(), 0.0D);
+		}
+
+		long worldTick = this.theWorld.getTotalWorldTime();
+		this.debugRailVehiclePosition
+				.setProgress((double) (worldTick % (long) RAIL_SYSTEM_DEBUG_VEHICLE_CYCLE_TICKS)
+						/ (double) RAIL_SYSTEM_DEBUG_VEHICLE_CYCLE_TICKS);
+
+		Vec3 point = segment.getPoint(this.debugRailVehiclePosition.getProgress(), start, end);
+		double size = 0.65D;
+		double yOffset = 1.5D;
+		double centerX = point.xCoord;
+		double centerY = point.yCoord + yOffset;
+		double centerZ = point.zCoord;
+		AxisAlignedBB box = new AxisAlignedBB(point.xCoord - size - cameraX, point.yCoord + yOffset - size - cameraY,
+				point.zCoord - size - cameraZ, point.xCoord + size - cameraX,
+				point.yCoord + yOffset + size - cameraY, point.zCoord + size - cameraZ);
+		RenderGlobal.func_181563_a(box, 255, 60, 220, 255);
+		this.renderRailDebugLine(centerX, centerY - 1.5D, centerZ, centerX, centerY + 2.5D, centerZ, cameraX, cameraY,
+				cameraZ, 255, 0, 0, 255);
+		this.renderRailDebugLine(centerX - 1.25D, centerY, centerZ, centerX + 1.25D, centerY, centerZ, cameraX, cameraY,
+				cameraZ, 255, 0, 255, 255);
+		this.renderRailDebugLine(centerX, centerY, centerZ - 1.25D, centerX, centerY, centerZ + 1.25D, cameraX, cameraY,
+				cameraZ, 255, 0, 255, 255);
+	}
+
+	private RailSegment getDebugRailVehicleSegment(RailGraph graph) {
+		RailSegment newestSegment = null;
+		RailSegment newestCurveSegment = null;
+		Iterator<RailSegment> iterator = graph.getSegments().iterator();
+		while (iterator.hasNext()) {
+			RailSegment segment = iterator.next();
+			if (newestSegment == null || segment.getId() > newestSegment.getId()) {
+				newestSegment = segment;
+			}
+
+			if (segment.getType() == RailSegmentType.CURVE
+					&& (newestCurveSegment == null || segment.getId() > newestCurveSegment.getId())) {
+				newestCurveSegment = segment;
+			}
+		}
+
+		return newestCurveSegment != null ? newestCurveSegment : newestSegment;
+	}
+
+	private void renderRailDebugCurve(RailSegment segment, RailNode start, RailNode end, double cameraX, double cameraY,
+			double cameraZ) {
+		Vec3 previous = segment.getPoint(0.0D, start, end);
+		for (int i = 1; i <= RAIL_SYSTEM_DEBUG_CURVE_SAMPLES; ++i) {
+			Vec3 point = segment.getPoint((double) i / (double) RAIL_SYSTEM_DEBUG_CURVE_SAMPLES, start, end);
+			this.renderRailDebugLine(previous.xCoord, previous.yCoord, previous.zCoord, point.xCoord, point.yCoord,
+					point.zCoord, cameraX, cameraY, cameraZ, 255, 190, 40, 230);
+			previous = point;
+		}
+	}
+
+	private void renderRailDebugNode(RailNode node, double cameraX, double cameraY, double cameraZ) {
+		double size = 0.08D;
+		AxisAlignedBB box = new AxisAlignedBB(node.getX() - size - cameraX, node.getY() - size - cameraY,
+				node.getZ() - size - cameraZ, node.getX() + size - cameraX, node.getY() + size - cameraY,
+				node.getZ() + size - cameraZ);
+		RenderGlobal.func_181563_a(box, 80, 255, 120, 240);
+	}
+
+	private void renderRailDebugLine(double x1, double y1, double z1, double x2, double y2, double z2, double cameraX,
+			double cameraY, double cameraZ, int red, int green, int blue, int alpha) {
+		Tessellator tessellator = Tessellator.getInstance();
+		WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		worldrenderer.begin(1, DefaultVertexFormats.POSITION_COLOR);
+		worldrenderer.pos(x1 - cameraX, y1 - cameraY, z1 - cameraZ).color(red, green, blue, alpha).endVertex();
+		worldrenderer.pos(x2 - cameraX, y2 - cameraY, z2 - cameraZ).color(red, green, blue, alpha).endVertex();
+		tessellator.draw();
 	}
 
 	private void preRenderDamagedBlocks() {

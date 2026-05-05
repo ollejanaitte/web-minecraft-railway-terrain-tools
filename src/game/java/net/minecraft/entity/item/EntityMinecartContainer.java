@@ -220,6 +220,10 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
 	 * First layer of player interaction
 	 */
 	public boolean interactFirst(EntityPlayer entityplayer) {
+		if (this.handleWrenchInteraction(entityplayer)) {
+			return true;
+		}
+
 		if (!this.worldObj.isRemote) {
 			entityplayer.displayGUIChest(this);
 		}

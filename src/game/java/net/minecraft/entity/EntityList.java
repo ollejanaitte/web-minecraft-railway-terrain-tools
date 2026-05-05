@@ -38,6 +38,7 @@ import net.minecraft.entity.item.EntityMinecartFurnace;
 import net.minecraft.entity.item.EntityMinecartHopper;
 import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.item.EntityPainting;
+import net.minecraft.entity.item.EntityRailVehicle;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.EntityBlaze;
@@ -365,6 +366,7 @@ public class EntityList {
 				EntityMinecart.EnumMinecartType.SPAWNER.getName(), 47);
 		addMapping(EntityMinecartCommandBlock.class, EntityMinecartCommandBlock::new,
 				EntityMinecart.EnumMinecartType.COMMAND_BLOCK.getName(), 40);
+		addMapping(EntityRailVehicle.class, EntityRailVehicle::new, "RailVehicle", 201);
 		addMapping(EntityLiving.class, null, "Mob", 48);
 		addMapping(EntityMob.class, null, "Monster", 49);
 		addMapping(EntityCreeper.class, EntityCreeper::new, "Creeper", 50, 894731, 0);

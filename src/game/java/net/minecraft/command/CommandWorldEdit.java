@@ -31,8 +31,8 @@ public class CommandWorldEdit extends CommandBase {
 	private static final int BLOCKS_PER_TICK = 4096;
 	private static final int PROGRESS_INTERVAL_TICKS = 10;
 	private static final int WIREFRAME_INTERVAL_TICKS = 10;
-	private static final int WIREFRAME_BASE_SPACING = 4;
-	private static final int WIREFRAME_MAX_PARTICLES = 160;
+	private static final int WIREFRAME_BASE_SPACING = 2;
+	private static final int WIREFRAME_MAX_PARTICLES = 600;
 	private static final double FILL_PICK_REACH = 6.0D;
 	private static final Map<EaglercraftUUID, SelectionData> selections = new HashMap<>();
 
@@ -640,7 +640,7 @@ public class CommandWorldEdit extends CommandBase {
 						Math.min(data.pos1.getZ(), data.pos2.getZ())),
 				new BlockPos(Math.max(data.pos1.getX(), data.pos2.getX()), Math.max(data.pos1.getY(), data.pos2.getY()),
 						Math.max(data.pos1.getZ(), data.pos2.getZ()))),
-				EnumParticleTypes.VILLAGER_HAPPY);
+				EnumParticleTypes.FIREWORKS_SPARK);
 	}
 
 	private static void tickPreviewWireframe(SelectionData data) {

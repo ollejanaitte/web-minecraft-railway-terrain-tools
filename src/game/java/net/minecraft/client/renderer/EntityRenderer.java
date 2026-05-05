@@ -1320,6 +1320,9 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		this.renderRainSnow(partialTicks);
 		GlStateManager.depthMask(true);
 		renderglobal.renderWorldBorder(entity, partialTicks);
+		if (pass == 0) {
+			renderglobal.renderRailSystemDebug(entity, partialTicks);
+		}
 		GlStateManager.disableBlend();
 		GlStateManager.enableCull();
 		GlStateManager.tryBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, 1, 0);

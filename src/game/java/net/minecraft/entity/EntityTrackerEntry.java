@@ -18,6 +18,7 @@ import net.minecraft.entity.item.EntityFireworkRocket;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityRailVehicle;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -463,6 +464,10 @@ public class EntityTrackerEntry {
 		} else if (this.trackedEntity instanceof EntityMinecart) {
 			EntityMinecart entityminecart = (EntityMinecart) this.trackedEntity;
 			return new S0EPacketSpawnObject(this.trackedEntity, 10, entityminecart.getMinecartType().getNetworkID());
+		} else if (this.trackedEntity instanceof EntityRailVehicle) {
+			EntityRailVehicle railvehicle = (EntityRailVehicle) this.trackedEntity;
+			return new S0EPacketSpawnObject(this.trackedEntity, EntityRailVehicle.SPAWN_OBJECT_TYPE,
+					railvehicle.segmentId);
 		} else if (this.trackedEntity instanceof EntityBoat) {
 			return new S0EPacketSpawnObject(this.trackedEntity, 1);
 		} else if (this.trackedEntity instanceof IAnimals) {

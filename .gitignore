@@ -14,3 +14,5 @@ bin
 /desktopRuntime/filesystem/*
 /desktopRuntime/downloads/*
 /desktopRuntime/screenshots/*
+.gradle-local/
+.gradle-local/

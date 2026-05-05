@@ -37,6 +37,10 @@ public class EntityMinecartEmpty extends EntityMinecart {
 	 * First layer of player interaction
 	 */
 	public boolean interactFirst(EntityPlayer entityplayer) {
+		if (this.handleWrenchInteraction(entityplayer)) {
+			return true;
+		}
+
 		if (this.riddenByEntity != null && this.riddenByEntity instanceof EntityPlayer
 				&& this.riddenByEntity != entityplayer) {
 			return true;

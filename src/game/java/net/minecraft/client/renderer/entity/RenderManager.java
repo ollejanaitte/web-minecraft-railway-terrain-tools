@@ -59,6 +59,7 @@ import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityMinecartTNT;
 import net.minecraft.entity.item.EntityPainting;
+import net.minecraft.entity.item.EntityRailVehicle;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.monster.EntityBlaze;
@@ -212,6 +213,7 @@ public class RenderManager {
 		this.entityRenderMap.put(EntityMinecartTNT.class, new RenderTntMinecart(this));
 		this.entityRenderMap.put(EntityMinecartMobSpawner.class, new RenderMinecartMobSpawner(this));
 		this.entityRenderMap.put(EntityMinecart.class, new RenderMinecart(this));
+		this.entityRenderMap.put(EntityRailVehicle.class, new RenderRailVehicle(this));
 		this.entityRenderMap.put(EntityBoat.class, new RenderBoat(this));
 		this.entityRenderMap.put(EntityFishHook.class, new RenderFish(this));
 		this.entityRenderMap.put(EntityHorse.class, new RenderHorse(this, new ModelHorse(), 0.75F));

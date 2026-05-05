@@ -77,6 +77,10 @@ public class EntityMinecartHopper extends EntityMinecartContainer implements IHo
 	 * First layer of player interaction
 	 */
 	public boolean interactFirst(EntityPlayer entityplayer) {
+		if (this.handleWrenchInteraction(entityplayer)) {
+			return true;
+		}
+
 		if (!this.worldObj.isRemote) {
 			entityplayer.displayGUIChest(this);
 		}

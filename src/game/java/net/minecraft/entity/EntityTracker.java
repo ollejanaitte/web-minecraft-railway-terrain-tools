@@ -21,6 +21,7 @@ import net.minecraft.entity.item.EntityFallingBlock;
 import net.minecraft.entity.item.EntityFireworkRocket;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityMinecart;
+import net.minecraft.entity.item.EntityRailVehicle;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.passive.EntityBat;
@@ -121,6 +122,8 @@ public class EntityTracker {
 			this.addEntityToTracker(parEntity, 64, 20, true);
 		} else if (parEntity instanceof EntityMinecart) {
 			this.addEntityToTracker(parEntity, 80, 3, true);
+		} else if (parEntity instanceof EntityRailVehicle) {
+			this.addEntityToTracker(parEntity, 80, 3, false);
 		} else if (parEntity instanceof EntityBoat) {
 			this.addEntityToTracker(parEntity, 80, 3, true);
 		} else if (parEntity instanceof EntitySquid) {
