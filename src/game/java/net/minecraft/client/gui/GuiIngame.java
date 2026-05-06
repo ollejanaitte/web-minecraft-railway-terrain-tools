@@ -36,6 +36,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.boss.BossStatus;
+import net.minecraft.entity.item.EntityRailVehicle;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
@@ -244,6 +245,7 @@ public class GuiIngame extends Gui {
 		}
 
 		this.overlayDebug.renderDebugInfo(scaledresolution);
+		this.renderRailVehicleHud();
 
 		if (this.field_175195_w > 0) {
 			float f3 = (float) this.field_175195_w - partialTicks;
@@ -326,6 +328,25 @@ public class GuiIngame extends Gui {
 
 		GlStateManager.disableLighting();
 		GlStateManager.enableAlpha();
+	}
+
+	private void renderRailVehicleHud() {
+		if (this.mc.thePlayer == null || !(this.mc.thePlayer.ridingEntity instanceof EntityRailVehicle)
+				|| this.mc.gameSettings.hideGUI) {
+			return;
+		}
+
+		EntityRailVehicle vehicle = (EntityRailVehicle) this.mc.thePlayer.ridingEntity;
+		this.getFontRenderer().drawStringWithShadow("RailVehicle", 8.0F, 8.0F, 0xFFFFFF);
+		this.getFontRenderer().drawStringWithShadow("speed: " + this.formatRailHudDouble(vehicle.speed), 8.0F, 18.0F,
+				0xFFFFFF);
+		this.getFontRenderer().drawStringWithShadow("target: " + this.formatRailHudDouble(vehicle.targetSpeed), 8.0F,
+				28.0F, 0xFFFFFF);
+		this.getFontRenderer().drawStringWithShadow("trainId: " + vehicle.trainId, 8.0F, 38.0F, 0xFFFFFF);
+	}
+
+	private String formatRailHudDouble(double value) {
+		return String.valueOf((double) Math.round(value * 1000.0D) / 1000.0D);
 	}
 
 	public void renderGameOverlayCrosshairs(int scaledResWidth, int scaledResHeight) {
