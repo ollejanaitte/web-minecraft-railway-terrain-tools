@@ -1,0 +1,36 @@
+[0809/234446.411250:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9222/devtools/browser/b080318b-477a-42c9-aa26-eeaeb63185a3
+[1533824:1533824:0809/234446.681749:ERROR:ui/gl/angle_platform_impl.cc:47] Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+ERR: Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+[1533824:1533824:0809/234446.681835:ERROR:ui/gl/egl_util.cc:92] EGL Driver message (Critical) eglInitialize: Could not open the default X display.
+[1533824:1533824:0809/234446.681849:ERROR:ui/gl/gl_display.cc:630] eglInitialize OpenGL failed with error EGL_NOT_INITIALIZED, trying next display type
+[1533824:1533824:0809/234446.681887:ERROR:ui/gl/angle_platform_impl.cc:47] Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+ERR: Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+[1533824:1533824:0809/234446.681897:ERROR:ui/gl/egl_util.cc:92] EGL Driver message (Critical) eglInitialize: Could not open the default X display.
+[1533824:1533824:0809/234446.681904:ERROR:ui/gl/gl_display.cc:630] eglInitialize OpenGLES failed with error EGL_NOT_INITIALIZED
+[1533824:1533824:0809/234446.681909:ERROR:ui/gl/gl_display.cc:665] Initialization of all (2) EGL display types failed.
+[1533824:1533824:0809/234446.681920:ERROR:ui/ozone/common/gl_ozone_egl.cc:26] GLDisplayEGL::Initialize failed.
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[1533824:1533824:0809/234446.844438:ERROR:ui/gl/angle_platform_impl.cc:47] Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+ERR: Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+[1533824:1533824:0809/234446.844483:ERROR:ui/gl/egl_util.cc:92] EGL Driver message (Critical) eglInitialize: Could not open the default X display.
+[1533824:1533824:0809/234446.844490:ERROR:ui/gl/gl_display.cc:630] eglInitialize OpenGL failed with error EGL_NOT_INITIALIZED, trying next display type
+[1533824:1533824:0809/234446.844504:ERROR:ui/gl/angle_platform_impl.cc:47] Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+ERR: Display.cpp:1128 (initialize): ANGLE Display::initialize error 12289: Could not open the default X display.
+[1533824:1533824:0809/234446.844514:ERROR:ui/gl/egl_util.cc:92] EGL Driver message (Critical) eglInitialize: Could not open the default X display.
+[1533824:1533824:0809/234446.844520:ERROR:ui/gl/gl_display.cc:630] eglInitialize OpenGLES failed with error EGL_NOT_INITIALIZED
+[1533824:1533824:0809/234446.844526:ERROR:ui/gl/gl_display.cc:665] Initialization of all (2) EGL display types failed.
+[1533824:1533824:0809/234446.844532:ERROR:ui/ozone/common/gl_ozone_egl.cc:26] GLDisplayEGL::Initialize failed.
+[1533824:1533824:0809/234446.845846:ERROR:components/viz/service/main/viz_main_impl.cc:190] Exiting GPU process due to errors during initialization
+[1533863:1533879:0809/234447.768493:ERROR:gpu/ipc/client/command_buffer_proxy_impl.cc:285] ContextResult::kTransientFailure: Failed to send GpuControl.CreateCommandBuffer.
+[1533795:1533813:0809/234450.934515:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1533888:1533888:0809/234453.450252:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0xc4c000f1a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1533888:1533888:0809/234455.494470:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0xc4c000f1a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1533888:1533888:0809/234455.579278:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0xc4c000f1a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[1533795:1533813:0809/234512.300704:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1533795:1533813:0809/234600.692177:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1533795:1533813:0809/234749.773100:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1533888:1533888:0809/234814.958295:ERROR:gpu/command_buffer/service/gl_utils.cc:430] [.WebGL-0xc4c000f1a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[1533795:1533813:0809/235100.258835:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1533795:1533813:0809/235649.636659:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT

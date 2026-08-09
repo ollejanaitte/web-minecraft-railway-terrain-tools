@@ -86,6 +86,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityRailVehicle;
+import net.minecraft.entity.item.EntityRailV2Car;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -392,6 +393,10 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient {
 			object = new EntityRailVehicle(this.clientWorldController);
 			object.setPosition(d0, d1, d2);
 			((EntityRailVehicle) object).setRailSegment(packetIn.func_149009_m());
+			break;
+		case EntityRailV2Car.SPAWN_OBJECT_TYPE:
+			object = new EntityRailV2Car(this.clientWorldController);
+			object.setPosition(d0, d1, d2);
 			break;
 		case 10:
 			object = EntityMinecart.func_180458_a(this.clientWorldController, d0, d1, d2,

@@ -19,6 +19,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.item.EntityMinecart;
 import net.minecraft.entity.item.EntityRailVehicle;
+import net.minecraft.entity.item.EntityRailV2Car;
 import net.minecraft.entity.item.EntityPainting;
 import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -468,6 +469,8 @@ public class EntityTrackerEntry {
 			EntityRailVehicle railvehicle = (EntityRailVehicle) this.trackedEntity;
 			return new S0EPacketSpawnObject(this.trackedEntity, EntityRailVehicle.SPAWN_OBJECT_TYPE,
 					railvehicle.segmentId);
+		} else if (this.trackedEntity instanceof EntityRailV2Car) {
+			return new S0EPacketSpawnObject(this.trackedEntity, EntityRailV2Car.SPAWN_OBJECT_TYPE, 0);
 		} else if (this.trackedEntity instanceof EntityBoat) {
 			return new S0EPacketSpawnObject(this.trackedEntity, 1);
 		} else if (this.trackedEntity instanceof IAnimals) {

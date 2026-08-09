@@ -1,0 +1,208 @@
+[console.info] ClientMain: [INFO] eaglercraftx is starting...
+[console.info] ClientMain: [INFO] configuration was successful
+[console.info] ClientMain: [INFO] initializing eaglercraftx runtime
+[console.info] [11:16:50+524][main/INFO][EagRuntime]: Version: EagRuntimeX 1.0
+[console.info] [11:16:50+531][main/INFO][BrowserRuntime]: ES6 Shim Status: Disabled
+[console.info] [11:16:50+536][main/INFO][BrowserRuntime]: Creating main game canvas
+[console.info] [11:16:50+550][main/INFO][BrowserRuntime]: Note: Detected game is embedded in body, some screens may be resized to window.visualViewport instead for a better mobile experience
+[console.info] [11:16:50+550][main/INFO][BrowserRuntime]: Endianness: this CPU is little endian
+[console.info] [11:16:50+562][main/INFO][BrowserRuntime]: Loading keyboard layout data
+[console.info] [11:16:50+581][main/INFO][BrowserRuntime]: Creating WebGL context
+[console.info] [11:16:50+595][main/INFO][BrowserRuntime]: OpenGL Version: WebGL 2.0 (OpenGL ES 3.0 Chromium)
+[console.info] [11:16:50+595][main/INFO][BrowserRuntime]: OpenGL Renderer: ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)
+[console.info] [11:16:50+596][main/INFO][BrowserRuntime]: Unlocked the following OpenGL ES extensions:
+[console.info] [11:16:50+596][main/INFO][BrowserRuntime]:  - EXT_color_buffer_float
+[console.info] [11:16:50+596][main/INFO][BrowserRuntime]:  - EXT_texture_filter_anisotropic
+[console.info] [11:16:50+596][main/INFO][BrowserRuntime]:  - OES_texture_float_linear
+[console.info] [11:16:50+596][main/INFO][BrowserRuntime]:  - WEBGL_debug_renderer_info
+[console.info] [11:16:50+813][main/INFO][BrowserRuntime]: Downloading: <data: 9661001 chars>
+[console.info] [11:16:51+734][main/INFO][BrowserRuntime]: Decompressing: <data: 9661001 chars>
+[console.info] [11:16:52+272][main/INFO][BrowserRuntime]: Downloading: <data: 2573585 chars>
+[console.info] [11:16:52+403][main/INFO][BrowserRuntime]: Decompressing: <data: 2573585 chars>
+[console.info] [11:16:52+607][main/INFO][BrowserRuntime]: Loaded 4875 resources from EPKs
+[console.info] [11:16:52+684][main/INFO][BrowserRuntime]: Initializing filesystem...
+[console.info] [11:16:52+716][main/INFO][BrowserRuntime]: Initializing sound engine...
+[console.info] [11:20:11+830][main/INFO][PlatformScreenRecord]: MediaRecorder is supported, checking codecs...
+[console.info] [11:20:11+832][main/INFO][PlatformScreenRecord]: Found 19 codecs that are probably supported!
+[console.info] [11:20:11+832][main/INFO][BrowserRuntime]: Platform initialization complete
+[console.info] [11:20:11+838][main/INFO][EaglercraftGPU]: 16-bit HDR render target support: true
+[console.info] [11:20:11+838][main/INFO][EaglercraftGPU]: 16-bit HDR linear filter support: true
+[console.info] [11:20:11+838][main/INFO][EaglercraftGPU]: 32-bit HDR render target support: true
+[console.info] [11:20:11+838][main/INFO][EaglercraftGPU]: 32-bit HDR linear filter support: true
+[console.info] ClientMain: [INFO] launching eaglercraftx main thread
+[console.info] [11:20:12+058][Client thread/INFO][Minecraft]: Setting user: YeeDarvler8513
+[console.info] [11:20:14+405][Client thread/INFO][Minecraft]: EagRuntime Version: EagRuntimeX 1.0
+[console.info] [11:20:14+412][Client thread/INFO][Minecraft]: Reloading ResourceManager: Default
+[console.info] [11:20:14+480][Client thread/INFO][ShaderSource]: Cleared Cache
+[console.info] [11:20:14+588][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/calm1.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+589][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/calm2.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+589][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/calm3.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+590][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal1.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+590][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal2.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+591][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal3.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+591][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal4.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+592][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nuance1.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+592][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nuance2.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+592][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/piano1.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+593][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/piano2.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+593][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/piano3.ogg does not exist, cannot add it to event minecraft:music.game
+[console.info] [11:20:14+594][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative1.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[console.info] [11:20:14+594][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative2.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[console.info] [11:20:14+595][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative3.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[console.info] [11:20:14+595][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative4.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[console.info] [11:20:14+595][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative5.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[console.info] [11:20:14+596][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative6.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[console.info] [11:20:14+596][Client thread/WARN][Minecraft]: File minecraft:sounds/records/cat.ogg does not exist, cannot add it to event minecraft:records.cat
+[console.info] [11:20:14+597][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/end/boss.ogg does not exist, cannot add it to event minecraft:music.game.end.dragon
+[console.info] [11:20:14+598][Client thread/WARN][Minecraft]: File minecraft:sounds/records/mall.ogg does not exist, cannot add it to event minecraft:records.mall
+[console.info] [11:20:14+599][Client thread/WARN][Minecraft]: File minecraft:sounds/records/stal.ogg does not exist, cannot add it to event minecraft:records.stal
+[console.info] [11:20:14+601][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/end/end.ogg does not exist, cannot add it to event minecraft:music.game.end
+[console.info] [11:20:14+602][Client thread/WARN][Minecraft]: File minecraft:sounds/records/ward.ogg does not exist, cannot add it to event minecraft:records.ward
+[console.info] [11:20:14+603][Client thread/WARN][Minecraft]: File minecraft:sounds/records/blocks.ogg does not exist, cannot add it to event minecraft:records.blocks
+[console.info] [11:20:14+606][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/end/credits.ogg does not exist, cannot add it to event minecraft:music.game.end.credits
+[console.info] [11:20:14+607][Client thread/WARN][Minecraft]: File minecraft:sounds/records/chirp.ogg does not exist, cannot add it to event minecraft:records.chirp
+[console.info] [11:20:14+608][Client thread/WARN][Minecraft]: File minecraft:sounds/records/11.ogg does not exist, cannot add it to event minecraft:records.11
+[console.info] [11:20:14+610][Client thread/WARN][Minecraft]: File minecraft:sounds/records/13.ogg does not exist, cannot add it to event minecraft:records.13
+[console.info] [11:20:14+611][Client thread/WARN][Minecraft]: File minecraft:sounds/records/strad.ogg does not exist, cannot add it to event minecraft:records.strad
+[console.info] [11:20:14+612][Client thread/WARN][Minecraft]: File minecraft:sounds/records/far.ogg does not exist, cannot add it to event minecraft:records.far
+[console.info] [11:20:14+614][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu1.ogg does not exist, cannot add it to event minecraft:music.menu
+[console.info] [11:20:14+615][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu2.ogg does not exist, cannot add it to event minecraft:music.menu
+[console.info] [11:20:14+615][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu3.ogg does not exist, cannot add it to event minecraft:music.menu
+[console.info] [11:20:14+616][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu4.ogg does not exist, cannot add it to event minecraft:music.menu
+[console.info] [11:20:14+616][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether1.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[console.info] [11:20:14+617][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether2.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[console.info] [11:20:14+618][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether3.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[console.info] [11:20:14+618][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether4.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[console.info] [11:20:14+619][Client thread/WARN][Minecraft]: File minecraft:sounds/records/wait.ogg does not exist, cannot add it to event minecraft:records.wait
+[console.info] [11:20:14+621][Client thread/WARN][Minecraft]: File minecraft:sounds/records/mellohi.ogg does not exist, cannot add it to event minecraft:records.mellohi
+[console.info] [11:20:14+623][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[console.info] [11:20:15+822][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/0_glass_white/glass_pane_white.properties
+[console.info] [11:20:15+830][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/0_glass_white/glass_white.properties
+[console.info] [11:20:15+832][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/10_glass_purple/glass_pane_purple.properties
+[console.info] [11:20:15+836][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/10_glass_purple/glass_purple.properties
+[console.info] [11:20:15+837][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/11_glass_blue/glass_blue.properties
+[console.info] [11:20:15+838][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/11_glass_blue/glass_pane_blue.properties
+[console.info] [11:20:15+841][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/12_glass_brown/glass_brown.properties
+[console.info] [11:20:15+842][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/12_glass_brown/glass_pane_brown.properties
+[console.info] [11:20:15+845][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/13_glass_green/glass_green.properties
+[console.info] [11:20:15+846][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/13_glass_green/glass_pane_green.properties
+[console.info] [11:20:15+849][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/14_glass_red/glass_pane_red.properties
+[console.info] [11:20:15+853][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/14_glass_red/glass_red.properties
+[console.info] [11:20:15+855][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[console.info] [11:20:15+857][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[console.info] [11:20:15+861][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/1_glass_orange/glass_orange.properties
+[console.info] [11:20:15+862][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/1_glass_orange/glass_pane_orange.properties
+[console.info] [11:20:15+866][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/2_glass_magenta/glass_magenta.properties
+[console.info] [11:20:15+866][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/2_glass_magenta/glass_pane_magenta.properties
+[console.info] [11:20:15+869][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/3_glass_light_blue/glass_light_blue.properties
+[console.info] [11:20:15+870][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/3_glass_light_blue/glass_pane_light_blue.properties
+[console.info] [11:20:15+872][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/4_glass_yellow/glass_pane_yellow.properties
+[console.info] [11:20:15+875][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/4_glass_yellow/glass_yellow.properties
+[console.info] [11:20:15+876][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/5_glass_lime/glass_lime.properties
+[console.info] [11:20:15+877][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/5_glass_lime/glass_pane_lime.properties
+[console.info] [11:20:15+880][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/6_glass_pink/glass_pane_pink.properties
+[console.info] [11:20:15+883][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/6_glass_pink/glass_pink.properties
+[console.info] [11:20:15+884][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/7_glass_gray/glass_gray.properties
+[console.info] [11:20:15+885][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/7_glass_gray/glass_pane_gray.properties
+[console.info] [11:20:15+888][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/8_glass_silver/glass_pane_silver.properties
+[console.info] [11:20:15+891][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/8_glass_silver/glass_silver.properties
+[console.info] [11:20:15+892][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/9_glass_cyan/glass_cyan.properties
+[console.info] [11:20:15+894][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/9_glass_cyan/glass_pane_cyan.properties
+[console.info] [11:20:15+896][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/bookshelf.properties
+[console.info] [11:20:15+897][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/glass.properties
+[console.info] [11:20:15+898][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/glasspane.properties
+[console.info] [11:20:15+898][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/sandstone.properties
+[console.info] [11:20:15+900][Client thread/DEBUG][OptiFine]: Multipass connected textures: false
+[console.info] [11:20:17+606][Client thread/INFO][Minecraft]: Created: 1024x512 textures-atlas
+[console.info] [11:20:18+396][Client thread/DEBUG][OptiFine]: *** Reloading custom textures ***
+[console.info] [11:20:18+401][Client thread/DEBUG][OptiFine]: Enable face culling: acacia_leaves, birch_leaves, dark_oak_leaves, jungle_leaves, oak_leaves, spruce_leaves
+[console.info] [11:20:24+011][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:20:36+301][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:20:50+975][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:20:57+929][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:21:02+625][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:21:29+272][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:21:58+783][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:22:00+384][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:22:17+637][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:22:39+639][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:22:43+484][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:23:13+080][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:23:35+422][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:23:42+385][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:23:45+283][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:23:59+973][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:24:27+373][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:24:34+431][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:24:42+334][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:25:09+477][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:25:36+377][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:25:38+776][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:25:49+521][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:25:51+939][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:26:18+019][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:26:28+983][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:26:55+881][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:27:06+847][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:27:20+670][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:27:26+975][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:27:47+540][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:27:59+911][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:28:03+487][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[console.info] [11:28:05+131][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[console.info] [11:28:25+074][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:28:52+134][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:29:06+078][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:29:18+182][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:29:39+625][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:29:51+942][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:30:11+880][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:30:27+942][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:30:33+581][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:30:44+737][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:31:11+670][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:31:33+685][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:31:48+542][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:12+079][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:14+944][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:32+174][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:34+079][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:48+346][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:50+434][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:32:53+428][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:33:19+023][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:33:32+991][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:33:47+993][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:33:54+722][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:34:00+862][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:34:18+987][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:34:25+913][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:34:31+902][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:34:45+170][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:35:11+816][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:35:41+293][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:36:08+897][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:36:10+430][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:36:33+950][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:36:49+527][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:36:55+579][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:37:22+367][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:37:29+982][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:37:43+376][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:38:04+964][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:38:10+820][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:38:24+132][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:38:49+349][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[console.info] [11:39:12+172][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[log.warning] [.WebGL-0x17f400102600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[log.warning] [.WebGL-0x17f400102600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[log.warning] [.WebGL-0x17f400102600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels
+[log.warning] [.WebGL-0x17f400102600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)
+[log.warning] File chooser dialog can only be shown with a user activation.
+[log.info] WorkerMain: [INFO] eaglercraftx worker thread is starting...
+[log.info] WorkerMain: [INFO] reading configuration
+[log.info] WorkerMain: [INFO] initializing server runtime
+[log.info] [11:28:05+016][main/INFO][ServerPlatformSingleplayer]: ES6 Shim Status: Disabled
+[log.info] WorkerMain: [INFO] starting worker thread
+[log.info] [11:28:05+090][IntegratedServer/INFO][EaglerIntegratedServer]: Starting EaglercraftX integrated server worker...
+[console.info] [11:39:37+688][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
