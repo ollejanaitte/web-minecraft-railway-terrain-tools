@@ -33,6 +33,28 @@ sourceSets {
 			"src/platform-api/java"
 		)
 	}
+
+	// JVM-only Railway v2 test harness.
+	// Deliberately independent of the game "main" source set so math/simulation
+	// tests run fast on a plain JVM with NO Eaglercraft/TeaVM runtime.
+	create("harness") {
+		java.srcDir("src/harness/java")
+		resources.srcDir("src/harness/resources")
+	}
+}
+
+// Reference-math harness runner (dependency-free; no JUnit required).
+val harnessTest = tasks.register<JavaExec>("harnessTest") {
+	group = "verification"
+	description = "Run the Railway v2 reference math test harness (pure JVM, no game runtime)."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.Runner")
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
+tasks.named("check") {
+	dependsOn(harnessTest)
 }
 
 dependencies {

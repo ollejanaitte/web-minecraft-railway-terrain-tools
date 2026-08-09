@@ -1,517 +1,289 @@
 ====================================================================
-FINAL REPORT - Phase -1: Railway System v2 Full Architecture Redesign
+FINAL REPORT - Phase 0: Baseline / Test Harness / v1 Preservation
 Web Minecraft with Railway Mod & Terrain Editing Tools
 ====================================================================
 
-TITLE
------
-Phase -1: Railway System v2 Full Architecture Redesign
-(Design-only phase. Product code was NOT changed.)
+1. TITLE
+--------
+Phase 0: Baseline / Test Harness / v1 Preservation
+(v1 runtime behavior intentionally unchanged; known bugs recorded, not fixed.)
 
-Authoritative deliverables live under doc/ (see section 34) and this log
-records the work step by step. Phase -2 RTM specification (commits
-777b1a72 / 1448f2f4) was used as formal input; its confidence classes
-(CONFIRMED-RTM / CONFIRMED-MODELPACK / REFERENCE-IMPLEMENTATION /
-INFERRED / UNKNOWN) are preserved and were NOT upgraded.
+2. TASK OVERVIEW
+----------------
+- Fix the current /railsys v1 as a measurable baseline.
+- Confirm build state; build a fast JVM-only reference-math test harness.
+- Provide rail-math reference tests, arc-length reference, continuity and
+  formation scaffolds, v1 regression mirrors, persistence baseline, and a
+  Phase 1 entry gate.
+- NOT performed: v2 product code, bug fixes, refactors, features, build
+  migration beyond test-only config.
 
-====================================================================
-1. TASK OVERVIEW
-====================================================================
-Goal: full architecture design for Railway System v2, a railway platform
-for Web Minecraft / Eaglercraft (TeaVM, browser, single-thread) that can
-grow to RealTrainMod parity, without breaking, and that migrates the
-existing /railsys prototype safely.
-Deliverables: doc structure, AGENTS.md, architecture design docs, data
-model, rail geometry, train/formation/bogie, content/ModelPack,
-multiplayer/persistence, rendering, performance, migration plan, ADRs,
-diagrams, implementation roadmap, acceptance/test strategy, and this log.
-NOT done (by design): any product-code change, v2 implementation, bugfix,
-refactor, feature addition, build/save/network changes.
-
-====================================================================
-2. SCOPE
-====================================================================
+3. SCOPE
+--------
 Local  : /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools
 GitHub : ollejanaitte/web-minecraft-railway-terrain-tools
-Confirmed at start (path, git root, remote, branch main, HEAD/origin/
-GitHub all matching). All work products saved under the repository
-(doc/**, AGENTS.md, FINAL_REPORT.txt). No /tmp usage; external sites used
-read-only.
+Confirmed at start (path, git root, remote, branch main). All work products
+saved under the repository (src/harness, doc/testing, build.gradle.kts
+test-only additions, FINAL_REPORT.txt). No /tmp usage; no external writes.
 
-====================================================================
-3. SAFETY
-====================================================================
-No product code/build/settings modified. No destructive git operations.
-Pre-existing uncommitted Railway changes preserved verbatim (verified
-identical before and after; see section 40). Untracked FINAL_REPORT.md not
-touched.
+4. AGENTS.md CONFIRMATION
+-------------------------
+AGENTS.md read and followed: scope, /doc rules, dirty-work preservation,
+product-code change restrictions, FINAL_REPORT log, git, Discord, secrets,
+clean-room, quality. No conflicts with this prompt (narrower/safer rules
+took precedence where relevant, e.g. dependency-free test runner).
 
-====================================================================
-4. GIT START
-====================================================================
+5. SAFETY
+---------
+No product code, build (beyond test-only harness), or settings changed.
+No destructive git operations. Pre-existing dirty files untouched.
+
+6. GIT START STATE
+------------------
 Branch: main
-Local HEAD : 1448f2f43d99fabf88ab64613bf94880cbdb49e4
-origin/main: 1448f2f43d99fabf88ab64613bf94880cbdb49e4
-GitHub main: 1448f2f43d99fabf88ab64613bf94880cbdb49e4 (SYNC OK)
-git status: 2 tracked-modified + 1 untracked (FINAL_REPORT.md).
+Local HEAD : 5480ac95d5bcc10c39a2dd433afcbd13ed3452cb
+origin/main: 5480ac95d5bcc10c39a2dd433afcbd13ed3452cb
+GitHub main: 5480ac95d5bcc10c39a2dd433afcbd13ed3452cb (SYNC OK)
 
-====================================================================
-5. EXISTING DIRTY FILES
-====================================================================
+7. EXISTING DIRTY FILES
+-----------------------
   M src/game/java/net/minecraft/command/CommandRailSystem.java
   M src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
   ?? FINAL_REPORT.md
-Diff stat: 124 insertions / 9 deletions (unchanged throughout).
+No staged files.
+
+8. DIRTY WORK PRESERVATION BASELINE
+-----------------------------------
+Baseline diff stat: 2 files changed, 124 insertions(+), 9 deletions(-).
+Recorded at start. Re-verified after all Phase 0 work (section 38): identical.
+
+9. PHASE -1 INPUT VERIFICATION
+------------------------------
+Confirmed doc/architecture (v2 architecture, data model, rail geometry,
+train/formation/bogie, content, multiplayer/persistence, rendering,
+performance), migration plan, roadmap, acceptance/test strategy, ADR-001..011,
+and FINAL_REPORT.txt Phase -1 verdict (PASS WITH WARNINGS). Design used as
+fixed input; no architecture changes made in Phase 0.
+
+10. CURRENT TEST INFRASTRUCTURE
+-------------------------------
+- No JUnit, no test source set, no CI, no headless sim, no test tasks with
+  sources. Gradle java plugin present (test task exists but runs 0 tests).
+- Subprojects: target_lwjgl_desktop, target_teavm_javascript,
+  target_teavm_wasm_gc; root has java plugin + main source set (src/main,
+  src/game, protocol, platform-api).
+- Decision: dependency-free custom source set `harness` (no JUnit, no game
+  classes) so Tier 1/2 runs fast and deterministic on plain JVM.
+
+11. BUILD BASELINE
+------------------
+Command: ./gradlew makeMainOfflineDownload (JAVA_HOME java-17)
+Result  : BUILD SUCCESSFUL, exit 0 (tasks up-to-date).
+Artifact: target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html (24M).
+Warnings: none new (same Gradle deprecation notes as prior phases).
+
+12. /railsys BASELINE
+---------------------
+Commands (18 subcommands + help/tab-completion): clear, testline [len],
+testcurve, testloop, vehicle [progress], spawnvehicle, spawntrain [count]
+[spacing], start, stop, speed <v>, addcar, removecar, unlink, route <node>,
+station, switch [seg|clear].
+Rail: graph of nodes/segments; straight (lerp), curve (raw-t Bezier,
+32-sample length), 40x40 loop (testloop), switch=node->segment target,
+station=node flag, route=greedy target, occupancy=per-segment bool,
+persistence=RailSystemSavedData "rail_system".
+Vehicle: EntityRailVehicle (entity id 201, spawn type 80, tracker 80/3),
+trainId/carIndex/trainLength/carSpacing/isLeadCar/forward, DataWatcher 9
+fields, NBT 14 keys, rider throttle, station dwell 60 ticks, noClip.
+Integration: command registration, entity registration, client spawn,
+debug overlay, RailWand item 433.
+Full matrix: doc/testing/BASELINE_TEST_MATRIX.md.
+
+13. BASELINE MATRIX
+-------------------
+doc/testing/BASELINE_TEST_MATRIX.md created (commands, rail, train,
+integration, manual). Statuses: PASS / PASS WITH WARNING / KNOWN FAILURE /
+NOT TESTABLE YET / OUT OF SCOPE. Key known failures: follower boundary
+teleport, curve spacing drift, yaw snap, coarse occupancy, greedy route,
+client graph absence, static global graph, train-id collision, coarse
+tracker.
+
+14. KNOWN FAILURES
+------------------
+doc/testing/KNOWN_FAILURES.md created: BL-TRAIN-001..004, BL-NET-001,
+BL-ROUTE-001, BL-OCC-001, BL-STATIC-001, BL-TRACK-001, BL-CMD-002.
+NOT fixed. Owner phases assigned (2/3/5/10). Pinned by
+KnownFailureDocumentationTest (asserts the v1 wrap behavior as documentation).
+
+15. TEST HARNESS DESIGN
+-----------------------
+doc/testing/TEST_HARNESS_DESIGN.md created: 3 tiers, layout, runner,
+naming, fixtures, determinism, tolerance policy, expected-failure policy,
+regression policy, CI future plan, phase ownership.
+
+16. TEST SOURCE LAYOUT
+----------------------
+src/harness/java/railv2test/{Runner.java, harness/, ref/, fixtures/, tests/}
+Build: build.gradle.kts adds sourceSet `harness` + task `harnessTest`
+(JavaExec, wired into check). Test-only; no production impact.
+
+17. TEST UTILITIES
+------------------
+railv2test.harness: Test (annotation), Disabled (annotation + reason),
+Assert (assert* helpers incl. angle wrap). Runner: reflection runner,
+PASS/FAIL/SKIP summary, non-zero exit on failure.
+
+18. TEST FIXTURES
+-----------------
+fixtures/RailFixtures.java + doc/testing/TEST_FIXTURES.md: straight 100m,
+curve 90deg, S-curve A/B, gradient, vertical curve, cant, multi-piece,
+loop simple (testloop-like), switch contract, 2/8/16-car sizes,
+carSpacing 20m.
+
+19. RAIL MATH TESTS
+-------------------
+StraightMathTest: distance, quarter sampling (0/25/50/75/100%), yaw along Z,
+gradient pitch. Reference oracles: RefStraight.
+
+20. BEZIER REFERENCE TESTS
+--------------------------
+BezierMathTest: endpoints, exact midpoint (6.875,3.125), length band,
+arc-length round-trip, end tangent yaw. RefBezier: raw cubic + adaptive
+length + arc-length reparameterization.
+
+21. ARC LENGTH REFERENCE
+------------------------
+ArcLengthTest: straight chord exact, curve length vs INDEPENDENT 64k
+integration, loop total length; productionDistanceRoundTripScaffold
+disabled until Phase 1.
+
+22. CONTINUITY TEST SCAFFOLD
+----------------------------
+ContinuityScaffoldTest: position + yaw continuity at multi-piece junctions,
+S-curve yaw continuity, cant zero at edges, vertical pitch mid; production
+cant-roll continuity disabled until Phase 1.
+
+23. FORMATION TEST SCAFFOLD
+---------------------------
+FormationScaffoldTest using RefPathWalker (test oracle implementing the
+Phase 2 distance-based model): same-straight follower, KEY boundary scenario
+(follower stays on previous piece), 2/8/16-car spacing, loop placement,
+reverse, switch contract; productionSolverNoTeleportAtBoundary disabled
+until Phase 2.
+
+24. V1 REGRESSION TESTS
+-----------------------
+V1ReferenceRegressionTest: v1 straight lerp, v1 cubic Bezier point formula,
+v1 node distance — test-side mirrors so Phase 1/2 math changes are caught.
+
+25. PERSISTENCE BASELINE
+------------------------
+PersistenceBaselineTest: semantic round-trip (serialize->deserialize) for
+straight and curve piece records. v1 rail_system NBT surface documented in
+MIGRATION_PLAN.md and BASELINE_TEST_MATRIX.md (BL-PERSIST-001). Byte-for-byte
+identity NOT required.
+
+26. TEST RESULT SUMMARY
+-----------------------
+See doc/testing/PHASE0_TEST_RESULTS.md.
+harnessTest: discovered 33, PASSED 30, FAILED 0, SKIPPED 3 (future gates).
+RESULT: SUCCESS. Deterministic/repeatable.
+
+27. MANUAL TEST RESULTS
+-----------------------
+Not executed in this headless session (browser launch unavailable).
+Manual checklist documented: doc/testing/MANUAL_BASELINE_CHECKLIST.md.
+Baseline recorded from source for commands/rail/vehicle/integration.
+
+28. BUILD RESULT AFTER CHANGES
+------------------------------
+After harness additions, ./gradlew makeMainOfflineDownload: BUILD SUCCESSFUL
+(exit 0). ./gradlew harnessTest: SUCCESS. No build regression.
+
+29. RUNTIME BEHAVIOR CHANGE CHECK
+---------------------------------
+No runtime product-code behavior changed. Only additions:
+- build.gradle.kts: harness source set + harnessTest task (test-only).
+- src/harness/** : new test code (not compiled into production jar).
+- doc/testing/** and FINAL_REPORT.txt: docs.
+Production artifact unchanged (makeMainOfflineDownload tasks up-to-date).
+
+30. PHASE 1 ENTRY GATE
+----------------------
+doc/testing/PHASE1_ENTRY_GATE.md created. All gate items satisfied (build
+green, harness green, baseline/known-failures documented, straight/Bezier
+references green, fixtures + formation boundary fixture available,
+persistence baseline available, dirty work preserved, Phase -1 docs intact,
+no runtime regression).
+
+31. OPEN DECISIONS
+------------------
+- No architecture changes proposed. Phase 0 raised no blocking decisions.
+- Pending user decisions (from Phase -1, U1-U7) remain: Phase 0/1 start
+  approval, bogie-anchor validation, restricted script scope, native model
+  format, RTM parity scope, asset licensing, Phase 0 build-config approval
+  (this task's test-only build additions are minimal and within scope).
+- Optional future: adopt JUnit 5 (EPL-2.0) if the user prefers standard
+  framework over the dependency-free runner.
+
+32. FILES CHANGED
+-----------------
+Test/build:
+  build.gradle.kts                 (harness source set + harnessTest task)
+  src/harness/java/railv2test/...  (runner, harness, ref, fixtures, tests)
+Docs:
+  doc/testing/BASELINE_TEST_MATRIX.md
+  doc/testing/TEST_HARNESS_DESIGN.md
+  doc/testing/TEST_FIXTURES.md
+  doc/testing/KNOWN_FAILURES.md
+  doc/testing/MANUAL_BASELINE_CHECKLIST.md
+  doc/testing/PHASE0_TEST_RESULTS.md
+  doc/testing/PHASE1_ENTRY_GATE.md
+  FINAL_REPORT.txt (this log)
+No product-code files changed. Pre-existing dirty files NOT staged.
+
+33. COMMIT
+----------
+<filled after commit>
+
+34. PUSH
+--------
+<filled after push>
+
+35. LOCAL HEAD
+--------------
+<filled>
+
+36. origin/main
+---------------
+<filled>
+
+37. GITHUB main
+---------------
+<filled>
+
+38. FINAL DIRTY WORK PRESERVATION
+---------------------------------
+<verify identical to section 8; filled>
+
+39. FINAL VERDICT
+-----------------
+<filled>
 
 ====================================================================
-6. PHASE -2 INPUT VERIFICATION
+APPENDIX A - PRIOR PHASE HISTORY (preserved)
 ====================================================================
-Confirmed FINAL_REPORT.txt contains the Phase -2 RTM specification:
-sections JSON spec, compatibility matrix, Phase-1 design questions, and
-confidence classes; key facts (1block=1m [CONFIRMED-RTM], bogiePos default
-[[0,0,7.125],[0,0,-7.125]], trainDistance 10.125, SignalLevel 6..1, notch
-table, Model<Type>_*.json pack naming, etc.). Used as the sole RTM input.
+Phase -1 (commits 4a93bbcd, 5480ac95) delivered Railway System v2 Full
+Architecture: doc/ structure, AGENTS.md, architecture docs (v2 architecture,
+data model, rail geometry, train/formation/bogie, content/modelpack,
+multiplayer/persistence, rendering, performance), migration plan, roadmap,
+acceptance/test strategy, ADR-001..011, 7 diagrams. Final verdict PASS WITH
+WARNINGS.
+Phase -2 (commits 777b1a72, 1448f2f4) delivered the RTM deep specification
+(53 sections, confidence classes). Phase 0 uses these as fixed inputs.
+Prior repo-rename/README history (da01fd25, e20dedd6, fb1f53ac) and the
+/railsys analysis (ec4bd985) remain in git history.
 
 ====================================================================
-7. /doc CREATION
-====================================================================
-Created doc/ tree: architecture, research, rtm-reference, specifications,
-roadmaps, diagrams, references/{pdf,images}, decisions, migrations,
-testing, performance, network, content-system. See section 34 for files.
-
-====================================================================
-8. AGENTS.md
-====================================================================
-Created root AGENTS.md: scope, documentation (/doc) rules, existing-work
-preservation, product-code change rules, FINAL_REPORT log policy, git
-rules, Discord policy, security/secrets ban, RTM/licensing (clean-room),
-quality gates. Webhook URL is NOT stored in it.
-
-====================================================================
-9. CURRENT /railsys RE-ANALYSIS
-====================================================================
-Re-read all rail sources (rail/*.java, CommandRailSystem, EntityRailVehicle,
-ItemRailWand, RenderRailVehicle, integration points). Findings match prior
-analysis:
-- Model: node/segment graph + per-entity segmentId/progress[0,1]; raw-t
-  Bezier; static graph mirror; per-world WorldSavedData.
-- Movement: lead advances progress; followers copy leader's segment each
-  tick with modulo wrap -> the known follower teleport/disappearance bug.
-- No pitch/roll, no bogies, no distance model, no client graph sync, no
-  content system, debug-block rail visuals.
-v1 strengths worth keeping: graph adjacency, station/switch/route concepts,
-testloop/testline/testcurve builders, debug rendering, 4-point RailWand
-Bezier creation, WorldSavedData persistence pattern, entity+command wiring.
-
-====================================================================
-10. KEEP / MIGRATE / REMOVE CLASSIFICATION
-====================================================================
-| v1 item              | verdict   | v2 role                                  |
-|----------------------|-----------|------------------------------------------|
-| RailGraph            | MIGRATE   | RailNetwork (routing layer only)         |
-| RailNode             | MIGRATE   | RailNode (piece adjacency)               |
-| RailSegment          | REWRITE   | RailPiece + RailGeometry (arc-length)    |
-| RailCurveData        | REWRITE   | Bezier geometry + arc table              |
-| RailSegmentType      | MIGRATE   | geometry kinds (straight/curve/vertical/switch) |
-| RailPosition(v1)     | REPLACE   | PathPosition / rail pos (metres)         |
-| RailSystemManager    | REWRITE   | per-world v2 store (no static mirror)    |
-| RailSystemSavedData  | MIGRATE   | WorldRailData schema v2 + migration      |
-| EntityRailVehicle    | REWRITE   | TrainFormation + V1Adapter (delegate)    |
-| CommandRailSystem    | MIGRATE   | v2 editor + /railsys alias layer         |
-| ItemRailWand         | MIGRATE   | v2 placement tool                        |
-| RenderRailVehicle    | REWRITE   | v2 TrainRenderer                         |
-| testloop/testline/testcurve | KEEP/MIGRATE | v2 regression course (Phase 0/2) |
-| occupancy (bool)     | REWRITE   | SignalBlock intervals, tail release      |
-| route (greedy)       | REWRITE   | RailRoute (A*/plan)                      |
-| switch (node->seg)   | MIGRATE   | SWITCH piece real geometry + state       |
-| station (node flag)  | MIGRATE   | Station + StopPoint                      |
-| trainId/carIndex/progress | REMOVE(role) | formation order + metres (path distance) |
-| DataWatcher sync     | MIGRATE   | RailwaySync (pose + state)               |
-| WorldSavedData graph | MIGRATE   | schema v2 + v1 backup                    |
-| debug marker blocks  | REPLACE   | RailPiece blocks + overlay               |
-| client spawn type 80 | MIGRATE   | RailwaySync spawn                        |
-
-Details + migration impact in doc/migrations/MIGRATION_PLAN.md.
-
-====================================================================
-11. ARCHITECTURE PRINCIPLES (decisions)
-====================================================================
-P1 1block=1m YES  P2 full-scale YES  P3 TrainCar/Bogie separate YES
-P4 body pose from bogies YES  P5 distance-based formation YES
-P6 progress not authority YES  P7 geometry/network separated YES
-P8 piece-based rails YES  P9 routing graph separate YES (conditional)
-P10 arc length YES  P11 vertical curve first-class YES
-P12 cant/roll first-class YES  P13 switch real geometry YES
-P14 content decoupled YES  P15 server authoritative YES
-P16 client mirror+interp YES  P17 save schema versioning YES
-P18 web constraints built-in YES  P19 v1 staged migration YES
-P20 no RTM assets YES
-Rationale for each in doc/architecture/RAILWAY_SYSTEM_V2_ARCHITECTURE.md.
-
-====================================================================
-12. SCALE / COORDINATE
-====================================================================
-1 block = 1 m. World +X east / +Z south / +Y up. Train local: +Z forward,
-+X right, +Y up (forward axis configurable per def; default +Z).
-Yaw 0=+Z, cw-positive, wrap [-180,180); pitch +up; roll +right-down.
-Speeds m/tick (km/h / 72 = m/tick [R-I]); accel m/tick^2 (km/h/s*0.0006944
-[C-MP]). Doubles for position; floats per-frame; EPS=1e-6. Supports
-10/16/18/20m cars, trams, locomotives, freight (sizing targets in
-architecture doc).
-
-====================================================================
-13. RAIL ARCHITECTURE
-====================================================================
-Separation of: RailGeometry (shape, immutable), RailPiece (geometry + world
-blocks + state + network refs), RailNetwork (registry + adjacency + route +
-signals/stations/crossing/catenary), RailPath/PathPosition (route history +
-distance resolver), RailSwitch (piece with branch geometries), RailRoute
-(planned route), RailDefinition (content). Data ownership and flows in
-doc/architecture/DATA_MODEL.md + diagrams.
-
-====================================================================
-14. RAIL GEOMETRY API
-====================================================================
-RailSample{x,y,z,tangent,yaw,pitch,roll,curvature,gradient,cant,distanceM,
-pieceId,dir,progress}. API: length(), sampleByDistance(d), sampleByProgress,
-nearestDistance(x,z), point/yaw/pitch/roll/curvature at distance,
-sampleAll(split), branches(). Continuity is the acceptance criterion.
-Pseudo-interface in doc/architecture/RAIL_GEOMETRY_DESIGN.md.
-
-====================================================================
-15. ARC LENGTH
-====================================================================
-Straight exact; Bezier adaptive polyline, base split=clamp(round(len*32),
-8,384) [R-I]; ArcLengthTable (cumulative metres + reparameterized param);
-distance->progress binary search; cache per piece (lazy, invalidated on
-edit); nearest via one pass; memory tiny; huge networks via ActiveRailCache.
-
-====================================================================
-16. LINE TYPES / CANT
-====================================================================
-Straight (horizontal + constant gradient), Curve (horizontal cubic Bezier),
-Vertical curve (vertical Bezier, smooth pitch), Switch branches, optional
-Turntable. Cant profile per-distance roll (center/edge cant concepts
-[R-I]); body lean from geometry roll. Acceptance: x/y/z/yaw/pitch/roll
-continuous everywhere.
-
-====================================================================
-17. SWITCH / TURNOUT
-====================================================================
-Conclusion: switch is REAL GEOMETRY (branch sub-geometries + state), not a
-"next segment id". Planned types: basic turnout, single cross, scissors
-cross, diamond cross [R-I taxonomy]. Handles facing/trailing/reverse;
-formation follows the active branch via shared path (no follower
-divergence); persistence + sync + signal/interlocking hooks.
-
-====================================================================
-18. TRAIN ARCHITECTURE
-====================================================================
-TrainFormation (ordered cars, controller, path, leaderDistance) / TrainCar
-(def ref, front/rear Bogie, pose, couplers, TrainState) / Bogie (logical
-anchor) / Coupler / TrainController (notch physics) / TrainDefinition
-(content) / TrainState (synced) / TrainPose (output). Ownership, lifetime,
-sync, render deps in TRAIN_FORMATION_BOGIE_DESIGN.md.
-
-====================================================================
-19. BOGIE
-====================================================================
-Decision: LOGICAL ANCHORS (not physics entities) with a light car entity
-for culling/seats (ADR-004). Front/rear at bogiePos offsets; body pose
-derived from the two anchors. Rationale: RTM uses bogie entities [R-I] but
-browser entity/tracking/packet cost favors anchors; visuals render from
-anchors.
-
-====================================================================
-20. BODY POSE
-====================================================================
-center = interpolate(front,rear) by |lf|/span; y = mean(bogieY);
-yaw = atan2(Fx-Rx, Fz-Rz); pitch = atan2(Fy-Ry, hypot); roll = (F.roll +
--R.roll)/2; body lifted by TRAIN_HEIGHT rotated by roll (RTM updateTrainPos
-[R-I]). Continuous across boundaries, S-curves, gradients, cants.
-
-====================================================================
-21. FORMATION / COUPLING
-====================================================================
-Ordered cars; car k at leaderDistance - k*carSpacing resolved backward
-across path entries (no modulo). Coupling distance = halfLenA + halfLenB
-[R-I]. Split/merge O(1). Reverse = direction flip + re-derive. This fixes
-the v1 teleport bug by construction. Headline acceptance criterion
-recorded (section 31).
-
-====================================================================
-22. DISTANCE-BASED MOVEMENT
-====================================================================
-Global path distance (scalar), route-relative and piece-local distances
-derived via RailPath entries; direction + traversal history in PathPosition.
-Loop / branch / reverse / switch / long train all resolvable without
-teleport.
-
-====================================================================
-23. DRIVING / TRAINCONTROLLER
-====================================================================
-Power 1-5 (per-notch max speed), inertia, brake 1-7 (per-notch decel),
-emergency (RTM EnumNotch defaults [R-I]); brake ramp (~|notch|*18 ticks);
-gradient resistance from sin(pitch); signal speed clamp (SignalLevel);
-reverser; door interlock; pantograph/light/horn/announcement/destination
-states; cab HUD. Physics in core; performance in definitions; server-script
-hooks restricted.
-
-====================================================================
-24. SIGNAL / BLOCK / INTERLOCKING
-====================================================================
-SignalBlock = occupancy by distance interval on a piece; owner trainId;
-released by tail. SignalAspect 6..1 with speed limits [R-I]. Signal hardware
-+ wire/connector/insulator + logic converters. Route locking + switch
-locking. Redstone integration. RTM-core compatible; CTC/ATS/ATO layers are
-extension hooks (external addons [CONFIRMED-RTM]).
-
-====================================================================
-25. STATION / OPERATION
-====================================================================
-Station + Platform + StopPoint (piece, localM, door side, tolerance) +
-dwell + announcements; Timetable/ATO = extension subsystem (external in
-RTM [CONFIRMED-RTM]); v2 provides hooks, not core ATO.
-
-====================================================================
-26. CROSSING / CATENARY / OBJECTS
-====================================================================
-CrossingGate (gate+lights+sound+state, signal-driven). Catenary (poles,
-insulators, connectors, wire with sag, pantograph contact). Railway objects
-(signal/speaker/ticket gate/signboard/light/machine/ornament/container).
-Content definition separated from runtime (CONTENT_MODELPACK_DESIGN.md).
-
-====================================================================
-27. CONTENT / MODELPACK
-====================================================================
-ContentRegistry + definitions (Train/Rail/Signal/Machine/Wire/Object/Sound/
-Animation/Script). Pack = zip with pack.json + sounds.json + Model<Type>_*
-.json [R-I/C-MP]. Core unchanged to add content. Missing def -> dummy.
-
-====================================================================
-28. JSON SCHEMA STRATEGY
-====================================================================
-Keep RTM-compatible names where possible (trainName, trainModel2, bogiePos,
-trainDistance, maxSpeed, accelerateion(s), deccelerations, sound_*, ...);
-aliases for legacy (trainModel/trainTexture, seatPos->slotPos); v2-only
-additions namespaced (geometry, collision, restricted scripts, pack
-namespace); deprecated items documented. Future RTM pack importer possible,
-license-gated (no proprietary assets).
-
-====================================================================
-29. MODEL FORMAT STRATEGY
-====================================================================
-v2 native format (rv2m JSON mesh: parts/materials/uv/normals, cacheable)
-as runtime; OBJ/MQO import via offline converter (RTM-compatible assets
-license-gated); optional debug runtime parse. No OBJ/MQO runtime in browser
-(default). ADR-010.
-
-====================================================================
-30. TEXTURE / MATERIAL / LIGHTING
-====================================================================
-Per-material textures; AlphaBlend (transparent), Light (emissive/unlit),
-OneTex [C-MP]; light textures light0(off)/light1(head)/light2(tail);
-rollsign sheet via uv; livery via separate defs or useCustomColor;
-texture cache budget. Details in CONTENT_MODELPACK_DESIGN.md.
-
-====================================================================
-31. SOUND / SCRIPT / ANIMATION (summary)
-====================================================================
-Sound: SoundDefinition event keys (sound_*), spatial loop, running/accel/
-decel/brake/joint/horn/door/announcement/crossing alarm; engine separate
-from content.
-Script: RESTRICTED (ADR-006) - expression/state layer + declarative
-animations; allow-listed API; no full JS (browser/security/determinism).
-Animation: PartTransform model (move/rotate per part) state-driven + time-
-driven (wheel, sway) + restricted script hooks; doors/pantograph/lights/
-rollsign/crossing gate.
-
-====================================================================
-32. RENDERING (summary)
-====================================================================
-TrainRenderer (pose+state+parts+lights+rollsign), BogieRenderer, RailRenderer
-(blocks+preview), Signal/Wire/Object renderers, model+texture caches,
-interpolation, culling, LOD, emissive/transparency passes, debug overlay.
-Client-only; never mutates state. RENDERING_RUNTIME_DESIGN.md.
-
-====================================================================
-33. MULTIPLAYER / PERSISTENCE (summary)
-====================================================================
-Server-authoritative; RailwaySync packets (JOIN_SNAPSHOT, RAIL_MANIFEST,
-TRAIN_STATE, TRAIN_POSE_BATCH, SIGNAL/SWITCH/EDIT events, CONTENT_MANIFEST);
-client mirror + interpolation; input C->S. WorldRailData schema v2
-(pieces/nodes/switches/signals/stations/crossings/catenary/formations/
-objects) with schemaVersion + v1 backup; arc tables recomputed on load;
-content by defId; missing def -> dummy. v1 DataWatcher -> RailwaySync.
-
-====================================================================
-34. PHASE -1 DELIVERABLES (files created)
-====================================================================
-AGENTS.md
-FINAL_REPORT.txt (this log)
-doc/architecture/RAILWAY_SYSTEM_V2_ARCHITECTURE.md
-doc/architecture/DATA_MODEL.md
-doc/architecture/RAIL_GEOMETRY_DESIGN.md
-doc/architecture/TRAIN_FORMATION_BOGIE_DESIGN.md
-doc/architecture/CONTENT_MODELPACK_DESIGN.md
-doc/architecture/MULTIPLAYER_PERSISTENCE_DESIGN.md
-doc/architecture/RENDERING_RUNTIME_DESIGN.md
-doc/architecture/PERFORMANCE_DESIGN.md
-doc/migrations/MIGRATION_PLAN.md
-doc/roadmaps/IMPLEMENTATION_ROADMAP.md
-doc/testing/ACCEPTANCE_TEST_STRATEGY.md
-doc/decisions/ADR-001..ADR-011.md
-doc/diagrams/architecture.txt, rail_geometry_network.txt,
-  train_formation_bogie.txt, server_client_flow.txt,
-  content_pack_loading.txt, save_load.txt, v1_to_v2_migration.txt
-(plus empty doc/ dirs for research/rtm-reference/specifications/
-references/pdf,images, content-system, performance, network, testing.)
-
-====================================================================
-35. ADR LIST
-====================================================================
-ADR-001 Scale & Units; ADR-002 Geometry/Network separation;
-ADR-003 Distance-based formation; ADR-004 Bogie representation;
-ADR-005 Content/ModelPack strategy; ADR-006 Script strategy;
-ADR-007 Multiplayer authority; ADR-008 Persistence schema;
-ADR-009 Legacy migration; ADR-010 Web model format;
-ADR-011 Switch as real geometry.
-
-====================================================================
-36. IMPLEMENTATION ROADMAP
-====================================================================
-Phase 0 Baseline/test harness/v1 preservation
-Phase 1 Rail geometry + network core v2 (+migration read)
-Phase 2 Train/Formation/Bogie/distance movement (+V1Adapter)
-Phase 3 Rail placement/switch/collision
-Phase 4 Driving/cab/physics
-Phase 5 Signal/block/route
-Phase 6 Station/operation
-Phase 7 Crossing/catenary/railway objects
-Phase 8 Content/ModelPack (+converter)
-Phase 9 Rendering/animation/sound
-Phase 10 Multiplayer/persistence/performance
-Phase 11 Legacy migration/cleanup
-Phase 12 RTM parity/long-duration verification
-Each phase's purpose/scope/deps/files/classes/acceptance/tests/soak/perf
-gate/rollback/risks/decision points/entry/exit in
-doc/roadmaps/IMPLEMENTATION_ROADMAP.md.
-
-====================================================================
-37. ACCEPTANCE CRITERIA
-====================================================================
-Rail: distance/position/yaw/pitch/roll continuity at all junctions; arc
-length accuracy. Train: no teleport, no disappearing follower, spacing
-<0.25m over soak, long formation stable, reverse/switch/curve/S-curve/
-gradient/cant. World: chunk boundary, save/load, reload (with/without
-content). Multiplayer: 2-client identical pose/state, join mid-run,
-bandwidth budget. Performance: 100km route, many trains, client FPS.
-Content: external pack adds types without core change; dummy fallback.
-Full list in doc/testing/ACCEPTANCE_TEST_STRATEGY.md.
-
-====================================================================
-38. TEST STRATEGY / SOAK TEST
-====================================================================
-Tiers: math/unit (JVM), headless simulation (straight/curve/S-curve/loop/
-switch/gradient/cant/long train/reverse/boundary/chunk/save-load/two-train/
-deadlock), integration (build gate, 2-client, editor, perf/bandwidth).
-Primary Soak Gate: 8-16 car full-scale train, >=100 laps on complex loop
-(straights, sharp curves, S-curves, gradients, vertical curves, cant,
-switch, boundaries, chunk crossing) with NO car disappearance, NO teleport,
-spacing within 0.25m, pose continuous, switch+reverse+save/load+chunk
-reload exercised. doc/testing/ACCEPTANCE_TEST_STRATEGY.md.
-
-====================================================================
-39. RISKS
-====================================================================
-Arc precision/performance; resolver cost at scale; migration of old curve
-data; switch geometry continuity; V1Adapter bugs; pack name collisions;
-bandwidth; TeaVM memory; script coverage gaps; schema drift; RTM licensing
-(clean-room only). Each phase lists its risks (roadmap doc).
-
-====================================================================
-40. DIRTY-FILE PRESERVATION CHECK
-====================================================================
-Verified before and after: git status --short identical
-  M src/game/java/net/minecraft/command/CommandRailSystem.java
-  M src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
-  ?? FINAL_REPORT.md
-Diff stat unchanged (124 insertions / 9 deletions). PRESERVED.
-
-====================================================================
-41. USER DECISIONS REQUESTED (non-blocking)
-====================================================================
-U1 Approve Phase 0+1+2 as first implementation slice (recommended).
-U2 Confirm bogie-as-logical-anchor vs light-entity (ADR-004 recommended
-   anchors; validation in Phase 2).
-U3 Approve restricted-script scope (ADR-006) vs full-JS ambitions.
-U4 Approve v2 native model format + offline converter (ADR-010).
-U5 Confirm RTM parity scope (core taxonomy vs external CTC/ATO addons).
-U6 Confirm asset/licensing policy (original/CC only; no RTM assets).
-U7 Authorize Phase 0 to add test harness/build config (needs Product Code
-   scope approval; separate task from this design phase).
-
-====================================================================
-42. GIT COMMIT / PUSH / SYNC
-====================================================================
-Commit SHA : 4a93bbcd7ff845f48805ebe2b16ad0393751d1e6
-Message    : docs: Phase -1 Railway System v2 full architecture redesign
-Files in commit : AGENTS.md, FINAL_REPORT.txt, doc/** only (39 files;
-                 verified via git show --name-only). No product code.
-Push       : SUCCESS (1448f2f4..4a93bbcd main -> main; no force/history rewrite)
-Local HEAD : 4a93bbcd7ff845f48805ebe2b16ad0393751d1e6
-origin/main: 4a93bbcd7ff845f48805ebe2b16ad0393751d1e6
-GitHub main: 4a93bbcd7ff845f48805ebe2b16ad0393751d1e6
-Sync       : LOCAL == origin/main == GitHub main (SYNC OK)
-Dirty files preserved (see section 40).
-
-====================================================================
-43. FINAL VERDICT
-====================================================================
-Verdict: PASS WITH WARNINGS
-Reason : Phase -1 architecture design is complete: doc structure + AGENTS.md
-+ all architecture/data-model/rail-geometry/train-formation-bogie/content/
-multiplayer-persistence/rendering/performance docs + migration plan +
-roadmap + acceptance/test strategy + 11 ADRs + 7 diagrams. Product code
-unchanged; only AGENTS.md / doc/** / FINAL_REPORT.txt committed and pushed;
-sync verified; pre-existing dirty files preserved.
-Warnings (expected, non-blocking):
-  W1 No implementation yet (by design); user decisions U1-U7 pending
-     (approval for Phase 0 test harness requires a Product Code phase).
-  W2 Several RTM-internal facts remain REFERENCE-IMPLEMENTATION/INFERRED
-     (inherited from Phase -2; not upgraded here).
-  W3 Bogie-anchor and restricted-script choices (ADR-004/006) are
-     recommendations to validate early in Phase 2/8.
-Verdict is NOT BLOCKED: the next Implementation Agent can begin Phase 0/1
-without re-doing architecture decisions, provided the user approves the
-outstanding decisions (U1-U7).
-
-====================================================================
-END OF REPORT (Phase -1)
-====================================================================
-
-====================================================================
-APPENDIX A - PHASE -2 HISTORY (preserved)
-====================================================================
-Phase -2 (commits 777b1a72 "docs: Phase -2 RealTrainMod (RTM) deep
-specification", 1448f2f4 "docs: record Phase -2 ... verdict") produced the
-RTM deep specification (53 sections): RTM overview, version matrix, NGTLib
-relation, vehicle/train/formation/bogie specs, scale/dimensions, driving,
-rail geometry, placement, switch, signal/block/interlocking, catenary,
-crossing, station, railway objects, ModelPack structure, JSON field table,
-OBJ/MQO, texture, sound, script, animation, rendering, multiplayer,
-persistence, compatibility feature list + matrix, legal notes, Phase -1
-design questions, unknowns. Confidence classes defined (CONFIRMED-RTM /
-CONFIRMED-MODELPACK / REFERENCE-IMPLEMENTATION / INFERRED / UNKNOWN).
-Key facts reused here: 1block=1m [CONFIRMED-RTM]; bogiePos default
-[[0,0,7.125],[0,0,-7.125]] [R-I]; trainDistance 10.125 [R-I]; size
-[2.75,1.25] [R-I]; notch table + brake ramp [R-I]; SignalLevel 6..1 with
-km/h/72 [R-I]; TrainState enum [R-I]; Model<Type>_*.json file-name typing
-[R-I]; pack.json + sounds.json [C-MP]; slotPos metres [C-MP]; rail height
-1/16-block; slope gradients; marker placement; clean-room/licensing notes.
-Prior phases (repo rename/README, /railsys analysis, RTM parity analysis)
-history retained in earlier commits.
-
-====================================================================
-END OF REPORT (Phase -1)
+END OF REPORT (Phase 0)
 ====================================================================
