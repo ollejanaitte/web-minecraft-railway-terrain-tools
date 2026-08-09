@@ -308,7 +308,6 @@ Commit 1 (README):
   Not staged: pre-existing source changes, FINAL_REPORT.md
 
 Commit 2 (FINAL_REPORT.txt):
-  SHA: d68ee39845f29fb46f44a744d7842fd032f33c6c
   Branch: main
   Message: "docs: add final report"
   Staged files: FINAL_REPORT.txt only
