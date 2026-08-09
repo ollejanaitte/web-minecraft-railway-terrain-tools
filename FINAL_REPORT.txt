@@ -987,31 +987,35 @@ No product code was changed.
 
 31. GIT COMMIT
 --------------
-Commit: docs: railsys analysis and RTM parity design roadmap
-Only FINAL_REPORT.txt staged (explicitly limited via git add <file>).
+Commit SHA : ec4bd985bdd806e1fc8796a62d9ca45facf20a37
+Message    : docs: add /railsys analysis and RealTrainMod parity design roadmap
+Files in commit : FINAL_REPORT.txt only (verified via git show --name-only)
+Only FINAL_REPORT.txt was staged (explicitly limited via git add FINAL_REPORT.txt).
 Pre-existing source changes and FINAL_REPORT.md NOT staged.
 
 
 32. PUSH / MERGE RESULT
 -----------------------
-git push origin main  ->  <filled after push>
+Command: git push origin main
+Result  : SUCCESS
+   fb1f53ac..ec4bd985  main -> main
 No force push, no rebase/merge, no history rewrite.
-(Status recorded after execution; see 33-35.)
 
 
 33. LOCAL HEAD
 --------------
-<filled after commit>
+ec4bd985bdd806e1fc8796a62d9ca45facf20a37
 
 
 34. origin/main
---------------
-<filled after push>
+---------------
+ec4bd985bdd806e1fc8796a62d9ca45facf20a37
 
 
 35. GITHUB main
 ---------------
-<filled after push (gh api commits/main)>
+ec4bd985bdd806e1fc8796a62d9ca45facf20a37 (gh api commits/main)
+Sync: LOCAL == origin/main == GitHub main (SYNC OK)
 
 
 36. UNCOMMITTED-CHANGE PRESERVATION CHECK
@@ -1027,8 +1031,17 @@ After commit+push, verified:
 
 37. FINAL VERDICT
 -----------------
-Verdict: <PASS / PASS WITH WARNINGS / BLOCKED>
-Reason : <filled at completion>
+Verdict: PASS WITH WARNINGS
+Reason : All required analysis/design/roadmap deliverables are complete
+and committed/pushed (only FINAL_REPORT.txt). Build verified successful.
+No product code was changed; pre-existing uncommitted development changes
+are fully preserved. Warnings (non-blocking, require user decision):
+  N4  untracked FINAL_REPORT.md leftover from a previous session
+  N5  pre-existing dev changes (testloop etc.) remain uncommitted by design
+  B1  trailing-car disappearance bug is ANALYZED but NOT fixed (by design;
+      fix is Phase 2 of the roadmap)
+  R7  no automated tests exist yet (Phase 0 introduces them)
+Verdict is NOT "BLOCKED" because nothing prevented safe completion.
 
 
 38. RTM RESEARCH SOURCES (public info only)
