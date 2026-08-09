@@ -244,31 +244,54 @@ No product-code files changed. Pre-existing dirty files NOT staged.
 
 33. COMMIT
 ----------
-<filled after commit>
+Commit SHA : 7c611d49fb22b07919d53ca7861157518334d979
+Message    : test: Phase 0 baseline test harness, reference rail math, known failure registry
+Files in commit : build.gradle.kts, src/harness/**, doc/testing/**, FINAL_REPORT.txt
+                 (30 files). No product/game sources. Dirty files NOT staged.
 
 34. PUSH
 --------
-<filled after push>
+git push origin main: SUCCESS (5480ac95..7c611d49 main -> main). No force/history rewrite.
 
 35. LOCAL HEAD
 --------------
-<filled>
+7c611d49fb22b07919d53ca7861157518334d979
 
 36. origin/main
 ---------------
-<filled>
+7c611d49fb22b07919d53ca7861157518334d979
 
 37. GITHUB main
 ---------------
-<filled>
+7c611d49fb22b07919d53ca7861157518334d979 (ls-remote)
+Sync: LOCAL == origin/main == GitHub main (SYNC OK).
 
 38. FINAL DIRTY WORK PRESERVATION
 ---------------------------------
-<verify identical to section 8; filled>
+Re-verified after commit+push:
+  M src/game/java/net/minecraft/command/CommandRailSystem.java
+  M src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
+  ?? FINAL_REPORT.md
+Diff stat identical to start: 2 files changed, 124 insertions(+), 9 deletions(-).
+PRESERVED.
 
 39. FINAL VERDICT
 -----------------
-<filled>
+Verdict: PASS
+Reason : Phase 0 baseline + test harness complete and green:
+  - Production build green (makeMainOfflineDownload, exit 0).
+  - Test runner green: harnessTest PASSED=30 FAILED=0 SKIPPED=3 (future gates).
+  - Reference rail math (straight/Bezier/arc-length/continuity), formation
+    scaffolds (incl. boundary scenario), v1 regression mirrors, persistence
+    baseline, known-failure registry, baseline matrix, and Phase 1 entry
+    gate all documented under doc/testing/.
+  - Runtime behavior unchanged; only test-only build config + harness code
+    + docs added; dirty Railway files fully preserved; sync verified.
+  No blocking issues. Phase 1 can begin per PHASE1_ENTRY_GATE.md.
+
+====================================================================
+END OF REPORT (Phase 0)
+====================================================================
 
 ====================================================================
 APPENDIX A - PRIOR PHASE HISTORY (preserved)
