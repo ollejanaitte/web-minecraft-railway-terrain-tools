@@ -89,11 +89,23 @@ NOT STAGED: FINAL_REPORT.md.
 
 12. COMMIT / PUSH / SYNC
 ------------------------
-<filled after commit/push>
+Commit SHA : d59f8357f7058cdd8527e50340ce21a4eb9dfeea
+Message    : feat: Phase 0.1 validation spike (rail geometry, bogie-anchored
+             full-scale car, formation) + handoff docs [IN PROGRESS]
+Files in commit : railv2/** + EntityRailV2Car + RenderRailV2Car +
+             CommandRailV2Validate + wiring (7 files) + doc/testing/phase0_1/**
+             + FINAL_REPORT.txt. Pre-existing dirty files NOT staged.
+Push       : SUCCESS (6c961cc0..d59f8357 main -> main; no force/history rewrite)
+Local HEAD : d59f8357f7058cdd8527e50340ce21a4eb9dfeea
+origin/main: d59f8357f7058cdd8527e50340ce21a4eb9dfeea
+GitHub main: d59f8357f7058cdd8527e50340ce21a4eb9dfeea
+Sync       : LOCAL == origin/main == GitHub main (SYNC OK).
 
 13. DIRTY-WORK PRESERVATION
 ---------------------------
-<verify identical; filled>
+Re-verified after commit+push: CommandRailSystem.java (+111/-6),
+EntityRailVehicle.java (+13/-3) unchanged; FINAL_REPORT.md untracked.
+PRESERVED.
 
 14. FINAL VERDICT
 -----------------
