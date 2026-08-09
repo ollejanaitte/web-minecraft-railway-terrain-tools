@@ -1,0 +1,30 @@
+Train / Formation / TrainCar / Bogie relation (ASCII)
+
+TrainFormation
+  formationId, direction, speed
+  path: RailPath
+  leaderPathDistance: double
+  cars[0..n-1]  (cars[0] = lead/control)
+    |
+    +-- TrainCar
+    |     def: TrainDefinition (halfLength, bogiePos, size, seats, ...)
+    |     frontBogie: Bogie   (path pos at +bogiePos.z)
+    |     rearBogie : Bogie   (path pos at -bogiePos.z)
+    |     pose: TrainPose {x,y,z,yaw,pitch,roll}  derived from bogies
+    |     couplerFront / couplerRear: Coupler (gap = halfLenA+halfLenB)
+    |     trainState: door/light/panto/notch/...
+    |
+    +-- (light car entity for culling/interaction/seats)
+
+Movement per tick (server):
+  leader: leaderPathDistance += direction * speed * dt
+          path.resolve -> piece/dir/localM -> sample front bogie
+          rear bogie at bogieSpan behind front
+          body pose = f(frontBogie, rearBogie)   [yaw=chord, pitch=dy,
+                                                  roll=avg cant]
+  follower k: targetDistance = leaderPathDistance - k*carSpacing
+          walk backward across path entries -> piece/dir/localM
+          -> front bogie -> rear bogie -> pose
+
+Key fix vs v1: followers never jump to leader's piece; they stay on the
+previous piece until their own distance crosses the node.

@@ -1,0 +1,52 @@
+Railway System v2 - Overall Architecture (ASCII)
+
++----------------------------------------------------------------------+
+|                       CLIENT (browser / Eaglercraft)                |
+|  read-only mirror, interpolation, rendering                          |
+|                                                                      |
+|  +------------+   +-------------+   +-------------+   +----------+  |
+|  | TrainRendr |   | RailRendr   |   |Signal/Wire/ |   |Debug ovr |  |
+|  | (pose+state|   | (blocks+pre)|   |ObjectRendr  |   |          |  |
+|  +-----+------+   +------+------+   +------+------+   +-----+----+  |
+|        |                 |                 |                 |       |
+|  +-----+-----------------+-----------------+-----------------+-----+  |
+|  |              Rendering runtime (interp, cache, LOD)          |   |
+|  +-------------------------------+-------------------------------+   |
+|                                  | snapshot/delta (RailwaySync)      |
+|  +-------------------------------+-------------------------------+   |
+|  |          Client mirror (pieces, poses, state)                 |   |
+|  |          + input commands -> server                           |   |
+|  +-------------------------------+-------------------------------+   |
++----------------------------------|-----------------------------------+
+                                   | S <-> C packets (network)
++----------------------------------|-----------------------------------+
+|                       SERVER (authoritative)                       |
+|  +-------------------------------+-------------------------------+   |
+|  | RailNetwork (pieces registry, nodes, routes, signals,          |   |
+|  |             stations, crossings, catenary)                     |   |
+|  |  +-------------------+  +-------------------+                  |   |
+|  |  | RailPiece         |  | RailGeometry      |  (straight/      |   |
+|  |  | (world blocks,    |  |  ArcLengthTable   |   bezier/vertical/|  |
+|  |  |  state, network)  |  |  sampleByDistance |   switch)        |   |
+|  |  +---------+---------+  +---------+---------+                  |   |
+|  |            \                     /                             |   |
+|  |  +------------------------------+                              |   |
+|  |  | PathPosition / RailPath (route history + distance)          |   |
+|  |  +------------------------------+                              |   |
+|  |  | TrainFormation -> TrainCar -> Bogie(f/r) -> TrainPose       |   |
+|  |  | TrainController (notch/reverser/brake/signal clamp)         |   |
+|  |  +------------------------------+                              |   |
+|  |  | SignalBlock / SignalAspect / SignalWire / Converters        |   |
+|  |  | Station/StopPoint | CrossingGate | WireSection/Catenary     |   |
+|  |  +------------------------------+                              |   |
+|  |  | ContentRegistry (defs) <- Model*.json packs                 |   |
+|  |  | Persistence (WorldRailData schema v2)  |  Perf (SpatialIdx,|  |
+|  |  | Legacy (V1Adapter, v1 backup)          |  ActiveRailCache) |   |
+|  +----------------------------------------------------------------+   |
++----------------------------------------------------------------------+
+
+Data flow (server tick):
+  inputs -> TrainController -> leaderPathDistance += dir*speed*dt
+  -> path.resolve() -> sampleByDistance per bogie -> TrainPose
+  -> followers walk-back -> signals/occupancy (head/tail)
+  -> dirty flags -> sync build -> packets -> client mirror -> render

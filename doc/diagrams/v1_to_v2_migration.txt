@@ -1,0 +1,28 @@
+v1 -> v2 Migration (ASCII)
+
+v1 (prototype)                 v2 (target)
+--------------                 -------------
+RailGraph                ->    RailNetwork (routing layer)          [MIGRATE]
+RailNode                 ->    RailNode (piece adjacency)           [MIGRATE]
+RailSegment (progress)   ->    RailPiece + RailGeometry (arc-len)   [REWRITE]
+RailCurveData (raw t)    ->    Bezier geometry + arc table          [REWRITE]
+RailSystemManager (static)->  per-world v2 store                    [REWRITE]
+RailSystemSavedData      ->    WorldRailData schema v2 (+migration) [MIGRATE]
+EntityRailVehicle        ->    TrainFormation + V1Adapter           [REWRITE]
+CommandRailSystem        ->    v2 editor + /railsys alias           [MIGRATE]
+ItemRailWand             ->    v2 placement tool                    [MIGRATE]
+RenderRailVehicle        ->    v2 TrainRenderer                     [REWRITE]
+testloop/testline/testcurve -> v2 regression course                 [KEEP/MIG]
+occupancy (segment bool) ->    SignalBlock intervals, tail release  [REWRITE]
+route (greedy)           ->    RailRoute (A*/plan)                  [REWRITE]
+switch (node->segment)   ->    SWITCH piece state                   [MIGRATE]
+station (node flag)      ->    Station + StopPoint                  [MIGRATE]
+trainId/carIndex/progress->    formation order + metres             [REMOVE role]
+DataWatcher sync         ->    RailwaySync (pose+state)             [MIGRATE]
+WorldSavedData graph     ->    schema v2 + backup key               [MIGRATE]
+debug marker blocks      ->    RailPiece blocks + overlay           [REPLACE]
+client spawn type 80     ->    RailwaySync spawn                    [MIGRATE]
+
+Order: freeze v1 -> v2 in new packages -> V1Adapter -> data migration
+-> command migration -> deprecate v1 (Phase 11) -> remove v1 paths.
+Rollback: disable v2 flags; v1 backup retained.

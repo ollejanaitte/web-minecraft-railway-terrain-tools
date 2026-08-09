@@ -1,0 +1,29 @@
+Rail Geometry / Rail Network relation (ASCII)
+
+RailGeometry (pure shape, immutable)
+  kind: STRAIGHT | CURVE | VERTICAL_CURVE | SWITCH | TURNTABLE
+  start/end + control points + arc table
+  sampleByDistance(d) -> RailSample{x,y,z,yaw,pitch,roll,...}
+        ^
+        |  one geometry per piece (branch: switch has N sub-geometries)
+        |
+RailPiece (world + state)          RailNode (routing)
+  pieceId, defId, corePos            nodeId, x,y,z
+  geometry: RailGeometry             connectedPieceIds[]
+  worldBlocks[] (rail+ballast)       |
+  switchState (SWITCH)               |
+  signalRefs[]                       v
+        |  start/end node refs  -->  adjacency / route search
+        v
+RailNetwork
+  pieces registry (by id)
+  nodes adjacency
+  RailRoute (A* plan)  --- route history ---> RailPath entries
+  signals / stations / crossings / catenary refs
+  SpatialIndex + ActiveRailCache
+
+Traversal:
+  formation.leaderPathDistance
+    -> RailPath entries: [ (pieceId, dir, startM, endM) ... ]
+    -> resolve(d) -> (pieceId, dir, localM)
+    -> RailPiece.geometry.sampleByDistance(localM) -> RailSample

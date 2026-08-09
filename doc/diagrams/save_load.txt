@@ -1,0 +1,22 @@
+Save / Load (ASCII)
+
+SAVE
+  RailNetwork (pieces, nodes, switches, signals, stations,
+               crossings, catenary)
+     +
+  formations (cars defIds, direction, leaderPathDistance, pathEntries,
+              trainState)
+     +
+  object states (pos, defId, dataMap)
+     ->  WorldRailData NBT (schemaVersion=2)
+         key: rail_system (+ rail_system_v1_backup kept)
+
+LOAD
+  read NBT v2 -> rebuild RailNetwork (recompute arc tables)
+  -> resume formations at leaderPathDistance (resolve path)
+  -> content defIds -> ContentRegistry; missing -> dummy fallback
+  -> old v1 graph NBT (schemaVersion=1) -> migration converter
+       nodes -> RailNode ; segments -> RailPiece(straight/bezier)
+       switch maps -> SWITCH piece state ; stations -> Station
+       EntityRailVehicle NBT -> FormationRecord via V1Adapter
+  -> unknown keys preserved; forward-compat

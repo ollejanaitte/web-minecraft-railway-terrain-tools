@@ -1,0 +1,27 @@
+Server / Client data flow (ASCII)
+
+SERVER                                             CLIENT
+---------------                                    ---------------
+input packet (notch/reverser/door/...)  ---->      input (from HUD/keys)
+     |                                                    |
+     v                                                    |
+TrainController -> formation move -> pose                 |
+     |                                                    |
+     v                                                    |
+signals/occupancy (head/tail release)                     |
+     |                                                    |
+     v                                                    |
+dirty flags -> build packets                              |
+     |                                                    |
+     +------------ JOIN_SNAPSHOT -----------------------> mirror (pieces,
+     |         (manifest, formations, signals)             poses, state)
+     +------------ TRAIN_STATE (door/light/...) --------> state
+     +------------ TRAIN_POSE_BATCH (interp) -----------> pose cache
+     +------------ SIGNAL/SWITCH/EDIT events -----------> state
+     |                                                    |
+     |                                                    v
+     |                                              interpolate -> render
+
+Persistence (server):
+  WorldRailData schema v2  <->  RailNetwork + formations + signals
+  on load: recompute arc tables; resume formations at exact positions

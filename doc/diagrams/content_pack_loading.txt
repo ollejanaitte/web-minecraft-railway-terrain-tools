@@ -1,0 +1,24 @@
+Content Pack loading (ASCII)
+
+pack.zip
+  pack.json            { name, version, homepage, updateURL } [C-MP]
+  sounds.json          { "folder.file": {category, sounds[]} } [C-MP]
+  ModelTrain_<id>.json <-- type from file-name prefix [R-I]
+  ModelRail_<id>.json
+  ModelSignal_<id>.json / ModelMachine_<id>.json / ModelWire_<id>.json
+  assets/minecraft/
+     models/   (OBJ/MQO source or v2 native .rv2m)
+     textures/ ...
+     sounds/   ...
+     scripts/  (restricted)
+
+Server loader:
+  scan content dir -> parse Model*.json -> validate schema
+  -> register defId in ContentRegistry (uniqueness + version precedence)
+  -> index models (native rv2m or converter output)
+  -> defId referenced by world data; missing -> dummy fallback
+
+Client:
+  content manifest (defIds + models) <- server
+  download/cache rv2m meshes + textures
+  render via definitions; missing model -> dummy mesh
