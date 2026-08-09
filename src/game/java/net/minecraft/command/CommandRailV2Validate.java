@@ -125,30 +125,31 @@ public class CommandRailV2Validate extends CommandBase {
 		double z;
 		float yaw;
 		float pitch;
+		// Minecraft: positive pitch looks down, negative looks up.
 		if ("overview".equals(preset)) {
-			x = 150.0D;
-			y = 115.0D;
-			z = -25.0D;
+			x = 55.0D;
+			y = 90.0D;
+			z = -40.0D;
 			yaw = 0.0F;
-			pitch = -45.0F;
+			pitch = 35.0F;
 		} else if ("curve".equals(preset)) {
-			x = 150.0D;
-			y = 88.0D;
-			z = 125.0D;
-			yaw = 180.0F;
-			pitch = -18.0F;
+			x = 170.0D;
+			y = 85.0D;
+			z = 40.0D;
+			yaw = -45.0F;
+			pitch = 25.0F;
 		} else if ("track".equals(preset)) {
-			x = 40.0D;
-			y = 67.0D;
-			z = -18.0D;
-			yaw = 90.0F;
-			pitch = 0.0F;
+			x = 30.0D;
+			y = 68.0D;
+			z = -14.0D;
+			yaw = -90.0F;
+			pitch = 12.0F;
 		} else if ("close".equals(preset)) {
-			x = 100.0D;
-			y = 67.0D;
-			z = -10.0D;
-			yaw = 90.0F;
-			pitch = -5.0F;
+			x = 60.0D;
+			y = 72.0D;
+			z = -16.0D;
+			yaw = 0.0F;
+			pitch = 20.0F;
 		} else {
 			player.addChatMessage(new ChatComponentText("railsysv2: unknown preset: " + preset));
 			return;

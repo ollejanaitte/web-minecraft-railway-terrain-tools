@@ -40,9 +40,14 @@ public class RenderRailV2Car extends Render<EntityRailV2Car> {
 		double dz = front.z - rear.z;
 		double yaw = Math.toDegrees(Math.atan2(dx, dz));
 
+		// x/y/z are camera-relative entity coords; offset body/bogies from entity origin.
+		double bx = x + (cx - entity.posX);
+		double by = y + (cy - entity.posY);
+		double bz = z + (cz - entity.posZ);
+
 		// body
 		GlStateManager.pushMatrix();
-		GlStateManager.translate((float) (cx - x), (float) (cy - y), (float) (cz - z));
+		GlStateManager.translate((float) bx, (float) by, (float) bz);
 		GlStateManager.rotate((float) yaw, 0.0F, 1.0F, 0.0F);
 		GlStateManager.disableTexture2D();
 		GlStateManager.disableLighting();
@@ -61,9 +66,9 @@ public class RenderRailV2Car extends Render<EntityRailV2Car> {
 		GlStateManager.enableTexture2D();
 		GlStateManager.popMatrix();
 
-		// bogie markers (world coords)
-		this.drawBogieMarker(front.x - x, front.y - y + 0.5D, front.z - z, 0);
-		this.drawBogieMarker(rear.x - x, rear.y - y + 0.5D, rear.z - z, 1);
+		// bogie markers (camera-relative)
+		this.drawBogieMarker(x + (front.x - entity.posX), y + (front.y - entity.posY) + 0.5D, z + (front.z - entity.posZ), 0);
+		this.drawBogieMarker(x + (rear.x - entity.posX), y + (rear.y - entity.posY) + 0.5D, z + (rear.z - entity.posZ), 1);
 
 		// coupler to next car
 		this.drawCoupler(entity, x, y, z, partialTicks);
@@ -112,7 +117,8 @@ public class RenderRailV2Car extends Render<EntityRailV2Car> {
 		GlStateManager.pushMatrix();
 		GlStateManager.disableTexture2D();
 		GlStateManager.disableLighting();
-		this.drawLine(sx - x, sy - y, sz - z, ex - x, ey - y, ez - z);
+		this.drawLine(x + (sx - entity.posX), y + (sy - entity.posY), z + (sz - entity.posZ),
+				x + (ex - entity.posX), y + (ey - entity.posY), z + (ez - entity.posZ));
 		GlStateManager.enableLighting();
 		GlStateManager.enableTexture2D();
 		GlStateManager.popMatrix();

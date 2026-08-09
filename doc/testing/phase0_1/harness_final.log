@@ -1,0 +1,46 @@
+> Task :compileHarnessJava UP-TO-DATE
+> Task :processHarnessResources NO-SOURCE
+> Task :harnessClasses UP-TO-DATE
+
+> Task :harnessTest
+=== Railway v2 reference math harness ===
+Tests discovered: 33
+[PASS ] StraightMathTest.distance100
+[PASS ] StraightMathTest.samplingQuarters
+[PASS ] StraightMathTest.straightYawAlongZ
+[PASS ] StraightMathTest.gradientPitch
+[PASS ] BezierMathTest.bezierEndpoints
+[PASS ] BezierMathTest.bezierMidpointIsOnCurve
+[PASS ] BezierMathTest.bezierLengthReasonable
+[PASS ] BezierMathTest.arcLengthRoundTrip
+[PASS ] BezierMathTest.tangentAtEndYaw
+[PASS ] ArcLengthTest.straightLengthIsChord
+[PASS ] ArcLengthTest.curveLengthIndependentCheck
+[PASS ] ArcLengthTest.loopTotalLengthPositive
+[SKIP ] ArcLengthTest.productionDistanceRoundTripScaffold  (Phase 1: production ArcLengthTable not implemented yet; reference passes here.)
+[PASS ] ContinuityScaffoldTest.multiPiecePositionContinuity
+[PASS ] ContinuityScaffoldTest.multiPieceYawContinuity
+[PASS ] ContinuityScaffoldTest.sCurveYawContinuity
+[PASS ] ContinuityScaffoldTest.cantZeroAtEdges
+[PASS ] ContinuityScaffoldTest.verticalCurvePitchContinuous
+[SKIP ] ContinuityScaffoldTest.productionCantRollContinuity  (Phase 1: production geometry not implemented; reference satisfies this.)
+[PASS ] FormationScaffoldTest.followerSameStraight
+[PASS ] FormationScaffoldTest.followerStaysOnPreviousPieceAtBoundary
+[PASS ] FormationScaffoldTest.longFormationSpacing
+[PASS ] FormationScaffoldTest.loopPlacement
+[PASS ] FormationScaffoldTest.reversePlacement
+[PASS ] FormationScaffoldTest.switchContractDocumented
+[SKIP ] FormationScaffoldTest.productionSolverNoTeleportAtBoundary  (Phase 2: production TrainFormation solver not implemented yet.)
+[PASS ] V1ReferenceRegressionTest.v1StraightLerp
+[PASS ] V1ReferenceRegressionTest.v1CubicBezierPoint
+[PASS ] V1ReferenceRegressionTest.v1NodeDistance
+[PASS ] PersistenceBaselineTest.straightSemanticRoundTrip
+[PASS ] PersistenceBaselineTest.curveSemanticRoundTrip
+[PASS ] KnownFailureDocumentationTest.followerWrapsAheadOfLeader
+[PASS ] KnownFailureDocumentationTest.desiredBehaviorContract
+==========================================
+PASSED=30 FAILED=0 SKIPPED=3
+RESULT: SUCCESS
+
+BUILD SUCCESSFUL in 1s
+2 actionable tasks: 1 executed, 1 up-to-date

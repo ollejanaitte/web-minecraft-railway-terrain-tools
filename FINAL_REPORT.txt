@@ -1,5 +1,140 @@
 ====================================================================
 FINAL REPORT - Phase 0.1: Architecture Validation Spike
+STATUS: IN PROGRESS / CURSOR AGENT HANDOFF RESUME
+Web Minecraft with Railway Mod & Terrain Editing Tools
+Agent: Cursor Auto
+====================================================================
+
+====================================================================
+CURSOR AGENT HANDOFF RESUME (appended; prior handoff preserved below)
+====================================================================
+
+STEP 001 - Cursor handoff start
+-------------------------------
+Date: 2026-08-10. Successor agent (Cursor Auto) resumed Phase 0.1.
+Goal: inherit prior spike; complete real-game Visual Proof (SS-02..SS-07);
+do NOT rewrite from scratch. Code changes forbidden until audit complete.
+
+STEP 002 - AGENTS.md confirmed
+------------------------------
+Read AGENTS.md in full. Scope, dirty-file preservation, FINAL_REPORT.txt
+authority, no secrets in repo, clean-room RTM, build/harness gates confirmed.
+No conflict with the Phase 0.1 prompt that requires widening scope.
+
+STEP 003 - Scope confirmed
+--------------------------
+Local : /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools
+GitHub: ollejanaitte/web-minecraft-railway-terrain-tools (main)
+No other folders/repos operated.
+
+STEP 004 - Git entity confirmed
+-------------------------------
+Branch     : main
+Local HEAD : 05e94f7d16e20897d494eead8dfc25b2f6b5afa3
+origin/main: 05e94f7d16e20897d494eead8dfc25b2f6b5afa3
+GitHub main: 05e94f7d16e20897d494eead8dfc25b2f6b5afa3
+Sync       : LOCAL == origin/main == GitHub main (SYNC OK)
+Recent:
+  05e94f7d docs: record Phase 0.1 handoff commit/push/sync results
+  d59f8357 feat: Phase 0.1 validation spike + handoff docs [IN PROGRESS]
+Untracked : FINAL_REPORT.md (left alone; not committed)
+Staged    : (none)
+
+STEP 005 - Existing dirty work baseline
+---------------------------------------
+CommandRailSystem.java : +111 / -6  md5 9afd512d414a3b67a15235c9290936cf
+EntityRailVehicle.java : +13  / -3  md5 77ce0d66d8fbe4e4c6e2594579d10c0c
+Combined insertions/deletions: 124 / 9 (matches prior report)
+Diff MD5 : 58ba87ddb5570647b56b1cfc2166a26a
+Baseline saved: doc/testing/phase0_1/DIRTY_BASELINE.txt
+PRESERVED at audit start. Will not stage/commit/format/restore these files.
+
+STEP 006 - FINAL_REPORT.txt confirmed
+-------------------------------------
+Prior intermediate handoff report read in full (STATUS IN PROGRESS /
+AGENT HANDOFF). History preserved; this resume appends numbered STEPs.
+
+STEP 007 - AGENT_HANDOFF.md confirmed
+-------------------------------------
+Read in full. Next steps: re-enter game, let AutoValidate fire, capture
+SS-01..SS-07, pixel+visual review, verdict. Chat unreliable; AutoValidate
+is intended path. SwiftShader freeze risk; act fast after world load.
+
+STEP 008 - Phase 0.1 code audit
+-------------------------------
+Implemented (on main @ d59f8357 / 05e94f7d):
+  src/game/java/net/minecraft/railv2/
+    RailV2Sample, RailV2Geometry, RailV2Straight, RailV2Bezier,
+    RailV2Course, RailV2CourseMath, RailV2AutoValidate
+  EntityRailV2Car (id 202, spawn 81) - 20m x 2.8m x 3.8m; bogie +/-7m;
+    CAR_SPACING 22m; distance-based formation; bogie-chord body pose
+  RenderRailV2Car, CommandRailV2Validate (/railsysv2)
+  Wiring: EntityList, EntityTracker, EntityTrackerEntry,
+    NetHandlerPlayClient, RenderManager, ServerCommandManager,
+    MinecraftServer.tick -> RailV2AutoValidate.onServerTick
+Course: straight 80m +X -> Bezier ~90deg -> straight 80m +Z; visible
+vanilla rails on 3-wide stone bed.
+Audit notes (not yet changed):
+  - placeRails only writes if world.isBlockLoaded (far pieces may miss)
+  - AutoValidate camera uses "track" preset (40,67,-18 yaw 90) which may
+    look parallel to track rather than at it
+  - AutoValidate static once-guard; no logger.info (chat message only)
+
+STEP 009 - AutoValidate audit
+-----------------------------
+File: RailV2AutoValidate.java
+Trigger: MinecraftServer.tick() every tick; once-guard `ran`
+Condition: player list non-empty -> ran=true -> placeRails, day time,
+  spawn 4 cars (leaderDistance 60, spacing 22), lead speed 0.12,
+  teleport camera track preset, chat "railsysv2: auto-validated..."
+Prior report: built but NOT observed firing (world-load run incomplete).
+
+STEP 010 - Existing scripts/screenshots/logs audit
+--------------------------------------------------
+scripts/: cdp.mjs, cmd.mjs, console.mjs, logs.mjs
+screenshots/: SS-00, SS-01 + many _*.png attempts
+  SS-01_GAME_BOOT.png is Edit Profile (dirt menu), NOT title/in-world
+  Many large _*.png are title screens (pixel+vision reviewed)
+  SS-02..SS-07: ABSENT
+logs: chrome.log, console*.txt, logs.txt, logs_cdp.txt
+  logs_cdp.txt shows integrated server boot; no [RAILSYSTEM]/ no
+  confirmed AutoValidate chat line
+chrome-profile: absent at resume (worlds not retained)
+
+STEP 011 - Harness baseline
+---------------------------
+./gradlew harnessTest
+PASSED=30 FAILED=0 SKIPPED=3 RESULT: SUCCESS
+Baseline preserved.
+
+STEP 012 - Build baseline
+-------------------------
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+./gradlew makeMainOfflineDownload BUILD SUCCESSFUL (UP-TO-DATE)
+Offline HTML present:
+  target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html
+
+--- AUDIT SUMMARY (pre-code-change) ---
+Current HEAD        : 05e94f7d
+Phase 0.1 files     : railv2/** + Entity/Render/Command + wiring (on main)
+AutoValidate        : RailV2AutoValidate + MinecraftServer.tick hook
+Screenshots         : boot/menu evidence only; SS-02..07 missing
+Scripts/logs        : CDP toolkit present; prior console logs present
+Build               : GREEN
+Harness             : 30/0/3 GREEN
+Existing blocker    : required visual evidence not captured; chat flaky;
+                      SwiftShader freeze; AutoValidate not observed
+Remaining work      : launch -> world -> AutoValidate -> SS-02..07 ->
+                      review -> docs -> commit/push -> Discord
+Dirty work          : PRESERVED (124/9)
+
+STEP 013+ - Existing launch reproduction begins after this audit block.
+No product code changed during STEPs 001-012.
+
+====================================================================
+PRIOR AGENT INTERMEDIATE HANDOFF (preserved verbatim below)
+====================================================================
+
 STATUS: IN PROGRESS / AGENT HANDOFF (intermediate stop)
 Web Minecraft with Railway Mod & Terrain Editing Tools
 ====================================================================
@@ -123,5 +258,82 @@ AGENTS.md + doc/. Phase -2 (777b1a72, 1448f2f4): RTM specification.
 Pre-existing dirty Railway dev files preserved throughout.
 
 ====================================================================
-END OF REPORT (Phase 0.1 - intermediate handoff)
+END OF PRIOR HANDOFF SECTION
 ====================================================================
+
+====================================================================
+CURSOR STATUS UPDATE 2026-08-10 01:05 JST
+====================================================================
+STATUS: IN PROGRESS (continuing after user status request)
+Discord: status/continue notification sent (runtime webhook; not stored in repo).
+
+Progress:
+- AutoValidate confirmed once via chat on successful world join.
+- SS files exist but first visual set INVALID (camera looked up; no rail/train).
+- Minimal code fixes applied (look-down pitch, chunk force-load, gold markers).
+- Second run crashed: ACK 0 during WORLD_UNLOADING / client hangup.
+- Stuck full_validation_run stopped; retry with slower join started next.
+
+Dirty baseline still: CommandRailSystem +111/-6, EntityRailVehicle +13/-3.
+HEAD base: 05e94f7d (local uncommitted validation fixes present).
+
+
+====================================================================
+CURSOR PHASE 0.1 COMPLETION 2026-08-10 (~01:40 JST)
+====================================================================
+
+STEP 013 - Scope confirmation
+-----------------------------
+Phase 0.1 Railway System v2 Architecture Validation Spike continuation.
+Goal: prove Rail/Curve/Train/Bogie/Formation/RailPiece with real screenshots.
+Verdict target: PASS or BLOCKED (no PASS WITH WARNINGS).
+
+STEP 014 - Git state (pre-commit)
+---------------------------------
+Branch: main
+Prior HEAD (origin): 05e94f7d (handoff) / spike d59f8357
+Local uncommitted: railv2 fixes + docs + screenshots + scripts
+Dirty preserved (untouched): CommandRailSystem.java, EntityRailVehicle.java
+  numstat 111/6 and 13/3; MD5 matches DIRTY_BASELINE.txt
+Untracked leave-alone: FINAL_REPORT.md
+
+STEP 015 - Fixes applied (product spike code)
+---------------------------------------------
+- RenderRailV2Car: correct camera-relative body/bogie/coupler transforms
+- RailV2AutoValidate: flight lock, holdCamera tour, stone pads
+- RailV2Course: yaw-perpendicular bed + wider clear corridor + gold markers
+- EntityRailV2Car: wider AABB for frustum
+- CommandRailV2Validate: tp presets use positive pitch (look down)
+- CDP: create-only world entry; capture timing aligned to camera tour
+
+STEP 016 - Evidence
+-------------------
+- AutoValidate chat confirmed (retry8_stdout.txt)
+- Screenshots SS-01..SS-08 under doc/testing/phase0_1/screenshots/
+- Visual review PASS: primary SS-04 (formation), SS-05 (car on course),
+  SS-07/08 (straight rails + gold markers)
+- Build: makeMainOfflineDownload SUCCESS
+- Harness: PASSED=30 FAILED=0 SKIPPED=3
+
+STEP 017 - Docs updated
+-----------------------
+VALIDATION_RESULTS.md, VISUAL_VALIDATION.md, KNOWN_ISSUES.md,
+GAME_LAUNCH_GUIDE.md, FINAL_REPORT.txt (this section)
+
+STEP 018 - Dirty-file preservation check
+----------------------------------------
+CommandRailSystem.java MD5 9afd512d414a3b67a15235c9290936cf
+EntityRailVehicle.java MD5 77ce0d66d8fbe4e4c6e2594579d10c0c
+Matches DIRTY_BASELINE.txt — PRESERVED.
+
+STEP 019 - Final verdict
+------------------------
+Verdict: PASS
+Reason: Real Eaglercraft screenshots show full-scale multi-car formation on
+visible rails with markers; build+harness green; dirty v1 files preserved;
+architecture boundary for Phase 0.1 validated.
+
+STEP 020 - Commit/push
+----------------------
+(filled after git operations)
+

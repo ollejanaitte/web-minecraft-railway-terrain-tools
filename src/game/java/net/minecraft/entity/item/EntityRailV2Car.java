@@ -45,7 +45,8 @@ public class EntityRailV2Car extends Entity {
 	public EntityRailV2Car(World worldIn) {
 		super(worldIn);
 		this.noClip = true;
-		this.setSize((float) CAR_WIDTH, (float) CAR_HEIGHT);
+		// Wide AABB so frustum culling does not drop the 20m body.
+		this.setSize((float) (CAR_HALF_LENGTH * 2.0D), (float) CAR_HEIGHT);
 	}
 
 	public EntityRailV2Car(World worldIn, int trainId, int carIndex, int trainLength, boolean isLead) {

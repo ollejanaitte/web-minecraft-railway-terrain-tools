@@ -1,0 +1,52 @@
+[2026-08-09T16:33:45.148Z] START retry PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/chrome-profile-fix8
+[2026-08-09T16:33:45.152Z] CHROME_PID=1559674 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/chrome-profile-fix8
+[2026-08-09T16:33:51.231Z] click 640,360
+[2026-08-09T16:33:54.074Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_boot_0.png
+[2026-08-09T16:33:54.269Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=553
+[2026-08-09T16:33:54.270Z] click 640,390
+[2026-08-09T16:33:57.210Z] HIT [01:33:57+209][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[2026-08-09T16:33:58.000Z] click 640,450
+[2026-08-09T16:33:58.604Z] HIT [01:33:58+603][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[2026-08-09T16:33:58.606Z] HIT [01:33:58+605][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[2026-08-09T16:34:01.178Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_boot_1.png
+[2026-08-09T16:34:01.388Z] boot 1 sky=0.000 dirt=0.000 hot=0 buttons=
+[2026-08-09T16:34:01.388Z] click 640,390
+[2026-08-09T16:34:02.510Z] click 640,450
+[2026-08-09T16:34:06.655Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_boot_2.png
+[2026-08-09T16:34:07.008Z] boot 2 sky=0.798 dirt=0.009 hot=21 buttons=237,427
+[2026-08-09T16:34:10.580Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-01_GAME_BOOT.png
+[2026-08-09T16:34:10.580Z] click 640,258
+[2026-08-09T16:34:10.831Z] HIT [01:34:10+828][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[2026-08-09T16:34:12.482Z] HIT [01:34:12+475][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[2026-08-09T16:34:23.869Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_select.png
+[2026-08-09T16:34:24.221Z] select sky=0.000 dirt=0.948 hot=26 buttons=492
+[2026-08-09T16:34:24.221Z] click 915,492
+[2026-08-09T16:34:32.523Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_submenu.png
+[2026-08-09T16:34:32.860Z] submenu sky=0.000 dirt=1.065 hot=26 buttons=242,292,342,422
+[2026-08-09T16:34:32.860Z] click 640,242
+[2026-08-09T16:34:43.205Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_form.png
+[2026-08-09T16:34:43.529Z] form sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-09T16:34:45.531Z] click 400,540
+[2026-08-09T16:35:01.290Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_loading.png
+[2026-08-09T16:35:01.625Z] loading sky=0.000 dirt=1.020 hot=26 buttons=
+[2026-08-09T16:35:01.625Z] enter via created
+[2026-08-09T16:35:06.413Z] HIT [01:35:06+408][Client thread/INFO][Minecraft]: [CHAT] railsysv2: auto-validated (build + 4 cars started)
+[2026-08-09T16:35:12.565Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/_retry_join_1.png
+[2026-08-09T16:35:12.881Z] join 1 sky=0.883 dirt=0.123 hot=4 buttons=215,322,513
+[2026-08-09T16:35:12.882Z] IN_WORLD validated=true grounded=false
+[2026-08-09T16:35:13.213Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-01b_IN_WORLD.png
+[2026-08-09T16:35:18.424Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-02_RAIL_STRAIGHT.png
+[2026-08-09T16:35:18.811Z] ok SS-02_RAIL_STRAIGHT.png sky=0.843 dirt=0.148 hot=6 buttons=187,381
+[2026-08-09T16:35:22.344Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-03_RAIL_CURVE.png
+[2026-08-09T16:35:22.713Z] ok SS-03_RAIL_CURVE.png sky=0.844 dirt=0.148 hot=6 buttons=185,381
+[2026-08-09T16:35:30.283Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-04_FULL_SCALE_TRAIN.png
+[2026-08-09T16:35:30.664Z] ok SS-04_FULL_SCALE_TRAIN.png sky=0.887 dirt=0.122 hot=4 buttons=425,545
+[2026-08-09T16:35:41.426Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-05_TRAIN_ON_CURVE.png
+[2026-08-09T16:35:41.800Z] ok SS-05_TRAIN_ON_CURVE.png sky=0.887 dirt=0.123 hot=9 buttons=305,404,444
+[2026-08-09T16:35:50.939Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-06_FORMATION.png
+[2026-08-09T16:35:51.321Z] ok SS-06_FORMATION.png sky=0.000 dirt=0.247 hot=18 buttons=139,173,219,260,393,517
+[2026-08-09T16:36:01.459Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-07_PIECE_BOUNDARY.png
+[2026-08-09T16:36:01.825Z] ok SS-07_PIECE_BOUNDARY.png sky=0.881 dirt=0.123 hot=5 buttons=198,322,373
+[2026-08-09T16:36:12.280Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_1/screenshots/SS-08_EXTRA.png
+[2026-08-09T16:36:12.669Z] ok SS-08_EXTRA.png sky=0.880 dirt=0.122 hot=5 buttons=198,322,373
+[2026-08-09T16:36:12.676Z] SUCCESS
