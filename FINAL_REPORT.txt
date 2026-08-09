@@ -335,5 +335,17 @@ architecture boundary for Phase 0.1 validated.
 
 STEP 020 - Commit/push
 ----------------------
-(filled after git operations)
+Commit SHA : 7d3e088e75ff85cadf365d3c71d5cab453639470
+Message    : feat: Phase 0.1 validation PASS — render/camera fixes + real-game screenshots
+Push       : SUCCESS (05e94f7d..7d3e088e main -> main; no force)
+Local HEAD : 7d3e088e75ff85cadf365d3c71d5cab453639470
+origin/main: 7d3e088e75ff85cadf365d3c71d5cab453639470
+GitHub main: 7d3e088e75ff85cadf365d3c71d5cab453639470
+Sync       : LOCAL == origin/main == GitHub main (SYNC OK)
+Dirty files: CommandRailSystem / EntityRailVehicle still unstaged — PRESERVED
+Not staged : FINAL_REPORT.md, chrome-profile-*, intermediate stdout/logs
+
+====================================================================
+PHASE 0.1 COMPLETE — VERDICT PASS
+====================================================================
 
