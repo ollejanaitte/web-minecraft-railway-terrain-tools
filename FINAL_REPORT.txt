@@ -1,1085 +1,1093 @@
 ====================================================================
-FINAL REPORT (Analysis & Design)
+FINAL REPORT - Phase -2: RealTrainMod (RTM) 徹底仕様化
 Web Minecraft with Railway Mod & Terrain Editing Tools
 ====================================================================
 
 TITLE
 -----
-/railsys Deep Analysis + RealTrainMod (RTM) Parity Design / Roadmap
+Phase -2: RealTrainMod (RTM) Deep Specification
+(Input document for Phase -1: Railway System v2 Full Architecture Redesign)
 
-This report is the analysis, gap-analysis, architecture-design and
-implementation-roadmap deliverable. It does NOT change any product code.
-It updates the previous FINAL_REPORT.txt while preserving the prior
-session's historical information (see Appendix A).
+This report specifies RealTrainMod as a technical railway platform, based
+exclusively on legally-referable public information. It does NOT modify,
+implement, or fix anything. Only FINAL_REPORT.txt was changed.
+
+Confidence markers used throughout (see section 9):
+  [CONFIRMED-RTM]          confirmed directly from RTM official / reliable RTM specs
+  [CONFIRMED-MODELPACK]    confirmed from real RTM ModelPacks / creation materials
+  [REFERENCE-IMPLEMENTATION] from compatible/derived implementations (KaizPatchX,
+                           RealTrainModRenewed, etc.) - NOT proof of original RTM internals
+  [INFERRED]               reasonable inference from multiple sources
+  [UNKNOWN]                cannot be confirmed
 
 
 1. TASK OVERVIEW
 ----------------
-Goal: analyze the current /railsys Railway System in depth, compare it
-against Minecraft RealTrainMod (RTM), and produce:
-  - current-state assessment
-  - known-bug analysis (trailing-car disappearance)
-  - RTM feature taxonomy
-  - RTM vs /railsys gap analysis
-  - final target architecture
-  - distance-based train movement design
-  - phased implementation roadmap with acceptance criteria
-  - test strategy
+Purpose:
+  - Research RTM from publicly-available information (highest-tier sources first).
+  - Specify, to a level usable as Phase -1 input, what a railway platform
+    equivalent to RTM must reproduce: vehicles, trains, bogies, driving,
+    rails, switches, signals, catenary, crossings, stations, ModelPacks,
+    JSON definitions, OBJ/MQO models, textures, sounds, scripts, animations,
+    rendering, multiplayer, persistence.
+  - Separate original RTM facts from compatible-implementation references.
+  - Fix the required-feature list for "RTM compatibility".
 
-Explicitly NOT performed: any source-code change, bugfix, refactor, or
-new feature implementation. Only FINAL_REPORT.txt was modified.
+NOT done in this phase (by design):
+  - No /railsys changes, no v2 implementation, no architecture finalization,
+    no product-code edits, no bugfixes, no refactoring.
+  - Design implications are recorded as "Phase -1 design questions" (sec. 44).
 
 
 2. SCOPE CONFIRMATION
 ---------------------
 Local path        : /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools
 Git root          : /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools
-Git repository    : Yes (single repository, not nested)
+Git repository    : Yes (single, not nested)
 Remote origin     : https://github.com/ollejanaitte/web-minecraft-railway-terrain-tools.git
-GitHub repository : ollejanaitte/web-minecraft-railway-terrain-tools (public, default branch main)
-Working directory : confirmed at start; all work confined to the target repo.
-Out of scope      : any other folder, repo, user file, or project.
+GitHub repository : ollejanaitte/web-minecraft-railway-terrain-tools (public, main)
+Confirmation      : Local and GitHub match the specified targets. All work
+                    confined to the target repo. External sites used as
+                    read-only research sources only.
 
 
 3. SAFETY CONFIRMATION
 ----------------------
-No source code, build config, or settings were modified.
-No git reset / restore / checkout / clean / stash / force operations were used.
+No product code, build config, or settings were modified.
+No destructive git operations (reset/restore/clean/stash/checkout/force push).
 The two pre-existing uncommitted development files were NOT touched,
-NOT committed, and NOT reverted (verified before and after this task).
-The untracked FINAL_REPORT.md was NOT deleted (harmless leftover from a
-previous session; left untouched per instructions).
+NOT committed, and NOT reverted (verified before and after).
+The untracked FINAL_REPORT.md was NOT deleted.
+Temporary research files were kept under /tmp (outside the repo) and
+removed after use; no temp files were committed.
 
 
-4. GIT STATE AT WORK START
---------------------------
+4. WORK-START GIT STATE
+-----------------------
 Branch          : main
-Local HEAD      : fb1f53acca6323aa9e32b56f003d6d755ca04305
-origin/main     : fb1f53acca6323aa9e32b56f003d6d755ca04305
-GitHub main     : fb1f53acca6323aa9e32b56f003d6d755ca04305 (via gh api commits/main)
-Sync            : LOCAL == origin/main == GitHub main (in sync)
-
-
-5. WORK-START HEAD
-------------------
-fb1f53acca6323aa9e32b56f003d6d755ca04305  ("docs: finalize FINAL_REPORT.txt (remove self-referential SHA)")
-Recent history:
+Local HEAD      : c145c732db1cd96fb177e4a293df39abdcb59480
+origin/main     : c145c732db1cd96fb177e4a293df39abdcb59480
+GitHub main     : c145c732db1cd96fb177e4a293df39abdcb59480
+Sync            : LOCAL == origin/main == GitHub main
+Recent commits  :
+  c145c732  docs: record FINAL_REPORT.txt commit/push/sync results and verdict
+  ec4bd985  docs: add /railsys analysis and RealTrainMod parity design roadmap
   fb1f53ac  docs: finalize FINAL_REPORT.txt (remove self-referential SHA)
-  e20dedd6  docs: add final report
-  da01fd25  docs: rewrite README for Web Minecraft with Railway Mod & Terrain Editing Tools
-  17918469  Phase 6-F-FIX3 docs and rail system updates
-  74b3a953  Phase 5: add RailSystem, curve rails, rail vehicle, and RailWand  (origin/master)
 
 
-6. EXISTING DIRTY FILES (start and end)
----------------------------------------
+5. EXISTING DIRTY FILES
+-----------------------
 Tracked, modified, unstaged (PRE-EXISTING, preserved):
   src/game/java/net/minecraft/command/CommandRailSystem.java
   src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
-Diff at start: 2 files changed, 124 insertions(+), 9 deletions(-)
-Diff at end  : 2 files changed, 124 insertions(+), 9 deletions(-)  (identical)
-
-Untracked (NOT deleted):
-  FINAL_REPORT.md
-
-Staged files : none.
-No other unexpected modifications or untracked files.
+  (diff unchanged: 124 insertions / 9 deletions before and after)
+Untracked (NOT deleted): FINAL_REPORT.md
+Staged files: none.
 
 
-7. EXISTING UNCOMMITTED RAILWAY CHANGES (summary)
--------------------------------------------------
-CommandRailSystem.java (+111/-6):
-  - new "testloop" subcommand (40x40 closed loop, 8 segments) + helpers
-  - /railsys clear now also removes rail vehicles (clearRailVehicles)
-  - getProgressSpacing() for block-distance car spacing
-  - spawntrain spacing default 0.2 -> 3.0 (blocks), range 0.05-20.0
-  - usage text + tab completion updated
-
-EntityRailVehicle.java (+13/-3):
-  - carSpacing default 0.2D -> 3.0D (blocks) + DEFAULT_CAR_SPACING_BLOCKS const
-  - follower progress calc: spacing converted to progress via segment length
-  - motionX/Y/Z reset on follower cars (prevent drift)
-  - NBT default updated
-
-These remain uncommitted. They are a development asset and were untouched.
+6. PRE-EXISTING RAILWAY CHANGES PRESERVATION
+--------------------------------------------
+Same two files as prior phases (testloop subcommand, carSpacing 3.0 blocks,
+clearRailVehicles, follower progress/motion fixes in CommandRailSystem and
+EntityRailVehicle). Verified identical at start and end. Preserved.
 
 
-8. FILES INVESTIGATED
----------------------
-Railway core:
-  src/game/java/net/minecraft/rail/RailGraph.java
-  src/game/java/net/minecraft/rail/RailNode.java
-  src/game/java/net/minecraft/rail/RailSegment.java
-  src/game/java/net/minecraft/rail/RailCurveData.java
-  src/game/java/net/minecraft/rail/RailSegmentType.java
-  src/game/java/net/minecraft/rail/RailPosition.java
-  src/game/java/net/minecraft/rail/RailSystemManager.java
-  src/game/java/net/minecraft/rail/RailSystemSavedData.java
-Railway entity/command/item/render:
-  src/game/java/net/minecraft/command/CommandRailSystem.java
-  src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
-  src/game/java/net/minecraft/item/ItemRailWand.java
-  src/game/java/net/minecraft/client/renderer/entity/RenderRailVehicle.java
-Integration / wiring:
-  src/game/java/net/minecraft/entity/EntityList.java           (RailVehicle id 201)
-  src/game/java/net/minecraft/entity/EntityTracker.java        (track range 80, freq 3)
-  src/game/java/net/minecraft/entity/EntityTrackerEntry.java   (S0EPacketSpawnObject type 80)
-  src/game/java/net/minecraft/client/network/NetHandlerPlayClient.java (spawn handling)
-  src/game/java/net/minecraft/client/renderer/entity/RenderManager.java (renderer bind)
-  src/game/java/net/minecraft/command/ServerCommandManager.java (command registration)
-  src/game/java/net/minecraft/item/Item.java                   (item 433 rail_wand)
-  src/game/java/net/minecraft/init/Items.java
-  src/game/java/net/minecraft/client/renderer/entity/RenderItem.java
-  src/game/java/net/minecraft/client/renderer/RenderGlobal.java (debug graph rendering)
-  src/game/java/net/minecraft/client/renderer/EntityRenderer.java (debug render call)
-  src/game/java/net/minecraft/client/gui/GuiIngame.java        (ride HUD)
-Terrain editing (dependency check only):
-  src/game/java/net/minecraft/command/CommandWorldEdit.java
-  src/game/java/net/minecraft/client/gui/GuiWorldEdit.java
-Docs:
-  README.md, RAILSYSTEM_ARCHITECTURE.md, COMMAND_RAILSYSTEM_SPEC.md,
-  ENTITY_RAIL_VEHICLE_SPEC.md
-
-External RTM sources consulted (public info only, no code copied):
-  - RealTrainMod CurseForge page (ngt5479, NGTLib dependency, All Rights Reserved)
-  - RTM Wiki (rtmwiki.kotl.io) + its GitHub source repo (Builder256/RTM-Wiki)
-  - RealTrainModRenewed (rinnyanneko) architecture study for feature taxonomy
-
-
-9. /railsys CURRENT ARCHITECTURE
---------------------------------
-Model: node/segment GRAPH + per-entity segmentId/progress (0..1).
-
-RailGraph         - container: nodes map, segments map, switch target map,
-                     train target map, occupied segment set, station node set.
-                     Creates nodes/segments; NBT read/write; copyFrom mirror.
-RailNode          - immutable id/x/y/z + connectedNodeIds adjacency.
-RailSegment       - id, startNodeId, endNodeId, length, type, optional curveData.
-                     getPoint(t) -> STRAIGHT lerp or Bezier getPoint(t).
-                     length = chord for straight, 32-sample polyline approx for curve.
-RailCurveData     - 6 control coordinates; cubic Bezier getPoint(t) on raw t.
-RailSegmentType   - enum STRAIGHT, CURVE, SLOPE, SWITCH (SLOPE/SWITCH unused).
-RailPosition      - (segmentId, progress[0..1]) value object (used sparingly).
-RailSystemManager - static GLOBAL_GRAPH mirror + getGraphForWorld()/markDirty().
-RailSystemSavedData- WorldSavedData "rail_system" holding the per-world RailGraph.
-EntityRailVehicle - server-authoritative entity. lead car advances progress,
-                     follower cars recompute from lead each tick; DataWatcher
-                     syncs 9 fields; NBT 14 keys; rider controls throttle.
-CommandRailSystem - /railsys dispatcher (18 subcommands), debug markers.
-ItemRailWand      - 4-click Bezier creation (start, c1, c2, end).
-RenderRailVehicle - colored cuboids + coupler line to next car; no textures.
-RenderGlobal      - debug rail graph overlay (nodes/segments/curve) on F3.
-
-Data flow (server):
-  command/wand -> RailGraph (WorldSavedData) -> markDirty -> WorldSavedData save
-  EntityRailVehicle.onUpdate (server) -> graph lookup -> segment.getPoint(progress)
-  DataWatcher: trainId, carIndex, trainLength, carSpacing, isLeadCar,
-               targetSpeed, speed, segmentId, progress
-  EntityTracker -> S0EPacketSpawnObject(80) + standard entity packets
-
-
-10. CLASS / RESPONSIBILITY TABLE (current)
-------------------------------------------
-Class                    Responsibility                          Status
------------------------  ---------------------------------------  -------
-RailGraph                graph container, adjacency, switches,    stable
-                         routes, occupancy, stations, NBT
-RailNode                 immutable point + adjacency              stable
-RailSegment              segment data + getPoint + length         stable
-RailCurveData            Bezier control + getPoint(raw t)         basic
-RailPosition             (segmentId, progress) value object       minimal use
-RailSystemManager        static graph mirror per world            fragile
-RailSystemSavedData      WorldSavedData holder                    stable
-EntityRailVehicle        movement, formation, sync, NBT, rider    dev-in-progress
-CommandRailSystem        command parsing + test builders          dev-in-progress
-ItemRailWand             Bezier placement tool                    basic
-RenderRailVehicle        primitive model + coupler                basic
-RenderGlobal             debug graph overlay                      debug-only
-
-
-11. IMPLEMENTED FEATURES (current)
-----------------------------------
-  - /railsys 18 subcommands (clear, testline, testcurve, testloop,
-    vehicle, spawnvehicle, spawntrain, start, stop, speed, addcar,
-    removecar, unlink, route, station, switch, + help/tab-complete)
-  - Straight rail segment (testline)
-  - Cubic Bezier curve segment (testcurve, RailWand)
-  - 40x40 closed test loop (testloop) with 4 straight + 4 curve segments
-  - RailWand item 433: 4-point Bezier creation with markers
-  - Train formations: trainId, carIndex, trainLength, carSpacing (blocks)
-  - Lead-car driving via W/S throttle; /start /stop /speed
-  - Follower cars track the lead car each tick (block spacing)
-  - Segment transitions at nodes (switch > route-greedy > first-found)
-  - Manual switch routing (/railsys switch <segmentId>)
-  - Greedy route targeting (/railsys route <nodeId>) -- not a true search
-  - Station stops: 60-tick dwell at station nodes
-  - Occupancy: single boolean per segment (lead car only)
-  - Entity registration + spawn packet (type 80) + tracker (80/3)
-  - DataWatcher client sync of 9 fields
-  - NBT save/load of graph + vehicle state
-  - Debug markers (gold/diamond/emerald/redstone/lapis/stone/rail blocks)
-  - F3 debug graph overlay; ride HUD
-
-
-12. INCOMPLETE / MISSING FEATURES (current)
-------------------------------------------
-  - Slope/vertical rails: SLOPE enum exists, no code, no vehicle pitch
-  - SWITCH segment type: enum only; switches are per-node routing maps
-  - Bogies: none (no per-bogie positioning, no car tilt/lean/cant)
-  - Coupling physics: coupler is a render-only line; no force model
-  - Distance-based movement: none (segment-progress only)
-  - Arc-length parameterization: curves use raw t (length approx 32 samples)
-  - True pathfinding: greedy nearest-neighbor only
-  - Signals, blocks, interlockings: none
-  - Stations as structures/platforms: only a node flag
-  - Timetable / automatic operation: none
-  - Crossing / level crossing: none
-  - Catenary / overhead wire / pantograph: none (pantograph flag absent)
-  - Model system (OBJ/MQO/JSON): none; renderer is hard-coded cuboids
-  - Doors / announcements / sounds: none
-  - Rails as world blocks with collision: rail path is debug blocks only
-  - Collision: vehicles are noClip, canBePushed=false
-  - Rail graph client sync (multiplayer): NONE (see 15)
-  - Client-side prediction/smoothing of rail motion: none
-  - Tests: none
-
-
-13. KNOWN / PROBABLE BUGS (recorded, NOT fixed)
------------------------------------------------
-  B1. Follower cars can teleport/jump at segment transitions
-      (the reported disappearing/flickering issue). See section 14.
-  B2. Followers always forced onto the LEADER's segment; their true
-      segment is never tracked -> occupancy of the segment they still
-      physically occupy is cleared too early by the leader.
-  B3. Curve spacing drift: progress is raw t; distance per progress unit
-      varies along a Bezier -> cars bunch/stretch on curves.
-  B4. yaw look-ahead clamps at segment ends (getAheadProgress) -> near a
-      node the yaw falls back to prevPos delta; one-frame yaw snaps.
-  B5. No pitch -> on any vertical profile the car does not tilt.
-  B6. Static GLOBAL_GRAPH shared across worlds; copy-on-change mirroring
-      (full graph NBT serialize per markDirty) is fragile and O(graph).
-  B7. Debug marker list is a static, not per-world; clear removes markers
-      from any world (multiplayer hazard).
-  B8. /railsys clear kills ALL rail vehicles in the world (clearRailVehicles),
-      not just the train of the command user.
-  B9. Occupancy is set only by lead car; a stopped lead at segment end
-      blocks that segment indefinitely if the next segment is occupied
-      (no timeout / no dwell for signals).
-  B10. Route greediness can loop (oscillate) between two nodes.
-  B11. Client graph absent in real multiplayer (see 15) -> vehicles rely on
-      3-tick server position packets; visible stutter/teleport.
-  B12. nextTrainId is a static server field scanned against loaded entities;
-      after restart train IDs may collide with NBT-loaded vehicles.
-  B13. entity spawn packet passes segmentId as packet data, but the client
-      cannot resolve graph nodes/segments without the graph -> position
-      only correct inside the same-JVM (integrated server) case.
-  B14. No zero-speed sanity: follower progress uses wrap() (not clamp);
-      negative results wrap near 1.0, placing followers AHEAD of the lead
-      (this is the core of B1).
-
-
-14. TRAILING-CAR DISAPPEARANCE ANALYSIS (priority)
--------------------------------------------------
-Reported symptom:
-  "When the lead car reaches a curve or crosses into another segment,
-   trailing cars briefly disappear / look unnatural."
-
-Root cause chain (EntityRailVehicle.onUpdate, follower branch, lines 134-165):
-
-  a) this.segmentId = leadCar.segmentId;  -- follower is FORCED onto the
-     leader's segment every tick, ignoring where the follower physically is.
-
-  b) targetProgress = lead.progress +/- progressOffset;  -- offset in progress
-     units = carSpacing / segmentLength, i.e. assumed linear distance mapping.
-
-  c) modulo wrap:  while (p<0) p+=1; while (p>1) p-=1;  -- a NEGATIVE offset
-     (follower is behind the leader) is wrapped to ~1.0 on the LEADER's NEW
-     segment. In a closed loop the far end of the new segment lies AHEAD of
-     the leader, so the follower TELEPORTS forward (possibly through a
-     curve) and then slides backward until the wrap point, then resumes a
-     correct trailing offset. This produces the "disappear / flicker".
-
-  Concrete numbers (testloop: straight segment length 20, spacing 3.0,
-  carIndex 1 -> progressOffset 0.15):
-     leader just entered new segment at progress 0.0:
-       follower = 0.0 - 0.15 = -0.15 -> wrapped to 0.85
-       => follower rendered 17 blocks ahead of the leader on the new segment
-     correct behavior: follower should stay ~3m behind, still on the
-       PREVIOUS segment.
-
-  Contributing factors:
-    - segment-relative progress [0,1] with NO network/arc-length distance
-    - no "trailing distance" model (leader world-distance minus car spacing)
-    - raw-t Bezier mapping (B3) makes spacing uneven on curves
-    - yaw from clamped look-ahead (B4) adds a visual snap on transition
-    - coupler line distance gate (400 sq = 20 blocks) makes the coupler
-      vanish when a follower jumps >20m (visual "disappearance" of coupling)
-    - in split client/server, the client has no graph (B11) so movement
-      depends on sparse server packets -> extra flicker
-    - no bogie/car-center model; orientation is a single tangent vector
-
-  Recommended design (NOT implemented):
-    Replace "follower recompute on leader's segment" with arc-length
-    trailing along the rail network:
-      - define RailPath = ordered list of (segment, direction) with a
-        cumulative distance offset per entry (route-aware, switch-aware)
-      - leader position = (segmentId, arcOffset) where arcOffset is
-        distance from segment start
-      - follower i = leader arc position MINUS (i * carSpacing), resolved by
-        walking backward across segments using per-segment arc length
-        (segment.getDistanceForProgress / arc-length table)
-      - per-car bogie anchors: front/rear bogie at car length /2 each side;
-        car pose (x,y,z,yaw,pitch,roll) derived from the two bogie samples
-        (yaw from chord, pitch from height delta, roll from cant)
-      - keep segment-progress ONLY as a low-level per-segment lookup key,
-        never as the formation/spacing authority
-
-
-15. TECHNICAL DEBT
+7. RESEARCH METHOD
 ------------------
-  D1. No rail-network synchronization to clients (biggest structural debt).
-  D2. Global static graph + mirror copy scheme (single-world assumption).
-  D3. Progress-as-distance approximation (raw t, 32-sample length).
-  D4. Formation handled by per-tick leader scanning O(cars x entities).
-  D5. All rendering is debug/procedural; no content pipeline.
-  D6. No tests or CI for rail math / formation invariants.
-  D7. Occupancy semantics too coarse (whole segment bool, leader-only).
-  D8. Entity tracker rate (3 ticks) too coarse for smooth train motion.
-  D9. Hard-coded numbers in the renderer (car size, spacing 3.0, etc.).
-  D10. The client depends on the server-side graph through a shared static;
-      Eaglercraft TeaVM single-threaded model hides this in single-player.
-  D11. RailWand only makes curves, no straight-line / continuous placement.
-  D12. No undo for rail edits; debug markers are not owned per rail piece.
+1. Tier-1 official sources (CurseForge RTM/NGTLib pages).
+2. Tier-2 RTM Wiki (rtmwiki.kotl.io) + its public GitHub source repo.
+3. Tier-2/3 JSON reference docs (akikawaken RTM JSON documentation).
+4. Tier-4 compatible implementations (KaizPatchX - an RTM 1.7.10 fork that
+   bundles NGTLib+MCTE and mirrors RTM's public JSON schema; RealTrainModRenewed
+   - a 1.21 modernization). Used ONLY to study the conceptual architecture and
+   the JSON field surface. No code was copied into this project.
+5. Multiple sources cross-checked; single-source claims flagged.
+
+Important caveat: original RTM source is NOT public (All Rights Reserved).
+Internal behavior details below are marked REFERENCE-IMPLEMENTATION or
+INFERRED unless an official/spec source states them.
 
 
-16. RealTrainMod (RTM) FEATURE TAXONOMY
----------------------------------------
-Sources: CurseForge (official), RTM Wiki (rtmwiki.kotl.io) and its GitHub
-source, RealTrainModRenewed architecture. RTM is "All Rights Reserved"
-(C) ngt5479 / NGTLib prerequisite, Minecraft 1.5.2-1.12.2, Forge. This
-project will implement equivalent FUNCTIONALITY via clean-room design and
-MUST NOT copy RTM assets (models, textures, sounds, source). License
-notes are in section 16.4.
-
-16.1 Rail / Track system
-  - Marker-based placement: two markers (arrows facing) -> rail created by
-    right-clicking the rail item on the markers.
-  - Straight / curve / slope / switch (turnout) rail types; rail PACKS
-    define rail shapes (RailRegistry / RailDefinition in Renewed).
-  - Rail is world block geometry with ballast; RailCollision blocks;
-    rail core block entity (LargeRailCoreBlock) owns each rail piece.
-  - Rail data per piece: start/end RailPosition, direction (8 directions),
-    height in 1/16 blocks, cant (roll), const speed-limit fields, precise
-    position overrides, neighbor detection, redstone input.
-  - Curves are cubic Bezier with ARC-LENGTH parameterization
-    (index/split proportional to distance), slope/pitch from height,
-    roll (cant) per sample.
-  - Turnouts / switches: RailMapSwitch, SwitchType; switch state stored in
-    the rail, driven by redstone or signal state.
-  - Rail preview renderer before placement; copy/copy-rail tools.
-  - Track protection: /protect <ID> key prevents accidental breakage.
-
-16.2 Train / rolling stock
-  - Full-scale (1:1, 実寸大) 3D cars from OBJ/MQO models.
-  - TrainEntity + CarEntity + TrainBogieEntity (bogies are separate
-    entities/anchors) + seats (TrainSeatEntity), floors.
-  - Formation management: Formation / FormationEntry / FormationManager;
-    coupled chain via leader/follower UUIDs; coupled-formation sync from
-    head; dynamic length changes.
-  - Coupling / uncoupling with a "crowbar" (バール) tool.
-  - Movement: notch-based physics (applyNotchPhysics): reversible notches,
-    per-notch max speed, acceleration, brake deceleration, air brake.
-  - Distance-based travel along rail (travelAlongRail), bogie-pair
-    advance by METERS along path (advanceBogiePairAlongPath), trailing
-    anchor derivation by span distance (deriveTrailingAnchor), teleport /
-    warp guards for rail joints.
-  - Pose from bogie samples: yaw from front/rear chord, pitch from height,
-    roll/cant lean; body center offset; interpolation handler on client.
-
-16.3 Operation / infrastructure
-  - Driving: enter cab (click wheels at front), W/S staged throttle,
-    reverser, brake notch, doors, interior lights, horn, pantograph up/down,
-    in-car announcements, destination/type signs (rollsign).
-  - Signals: signal blocks/entities, redstone + wire connections (insulator
-    + wire placement), signal state propagation, signal control via
-    SignalControllerMod / ATSAssistMod / WebCTC (external).
-  - Level crossing (踏切): gates + state; configurable models.
-  - Stations: station structures/props, stop behavior, timetables
-    (community automation e.g. RealTrainMod-Automation with Oudia).
-  - Catenary / overhead wire: insulators + wires (string/connecting),
-    pantograph interaction, invisible-wire trick.
-  - Ballast / track facilities; signboards; a wide catalog of props
-    (poles, buildings via ngto/schematic import through MCTE).
-  - Rail network spanning hundreds/thousands of km is achievable.
-
-16.4 Content / addon pipeline
-  - Addons / model packs: JSON configs (model-config, train-config,
-    vehicle-base-config, resource-config, rollsign), custom models,
-    scripts (JavaScript), sound libraries (SoundLib), bundled packs.
-  - Community content: vehicles, rails, signals, stations, props, cars,
-    ships, aircraft.
-  - Licensing: RTM itself is All Rights Reserved; addons vary. For this
-    project: implement functionality with original code/models only.
-    Do NOT bundle RTM jars, models, textures, or sounds. If community
-    content is later desired, verify each pack's license individually.
-
-16.5 Multiplayer / persistence
-  - Forge servers: rail world-state persisted per world; trains synced via
-    entity packets + script data sync; client prediction/interpolation.
+8. SOURCE QUALITY / CONFIDENCE RULES
+------------------------------------
+- CONFIRMED-RTM          : stated by ngt5479/official pages, or documented in
+                           the model-pack creation manual / official spec.
+- CONFIRMED-MODELPACK    : observable in real pack files + JSON docs.
+- REFERENCE-IMPLEMENTATION : from KaizPatchX (mirrors RTM JSON) or
+                           RealTrainModRenewed (modernized). NOT proof of
+                           original RTM internals, but high-value design input.
+- INFERRED               : reasonable from multiple sources; needs Phase -1
+                           validation.
+- UNKNOWN                : no reliable source found.
+Where a JSON key is BOTH in the model-pack docs (CONFIRMED-MODELPACK) and in
+KaizPatchX source, it is listed once with the stronger marker where possible.
 
 
-17. RTM vs /railsys GAP ANALYSIS
---------------------------------
-Legend: RTM=present, current=/railsys present. Status: OK / PARTIAL / MISSING.
-
-Rail / Track:
-  Feature                 RTM   railsys  Status    Notes / Recommended action
-  ----------------        ----  -------  --------  -----------------------------
-  Straight rail           Y     Y        PARTIAL   testline only; no ballast/blocks
-  Curve rail (Bezier)     Y     Y        PARTIAL   no arc-length, no roll/cant
-  Slope / vertical        Y     N        MISSING   SLOPE enum only; add pitch+profile
-  Switch / turnout        Y     Y        PARTIAL   node-routing only; no geometry
-  Marker placement        Y     Y        PARTIAL   RailWand curves only; add straights
-  Rail preview            Y     N        MISSING   add renderer preview
-  Rail as world blocks    Y     N        MISSING   debug blocks only; add collision
-  Ballast                 Y     N        MISSING
-  Rail packs/registry     Y     N        MISSING   add RailDefinition/registry
-  Arc-length curves       Y     N        MISSING   core math debt
-  Cant/roll               Y     N        MISSING
-  Speed limits            Y     N        MISSING   constLimit fields per rail
-  Track protection        Y     N        MISSING
-
-Trains:
-  Feature                 RTM   railsys  Status    Notes
-  ------------------      ----  -------  --------  ------------------------------
-  Full-scale 3D cars      Y     N        MISSING   cuboid renderer only
-  TrainEntity/Formation   Y     Y        PARTIAL   trainId/carIndex only
-  Bogies                  Y     N        MISSING   core for pose + spacing
-  Distance movement       Y     N        MISSING   core debt (segment progress only)
-  Coupling tool           Y     N        PARTIAL   addcar/removecar/unlink exist,
-                                                   no physical coupling
-  Notch physics           Y     N        MISSING   simple accel to target only
-  Reverser/brake          Y     N        MISSING
-  Doors/announce/signs    Y     N        MISSING
-  Pantograph              Y     N        MISSING
-  Horn/sound              Y     N        MISSING
-  Interior lights         Y     N        MISSING
-  Multi-car pose          Y     N        MISSING   no per-car pose from bogies
-
-Operations:
-  Feature                 RTM   railsys  Status    Notes
-  ------------------      ----  -------  --------  ------------------------------
-  Signals                 Y     N        MISSING   only a boolean occupancy
-  Blocks / interlocking   Y     N        MISSING
-  Signal wire/insulators  Y     N        MISSING
-  Level crossing          Y     N        MISSING
-  Station structures      Y     N        PARTIAL   node flag + dwell only
-  Timetable / ATO         Y     N        MISSING
-  Catenary / overhead     Y     N        MISSING
-  Automatic route         Y     N        PARTIAL   greedy route only
-  Station stop position   Y     N        MISSING
-
-System:
-  Feature                 RTM   railsys  Status    Notes
-  ------------------      ----  -------  --------  ------------------------------
-  World persistence       Y     Y        PARTIAL   graph saved; rail-block none
-  Multiplayer sync        Y     N        MISSING   graph never synced to clients
-  Client prediction       Y     N        MISSING
-  Content pipeline        Y     N        MISSING   JSON packs/scripts
-  Performance for 100km   Y     N        MISSING   O(cars x entities) scan
-  Tests / CI              Y     N        MISSING
-
-Net gap summary: /railsys today implements roughly the "Phase 1-3 core"
-(nodes, segments, straight/curve, a moving lead car with followers,
-rudimentary route/station/switch). Everything that makes RTM feel like a
-railway (bogies, distance movement, cant, blocks+signals, catenary,
-content, multiplayer) is missing. Biggest structural blocker is the
-segment-progress + follower-on-leader model (section 14).
-
-
-18. FINAL TARGET ARCHITECTURE (design)
---------------------------------------
-Proposed package layout (names kept consistent with existing code where
-possible; extensions new):
-  net.minecraft.rail.*          (existing: RailGraph, RailNode, RailSegment, ...)
-  net.minecraft.rail.path.*     (new: RailPath, PathDistance, PathPosition)
-  net.minecraft.rail.track.*    (new: RailPiece, RailRegistry, RailBallast)
-  net.minecraft.rail.math.*     (new: ArcLengthCurve, TrackMath)
-  net.minecraft.rail.signal.*   (new: Signal, SignalBlock, SignalController)
-  net.minecraft.train.*         (new: Train, TrainFormation, TrainCar, Bogie)
-  net.minecraft.station.*       (new: Station, Platform, StopPoint, Timetable)
-
-Responsibilities (data ownership, dependencies, sync, render, tick):
-
-  RailNetwork (was RailGraph)
-    - owns nodes, segments, switch state, stations, routes
-    - exposes "distance resolver": resolve(PathPosition) -> (segment,progress)
-      and resolve(distance) -> (segment,progress) via arc-length tables
-    - owns per-segment arc-length lookup table (progress<->meters)
-
-  RailSegment (kept)
-    - add: arc-length table (build once per segment; length exact)
-    - add: slope/cant profile; direction-aware traversal
-    - expose getPosAtMeters(m), getYawAtMeters, getPitchAtMeters,
-      getRollAtMeters (or keep index/sample API)
-
-  RailPath / PathDistance
-    - a walkable ordered route: [ (segmentId, direction, startM, endM) ]
-      (switch-aware; produced once when a train enters a node)
-    - cumulative distance so a train has a scalar "path distance"
-    - traversal: distance += speed*dt; walk across segments
-
-  RailPiece / RailRegistry (new, track-as-content)
-    - each placed rail is a world "piece" (core block entity + collision),
-      owns its RailMap geometry; registry maps pack definitions
-    - RailMap geometry provides: length, points, height, yaw/pitch/roll per
-      arc-length sample (clean-room port of the *concept*, not RTM code)
-
-  TrainFormation (new)
-    - owns the ordered car list; head car authoritative
-    - update(): head car advances path distance; each following car placed
-      at headDistance - (i * carSpacing) resolved across the path
-    - owns coupling state, train id, passenger seat mapping
-
-  TrainCar / Bogie (new)
-    - TrainCar: model def, length, axle distance, doors, interior lights
-    - Bogie: anchor (segment, distance) for front/rear; car pose derived
-    - pose = yaw from front/rear chord, pitch from dy, roll from cant
-
-  TrainController (new)
-    - notch state, reverser, brake, target speed, acceleration/brake curves
-    - reads signals/blocks ahead; stops at stop points; ATO hooks
-
-  Signal / SignalBlock / SignalController (new)
-    - block occupancy (distance intervals), aspects, wire network,
-      interlocking tables, approach control
-
-  Station / Platform / StopPoint / Timetable (new)
-    - platform positions, stopping distance, dwell, doors side, schedule
-
-  Crossing / Catenary (new)
-    - level crossing gates wired to signal network
-    - overhead wire: insulator anchors + wire segments + pantograph contact
-
-  RailwayPersistence (new)
-    - WorldSavedData evolution: graph + pieces + signals + timetable NBT;
-      schema versioning; keep "rail_system" key, add sub-keys
-
-  RailwayNetworkSync (new)
-    - server->client packets: graph/piece snapshot + deltas, entity
-      (car/bogie) state, formation state; client-side previews
-
-  RailwayRenderer (extend RenderRailVehicle / new)
-    - per-car: body from pose + model def; bogies, doors, lights,
-      pantograph, rollsign; couplers as rigid links; rail pieces as
-      block models; signal aspects; wire rendering
-
-  RailwayCommandUI (extend CommandRailSystem)
-    - keep /railsys names; add placement, switch-driving, signal editing,
-      timetable, debug overlays; reuse /weui-style GUI patterns
-
-Dependency rules:
-  rail.graph <- rail.path <- train (formation) <- train (car/bogie)
-  rail.signal <- train (controller)
-  station <- train (controller) ; crossing <- rail.signal
-  everything <- persistence (NBT) ; network sync mirrors server graph
-  Renderers depend on the shared math only (no server state mutation).
-
-
-19. DATA MODEL (design)
------------------------
-RailSegment
-  id, startNodeId, endNodeId, type(STRAIGHT/CURVE/SLOPE/SWITCH),
-  lengthM (exact via arc-length), lengthTable[+1] (cumulative meters),
-  cantTable[], slopeProfile, curveData(optional), pieceId (optional)
-
-RailPathEntry
-  segmentId, direction(+1/-1), startM, endM, switchSegmentEnteredAt
-
-PathPosition (global)
-  pathDistanceM  (scalar, from path start)  OR
-  resolved = (segmentId, progress)  (derived)
-
-TrainCar
-  carDefId, lengthM, bogieOffsetFront, bogieOffsetRear, doors, weight
-
-Train
-  trainId, formation: List<TrainCar>, headPathPosition, carSpacing,
-  controllerState(notch, reverser, speed, targetSpeed), signalsAhead[]
-
-Bogie
-  anchorPathPosition, axleYaw
-
-SignalBlock
-  id, intervalStartM/EndM (on path), state, linkedSignalIds
-
-Station
-  nodeId/pieceId, platformOffsets, stopPositionM, dwellTicks, doorsSide
-
-CatenaryWire
-  fromInsulatorId, toInsulatorId, sagProfile, heightAboveRail
-
-NBT layout (persistence):
-  rail_system: { version, nodes[], segments[], switches[], stations[],
-                 trains[] (or via entities), signals[], crossings[],
-                 catenary[], timetable[] }
-  Backward-compatible load for existing graph NBT (nodes/segments/switches).
-
-
-20. DISTANCE-BASED MOVEMENT DESIGN (the core change)
----------------------------------------------------
-Replace "segment-progress formation" with network-arc-length movement.
-
-  20.1 Arc-length per segment
-       Build cumulative distance table per segment once (on creation or
-       load): meters[i] for i in 0..split. For curves use arc-length
-       reparameterization so index -> equal distance (RTM's concept,
-       original implementation). Straight: meters = progress * lengthM.
-
-  20.2 Leader motion
-       leader.pathDistance += direction * speed * dt
-       Resolve pathDistance -> (segmentId, progress) by walking the path
-       entries. At a path end without continuation, choose next segment by
-       switch target > route (A* on graph) > first connected, appending a
-       new path entry (continuous distance).
-
-  20.3 Follower placement (fixes the disappearance bug)
-       For car i: targetDistance = leader.pathDistance - (i * carSpacing)
-       Walk backward from the leader's path entry subtracting each
-       segment's length until targetDistance lands inside a segment.
-       That (segmentId, progress) is the follower's position. No modulo
-       wrap. When the leader is in segment N, cars 1..k naturally stay on
-       N-1, N-2, ... — no teleport, spacing always in meters.
-
-  20.4 Pose from bogies
-       Each car has front/rear bogie at +/-bogieOffset around the car
-       center (path distance). Sample the rail at both bogie distances:
-         yaw   = atan2(front.z-rear.z, front.x-rear.x)
-         pitch = atan2(dy, chordLen)
-         roll  = cant at center
-       centerY = mean(bogieY) (+ body offset); position interpolated.
-
-  20.5 Switch/routing integration
-       Path building consults switch state when reaching a node; the whole
-       formation shares the same path so all cars follow the same route
-       (this also fixes cars splitting across turnouts).
-
-  20.6 Reverse
-       Reversing = negate direction; path is traversed backward; cars
-       re-derive by adding i*carSpacing ahead when reversing.
-
-  20.7 Vertical
-       Slope segments get a height profile; pitch derived from bogies;
-       supported as first-class, not a special case.
-
-  Feasibility vs current structure:
-    - RailGraph/RailSegment/NBT remain; we ADD the length table and a path
-      layer. EntityRailVehicle becomes a thin entity delegating to
-      TrainFormation/TrainCar math (server) and Interpolation (client).
-    - This preserves existing commands and saved graphs (backward compat).
-
-
-21. PERSISTENCE DESIGN
-----------------------
-  - Keep WorldSavedData "rail_system"; add schema version field.
-  - Add RailPiece data (rail block pieces) and signals/stations/timetable.
-  - Save trains as entity NBT (current) but ALSO derive from Formation so
-    reload restores exact path distances.
-  - Arc-length tables are recomputed on load (not stored) to avoid drift.
-  - Prefer incremental dirty markers (markDirty on change) over full
-    graph serialization each tick.
-  - Migration: detect old NBT (no "version") and upgrade with defaults.
-
-
-22. MULTIPLAYER / NETWORK DESIGN
---------------------------------
-  Current state: NO graph sync; single-JVM sharing only.
-  Target:
-    - Server owns RailNetwork (single source of truth).
-    - New packets: RailNetworkSnapshot (on join/change), RailPiecePlace/
-      Remove, SignalState, TrainFormation state, TrainCar/Bogie entity
-      state via tracked entities.
-    - Client: keep a read-only mirror graph; entity interpolation uses
-      server positions; rail preview/placement is server-validated.
-    - Tracker: increase EntityRailVehicle update rate (e.g. 1-2 ticks) and
-      send position + rail anchor data for smooth curves.
-    - Client prediction optional later (Phase 10) to hide latency.
-
-
-23. RENDERING DESIGN
+9. SOURCES CONSULTED
 --------------------
-  - Replace hard-coded cuboids with a model definition system
-    (boxes/layers config or a JSON model + optional OBJ-like mesh loaded
-    at runtime; all original assets only).
-  - Rail pieces: block-based rendering with ballast + rails (rail texture/
-    geometry), preview overlay via the existing RenderGlobal debug pattern.
-  - Cars: body aligned to bogie-derived pose; per-part transforms for
-    doors (open state), pantograph, rollsign, interior lights; couplers
-    as rigid links between car centers (fix visual vanishing).
-  - Signals/crossing/catenary rendered as tile/entity models; wires drawn
-    as line/quad strips.
-  - F3 debug overlay retained and extended (path distance, signals).
+[1] RealTrainMod | CurseForge (ngt5479)
+    https://www.curseforge.com/minecraft/mc-mods/realtrainmod
+    accessed 2026-08-09  Tier 1. Overview, versions, NGTLib dependency,
+    license (All Rights Reserved), files (1.7.10/1.10.2/1.12.2).
+[2] NGTLib | CurseForge (ngt5479)
+    https://www.curseforge.com/minecraft/mc-mods/ngtlib
+    accessed 2026-08-09  Tier 1. Prerequisite library.
+[3] RTM Wiki (ja/en/zh-tw) - rtmwiki.kotl.io
+    Home: https://rtmwiki.kotl.io/ja/home
+    Usage: /ja/usage (+ glossary, tips, faq, related-mods)
+    Dev:   /ja/dev (+ /ja/dev/reference, /ja/dev/reference/json/...)
+    accessed 2026-08-09  Tier 2. Feature taxonomy, JSON config docs.
+[4] RTM Wiki source repository - Builder256/RTM-Wiki (GitHub)
+    https://github.com/Builder256/RTM-Wiki  (used raw .md files)
+    accessed 2026-08-09  Tier 2.
+[5] RealTrainModのJsonについてのドキュメント (akikawa9616, RtmJsonCreator project)
+    https://akikawaken.github.io/RTM/Docs/json.html
+    accessed 2026-08-09  Tier 2/3. Extensive JSON key docs incl. rail,
+    sounds.json, pack.json.
+[6] KaizPatchX (Kai-Z-JP) - unofficial RTM 1.7.10 fork (includes NGTLib+MCTE)
+    https://github.com/Kai-Z-JP/KaizPatchX
+    Config/entity/rail/electric source studied. accessed 2026-08-09  Tier 4.
+[7] RealTrainModRenewed (rinnyanneko) - 1.21 modernization fork
+    https://github.com/rinnyanneko/RealTrainModRenewed
+    accessed 2026-08-09  Tier 4. Conceptual architecture only.
+[8] CurseForge RealTrainModUnofficial (1.21.1 port, permission granted)
+    referenced via search. accessed 2026-08-09  Tier 4.
+[9] RTM official model-pack creation manual (ngt5479)
+    "[RTMモデルパック作成マニュアル_2.4.8_1] 2019" - referenced in [5];
+    direct file not retrievable at research time (link rot) => UNKNOWN for
+    any facts only available there.
+[10] getting-started / installing guide (RTM Wiki) - gameplay operation.
+    accessed 2026-08-09  Tier 2.
+
+Note: no RTM jar contents, model assets, textures, or sounds were downloaded
+into the repo. This project must use clean-room, original assets.
 
 
-24. IMPLEMENTATION ROADMAP
---------------------------
-Phase 0  Stabilize + test harness (no behavior change)
-Phase 1  Rail core: arc-length + distance resolver + RailPath
-Phase 2  Distance-based train formation + bogies + segment-crossing fix
-Phase 3  Track content: rail pieces, marker placement, slope, turnout geometry
-Phase 4  Driving: notch physics, reverser, brake, cab HUD, doors
-Phase 5  Signals / blocks / route control
-Phase 6  Stations / platforms / stops / timetable / ATO
-Phase 7  Crossing / catenary / railway facilities
-Phase 8  Model & animation system, sounds, horns, lights
-Phase 9  Editing tools + content pipeline (JSON packs, rail pack registry)
-Phase 10 Multiplayer sync + persistence + performance
-Phase 11 RTM parity verification & long-duration testing
+10. RTM OVERVIEW
+----------------
+RealTrainMod (RTM) by ngt5479 is a Forge mod for Minecraft Java Edition that
+adds a full railway platform: full-scale 3D railway vehicles, rails,
+signals, catenary, crossings, station equipment, and a large catalog of
+objects/props, PLUS a content-addon system (ModelPacks) with JSON configs,
+OBJ/MQO models, textures, sounds, and JavaScript scripts. [CONFIRMED-RTM]
 
-Rationale vs the suggested default ordering:
-  - Distance-based formation (Phase 2) MUST come before any of the fancier
-    features because everything (signals, stations, crossings) assumes a
-    stable, drift-free train position.
-  - Track content (Phase 3) comes after movement so that placement and
-    driving are validated together.
-  - Signals need accurate block occupancy which depends on distance-based
-    formation -> after Phase 2.
+Core facts:
+  - MC versions: primarily 1.7.10 and 1.12.2 (also 1.10.2; early 1.5.2-1.6.x).
+  - Prerequisite: NGTLib (by same author). [CONFIRMED-RTM]
+  - License: All Rights Reserved. Addons' licenses vary. [CONFIRMED-RTM]
+  - Unofficial companions: KaizPatchX (1.7.10 fork bundling NGTLib+MCTE),
+    fixRTM (1.12.2 bugfix), RealTrainModUnofficial (1.21.1 port),
+    RealTrainModRenewed (modern rewrite). [CONFIRMED-RTM/Tier2]
 
-Each phase detail (purpose, targets, deps, files, done criteria, tests,
-risks, next-phase entry condition):
+Platform split (Core vs Content):
+  CORE (in RTM itself): rail placement/math, train/formation/bogie runtime,
+    driving/notch physics, signal/wire/electricity runtime, crossings,
+    machine runtime, model pack loading/registry, renderer, networking,
+    persistence, seat/player handling.
+  CONTENT (via ModelPacks): all vehicle/rail/signal/object MODELS and their
+    JSON performance/behavior configuration, textures, sounds, scripts.
 
-  Phase 0 -- Stabilize + test harness
-    Purpose : make current behavior safe to refactor; capture invariants.
-    Targets : add a math test harness (arc length, path resolution),
-              CI-able build; document invariants.
-    Deps    : none.
-    Files   : new test sources + build config; no production behavior change.
-    Done    : build green; tests for existing straight/curve length.
-    Tests   : unit tests for RailSegment.length, curve arc length.
-    Risks   : none.
-    Next    : baseline established.
-
-  Phase 1 -- Rail core (arc-length, distance resolver, RailPath)
-    Purpose : give the network a continuous distance model.
-    Targets : RailSegment arc-length table; RailNetwork.resolveDistance();
-              RailPath/RailPathEntry; switch-aware path building.
-    Deps    : Phase 0.
-    Files   : rail/RailSegment.java, rail/RailGraph.java, rail/path/*.new
-    Done    : resolve(distance)->(segment,progress) round-trips within
-              tolerance on loops, S-curves, multi-segment.
-    Tests   : straight/curve/S-curve/closed-loop distance round-trip.
-    Risks   : arc-length precision; performance of table build.
-    Next    : formation can use scalar distances.
-
-  Phase 2 -- Distance-based formation + bogies (FIXES THE BUG)
-    Purpose : eliminate follower teleport; cars keep meter spacing.
-    Targets : TrainFormation, TrainCar, Bogie pose; leader advances path
-              distance; follower walk-back; car yaw/pitch/roll; reverse;
-              coupler as rigid link.
-    Deps    : Phase 1.
-    Files   : train/*.new; EntityRailVehicle delegation; RenderRailVehicle.
-    Done    : 8-car train on testloop for 20+ laps: no teleport, spacing
-              within tolerance, no segment-crossing artifact.
-    Tests   : long loop soak, S-curve, reverse, segment boundary, short/long
-              train, curve spacing.
-    Risks   : path consistency at nodes; performance.
-    Next    : trains are trustworthy for traffic control.
-
-  Phase 3 -- Track content (rail pieces, markers, slope, turnout geometry)
-    Purpose : rails become world objects you place and collide with.
-    Targets : RailPiece + RailRegistry + pack definitions; marker
-              placement (straight/curve/slope/turnout); RailMap geometry
-              with arc-length samples, pitch, roll; block+collision;
-              preview renderer; copy/undo for rail edits.
-    Deps    : Phase 1 (path math), Phase 2 (trains run on pieces).
-    Files   : rail/track/*.new, block/item additions, RenderGlobal preview.
-    Done    : build a junction with a turnout; a train follows the switch;
-              placing/removing rails updates persistence.
-    Tests   : placement validity, gradient, turnout routing, save/load.
-    Risks   : block-volume cost; world-edit integration.
-    Next    : infrastructure can be driven.
-
-  Phase 4 -- Driving (notch physics, reverser, brake, cab)
-    Purpose : realistic operation feel.
-    Targets : TrainController notch model (accel/brake curves, max speed),
-              reverser, brake notch, cab HUD, doors/announce hooks.
-    Deps    : Phase 2.
-    Files   : train/TrainController.new, GuiIngame HUD, input handling.
-    Done    : staged throttle; stopping distance controlled; doors.
-    Tests   : acceleration/braking curves, stop distance.
-    Risks   : none major.
-    Next    : operator can drive precisely -> signals meaningful.
-
-  Phase 5 -- Signals / blocks / route control
-    Purpose : prevent collisions; realistic traffic.
-    Targets : Signal, SignalBlock (occupancy by distance interval), aspects,
-              wire/insulator network, interlocking, approach locking,
-              automatic block for ATO.
-    Deps    : Phase 2 (distance), Phase 3 (rails), Phase 4 (driving).
-    Files   : rail/signal/*.new.
-    Done    : two trains on one line: second stops at red, proceeds on green;
-              occupancy released by tail, not head.
-    Tests   : following-distance, double-track, turnout interlocking.
-    Risks   : deadlock; state sync.
-    Next    : safe automatic operation.
-
-  Phase 6 -- Stations / platforms / stops / timetable / ATO
-    Purpose : scheduled, stopping services.
-    Targets : Station, Platform, StopPoint (exact stop position), dwell,
-              doors side, Timetable, ATO hook into blocks.
-    Deps    : Phase 4, Phase 5.
-    Files   : station/*.new.
-    Done    : train stops precisely at platform, opens doors, resumes on
-              schedule; ATO runs a timetable on a line with signals.
-    Tests   : stop accuracy, dwell, timetable adherence.
-    Risks   : stopping accuracy; timetable edge cases.
-    Next    : full automatic operations.
-
-  Phase 7 -- Crossing / catenary / facilities
-    Purpose : ambient railway infrastructure.
-    Targets : level crossings wired to signals; overhead wire + insulators
-              + pantograph contact; ballast/facilities props.
-    Deps    : Phase 3, Phase 5.
-    Files   : crossing/*, catenary/*, props.
-    Done    : crossing closes when train approaches; pantograph follows wire.
-    Tests   : crossing timing, wire continuity.
-    Risks   : rendering cost of wires.
-    Next    : world feels like a railway.
-
-  Phase 8 -- Model & animation, sounds, lights
-    Purpose : visual/audio parity.
-    Targets : model definition system (boxes/JSON + optional mesh), doors,
-              pantograph, rollsign, interior lights, horn, motor/door
-              sounds (original assets or CC-licensed only).
-    Deps    : Phase 4.
-    Files   : render/model/*, assets.
-    Done    : a config-defined car renders and animates; sounds play.
-    Tests   : render consistency, sound triggers.
-    Risks   : asset licensing.
-    Next    : content can be authored.
-
-  Phase 9 -- Editing tools + content pipeline
-    Purpose : users create their own content.
-    Targets : rail pack registry, JSON defs, in-world editors (RailWand
-              upgrade, preview, undo), reuse /weui GUI patterns.
-    Deps    : Phase 3, Phase 8.
-    Files   : rail/track/RailRegistry.new, gui/*, commands.
-    Done    : create a rail pack and place its rail; edit a curve via UI.
-    Tests   : pack loading, editor round-trip.
-    Risks   : scope creep.
-    Next    : content ecosystem.
-
-  Phase 10 -- Multiplayer sync + persistence + performance
-    Purpose : correct shared-world behavior at scale.
-    Targets : RailNetwork sync packets; rail-piece sync; train/bogie
-              tracking rate increase; client mirror + interpolation;
-              persistence schema v2; indexed graph access.
-    Deps    : all prior.
-    Files   : network/*, persistence/*, EntityTracker tuning.
-    Done    : two clients see identical rails/trains; save/load restores
-              exact state; 100km network performs acceptably.
-    Tests   : 2-client parity, save/load, soak.
-    Risks   : packet bandwidth; static graph removal.
-    Next    : production-ready.
-
-  Phase 11 -- RTM parity verification
-    Purpose : verify the acceptance criteria (section 26).
-    Deps    : Phase 10.
-    Done    : full acceptance suite green on testloop + junction + line.
-    Tests   : see 26.
-
-
-25. ACCEPTANCE CRITERIA (per phase, headline items)
----------------------------------------------------
-Phase 0 : gradle build + math unit tests pass.
-Phase 1 : distance round-trip error < 0.05% of path length on loop.
-Phase 2 : 8-car train, 20+ laps, max spacing error < 0.25m, zero teleport
-          events, zero follower-segment-mismatch warnings.
-Phase 3 : turnout routing deterministic; rail pieces persist; collide.
-Phase 4 : stop distance within 0.5m at target speed profile.
-Phase 5 : block release follows tail; no green-aspect conflict.
-Phase 6 : stop at platform within 0.25m; timetable <1s drift over 10 stops.
-Phase 7 : crossing closes >=2s before train arrival.
-Phase 8 : config-driven car renders with doors/light/pantograph/sound.
-Phase 9 : authored pack loads without touching core code.
-Phase 10: 2-client parity; save/load byte-stable; 100km perf target.
-Phase 11: all of the above in one automated soak run.
-
-PRIMARY QUALITY GOAL (headline):
-"Under complex alignment, long-duration multi-lap operation, train
-formations must not degrade: no car disappearance, spacing maintained,
-segment-crossing artifacts zero." This is the Phase 2 done-criteria and
-the umbrella test for every later phase.
-
-
-26. TEST STRATEGY
------------------
-Tier 1 - Math/unit (JVM, no game):
-  - arc-length of straight/Bezier vs reference sampling
-  - resolve(distance) round-trip on loop, S-curve, multi-segment
-  - follower walk-back: spacing invariants at segment boundaries
-  - pose-from-bogie yaw/pitch/roll on slope+curve
-  - notch physics acceleration/braking profiles
-
-Tier 2 - Simulation (headless world):
-  - Straight, Curve, S-curve, Closed loop, Multiple segments, Switch
-    (turnout both routes), Gradient, Long train (8-16 cars),
-    Forward/Reverse, Segment boundary, Chunk boundary, Save/load
-  - Long-duration loop test: 100 laps, log spacing errors + teleports;
-    assertion: none.
-  - Two-train following (signal blocks) and deadlock recovery.
-
-Tier 3 - Integration (build + manual / web client):
-  - makeMainOfflineDownload success (gate)
-  - 2-client (integrated + remote) parity checklist
-  - editor flows (place/remove/copy/undo) round-trip
-  - performance: 100km network tick-time budget
-
-Continuous: a CI job running Tier 1+2 on every PR.
-
-
-27. RISKS
----------
-  R1. Arc-length performance on huge networks (cache tables, spatial index).
-  R2. Removing the static GLOBAL_GRAPH could affect WorldEdit/save paths
-      (isolate; keep adapter during transition).
-  R3. Multiplayer packet growth (delta/dirty-only sync; batching).
-  R4. Asset licensing (use only original / CC-licensed assets; no RTM files).
-  R5. TeaVM constraints: single thread, memory, no reflection-heavy libs;
-      keep math allocation-light; avoid per-frame graph serialization.
-  R6. Scope creep (stick to phase done-criteria; no "nice-to-have").
-  R7. Backward compatibility of saved worlds (schema versioning).
-  R8. Follower bug fix changes visual behavior; soak tests must gate it.
-
-
-28. UNDETERMINED ITEMS
+11. RTM VERSION MATRIX
 ----------------------
-  U1. Whether to keep the graph-based model or introduce RailPiece blocks
-      as the primary track representation (recommend: both, graph as the
-      routing layer, pieces as the world layer).
-  U2. Client prediction depth (full vs position-only) for multiplayer.
-  U3. Model format (JSON boxes first; OBJ-like later) and authoring tooling.
-  U4. Sound asset sourcing (original recordings vs CC libraries).
-  U5. Target "parity" scope: RTM 1.12.2 is enormous; recommend parity = the
-      feature taxonomy in section 16 minus exotic community scripts.
-  U6. Coordinate/scale: RTM is 1:1 full-scale; Minecraft is 1:1 too, so
-      car lengths (~15-20m) span multiple chunks; verify chunk-boundary
-      behavior early (Phase 2).
+(All rows INFERRED/UNKNOWN unless marked. Original per-version docs are
+scarce; verified facts are listed.)
 
+| Aspect                 | 1.5.2-1.6.x      | 1.7.10                 | 1.10.2             | 1.12.2              |
+|------------------------|------------------|------------------------|--------------------|---------------------|
+| RTM release            | early RTM1       | RTM1.7.10.xx (current) | RTM2.2.8-18        | RTM2.4.xx-43        |
+| NGTLib required        | yes [C-RTM]      | yes [C-RTM]            | yes [C-RTM]        | yes [C-RTM]         |
+| Unofficial fix         | -                | KaizPatchX [C-T2]     | -                  | fixRTM [C-T2]       |
+| ModelPack JSON format  | older subset     | full TrainConfig set  | full set           | full set            |
+| seatPos (int, blocks)  | used             | deprecated -> slotPos  | -> slotPos         | slotPos + seatPosF  |
+| trainModel2/bogieModel3| introduced       | standard              | standard           | standard            |
+| Scripts (JS)           | limited          | full (renderer/sound/server) | full        | full                |
+| Doors/Pantograph states| basic            | full TrainState       | full               | full                |
+| Rails (large rail)     | yes              | yes + slope/switch    | yes                | yes                 |
+| KaizPatchX specifics   | -                | +NGTLib+MCTE bundled  | -                  | -                   |
 
-29. ITEMS REQUIRING USER DECISION
----------------------------------
-  N1. Approve Phase 0+1+2 as the first implementation slice (recommended).
-  N2. Decide whether RailWand/command editing should be extended (Phase 3)
-      or a separate placement tool created.
-  N3. Decide target parity depth (U5) before Phase 11.
-  N4. Confirm whether the untracked FINAL_REPORT.md may be deleted/archived.
-  N5. Decide whether pre-existing dev changes (testloop etc.) should be
-      committed as their own commit (not by this task).
-  N6. Asset/licensing policy for sounds/models (recommend original only).
+Notes: The modern JSON field set (sec. 29) targets the 1.12.2 era; 1.7.10
+KaizPatchX mirrors it closely [REFERENCE-IMPLEMENTATION]. Exact per-version
+feature deltas are UNKNOWN.
 
-
-30. FILES CHANGED BY THIS TASK
-------------------------------
-  FINAL_REPORT.txt            (updated/rewritten - this file)
-No product code was changed.
-
-
-31. GIT COMMIT
---------------
-Commit SHA : ec4bd985bdd806e1fc8796a62d9ca45facf20a37
-Message    : docs: add /railsys analysis and RealTrainMod parity design roadmap
-Files in commit : FINAL_REPORT.txt only (verified via git show --name-only)
-Only FINAL_REPORT.txt was staged (explicitly limited via git add FINAL_REPORT.txt).
-Pre-existing source changes and FINAL_REPORT.md NOT staged.
-
-
-32. PUSH / MERGE RESULT
+12. NGTLib RELATIONSHIP
 -----------------------
-Command: git push origin main
-Result  : SUCCESS
-   fb1f53ac..ec4bd985  main -> main
-No force push, no rebase/merge, no history rewrite.
+NGTLib provides the shared foundation: model loading (OBJ/MQO/NGTO),
+resource/pack handling, math, NBT utilities, sound player, data map,
+permissions, and the "installed object" base machinery. RTM adds rail/train/
+signal/electric domain logic on top. KaizPatchX bundles NGTLib+MCTE into one
+jar and is a drop-in RTM replacement for 1.7.10. [CONFIRMED-RTM/Tier2,
+REFERENCE-IMPLEMENTATION]
+=> Phase -1 implication: a Web/Eaglercraft port needs an equivalent "library"
+layer (math, model loader, pack loader, data map, sound) before the rail
+domain can be clean.
+
+13. VEHICLE SPECIFICATION
+-------------------------
+A "vehicle" in RTM is defined by a JSON config whose TYPE selects the runtime:
+  - ModelTrain  -> train (on rails)  [CONFIRMED-MODELPACK]
+  - ModelVehicle-> car/plane/ship (free movement) [CONFIRMED-MODELPACK]
+  - ModelContainer, ModelFirearm, ModelMachine, ModelOrnament, ModelNPC,
+    ModelSignal, ModelRail, ModelWire, ModelConnector [CONFIRMED-MODELPACK]
+Train vehicle key fields (RTM JSON, from [3][5]):
+  trainName        unique ID, lowercase a-z/_/digits, no Japanese [C-MP]
+  trainType        EC(電車) DC(気動車) EL DL SL CC(貨車) TC(タンク) N [C-MP]
+  trainModel2      ModelSource {modelFile, textures[[mat,path,opts]], rendererPath}
+  bogieModel2 / bogieModel3  [ModelSource | [front, back]] [C-MP]
+  trainDistance    half body length (coupling spacing) [C-MP]
+  bogiePos         [[x,y,z],[x,y,z]] front/rear bogie offsets; default
+                   [[0,0,7.125],[0,0,-7.125]] [REFERENCE-IMPLEMENTATION]
+  size             collision [width,height]; default [2.75,1.25] [R-I]
+  playerPos        driver/passenger seats [[x,y,z],...]; default 2 seats
+                   [[0.8,0,9.187],[-0.8,0,-9.187]] [R-I]
+  slotPos          seats [[x,y,z,type]] in METERS; type 0 none,1 cross-seat
+                   model,2 hidden-model cross/long seat,3 berth(unimpl.) [C-MP]
+  seatPos (deprecated, int blocks/16) [C-MP]
+  accelerateion / accelerateions  accel (km/h/s x 0.0006944 => blocks/tick^2) [C-MP]
+  maxSpeed         per-notch speed limits (1..5) blocks/tick [C-MP]
+  deccelerations   per brake notch (9), negative [C-MP]
+  rolling          curve tilt 0..1 (internally x5) [C-MP]
+  pantoPos         [[X,Z,minY,maxY]] pantograph slider [C-MP]
+  headLights/tailLights/interiorLights  Light[] {type,color,pos,r} [C-MP]
+  smoke            [[x,y,z,name,min,max,speed]] [C-MP]
+  wheelRotationSpeed  [C-MP]
+  notDisplayCab, isSingleTrain, muteJointSound, jointDelay [C-MP]
+  doCulling/smoothing/accuracy/offset/scale/tags/useCustomColor/renderAABB [C-MP]
+  serverScriptPath/guiScriptPath/guiTexture/customIconTexture [C-MP]
+
+14. TRAIN / FORMATION SPECIFICATION
+-----------------------------------
+- A Formation is an ordered list of trains (FormationEntry {train,pos,dir}).
+  One control car drives; direction + speed are shared. [REFERENCE-IMPLEMENTATION]
+- Coupling: connecting two trains creates one Formation; disconnecting
+  splits it. Coupling distance = trainDistance_A + trainDistance_B. [R-I]
+- Movement update (front car only): for each car in order, position car i
+  from car i-1's bogies; front car advances by speed. [R-I]
+- TrainState (synced) covers: train_dir, notch, signal, door, light,
+  pantograph, chunk_loader, destination, announcement, direction (front/
+  center/back), interior_light. [R-I]
+- Chunk loader state exists so long trains keep chunks loaded. [R-I]
+=> This is the RTM "formation = ordered cars, each derived from previous"
+model; distinct from the current /railsys trainId/carIndex with independent
+followers (relevant Phase -1 input).
+
+15. BOGIE SPECIFICATION
+-----------------------
+- Bogies are RUNTIME positioning anchors, not just visuals. Each train has
+  two bogie entities (front/rear) created at spawn. [REFERENCE-IMPLEMENTATION]
+- Bogie placement: bogiePos [[0,0,+L],[0,0,-L]] relative to train center;
+  default L=7.125m. Train moves by advancing the FRONT bogie along the rail
+  (updateBogiePos by speed distance), then positioning the REAR bogie
+  trainLength behind, then deriving the body. [R-I]
+- Body pose from bogie chord (updateTrainPos): [R-I]
+    x = lerp(front,rear, |lf|/|lf-lb|), y = mean(bogieY)
+    yaw   = atan2(front.x-rear.x, front.z-rear.z)
+    pitch = atan2(y0, sqrt(x0^2+z0^2))   (gradient tilt)
+    roll  = (bogie0.roll + -bogie1.roll)/2  (cant from bogie roll)
+    body offset by TRAIN_HEIGHT along roll (cant shift).
+- Following cars: front bogie positioned at coupling gap distance from the
+  PREVIOUS car's rear bogie (disBogie = couplingDist - halfLengths). [R-I]
+- Bogies also derive from the body (updateBogiePos) to correct drift. [R-I]
+- Bogies rotate (wheel rotation, bogie yaw on curves). [R-I]
+=> Phase -1: distance-accurate bogie-anchored body pose is the reference
+model; matches the direction recommended in the prior phase analysis.
+
+16. VEHICLE SCALE / DIMENSIONS
+------------------------------
+- RTM is 1:1 real scale; 1 Minecraft block = 1 metre. [CONFIRMED-RTM]
+- Default half-length trainDistance = 10.125m (=> ~20.25m car) [R-I]
+- Default bogie spacing ~14.25m (7.125 x2) [R-I]
+- Default width/height collision 2.75 x 1.25 [R-I]
+- Real-vehicle pack examples (community knowledge, INFERRED):
+    10m級 single-unit (e.g. tram/mini)  trainDistance ~5
+    16m級  short EMU               ~8
+    18m級  20m-class EMU (commonly used) ~9-9.5
+    20m級  JNR 20m EMU            ~10
+    Locomotives similar 18-20m; freight cars shorter; trams narrower.
+  Exact numbers are per-pack config (trainDistance/bogiePos); no single
+  canonical table exists in official docs [INFERRED].
+- Units: positions/offsets are metres (blocks); legacy seatPos used 1/16
+  block units (0.0625); rail height steps use 1/16 block. [C-MP]
+
+17. DRIVING SPECIFICATION
+-------------------------
+- Cab: click the front wheels/bogie to enter the driver seat; driver pos
+  from playerPos[dir]. [CONFIRMED-RTM (getting-started), R-I]
+- Notches (EnumNotch): accel 1..5 (max speed 0.36/0.72/1.08/1.44/1.80
+  blocks/tick), inertia 0, brake 1..7 (dec -0.0005..-0.0035), emergency
+  brake -8 (-0.01). Brake application uses a brakeCount ramp
+  (notch*-18 ticks to full brake). [R-I]
+- Acceleration config from JSON (accelerateions/maxSpeed/deccelerations);
+  server script may override if useVariableAcceleration/Deceleration. [C-MP]
+- Gradient effect: extra deceleration/gravity from rotationPitch. [R-I]
+- Controls (1.7.10/1.12.2, from Wiki): S=power, W=brake (staged notch
+  steps); reverser, EB (emergency), horn, door, pantograph, lights, etc.
+- Signal influences speed: signal level clamps speed to its limit
+  (SignalLevel.getSpeed); ATS chime/bell sounds exist. [R-I]
+- HUD shows speed/notch; destination/announcement via TrainState. [R-I]
+
+18. RAIL GEOMETRY SPECIFICATION
+-------------------------------
+- Rail geometry is per-piece, not a graph: each placed rail is a RailMap
+  between two RailPositions. [CONFIRMED-MODELPACK + R-I]
+- RailMap abstraction (from rail placement/math): [R-I]
+    getLength()             piece length (3D, includes slope)
+    getRailPos(split,index) -> [z,x] sample at arc-length-like split
+    getRailHeight(split,index), getRailYaw, getRailPitch, getRailRoll(=cant)
+    getNearlestPoint(split,x,z)  nearest sample to a world point
+    canConnect(other)       endpoint connectivity
+  This is EXACTLY the "sample any world distance -> x/y/z/yaw/pitch/roll"
+  concept the current /railsys lacks.
+- RailPosition: {blockX,Y,Z, direction(0..7 = 45deg steps), height (1/16
+  block), switchType, anchorYaw, anchorPitch, anchorLengthHorizontal/
+  Vertical, cantCenter/cantEdge/cantRandom, constLimitHP/HN/WP/WN,
+  precise position overrides} [R-I / CONFIRMED-MODELPACK for const fields]
+- Curve: cubic Bezier on X/Z with arc-length reparameterization; split ~
+  length*32 (max 384 render); slope from control points. [R-I]
+- Straight: RailMapBasic with 8 directions. [R-I]
+- Slope: RailMapSlope slopeType 0..3 => length 16/8/4/2 blocks, fixed
+  pitches 3.576/7.125/14.036/26.565 deg; height encoded in block metadata
+  (1/16-block steps). [R-I]
+- Switch: RailMapSwitch (RailMapBasic subclass) with startDir/endDir and
+  open/closed state. [R-I]
+- Cant (roll): per-sample roll; body leans; const limit fields bound ballast.
+- Ballast: created as blocks along the rail width (ballastWidth 1/3/5 m),
+  per block-metadata height; rails are block structures (BlockLargeRail*
+  + TileEntityLargeRail*), core block owns the piece. [C-MP + R-I]
+- Rail properties: speed limit, allowCrossing, defaultBallast. [C-MP]
+
+19. RAIL PLACEMENT SPECIFICATION
+--------------------------------
+- Place two Marker blocks (or a markerSwitch) with arrows facing; right-click
+  a rail item to open the marker GUI and place the rail. [CONFIRMED-RTM]
+- Marker encodes RailPosition; markerSwitch adds switchType flag. [R-I]
+- Placement validation (canPlaceRail): obstacles, air, marker, other rail
+  base blocks; creative bypass. [R-I]
+- The rail creates its block list (ballast + rail base blocks) and sets the
+  core TileEntity owning them. Breaking removes owned blocks only. [R-I]
+- Preview: rendered rail preview before placement (client). [CONFIRMED-RTM
+  (observed), R-I in Renewed]
+- Copy/undo/remove/edit tools exist in creative/marker GUI. [INFERRED]
+
+20. SWITCH / TURNOUT SPECIFICATION
+----------------------------------
+- Switch = rail piece whose geometry branches; type derived from marker
+  pattern in RailMaker: [R-I]
+    3 points, 1 switch   -> SwitchBasic (single turnout)
+    4 points, 2 switches -> SwitchSingleCross
+    4 points, 4 switches, two same dir -> SwitchScissorsCross
+    4 points, 4 switches otherwise     -> SwitchDiamondCross
+- Switch state (open/closed) toggled by redstone or signal/electricity,
+  stored in the rail TileEntity. [R-I]
+- Trains traverse the chosen branch; whole formation follows same route.
+- Reverse traversal supported; state saved/loaded; synced via TileEntity
+  state. [INFERRED]
+
+21. SIGNAL / BLOCK / INTERLOCKING SPECIFICATION
+-----------------------------------------------
+- Signal = installed object (BlockSignal + TileEntitySignal) whose model
+  and lights come from a ModelPack (SignalConfig). [C-MP + R-I]
+- Signal levels (SignalLevel): [R-I]
+    HIGH_SPEED_PROCEED(6) speed 1.2-1.5, PROCEED(5) 0.9-1.2,
+    SLOW_DOWN(4) 0.6-0.9, CAUTION(3) 0.3-0.6, VIGILANCE(2) 0.3-0.6,
+    STOP(1) 0.  (speed = km/h / 72 in blocks/tick)
+- Signal state flows over the ELECTRICITY system: wires between connectors
+  (Relay/Input/Output) and insulators; signal converters (BlockSignalConverter,
+  SignalConverterType) implement logic (NOT/AND/OR, signal-to-redstone etc.).
+  [R-I]
+- Train detection: rail redstone/occupancy via TileEntityLargeRail (rail
+  outputs signal level); train speed limited by detected signal level;
+  ATS chime/bell; automatic braking at STOP. [R-I]
+- External addons: ATSAssistMod, SignalControllerMod, WebCTC provide CTC/
+  ATS/ATO layers on top. RTM itself supplies detection + speed limit +
+  signal-to-rail wiring. [CONFIRMED-RTM (Wiki related-mods)]
+- Interlocking tables are NOT in RTM core [INFERRED]; route setting is
+  switch state driven by redstone/signals.
+
+22. CATENARY / WIRE SPECIFICATION
+---------------------------------
+- Electricity model: BlockElectricalWiring + EntityElectricalWiring +
+  WireManager; wires connect Connectors (Relay/Input/Output) and Insulators.
+  Wires sag per WireConfig (deflectionCoefficient, lengthCoefficient,
+  sectionLength, yOffset). [R-I]
+- Overhead catenary is represented as wires between insulator/connector
+  blocks; pantograph (pantoPos) interacts for cosmetic/electrical state
+  (pantograph up/down TrainState). [CONFIRMED-RTM (tips: insulator + wire
+  usage), R-I]
+- Placement: place insulator/connector blocks, then stretch wire between
+  them (right-click workflow). "Invisible wire" trick documented in Wiki
+  tips. [CONFIRMED-RTM]
+- Wire is a ModelPack type (ModelWire). [C-MP]
+
+23. LEVEL CROSSING SPECIFICATION
+--------------------------------
+- Crossing = Machine with gate animation, flashing lights, alarm sound
+  (TileEntityCrossingGate: lightCount toggle, sound_Running loop, MachineType
+  .Gate). [R-I]
+- State driven by redstone/electricity (signal system); closes before train
+  arrival via signal wiring; model from ModelPack (MachineConfig). [R-I]
+- Sound + lights + gate parts animate; synced as TileEntity/machine state.
+  [R-I]
+
+24. STATION / PLATFORM SPECIFICATION
+------------------------------------
+- Stations are NOT a core train-stop system; stopping is done by signals/
+  redstone and manual driving. Platforms/buildings/gates/ticket machines/
+  speakers are Installed Objects (ModelMachine / ModelOrnament / specific
+  blocks: BlockTicketVendor, BlockSpeaker). [CONFIRMED-RTM (props catalog),
+  R-I]
+- Stop-position control is achievable via signals + ATO-style addons;
+  automatic operation (timetables) via community addons (e.g. RealTrainMod-
+  Automation with Oudia). [CONFIRMED-RTM (Wiki)]
+- Announcements: sound_Announcement [[name,sound]] on trains; station
+  speakers for station announcements. [C-MP]
+
+25. RAILWAY OBJECT SPECIFICATION
+--------------------------------
+Installed Objects (installed on/off rails, from ModelPacks): [C-MP + R-I]
+  - ModelMachine  (machines: crossing gate, ATC, ticket gate, moving parts;
+                   machineType, sound_OnActivate/Running, customForm/DataMap)
+  - ModelOrnament (static props; ornamentType, minRandomScale, conveyorSpeed)
+  - ModelSignal   (signals; rotateBody; lights)
+  - ModelWire / ModelConnector (catenary/electricity)
+  - ModelContainer (container/cargo on freight cars; width/height/length)
+  - ModelNPC, ModelFirearm, flags, signboards (texture-based boards),
+    ModelMechanism (gear/rotor machines)
+All are placed via the same ModelPack item/UI; share DataMap (defaultData /
+defaultValues with type-key-value + suggestions/minmax/pattern). [C-MP]
+
+26. MODELPACK OVERVIEW
+----------------------
+- A ModelPack (addon / model pack) is a zip or jar (or unpacked directory)
+  placed in the Minecraft `mods` folder. [CONFIRMED-RTM (Wiki install), R-I]
+- The pack contains: JSON configs named `Model<Type>_<name>.json`, plus
+  model/texture/sound/script assets. Config TYPE is derived from the FILE
+  NAME prefix: `ModelTrain_*.json`, `ModelRail_*.json`, `ModelSignal_*.json`,
+  `ModelVehicle_*`, `ModelMachine_*`, `ModelOrnament_*`, `ModelContainer_*`,
+  `ModelWire_*`, `ModelConnector_*`, `ModelFirearm_*`, `ModelNPC_*`. [R-I]
+- Loading: NGTFileLoader scans mods dir (recursively incl. inside zips,
+  SJIS/MS932 fallback) for files matching `Model.*\.json`, registers each
+  model set by type. [R-I]
+- `pack.json` provides {name, homepage, updateURL, version}; update text
+  file "addon:version" per line. [C-MP]
+- `sounds.json` maps "folder.file" keys to sounds. [C-MP]
+- Multiple packs coexist; duplicate names conflict (version precedence). [R-I]
+
+27. MODELPACK DIRECTORY STRUCTURE
+---------------------------------
+Canonical layout (from JSON docs + loader behavior) [CONFIRMED-MODELPACK + R-I]:
+```
+mods/
+  MyPack.jar  (zip)                     <- the pack itself
+    ModelTrain_mycar.json               <- config at pack root (any depth)
+    ModelRail_myrail.json
+    pack.json
+    sounds.json
+    assets/
+      minecraft/                        <- resource domain "minecraft"
+        models/   mycar.mqo, myrail.obj ...
+        textures/ train/mycar.png, rail/myrail.png, gui/..., icon/...
+        sounds/   train/mycar_a.ogg ...
+        scripts/  render/render.js, sound/sound.js, server/server.js ...
+```
+- modelFile paths in JSON are relative to `assets/minecraft/models/` [C-MP].
+- texture paths are relative to `assets/minecraft/textures/` [C-MP].
+- Sound paths resolved as resource locations "domain:folder/file" (rtm:
+  prefix auto-added when missing) [R-I].
+- Nested archives: supported inside packs (findFileInZip recurses) [R-I].
+- Non-ASCII (SJIS) filenames handled via MS932 re-read [R-I].
+(Exact domain ("minecraft" vs "rtm") for model assets is UNKNOWN for all
+versions; JSON docs state assets/minecraft/models.)
+
+28. JSON SPECIFICATION
+----------------------
+See section 29 for the consolidated field table. Naming/type conventions:
+  - Strings for paths; floats/arrays for numbers; booleans for flags.
+  - Known RTM typos kept for compatibility: "accelerateion", "deccelerations",
+    "useCustomColor" etc. [CONFIRMED-MODELPACK]
+  - Empty sound strings cause crash on trigger => "do not set empty" [C-MP].
+  - textures option string may be "AlphaBlend", "Light", "AlphaBlend,Light",
+    "AlphaBlend,Light,OneTex"; light textures xxx_light0(off)/light1(head)/
+    light2(tail). [C-MP]
+  - accuracy: "LOW" (+/-16) / "MEDIUM". [C-MP]
+
+29. JSON SPECIFICATION (field table)
+------------------------------------
+Table legend: Type, Unit, Default (where documented), Purpose, Source,
+Confidence. Sources: [W]=RTM Wiki JSON docs, [A]=akikawaken docs,
+[K]=KaizPatchX source (REFERENCE-IMPLEMENTATION).
+
+COMMON (all types):
+| field | type | default | purpose | source | conf |
+|-------|------|---------|---------|--------|------|
+| useCustomColor | bool | false | tint model in-game | W,K | C-MP |
+| tags | string | "" | search keywords (space separated) | W,A,K | C-MP |
+| defaultData | string | - | DataMap defaults "k=(Type)v,..." | W,K | C-MP |
+| defaultValues | array | - | DMInitValue list (newer) | K | R-I |
+| scale | float | 1.0 | NGTO model scale | W,K | C-MP |
+| offset | float[3] | 0,0,0 | model render offset | W,K | C-MP |
+| smoothing | bool | false | smooth shading | W,K | C-MP |
+| doCulling | bool | false | backface cull | W,K | C-MP |
+| accuracy | string | "MEDIUM" | vertex precision | W,K | C-MP |
+| serverScriptPath | string | - | server JS | W,A,K | C-MP |
+| guiScriptPath | string | - | GUI JS | W,K | C-MP |
+| guiTexture | string | - | custom GUI tex | W,K | C-MP |
+| customIconTexture | string | - | custom icon | W,K | C-MP |
+| renderAABB | float[6] | 0,0,0,1,1,1 | culling box | W,K | C-MP |
+| buttonTexture | string | - | selection button | W,K | C-MP |
+| version | short | 0 | name-collision priority | K | R-I |
+
+TRAIN (TrainConfig; common+base apply):
+| field | type | default | purpose | source | conf |
+|-------|------|---------|---------|--------|------|
+| trainName | string | - | unique id | W,A,K | C-MP |
+| trainType | string | - | EC/DC/EL/DL/SL/CC/TC/N | W,A,K | C-MP |
+| trainModel2 | obj | - | body ModelSource | W,A,K | C-MP |
+| bogieModel3 | obj[2] | - | [front,back] | W,A,K | C-MP |
+| bogieModel2 | obj | - | same front/back (depr.) | W,A,K | C-MP |
+| trainModel/bogieModel/trainTexture/bogieTexture | string | - | legacy (depr.) | W,K | C-MP |
+| trainDistance | float | 10.125 | half body length (m) | W,A,K | C-MP |
+| bogiePos | float[][] | [[0,0,7.125],[0,0,-7.125]] | bogie offsets | W,A,K | C-MP |
+| accelerateion | float | 0.001736 | accel (km/h/s*0.0006944) | W,A,K | C-MP |
+| accelerateions | float[] | =accel | per notch | W,K | C-MP |
+| maxSpeed | float[5] | 0.36..1.80 | per-notch limit | W,A,K | C-MP |
+| deccelerations | float[9] | -0.0002..-0.01 | brake notch decel | W,K | C-MP |
+| rolling | float | 0 | curve tilt 0..1 (x5) | W,A,K | C-MP |
+| rollSpeedCoefficient | float | - | sway speed | W,K | C-MP |
+| rollVariationCoefficient | float | - | sway modulation | W,K | C-MP |
+| rollWidthCoefficient | float | - | sway amount | W,K | C-MP |
+| pantoPos | float[][] | - | [X,Z,minY,maxY] | W,K | C-MP |
+| useVariableAcceleration | bool | false | server script accel | W,K | C-MP |
+| useVariableDeceleration | bool | false | server script decel | W,K | C-MP |
+| isSingleTrain | bool | false | single unit | W,K | C-MP |
+| muteJointSound | bool | false | no joint sound | W,A,K | C-MP |
+| jointDelay | float[][] | [[0,1.9],[0,1.9]] | 2nd joint sound delay | W,K | C-MP |
+| notDisplayCab | bool | false | hide cab model | W,K | C-MP |
+| sound_BrakeRelease | string | - | B1->N sound | W,A,K | C-MP |
+| sound_BrakeRelease2 | string | - | brake release 1 notch | W,A,K | C-MP |
+| sound_CpFin | string | - | compressor end | W,K | C-MP |
+| sound_Joint / sound_JointReverb | string | - | joint sounds | W,K | C-MP |
+| sound_Notch / sound_Reversal | string | - | notch/reversal | K | R-I |
+
+VEHICLE-BASE (train + vehicle common):
+| field | type | default | purpose | source | conf |
+|-------|------|---------|---------|--------|------|
+| size | float[2] | [2.75,1.25] | AABB w/h | W,K | R-I |
+| slotPos | float[][] | [] | seats [x,y,z,type] m | W,K | C-MP |
+| seatPos | int[][] | - | legacy seats (blocks/16) | W,K | C-MP |
+| seatPosF | (RTM2) | =slotPos | 1.12.2 companion | W | C-MP |
+| playerPos | float[][] | [[0.8,0,9.187],[-0.8,0,-9.187]] | driver seats | W,K | R-I |
+| rollsignTexture | string | - | rollsign sheet | W,K | C-MP |
+| rollsignNames | string[] | - | rollsign labels | W,K | C-MP |
+| rollsigns | Rollsign[] | - | {uv,pos,doAnimation,disableLighting} | W,K | C-MP |
+| door_left / door_right | VehicleParts[] | - | door parts + transforms | W,K | C-MP |
+| pantograph_front / pantograph_back | VehicleParts[] | - | panto parts | W,K | C-MP |
+| customButtons | string[][] | [] | [button,state] | W,K | C-MP |
+| customButtonTips | string[] | [] | tips | W,K | C-MP |
+| headLights/tailLights/interiorLights | Light[] | - | {type,color,pos,r} | W,K | C-MP |
+| smoke | obj[][] | - | [[x,y,z,name,min,max,speed]] | W,K | C-MP |
+| wheelRotationSpeed | float | 1.0 | wheel spin | W,K | C-MP |
+| sound_Stop/S_A/Acceleration/Deceleration/D_S/Horn/DoorOpen/DoorClose/ATSChime/ATSBell/Announcement | string | - | audio events | W,A,K | C-MP |
+| soundScriptPath | string | - | sound JS | W,K | C-MP |
+
+VEHICLE (ModelVehicle: cars/planes/ships):
+| field | type | default | purpose | source | conf |
+|-------|------|---------|---------|--------|------|
+| name | string | - | unique id | W,K | C-MP |
+| model | ModelSource | - | body | W,K | C-MP |
+| vehicleType | string | - | Car/Plane/Ship | W,K | C-MP |
+| friction | float[2] | 0.9 | OnGround/InAir | W,K | C-MP |
+| acceleration | float[2] | 0.0125 | OnGround/InAir | W,K | C-MP |
+| maxSpeed | float[2] | 0.8 | OnGround/InAir | W,K | C-MP |
+| maxYaw | float[2] | 15 | turn limit | W,K | C-MP |
+| yawCoefficient/pitchCoefficient/rollCoefficient | float[2] | 4.5/2.5/45 | control coeff | W,K | C-MP |
+| changeYawOnStopping | bool | - | yaw while stopping | W,K | C-MP |
+
+RAIL (ModelRail):
+| field | type | default | purpose | source | conf |
+|-------|------|---------|---------|--------|------|
+| railName | string | - | unique id | W,A,K | C-MP |
+| model | ModelSource | - | rail model | W,A,K | C-MP |
+| polygonType | int | - | 3=tri,4=quad faces | A | C-MP |
+| ballastWidth | int | 3 | 1/3/5 m (odd) | W,A,K | C-MP |
+| allowCrossing | bool | false | mob pass-through | W,A,K | C-MP |
+| defaultBallast | BallastSet[] | - | {blockName,blockMetadata,height} | W,A,K | C-MP |
+
+SIGNAL (ModelSignal):
+| field | type | purpose | source | conf |
+|-------|------|---------|--------|------|
+| signalName | string | unique id | W,K | C-MP |
+| model | ModelSource | model | W,K | C-MP |
+| rotateBody | bool | rotate body | W,K | C-MP |
+| customForm | DataFormConfig | custom data UI | K | R-I |
+
+MACHINE (ModelMachine):
+| field | type | purpose | source | conf |
+|-------|------|---------|--------|------|
+| name | string | unique id | W,K | C-MP |
+| model | ModelSource | model | W,K | C-MP |
+| machineType | string | Gate/ATC/etc. | W,K | C-MP |
+| sound_OnActivate / sound_Running | string | audio | W,K | C-MP |
+| rotateByMetadata / followRailAngle | bool | placement/cant | W,K | R-I |
+| brightness | int[2] | emissive | K | R-I |
+| customForm / defaultValues | obj | data UI | W,K | C-MP |
+
+WIRE (ModelWire): name, model, deflectionCoefficient, lengthCoefficient,
+sectionLength, yOffset [C-MP].
+CONNECTOR (ModelConnector): name, model, connectorType(Relay/Input/Output),
+wirePos{x,y,z} [C-MP].
+CONTAINER (ModelContainer): containerName, containerModel, containerTexture,
+containerWidth/Height/Length [C-MP].
+ORNAMENT: name, model, ornamentType, minRandomScale, conveyorSpeed [C-MP].
+NPC: name, model, texture, role, health, speed, damage, ... [C-MP].
+FIREARM: firearmName/Model/Texture, modelParts(Y/X/Barrel), muzzlePos,
+playerPos_gun, yaw, pitch, rotationSpeed*, recoil, fpvMode [C-MP].
+SIGNBOARD/FLAG: texture, height,width,depth/frame/animationCycle/color/
+lightValue; flag: resolutionU/V, poleLength [C-MP].
+
+ModelSource shape (all types):
+  { "modelFile": "<file>", "textures": [["<material>","<path>","<opts>"],...],
+    "rendererPath": "<js>", "vertexShaderPath":..., "fragmentShaderPath":... }
+  [C-MP]
+VehicleParts/Parts shape:
+  { "objects": ["<partName>",...], "pos": [x,y,z],
+    "transform": [ [move x,y,z] | [angle,vecX,vecY,vecZ] ] } (childParts) [C-MP]
+
+30. OBJ SPECIFICATION
+---------------------
+- Wavefront OBJ with MTL; supports v/vt/vn and faces v, v/vt, v//vn, v/vt/vn;
+  quads supported (GL_QUADS path) - required for RTM models. [R-I]
+- Groups: g/o names become part names referenced by parts config (objects).
+- Materials parsed from MTL; texture per material from JSON textures array.
+- Smoothing threshold ~60deg (SMOOTHING const). [R-I]
+- Accuracy "LOW"/"MEDIUM" selects vertex packing. [C-MP]
+- Origin: model origin = train/bogie center; forward = +Z? (to confirm in
+  Phase -1). Coordinate handedness/culling per doCulling. [INFERRED]
+
+31. MQO SPECIFICATION
+---------------------
+- Metasequoia (.mqo) is the primary Japanese-modeller format; RTM parses
+  object/vertex/face/material sections; groups -> parts. [R-I]
+- Supports V(..) vertex indices, UV(..), M(..) material per face; mirror
+  faces for mirrored models. [R-I]
+- Mqoz = compressed variant. [R-I]
+- MQO authoring is the community standard for RTM vehicles. [C-RTM/Tier2]
+- Same JSON texture binding as OBJ (materials by name). [C-MP]
+- NGTO (ngt's own format) also loadable (scale key). [C-MP]
+
+32. TEXTURE SPECIFICATION
+-------------------------
+- PNG textures (non-power-of-2 likely; RTM loads via texture manager). [R-I]
+- Materials map to textures via JSON textures array [["material","path"]].
+- Light textures: xxx_light0(off)/xxx_light1(head)/xxx_light2(tail) appended
+  automatically for lights. [C-MP]
+- AlphaBlend option enables transparency; Light option emissive; OneTex.
+- useCustomColor tints in-game without changing files. [C-MP]
+- rollsign uses a sheet texture mapped by uv {uMin,uMax,vMin,vMax} onto
+  quads defined by pos (4 points). [C-MP]
+- Repaint/livery variation: separate JSON configs sharing one model file but
+  different textures = the standard repaint approach. [INFERRED]
+
+33. SOUND SPECIFICATION
+-----------------------
+- Sound events keyed by JSON sound_* fields; values are resource locations
+  "domain:folder/file" (rtm: auto-prefixed). [R-I]
+- sounds.json maps keys (folder.file) to files with category neutral. [C-MP]
+- Sound scripts (soundScriptPath) drive procedural/layered sounds; running
+  sounds loop; volume/pitch controlled per event. [R-I]
+- Joint sounds (sound_Joint, sound_JointReverb) triggered by rail joints
+  (wheelbase-dependent, jointDelay). [C-MP]
+- Crossing alarm uses machine sound_Running loop + lights. [R-I]
+- Announcements: [[name,sound]] selectable. [C-MP]
+
+34. SCRIPT SPECIFICATION
+------------------------
+- JavaScript (Nashorn in 1.7/1.8 Forge; TeaVM equivalent needed for Web).
+- rendererPath: per-frame render control (part transforms, doors, panto,
+  rollsign animation). [C-MP]
+- soundScriptPath: audio engine logic. [C-MP]
+- serverScriptPath: server-side behavior, may override accel/decel
+  (useVariableAcceleration/Deceleration), control custom buttons, read
+  TrainState/signal/speed/time. [C-MP/R-I]
+- guiScriptPath: custom GUI. [C-MP]
+- DataMap gives scripts a typed key/value state per instance. [R-I]
+- Script sandboxing / memory / async concerns for Web/Eaglercraft:
+  => Phase -1 design question (sandbox, no JVM Nashorn, TeaVM JS interop).
+
+35. ANIMATION SPECIFICATION
+---------------------------
+- Door open/close: parts + transform arrays (translation) per door_left/
+  door_right; states Door_OpenLeft/Right/All. [C-MP/R-I]
+- Pantograph up/down: parts + transforms. [C-MP/R-I]
+- Bogie rotation, wheel rotation (wheelRotationSpeed), body roll (sway),
+  cant. [R-I]
+- Rollsign: uv-mapped sheet animation (doAnimation). [C-MP]
+- Type sign/destination: rollsign index; custom buttons. [C-MP]
+- Script-driven animations via renderer scripts. [C-MP]
+- Crossing gate + lights + flashing. [R-I]
+- No formal timeline; per-part transform JSON + script callbacks. [C-MP]
+
+36. RENDERING SPECIFICATION
+---------------------------
+- Trains: body model + bogie models rendered separately (RenderTrain/
+  RenderBogie); pose from bogie anchors; roll from cant; part transforms
+  from state; lights emissive; rollsign/type signs; culling by renderAABB.
+  [R-I]
+- Rails: rendered as block structures (BlockLargeRail renderer + TileEntity)
+  + ballast blocks; switch/slope variants; marker preview. [R-I]
+- Wires: line rendering between connectors (EntityElectricalWiring /
+  RenderElectricalWiring) with sag. [R-I]
+- Signals/objects: ModelSet renderers + light textures + rotateBody. [R-I]
+- Installed Objects (machines/ornaments): tile/entity renderers. [R-I]
+- Interpolation: entity interpolation for trains/bogies on client. [R-I]
+- Model/texture caching, LOD/distance culling (renderAABB), accuracy-based
+  vertex packing. [C-MP/R-I]
+- Transparency: AlphaBlend materials; emissive: Light materials. [C-MP]
+
+37. MULTIPLAYER / NETWORK SPECIFICATION
+---------------------------------------
+- Server authority for train physics and rail/switch/signal state. [R-I]
+- TrainState synced via packets (PacketSetTrainState) for door/light/panto/
+  notch/signal/direction/destination/announcement. [R-I]
+- Bogies/trains are entities tracked normally; rider/seat sync via vanilla
+  mount + playerPos transforms. [R-I]
+- Rail pieces are blocks/TileEntities => state synced via vanilla chunk/
+  tile-entity sync (switch state, signal level, machine data). [R-I]
+- ModelPacks must be installed CLIENT-side (models/textures); server needs
+  configs for physics/permissions. [CONFIRMED-RTM (community), R-I]
+- Wire/electricity state synced through TileEntities. [R-I]
+- PacketModelPack: server can push model packs to clients. [R-I]
+- Client prediction: minimal; entity interpolation handles motion. [R-I]
+
+38. PERSISTENCE SPECIFICATION
+-----------------------------
+- Rails: block/TileEntity NBT (RailPosition + state + core ownership);
+  saved per-world via chunk data. [R-I]
+- Trains: entity NBT + Formation NBT (Formation.readFromNBT/writeToNBT with
+  entries; train UIDs). [R-I]
+- Formation persistence restores coupling order after reload. [R-I]
+- ModelPack identity stored by config name; missing pack on load = fallback
+  dummy model (graceful). [R-I]
+- Version migration for NBT (e.g. v34-compat in Connection). [R-I]
+- Chunk loading: trains request chunk loads (chunk_loader state). [R-I]
+
+39. ACTUAL MODELPACK CASE STUDIES
+---------------------------------
+(Public docs only; no assets copied.)
+- Reference manual: ngt5479 "[RTMモデルパック作成マニュアル_2.4.8_1] 2019" -
+  not retrievable at research time (dropbox link rot) [UNKNOWN].
+- RtmJsonCreator (akikawa9616) - GUI/JS tool generating RTM JSON; its docs
+  enumerate keys (sec. 29) and mention AMS (Automatic Model Simplifier)
+  ported to JS. [C-MP]
+- Community packs (wikiwiki/gamerch listings): a typical pack = several
+  ModelTrain_*.json + mqo + textures + sounds + pack.json; repaint packs
+  reuse the same .mqo with different textures. [INFERRED]
+- RTM Addon Search (rtmaddon-search.com) indexes hundreds of packs; shows
+  the ecosystem (vehicles, rails, signals, objects, props). [CONFIRMED-RTM Tier2]
+- Takami Train Kit (TTK), NGTO Builder, SuperRailBuilder3 (SRB) are external
+  creation tools. [CONFIRMED-RTM (glossary)]
+
+40. CONFIRMED vs INFERRED vs UNKNOWN (summary)
+----------------------------------------------
+CONFIRMED-RTM:
+  full-scale vehicles, OBJ/MQO loading, ModelPack addons, marker-based rail
+  placement, NGTLib dependency, Forge MC 1.5.2-1.12.2, All Rights Reserved,
+  driving via cab W/S notch, doors/pantograph/lights, signals+wire+insulator
+  workflow, props/installed objects, sounds.json/pack.json, announcement.
+CONFIRMED-MODELPACK:
+  JSON field surface (sec. 29), assets/minecraft/models|textures layout,
+  sound_* keys, textures options, slotPos/playerPos/bogiePos/trainDistance
+  semantics, maxSpeed/accelerateion/deccelerations, rollsign, lights,
+  crossing/machine types.
+REFERENCE-IMPLEMENTATION:
+  internal runtime: bogie-anchored pose, formation chaining, notch physics,
+  SignalLevel speed limits, electric wire model, pack loading patterns,
+  TrainState enum, NBT persistence approach.
+INFERRED:
+  exact per-version feature deltas, canonical vehicle dimension table,
+  repaint/reuse conventions, interlocking absence, model origin orientation.
+UNKNOWN:
+  original RTM source internals (not public), exact NGTO format spec,
+  exact pack directory for all versions, several deprecated-field defaults,
+  exact RTM2 (next-gen) changes.
+
+41. RTM COMPATIBILITY REQUIRED FEATURE LIST
+-------------------------------------------
+Categories A..V with classification (MUST / SHOULD / OPTIONAL /
+EXTERNAL-ADDON / UNKNOWN).
+
+A. Railway Core
+  A1 1block=1m real-scale model MUST [CONFIRMED-RTM]
+  A2 core/content separation (Runtime vs ModelPacks) MUST [C-RTM]
+  A3 per-piece rail registry + content packs MUST [C-MP]
+  A4 NGTLib-like library layer (math, model, pack, data map) MUST [C-RTM]
+B. Rail Geometry
+  B1 piece-based RailMap (length, pos, yaw, pitch, roll samples) MUST [R-I]
+  B2 straight (8-dir) MUST [C-MP]
+  B3 cubic Bezier curves with arc-length sampling MUST [R-I]
+  B4 slope rails w/ fixed gradients (1/16-block height) MUST [R-I]
+  B5 cant/roll per sample MUST [R-I]
+  B6 ballast width 1/3/5 + block meta heights MUST [C-MP]
+  B7 per-rail speed limit SHOULD [C-MP]
+C. Rail Placement
+  C1 marker (RailPosition: dir 0-7, height, switchType) placement MUST [C-RTM]
+  C2 marker GUI confirm/preview MUST [C-RTM]
+  C3 placement validation + creative bypass MUST [R-I]
+  C4 rail block/collision + core ownership MUST [R-I]
+  C5 remove/copy/undo/edit tools SHOULD [INFERRED]
+  C6 /protect key protection OPTIONAL (NGTLib) [C-RTM]
+D. Switch / Route
+  D1 turnout types (basic/single-cross/scissors/diamond) MUST [R-I]
+  D2 switch state redstone/signal-driven MUST [R-I]
+  D3 formation follows chosen route MUST [R-I]
+  D4 route/timetable automation EXTERNAL-ADDON [C-RTM]
+E. Train / Vehicle
+  E1 JSON-defined trains (trainType EC/DC/EL/DL/SL/CC/TC/N) MUST [C-MP]
+  E2 ModelSource (model+textures+renderer) MUST [C-MP]
+  E3 vehicle (car/plane/ship) runtime MUST [C-MP]
+E-bis container/freight cargo OPTIONAL [C-MP]
+F. Bogie / Formation
+  F1 two bogies per car as runtime anchors MUST [R-I]
+  F2 bogie-posed body (yaw/pitch/roll/cant) MUST [R-I]
+  F3 formation chaining (car i from car i-1) MUST [R-I]
+  F4 coupling/uncoupling + persistence MUST [R-I]
+  F5 long-train chunk loading SHOULD [R-I]
+G. Driving
+  G1 notch physics (power 1-5, inertia, brake 1-7, EB) MUST [R-I]
+  G2 per-notch max speed + accel/decel from JSON MUST [C-MP]
+  G3 reverser (front/center/back) + signal speed clamp MUST [R-I]
+  G4 cab HUD + W/S controls MUST [C-RTM]
+  G5 server-script variable accel/decel SHOULD [C-MP]
+H. Signal / Block
+  H1 signal levels (6 = proceed..1 = stop) + speed limit MUST [R-I]
+  H2 rail occupancy/detection -> signal state MUST [R-I]
+  H3 wire + connectors (relay/input/output) + insulators MUST [R-I]
+  H4 signal converters (logic) MUST [R-I]
+  H5 ATS chime/bell; automatic brake MUST [R-I]
+  H6 interlocking/CTC/ATS/ATO EXTERNAL-ADDON [C-RTM]
+I. Station / Operation
+  I1 stop via signals + manual driving MUST [C-RTM]
+  I2 announcements on train MUST [C-MP]
+  I3 station speakers/ticket machines/gates (installed objects) MUST [C-MP]
+  I4 timetables/ATO EXTERNAL-ADDON [C-RTM]
+J. Crossing
+  J1 gate machine with lights+alarm sound MUST [R-I]
+  J2 signal/redstone state driven MUST [R-I]
+K. Catenary
+  K1 wire between insulators/connectors with sag MUST [R-I]
+  K2 pantograph interaction (state) SHOULD [C-MP]
+L. Railway Objects
+  L1 machine/ornament/signal/wire/connector/container object types MUST [C-MP]
+  L2 DataMap per-instance state + defaultValues MUST [C-MP]
+M. ModelPack
+  M1 zip/jar/dir in mods, Model<Type>_<name>.json MUST [R-I]
+  M2 pack.json + sounds.json MUST [C-MP]
+  M3 registry by file-name type prefix, name uniqueness, version priority MUST [R-I]
+N. Model
+  N1 OBJ (+MTL) quad support MUST [R-I]
+  N2 MQO (Metasequoia) MUST [C-RTM]
+  N3 NGTO scale (OPTIONAL) [C-MP]
+O. Texture
+  O1 per-material textures + AlphaBlend/Light/OneTex MUST [C-MP]
+  O2 light textures (off/head/tail) MUST [C-MP]
+  O3 rollsign sheet + uv mapping MUST [C-MP]
+  O4 useCustomColor tint SHOULD [C-MP]
+P. Sound
+  P1 sound_* event keys + sounds.json MUST [C-MP]
+  P2 running/loop + joint + horn + announcement MUST [C-MP]
+  P3 sound scripts SHOULD [C-MP]
+Q. Script
+  Q1 renderer/sound/server/gui JS MUST [C-MP]
+  Q2 DataMap state access SHOULD [R-I]
+  Q3 Web sandbox (TeaVM) - design question [UNKNOWN for web]
+R. Animation
+  R1 door/pantograph part transforms MUST [C-MP]
+  R2 wheel/bogie rotation + body roll/ cant MUST [R-I]
+  R3 rollsign animation + script-driven SHOULD [C-MP]
+S. Rendering
+  S1 body/bogie separate render, pose from bogies MUST [R-I]
+  S2 rail block render + ballast + preview MUST [R-I]
+  S3 wire line render MUST [R-I]
+  S4 emissive/transparency/interp/culling MUST [C-MP/R-I]
+T. Multiplayer
+  T1 server authority; TrainState sync MUST [R-I]
+  T2 rail/tile-entity state sync (chunk) MUST [R-I]
+  T3 client-required ModelPacks MUST [C-RTM]
+  T4 pack push from server SHOULD [R-I]
+U. Persistence
+  U1 rail TileEntity NBT + core ownership MUST [R-I]
+  U2 train + formation NBT MUST [R-I]
+  U3 config-name refs + dummy fallback MUST [R-I]
+  U4 version migration SHOULD [R-I]
+V. Editing / Tools
+  V1 in-game model selector/placement UI MUST [C-RTM]
+  V2 custom data forms (DataMap UI) SHOULD [C-MP]
+  V3 external tools (SRB/TTK/RtmJsonCreator/NGTO builder) EXTERNAL-ADDON [C-RTM]
+
+42. RTM COMPATIBILITY MATRIX
+----------------------------
+| ID | Category | RTM Feature | Source | Confidence | Required |
+|----|----------|-------------|--------|------------|----------|
+| V001 | Vehicle | Full-scale 1:1 vehicles | Official | CONFIRMED-RTM | MUST |
+| V002 | Vehicle | trainType taxonomy EC/DC/EL/DL/SL/CC/TC/N | ModelPack docs | C-MP | MUST |
+| V003 | Vehicle | trainModel2 ModelSource (model+textures+renderer) | Docs | C-MP | MUST |
+| V004 | Vehicle | bogieModel3 front/back | Docs | C-MP | MUST |
+| V005 | Vehicle | trainDistance half-length (m) | Docs | C-MP | MUST |
+| V006 | Vehicle | bogiePos offsets | Docs | C-MP | MUST |
+| V007 | Vehicle | size AABB, slotPos seats, playerPos | Docs | C-MP | MUST |
+| F001 | Formation | bogie-anchored body pose | Fork | R-I | MUST |
+| F002 | Formation | formation chaining car<-prev | Fork | R-I | MUST |
+| F003 | Formation | coupling distance = sum half lengths | Fork | R-I | MUST |
+| F004 | Formation | TrainState sync (door/light/panto/notch/...) | Fork | R-I | MUST |
+| G001 | Driving | notch 1-5 / inertia / brake1-7 / EB | Fork | R-I | MUST |
+| G002 | Driving | per-notch maxSpeed/accel/decel JSON | Docs | C-MP | MUST |
+| G003 | Driving | reverser + signal speed clamp | Fork | R-I | MUST |
+| R001 | Rail | marker placement (RailPosition) | Official | C-RTM | MUST |
+| R002 | Rail | straight/curve/slope/switch piece geometry | Fork | R-I | MUST |
+| R003 | Rail | arc-length sampled pos/yaw/pitch/roll | Fork | R-I | MUST |
+| R004 | Rail | ballastWidth 1/3/5 + block meta heights | Docs | C-MP | MUST |
+| R005 | Rail | rail core block + collision | Fork | R-I | MUST |
+| SW001 | Switch | basic/single-cross/scissors/diamond | Fork | R-I | MUST |
+| SG001 | Signal | SignalLevel 6..1 + speed limits | Fork | R-I | MUST |
+| SG002 | Signal | rail detection + wire/connector/insulator | Fork | R-I | MUST |
+| SG003 | Signal | signal converters + ATS chime/bell | Fork | R-I | MUST |
+| CR001 | Crossing | gate machine lights+sound, state | Fork | R-I | MUST |
+| CT001 | Catenary | wire sag + insulator/connector | Fork | R-I | MUST |
+| OB001 | Objects | machine/ornament/container object types | Docs | C-MP | MUST |
+| MP001 | ModelPack | Model<Type>_<name>.json + pack.json + sounds.json | Docs/Fork | C-MP/R-I | MUST |
+| MD001 | Model | OBJ+MTL quads | Fork | R-I | MUST |
+| MD002 | Model | MQO/Metasequoia | Official | C-RTM | MUST |
+| TX001 | Texture | per-material + AlphaBlend/Light/OneTex | Docs | C-MP | MUST |
+| TX002 | Texture | light textures off/head/tail + rollsign uv | Docs | C-MP | MUST |
+| SD001 | Sound | sound_* keys + sounds.json | Docs | C-MP | MUST |
+| SC001 | Script | renderer/sound/server JS | Docs | C-MP | SHOULD |
+| AN001 | Animation | door/pantograph transforms, wheel/roll | Docs/Fork | C-MP/R-I | MUST |
+| RN001 | Render | body/bogie/rail/wire/signal render | Fork | R-I | MUST |
+| MPX001 | Multiplayer | TrainState + tile-entity sync, client packs | Fork | R-I | MUST |
+| PS001 | Persist | rail/train/formation NBT + migration | Fork | R-I | MUST |
+| ED001 | Editing | marker GUI + model selector + data forms | Official | C-RTM | MUST |
+| ATO001 | Automation | CTC/ATS/ATO/timetable | Addons | EXTERNAL-ADDON | SHOULD |
+
+43. LEGAL / LICENSE NOTES
+-------------------------
+- RTM is All Rights Reserved (c) ngt5479; NGTLib same. [CONFIRMED-RTM]
+- Clean-room rule: this project implements FUNCTIONALITY only. Do NOT copy
+  RTM source, models, textures, sounds, scripts, or pack assets.
+- Reuse of field NAMES / directory concepts / JSON schema is treated as
+  specification info (facts are not copyrightable), but implementation must
+  be original.
+- KaizPatchX is a fork; treat as reference for schema only.
+- RealTrainModRenewed: LGPL-3.0-or-later; a candidate for study, NOT for
+  verbatim inclusion (different codebase; web constraints differ).
+- Community pack licenses vary; verify each before any use.
+- For this project: use only original or CC/OSI-licensed assets.
+
+44. PHASE -1 DESIGN QUESTIONS (candidates + points only, no decisions)
+----------------------------------------------------------------------
+1. Coordinate/scale: adopt 1 block = 1 m everywhere (matches RTM).
+2. Rail representation: piece-based RailMap + markers vs graph; and whether
+   to keep /railsys graph as a routing overlay (recommended: both layers).
+3. Arc-length sampling: table-based per piece (split ~ len*32) + nearest-
+   point search + distance<->progress resolver.
+4. Vertical: slope types (0..3 gradients) and 1/16-block height units;
+   body pitch from bogie delta.
+5. Cant: per-sample roll + body lean + ballast const limits.
+6. Bogie model: bogies as ENTITIES vs pure anchors in a formation solver.
+   (RTM uses bogie entities; TeaVM cost must be weighed.)
+7. Formation: chain ordering (car i from car i-1) with coupling distance =
+   sum of half-lengths; trainDirection; reverse.
+8. Notch/physics: exact EnumNotch table + per-notch JSON overrides + brake
+   ramp; signal speed clamp (SignalLevel).
+9. Content schema: ModelSource JSON + file-name type prefix + pack.json +
+   sounds.json; registry with name uniqueness + version precedence.
+10. Model formats for Web: OBJ/MQO runtime parse vs pre-conversion pipeline
+    (TeaVM memory/perf); NGTO optional.
+11. Script engine on Web: sandboxed JS in Eaglercraft (no Nashorn);
+    renderer/sound/server script parity vs restricted subset.
+12. Multiplayer: server authority + TileEntity-style state + TrainState
+    packets; client-side pack requirement; pack push.
+13. Persistence: NBT equivalent (world data) for rail pieces + formations;
+    version migration; chunk-load keepalive for long trains.
+14. Asset/licensing policy: original/CC assets only; a pack import pipeline
+    that rejects proprietary assets by policy.
+15. Rail block/collision & ballast rendering cost in TeaVM.
+16. Marker GUI + model selector UX on Web (reuse /weui-style pattern).
+17. Interaction with existing WorldEdit/terrain editing (no shared deps).
+18. Long-train entity count vs Web performance budget.
+19. Rail network at hundreds of km: spatial indexing, per-piece activation.
+20. Whether RTM parity includes EXTERNAL-ADDON features (CTC/ATO) or only
+    core RTM taxonomy.
+
+45. UNRESOLVED / UNKNOWN ITEMS
+------------------------------
+- Original RTM internal source (never public) - all internals are R-I/INFERRED.
+- Official model-pack creation manual content (link rot) [UNKNOWN].
+- Exact canonical dimension table for 10/16/18/20m, tram, narrow gauge.
+- Exact pack directory layout across all MC versions (assets/minecraft vs
+  rtm domain).
+- Full NGTO format spec.
+- RTM2 next-gen changes (RealTrainMod2 repo is placeholder).
+- Several deprecated-field defaults and edge semantics.
+- Web/Eaglercraft script-sandbox feasibility details.
+
+46. FILES CHANGED BY THIS TASK
+------------------------------
+  FINAL_REPORT.txt   (this report; rewritten for Phase -2)
+No product code changed.
 
 
-33. LOCAL HEAD
+47. GIT COMMIT
 --------------
-ec4bd985bdd806e1fc8796a62d9ca45facf20a37
+<filled after commit>
 
 
-34. origin/main
+48. PUSH RESULT
 ---------------
-ec4bd985bdd806e1fc8796a62d9ca45facf20a37
+<filled after push>
 
 
-35. GITHUB main
+49. LOCAL HEAD
+--------------
+<filled after commit>
+
+
+50. origin/main
 ---------------
-ec4bd985bdd806e1fc8796a62d9ca45facf20a37 (gh api commits/main)
-Sync: LOCAL == origin/main == GitHub main (SYNC OK)
+<filled after push>
 
 
-36. UNCOMMITTED-CHANGE PRESERVATION CHECK
------------------------------------------
-After commit+push, verified:
-  git status --short still shows:
-    M src/game/java/net/minecraft/command/CommandRailSystem.java
-    M src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
-    ?? FINAL_REPORT.md
-  Diff stat unchanged (124 insertions / 9 deletions).
-  => pre-existing development changes fully preserved.
+51. GITHUB main
+---------------
+<filled after push (gh api commits/main)>
 
 
-37. FINAL VERDICT
------------------
-Verdict: PASS WITH WARNINGS
-Reason : All required analysis/design/roadmap deliverables are complete
-and committed/pushed (only FINAL_REPORT.txt). Build verified successful.
-No product code was changed; pre-existing uncommitted development changes
-are fully preserved. Warnings (non-blocking, require user decision):
-  N4  untracked FINAL_REPORT.md leftover from a previous session
-  N5  pre-existing dev changes (testloop etc.) remain uncommitted by design
-  B1  trailing-car disappearance bug is ANALYZED but NOT fixed (by design;
-      fix is Phase 2 of the roadmap)
-  R7  no automated tests exist yet (Phase 0 introduces them)
-Verdict is NOT "BLOCKED" because nothing prevented safe completion.
-
-
-38. RTM RESEARCH SOURCES (public info only)
+52. UNCOMMITTED-CHANGE PRESERVATION CHECK
 ------------------------------------------
-  - RealTrainMod | CurseForge (ngt5479): license "All Rights Reserved",
-    prerequisite NGTLib, Forge, MC 1.7.10/1.10.2/1.12.2, ~917k downloads.
-  - RTM Wiki (rtmwiki.kotl.io) + Builder256/RTM-Wiki GitHub (source of wiki).
-  - RealTrainModRenewed (github.com/rinnyanneko/RealTrainModRenewed,
-    LGPL-3.0 fork/rewrite) used ONLY to study the conceptual architecture
-    (bogie anchors, arc-length curves, formation manager, notch physics).
-    No source code was copied into this project. RTM's own code/assets are
-    All Rights Reserved and are NOT used.
+<filled at end: verify git status --short identical to section 5>
+
+
+53. FINAL VERDICT
+-----------------
+Verdict: <PASS / PASS WITH WARNINGS / BLOCKED>
+Reason : <filled at completion>
 
 
 ====================================================================
-APPENDIX A - PREVIOUS SESSION HISTORY (preserved from old FINAL_REPORT.txt)
+APPENDIX A - PRIOR PHASE HISTORY (preserved)
 ====================================================================
-The previous FINAL_REPORT.txt (commits e20dedd6 / fb1f53ac) recorded a
-repo-rename + README task. Key preserved facts:
-
-  - Repo renamed on GitHub: Test_v1_Eaglercraft1.8_workspace ->
-    web-minecraft-railway-terrain-tools (admin permission confirmed).
-  - Origin updated to https://github.com/ollejanaitte/web-minecraft-railway-terrain-tools.git
-  - README.md rewritten (EN+JA, ~475 lines; title "# Web Minecraft with
-    Railway Mod & Terrain Editing Tools").
-  - README commit da01fd25 (README.md only). FINAL_REPORT.txt added in
-    e20dedd6 and finalized in fb1f53ac (FINAL_REPORT.txt only).
-  - Pre-existing uncommitted changes at that time (same two files) were
-    documented and NOT committed.
-  - Build verified: makeMainOfflineDownload BUILD SUCCESSFUL.
-  - GitHub description "Web Minecraft with Railway Mod & Terrain Editing Tools";
-    visibility public; default branch main.
-  - Local dir was NOT renamed at that time; it is NOW renamed to
-    "Web Minecraft with Railway Mod & Terrain Editing Tools".
-  - WorldEdit/terrain-editing investigation (commands pos1/pos2/copy/paste/
-    clear/fill/undo/wand/desel/wehelp/preview/pastepreview/previewclear/
-    offset/offsetreset/stack; /weui GUI; async jobs 4096 blocks/tick;
-    max selection 64^3).
+Prior FINAL_REPORT.txt (commit c145c732) recorded:
+  - Commit c145c732: "docs: record FINAL_REPORT.txt commit/push/sync results
+    and verdict" (this followed ec4bd985 "docs: add /railsys analysis and
+    RealTrainMod parity design roadmap").
+  - The prior report contained the /railsys deep analysis, RTM vs /railsys
+    gap analysis, distance-based movement design, Phase 0-11 roadmap, and
+    test strategy. It also preserved the original repo-rename history
+    (Test_v1_Eaglercraft1.8_workspace -> web-minecraft-railway-terrain-tools,
+    README rewrite commit da01fd25, etc.).
+  - Pre-existing uncommitted changes (CommandRailSystem.java,
+    EntityRailVehicle.java) were preserved through that phase as well.
+Those historical facts remain valid; this Phase -2 report supersedes the
+analysis content with a deeper RTM specification while preserving the
+git/repo history above.
 
 ====================================================================
 END OF REPORT
