@@ -1037,38 +1037,66 @@ No product code changed.
 
 47. GIT COMMIT
 --------------
-<filled after commit>
+Commit SHA : 777b1a724efa41a1e1b1dba58ba3330e47b146e6
+Message    : docs: Phase -2 RealTrainMod (RTM) deep specification
+Files in commit : FINAL_REPORT.txt only (verified via git show --name-only)
+Only FINAL_REPORT.txt staged; pre-existing source changes and
+FINAL_REPORT.md were NOT staged.
 
 
 48. PUSH RESULT
 ---------------
-<filled after push>
+Command: git push origin main
+Result  : SUCCESS
+   c145c732..777b1a72  main -> main
+No force push, no rebase/merge, no history rewrite.
 
 
 49. LOCAL HEAD
 --------------
-<filled after commit>
+777b1a724efa41a1e1b1dba58ba3330e47b146e6
 
 
 50. origin/main
 ---------------
-<filled after push>
+777b1a724efa41a1e1b1dba58ba3330e47b146e6
 
 
 51. GITHUB main
 ---------------
-<filled after push (gh api commits/main)>
+777b1a724efa41a1e1b1dba58ba3330e47b146e6 (gh api commits/main + ls-remote)
+Sync: LOCAL == origin/main == GitHub main (SYNC OK)
 
 
 52. UNCOMMITTED-CHANGE PRESERVATION CHECK
 ------------------------------------------
-<filled at end: verify git status --short identical to section 5>
+After commit+push, git status --short is identical to work-start:
+  M src/game/java/net/minecraft/command/CommandRailSystem.java
+  M src/game/java/net/minecraft/entity/item/EntityRailVehicle.java
+  ?? FINAL_REPORT.md
+Diff stat unchanged (124 insertions / 9 deletions). Preserved.
 
 
 53. FINAL VERDICT
 -----------------
-Verdict: <PASS / PASS WITH WARNINGS / BLOCKED>
-Reason : <filled at completion>
+Verdict: PASS WITH WARNINGS
+Reason : Phase -2 research and specification are substantially complete
+across all required areas; product code unchanged; only FINAL_REPORT.txt
+committed and pushed; sync verified; pre-existing changes preserved.
+Warnings (expected, non-blocking):
+  W1 Original RTM source is not public - all internal-runtime facts are
+     REFERENCE-IMPLEMENTATION / INFERRED, not CONFIRMED-RTM.
+  W2 Official model-pack creation manual not retrievable (link rot) ->
+     Tier-2/3 docs used instead.
+  W3 Several fields/behaviors remain UNKNOWN (see sec. 45) and are flagged
+     rather than guessed.
+  W4 No full canonical vehicle dimension table; per-pack configs vary.
+Verdict is NOT BLOCKED: sufficient specification exists to begin Phase -1
+(Railway System v2 architecture), with unknowns explicitly handed over.
+
+====================================================================
+END OF REPORT (Phase -2)
+====================================================================
 
 
 ====================================================================
