@@ -816,3 +816,44 @@ End SHA: 7548470719477a28ae85d0bdfef813f8060311b6
 PHASE 1.1 VERDICT: BLOCKED
 PHASE 1.2 ENTRY GATE = CLOSED
 dirty v1 preserved; Local==origin==GitHub after stop push.
+
+STEP 606 - Phase 1.1 RESUME start / audit
+-----------------------------------------
+Resume agent: OpenCode. Actual HEAD = origin/main = GitHub main = 0fcd361f.
+Stop report SHA 75484707 and stop SHA record 0fcd361f confirmed on main.
+dirty v1 MD5 matched (9afd512d / 77ce0d66). Numerical regression re-run:
+harness PASSED=49 FAILED=0 SKIPPED=3; build BUILD SUCCESSFUL.
+
+STEP 607 - R2/R3 visual automation recovery
+-------------------------------------------
+Diagnosis: world-create -> join menu-recovery race (Phase 0.5 family), not a
+geometry failure; plus server camera-tour System.out is not relayed to the
+browser console. Fixed with validation-only automation:
+- screenChanged hook baked into generated instrumented HTML
+- chat-announced camera tour tags (RailV2AutoValidate.tourTag)
+- bounded create retry + Chrome stability flags + crash-UI reload
+- MAX_RUNS default 4
+Flat Validation World (EaglerFlatValidate, Superflat) reached on create
+attempt 1; AutoValidate fired; hardware renderer NVIDIA GTX 1050 (ANGLE
+Vulkan) confirmed.
+
+STEP 608 - R4 visual evidence captured
+--------------------------------------
+SS-R1_1-01..08 captured (8/8) on real Eaglercraft Flat World screenshots.
+Visual Review PASS: straight, gentle, tight, s-curve, gradient,
+curve+gradient, local frame, overview — all markers present, bounded, correct.
+
+STEP 609 - R5 full regression
+------------------------------
+Harness PASSED=49 FAILED=0 SKIPPED=3 SUCCESS (re-run).
+makeMainOfflineDownload BUILD SUCCESSFUL (re-run, includes tourTag change).
+dirty v1 MD5 preserved. No secret leak. No stale chrome.
+
+STEP 610 - Phase 1.1 formal close
+---------------------------------
+FINAL_REPORT_PHASE1_1.txt updated to COMPLETE (history of prior STOPPED run
+preserved). VISUAL_VALIDATION / REGRESSION_RESULTS / KNOWN_ISSUES /
+PHASE1_1_IMPLEMENTATION updated. Root report appended.
+  PHASE 1.1 VERDICT: PASS
+  PHASE 1.2 ENTRY GATE = OPEN
+Phase 1.2 NOT started. END of Phase 1.1.
