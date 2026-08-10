@@ -40,3 +40,9 @@ doc/testing/phase0_2/screenshots/_re*.png
 doc/testing/phase1_1/profiles/
 doc/testing/phase1_1/scripts/geom_validate_instrumented.html
 doc/testing/phase1_1/logs/_*.log
+
+# Phase 1.2 runtime profiles / generated instrumented HTML / diagnostic artifacts
+doc/testing/phase1_2/profiles/
+doc/testing/phase1_2/scripts/path_validate_instrumented.html
+doc/testing/phase1_2/screenshots/_*.png
+doc/testing/phase1_2/logs/_*.log

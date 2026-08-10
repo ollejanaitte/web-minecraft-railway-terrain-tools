@@ -78,6 +78,7 @@ public final class RailV2AutoValidate {
 		preloadCourseChunks(world);
 		RailV2Course.INSTANCE.placeRails(world);
 		net.minecraft.railsys.validation.RailsysGeomDebugEvidence.placeAll(world);
+		net.minecraft.railsys.validation.RailsysPathDebugEvidence.placeAll(world);
 		world.setWorldTime(6000L);
 		placeCameraPads(world);
 
@@ -152,6 +153,31 @@ public final class RailV2AutoValidate {
 			setCamera(tourPlayer, 200.0D, 95.0D, 250.0D, 180.0F, 45.0F);
 			tourTag("geom_overview");
 		} else if (tourTicks == 1820) {
+			// Phase 1.2 RailPath evidence cameras (columns x=0..700, z>=400)
+			setCamera(tourPlayer, 0.0D, 84.0D, 385.0D, 0.0F, 25.0F);
+			tourTag("path_multi_straight");
+		} else if (tourTicks == 1940) {
+			setCamera(tourPlayer, 120.0D, 84.0D, 385.0D, 0.0F, 25.0F);
+			tourTag("path_straight_curve_straight");
+		} else if (tourTicks == 2060) {
+			setCamera(tourPlayer, 365.0D, 78.0D, 385.0D, 0.0F, 20.0F);
+			tourTag("path_s_curve");
+		} else if (tourTicks == 2180) {
+			setCamera(tourPlayer, 0.0D, 76.0D, 475.0D, 0.0F, 10.0F);
+			tourTag("path_boundary");
+		} else if (tourTicks == 2300) {
+			setCamera(tourPlayer, 460.0D, 84.0D, 385.0D, 0.0F, 20.0F);
+			tourTag("path_gradient");
+		} else if (tourTicks == 2420) {
+			setCamera(tourPlayer, 600.0D, 88.0D, 385.0D, 0.0F, 25.0F);
+			tourTag("path_curve_gradient");
+		} else if (tourTicks == 2540) {
+			setCamera(tourPlayer, 700.0D, 84.0D, 385.0D, 0.0F, 25.0F);
+			tourTag("path_reverse");
+		} else if (tourTicks == 2660) {
+			setCamera(tourPlayer, 350.0D, 125.0D, 350.0D, 0.0F, 35.0F);
+			tourTag("path_overview");
+		} else if (tourTicks == 2780) {
 			setCamera(tourPlayer, 40.0D, 74.0D, 16.0D, 180.0F, 32.0F);
 			tourTag("final");
 			holdCamera();

@@ -1,0 +1,40 @@
+[2026-08-10T23:23:43.773Z] START Phase1.2 path visual PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/profiles/path-20260811_082343-1 CREATE_RETRIES=3
+[2026-08-10T23:23:43.775Z] regenerating instrumented HTML
+[2026-08-10T23:23:43.878Z] instrumented HTML written: /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/scripts/path_validate_instrumented.html
+[2026-08-10T23:23:43.918Z] CHROME_PID=1836366 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/profiles/path-20260811_082343-1 GPU=auto
+[2026-08-10T23:24:08.391Z] content warning -> continue
+[2026-08-10T23:24:10.390Z] default-username note -> continue anyway
+[2026-08-10T23:24:11.643Z] title reached: GuiMainMenu
+[2026-08-10T23:24:14.390Z] on create form
+[2026-08-10T23:24:14.390Z] === create attempt 1/3 ===
+[2026-08-10T23:24:17.587Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/_named.png
+[2026-08-10T23:24:17.862Z] named sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-10T23:24:24.118Z] create->in-game detected
+[2026-08-10T23:24:27.573Z] HIT [08:24:27+572][Client thread/INFO][Minecraft]: [CHAT] railsysv2: auto-validated (build + 4 cars started)
+[2026-08-10T23:24:29.120Z] wait 1 screen=NULL(in-game)
+[2026-08-10T23:24:29.121Z] IN_WORLD validated=true
+[2026-08-10T23:26:01.319Z] HIT [08:26:01+318][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_multi_straight
+[2026-08-10T23:26:03.779Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-01_MULTI_STRAIGHT.png
+[2026-08-10T23:26:04.013Z] ok SS-R1_2-01_MULTI_STRAIGHT.png sky=0.884 dirt=0.125 hot=4 buttons=
+[2026-08-10T23:26:07.321Z] HIT [08:26:07+318][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_straight_curve_straight
+[2026-08-10T23:26:09.599Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-02_STRAIGHT_CURVE_STRAIGHT.png
+[2026-08-10T23:26:09.812Z] ok SS-R1_2-02_STRAIGHT_CURVE_STRAIGHT.png sky=0.886 dirt=0.124 hot=4 buttons=
+[2026-08-10T23:26:13.336Z] HIT [08:26:13+335][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_s_curve
+[2026-08-10T23:26:15.407Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-03_S_CURVE.png
+[2026-08-10T23:26:15.604Z] ok SS-R1_2-03_S_CURVE.png sky=0.886 dirt=0.123 hot=4 buttons=
+[2026-08-10T23:26:19.336Z] HIT [08:26:19+334][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_boundary
+[2026-08-10T23:26:21.184Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-04_PIECE_BOUNDARY.png
+[2026-08-10T23:26:21.381Z] ok SS-R1_2-04_PIECE_BOUNDARY.png sky=0.882 dirt=0.124 hot=4 buttons=
+[2026-08-10T23:26:25.336Z] HIT [08:26:25+334][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_gradient
+[2026-08-10T23:26:26.968Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-05_GRADIENT_CHAIN.png
+[2026-08-10T23:26:27.163Z] ok SS-R1_2-05_GRADIENT_CHAIN.png sky=0.881 dirt=0.126 hot=4 buttons=
+[2026-08-10T23:26:31.335Z] HIT [08:26:31+334][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_curve_gradient
+[2026-08-10T23:26:33.748Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-06_CURVE_GRADIENT.png
+[2026-08-10T23:26:33.952Z] ok SS-R1_2-06_CURVE_GRADIENT.png sky=0.885 dirt=0.124 hot=4 buttons=
+[2026-08-10T23:26:37.335Z] HIT [08:26:37+333][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_reverse
+[2026-08-10T23:26:39.525Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-07_REVERSE_PATH.png
+[2026-08-10T23:26:39.719Z] ok SS-R1_2-07_REVERSE_PATH.png sky=0.885 dirt=0.124 hot=4 buttons=
+[2026-08-10T23:26:43.335Z] HIT [08:26:43+333][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_overview
+[2026-08-10T23:26:45.285Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2/screenshots/SS-R1_2-08_OVERVIEW.png
+[2026-08-10T23:26:45.501Z] ok SS-R1_2-08_OVERVIEW.png sky=0.885 dirt=0.126 hot=4 buttons=
+[2026-08-10T23:26:46.509Z] SUCCESS shots=8
