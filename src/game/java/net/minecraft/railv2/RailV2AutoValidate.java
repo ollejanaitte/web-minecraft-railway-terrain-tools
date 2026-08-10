@@ -107,49 +107,53 @@ public final class RailV2AutoValidate {
 		enableFlight(tourPlayer);
 		// Hold the proven side-elevation view longer so captureSeries can grab
 		// straight + formation + scale before moving to the curve.
+		// Each camera change is announced both to the server STDOUT and as a chat
+		// message; the chat form is what the headless browser console observes
+		// (server STDOUT is not relayed to the client console), so the capture
+		// automation can key screenshots off the exact tour tag.
 		if (tourTicks == 20) {
 			setCamera(tourPlayer, 40.0D, 74.0D, 16.0D, 180.0F, 32.0F);
-			System.out.println("[RAILSYSTEM] camera tour=formation_side");
+			tourTag("formation_side");
 		} else if (tourTicks == 200) {
 			setCamera(tourPlayer, 30.0D, 68.0D, 10.0D, -90.0F, 18.0F);
-			System.out.println("[RAILSYSTEM] camera tour=along_track");
+			tourTag("along_track");
 		} else if (tourTicks == 360) {
 			setCamera(tourPlayer, 70.0D, 72.0D, 14.0D, 180.0F, 25.0F);
-			System.out.println("[RAILSYSTEM] camera tour=close_formation");
+			tourTag("close_formation");
 		} else if (tourTicks == 520) {
 			setCamera(tourPlayer, 130.0D, 78.0D, 30.0D, 160.0F, 28.0F);
-			System.out.println("[RAILSYSTEM] camera tour=curve");
+			tourTag("curve");
 		} else if (tourTicks == 700) {
 			setCamera(tourPlayer, 200.0D, 78.0D, 80.0D, 200.0F, 25.0F);
-			System.out.println("[RAILSYSTEM] camera tour=piece3");
+			tourTag("piece3");
 		} else if (tourTicks == 860) {
 			// Phase 1.1 geometry evidence cameras (production centerlines @ z≈200+)
 			setCamera(tourPlayer, 0.0D, 78.0D, 190.0D, 0.0F, 25.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_straight");
+			tourTag("geom_straight");
 		} else if (tourTicks == 980) {
 			setCamera(tourPlayer, 40.0D, 82.0D, 190.0D, -20.0F, 30.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_gentle");
+			tourTag("geom_gentle");
 		} else if (tourTicks == 1100) {
 			setCamera(tourPlayer, 180.0D, 78.0D, 195.0D, -30.0F, 28.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_tight");
+			tourTag("geom_tight");
 		} else if (tourTicks == 1220) {
 			setCamera(tourPlayer, 220.0D, 80.0D, 195.0D, -10.0F, 28.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_s_curve");
+			tourTag("geom_s_curve");
 		} else if (tourTicks == 1340) {
 			setCamera(tourPlayer, 280.0D, 78.0D, 190.0D, 0.0F, 20.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_gradient");
+			tourTag("geom_gradient");
 		} else if (tourTicks == 1460) {
 			setCamera(tourPlayer, 320.0D, 82.0D, 190.0D, -25.0F, 28.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_curve_grad");
+			tourTag("geom_curve_grad");
 		} else if (tourTicks == 1580) {
 			setCamera(tourPlayer, 420.0D, 78.0D, 195.0D, 0.0F, 25.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_local_frame");
+			tourTag("geom_local_frame");
 		} else if (tourTicks == 1700) {
 			setCamera(tourPlayer, 200.0D, 95.0D, 250.0D, 180.0F, 45.0F);
-			System.out.println("[RAILSYSTEM] camera tour=geom_overview");
+			tourTag("geom_overview");
 		} else if (tourTicks == 1820) {
 			setCamera(tourPlayer, 40.0D, 74.0D, 16.0D, 180.0F, 32.0F);
-			System.out.println("[RAILSYSTEM] camera tour=final");
+			tourTag("final");
 			holdCamera();
 			tourTicks = -1;
 			tourPlayer = null;
@@ -157,6 +161,13 @@ public final class RailV2AutoValidate {
 		}
 		holdCamera();
 		tourTicks++;
+	}
+
+	private static void tourTag(String tag) {
+		System.out.println("[RAILSYSTEM] camera tour=" + tag);
+		if (tourPlayer != null) {
+			tourPlayer.addChatMessage(new ChatComponentText("railsysv2: camera tour=" + tag));
+		}
 	}
 
 	private static void enableFlight(EntityPlayerMP player) {

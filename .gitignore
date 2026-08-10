@@ -35,3 +35,8 @@ doc/testing/phase0_2/screenshots/_op*.png
 doc/testing/phase0_2/screenshots/_ot*.png
 doc/testing/phase0_2/screenshots/_probe*.png
 doc/testing/phase0_2/screenshots/_re*.png
+
+# Phase 1.1 runtime profiles / generated instrumented HTML / diagnostic logs
+doc/testing/phase1_1/profiles/
+doc/testing/phase1_1/scripts/geom_validate_instrumented.html
+doc/testing/phase1_1/logs/_*.log

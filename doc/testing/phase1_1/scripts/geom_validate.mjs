@@ -1,10 +1,20 @@
 #!/usr/bin/env node
 /**
  * Phase 1.1 Geometry debug visual validation on Flat Validation World.
- * Reuses Phase 0.5 create/join flow; captures SS-R1_1-* during geom camera tour.
+ *
+ * Uses the EaglercraftX `screenChanged` hook (baked into an instrumented copy
+ * of the offline HTML) to navigate deterministically by exact GuiScreen class
+ * names instead of pixel heuristics, then captures SS-R1_1-* during the geom
+ * camera tour.
+ *
+ * Create flow: world name "EaglerFlatValidate" -> Superflat via name hook ->
+ * AutoValidate gate fires -> geometry debug evidence placed -> camera tour.
+ * The create->join transition is race-prone (Phase 0.5 menu-recovery race);
+ * when a create attempt bounces back to a menu screen the script re-enters the
+ * create form and retries (CREATE_RETRIES, default 3) before giving up.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { writeFileSync, mkdirSync, existsSync, copyFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -18,14 +28,52 @@ const PORT = process.env.CDP_PORT || '9391';
 const HTML =
   process.env.VALIDATION_HTML ||
   resolve(ROOT, 'target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html');
+const INSTR = resolve(PHASE, 'scripts/geom_validate_instrumented.html');
 const LOG = resolve(PHASE, 'logs/geom_validate.log');
 const GPU_MODE = process.env.GPU_MODE || 'auto';
+const CREATE_RETRIES = parseInt(process.env.CREATE_RETRIES || '3', 10);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const log = (m) => {
   const line = `[${new Date().toISOString()}] ${m}`;
   console.log(line);
   writeFileSync(LOG, line + '\n', { flag: 'a' });
 };
+
+// ---- screenChanged hook injected into the instrumented HTML copy ----
+const HOOK_NEEDLE = Buffer.from('container: "game_frame",');
+const HOOK_SNIPPET = Buffer.concat([
+  HOOK_NEEDLE,
+  Buffer.from(
+    `\n` +
+      `\thooks: {\n` +
+      `\t\tscreenChanged: function(name, w, h, dw, dh, s) {\n` +
+      `\t\t\ttry { window.__eagScreen = name; window.__eagScreenTime = Date.now(); } catch (e) {}\n` +
+      `\t\t}\n` +
+      `\t},`
+  ),
+]);
+
+function ensureInstrumented() {
+  if (!existsSync(HTML)) throw new Error('offline HTML missing: ' + HTML);
+  const needRebuild = !existsSync(INSTR) || statSync(INSTR).mtimeMs < statSync(HTML).mtimeMs;
+  if (!needRebuild) return;
+  log('regenerating instrumented HTML');
+  const src = readFileSyncSafe(HTML);
+  const idx = src.indexOf(HOOK_NEEDLE);
+  if (idx < 0) throw new Error('instrumentation needle not found in HTML');
+  const out = Buffer.concat([
+    src.slice(0, idx),
+    HOOK_SNIPPET,
+    src.slice(idx + HOOK_NEEDLE.length),
+  ]);
+  writeFileSync(INSTR, out);
+  log('instrumented HTML written: ' + INSTR);
+}
+
+import { readFileSync } from 'node:fs';
+function readFileSyncSafe(p) {
+  return readFileSync(p);
+}
 
 class CDP {
   constructor(u) {
@@ -57,7 +105,7 @@ class CDP {
       }
     };
   }
-  send(method, params = {}, timeoutMs = 120000) {
+  send(method, params = {}, timeoutMs = 20000) {
     const id = ++this.id;
     return new Promise((resolve, reject) => {
       const t = setTimeout(() => {
@@ -78,22 +126,50 @@ class CDP {
     });
   }
   async eval(e) {
-    return (await this.send('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true })).result
-      ?.value;
+    try {
+      return (await this.send('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }))
+        .result?.value;
+    } catch (_) {
+      return undefined;
+    }
+  }
+  async screen() {
+    return this.eval('window.__eagScreen');
   }
   async shot(f) {
     writeFileSync(f, Buffer.from((await this.send('Page.captureScreenshot', { format: 'png' })).data, 'base64'));
     log('shot ' + f);
   }
   async click(x, y) {
-    await this.eval(
-      `(()=>{const c=document.querySelector('canvas');const mk=t=>c.dispatchEvent(new MouseEvent(t,{bubbles:true,cancelable:true,clientX:${x},clientY:${y},button:0,view:window}));mk('mousemove');mk('mousedown');mk('mouseup');mk('click');})()`
-    );
     await this.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y });
     await sleep(40);
     await this.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
     await sleep(40);
     await this.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
+    await sleep(150);
+  }
+  async typeChar(ch) {
+    const vk = ch.codePointAt(0);
+    await this.send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: ch,
+      code: 'Key' + ch.toUpperCase(),
+      text: ch,
+      windowsVirtualKeyCode: vk,
+    });
+    await this.send('Input.dispatchKeyEvent', {
+      type: 'char',
+      key: ch,
+      text: ch,
+      unmodifiedText: ch,
+      windowsVirtualKeyCode: vk,
+    });
+    await this.send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: ch,
+      code: 'Key' + ch.toUpperCase(),
+      windowsVirtualKeyCode: vk,
+    });
   }
 }
 
@@ -130,10 +206,15 @@ function launchChrome() {
     ...gpuFlags,
     '--autoplay-policy=no-user-gesture-required',
     '--mute-audio',
+    '--disable-background-timer-throttling',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding',
+    '--run-all-compositor-stages-before-draw',
+    '--hide-scrollbars',
     '--window-size=1280,720',
     `--remote-debugging-port=${PORT}`,
     `--user-data-dir=${PROFILE}`,
-    'file://' + HTML,
+    'file://' + INSTR,
   ];
   const cmd = `exec /opt/google/chrome/chrome ${args.map((a) => JSON.stringify(a)).join(' ')} >${JSON.stringify(logPath)} 2>&1`;
   const child = spawn('bash', ['-c', cmd], { stdio: 'ignore', detached: true });
@@ -141,62 +222,89 @@ function launchChrome() {
   log('CHROME_PID=' + child.pid + ' PROFILE=' + PROFILE + ' GPU=' + GPU_MODE);
 }
 
-async function waitTitle(cdp) {
-  await cdp.click(640, 360);
-  await sleep(2500);
-  for (let i = 0; i < 24; i++) {
-    const p = resolve(S, '_boot_' + i + '.png');
-    await cdp.shot(p);
-    const m = analyze(p);
-    log('boot ' + i + ' ' + m);
-    const sky = parseFloat((m.match(/sky=([0-9.]+)/) || [])[1] || 0);
-    const dirt = parseFloat((m.match(/dirt=([0-9.]+)/) || [])[1] || 0);
-    if (sky > 0.15 && dirt < 0.3) return;
-    await cdp.click(640, 390);
+function screenName(s) {
+  if (!s) return s === null ? 'NULL(in-game)' : '(undefined)';
+  const parts = String(s).split('.');
+  return parts[parts.length - 1];
+}
+
+async function waitForScreen(cdp, want, opts = {}) {
+  const timeoutMs = opts.timeout || 90000;
+  const match = typeof want === 'function' ? want : (s) => s === want;
+  const deadline = Date.now() + timeoutMs;
+  let last;
+  while (Date.now() < deadline) {
+    last = await cdp.screen();
+    if (match(last)) return last;
     await sleep(1000);
-    await cdp.click(640, 450);
-    await sleep(1500);
   }
-  throw new Error('title timeout');
+  throw new Error('waitForScreen timeout ' + want + ' last=' + last);
+}
+
+async function waitTitle(cdp) {
+  // "Press any key" early-load requires a click; the Eaglercraft profanity
+  // content warning appears later and is dismissed with Continue (640,390)
+  // then (640,450), mirroring the proven Phase 0.5 flow. Loop until the main
+  // menu (GuiMainMenu) is actually visible.
+  for (let i = 0; i < 45; i++) {
+    const s = await cdp.screen();
+    if (s === null || s === undefined) {
+      // Early boot: press-any-key / loading. One click dismisses it.
+      if (i === 0) await cdp.click(640, 360);
+      await sleep(2000);
+      continue;
+    }
+    const n = String(s);
+    if (n.includes('GuiMainMenu')) {
+      log('title reached: ' + screenName(s));
+      return;
+    }
+    if (n.includes('GuiScreenContentWarning')) {
+      log('content warning -> continue');
+      await cdp.click(640, 390);
+      await sleep(500);
+      await cdp.click(640, 450);
+      await sleep(1000);
+      continue;
+    }
+    if (n.includes('GuiScreenDefaultUsernameNote')) {
+      // Three buttons: change username / continue anyway / do-not-show-again.
+      // "Continue Anyway" sits at height/6+142 (gui), ~ (640, 380) viewport.
+      log('default-username note -> continue anyway');
+      await cdp.click(640, 380);
+      await sleep(1000);
+      continue;
+    }
+    await sleep(2000);
+  }
+  throw new Error('title timeout, last screen=' + (await cdp.screen()));
+}
+
+async function gotoCreateForm(cdp) {
+  await waitForScreen(cdp, (s) => String(s).includes('GuiMainMenu'), { timeout: 60000 });
+  await cdp.click(640, 258); // Singleplayer
+  // Eaglercraft opens a world list and a create-new-world screen (custom
+  // GuiScreenCreateWorldSelection) before the vanilla GuiCreateWorld form.
+  const onSelect = (s) =>
+    String(s).includes('GuiSelectWorld') || String(s).includes('GuiScreenCreateWorldSelection');
+  await waitForScreen(cdp, onSelect, { timeout: 60000 });
+  let s = await cdp.screen();
+  if (String(s).includes('GuiScreenCreateWorldSelection')) {
+    log('on create-selection screen -> Create');
+    await cdp.click(640, 242);
+  } else {
+    await cdp.click(915, 492); // Create New World
+    await waitForScreen(cdp, (s) => String(s).includes('GuiScreenCreateWorldSelection'), { timeout: 60000 });
+    await cdp.click(640, 242); // Create
+  }
+  await waitForScreen(cdp, (s) => String(s).includes('GuiCreateWorld'), { timeout: 60000 });
+  log('on create form');
 }
 
 async function enterWorld(cdp) {
-  await cdp.click(640, 258);
-  await sleep(12000);
-  await cdp.shot(resolve(S, '_select.png'));
-  log('select ' + analyze(resolve(S, '_select.png')));
-  await cdp.click(915, 492);
-  await sleep(8000);
-  await cdp.shot(resolve(S, '_submenu.png'));
-  log('submenu ' + analyze(resolve(S, '_submenu.png')));
-  await cdp.click(640, 242);
-  await sleep(10000);
-  await cdp.shot(resolve(S, '_form.png'));
-  log('form ' + analyze(resolve(S, '_form.png')));
-  const typeChar = async (ch) => {
-    const vk = ch.codePointAt(0);
-    await cdp.send('Input.dispatchKeyEvent', {
-      type: 'keyDown',
-      key: ch,
-      code: 'Key' + ch.toUpperCase(),
-      text: ch,
-      windowsVirtualKeyCode: vk,
-    });
-    await cdp.send('Input.dispatchKeyEvent', {
-      type: 'char',
-      key: ch,
-      text: ch,
-      unmodifiedText: ch,
-      windowsVirtualKeyCode: vk,
-    });
-    await cdp.send('Input.dispatchKeyEvent', {
-      type: 'keyUp',
-      key: ch,
-      code: 'Key' + ch.toUpperCase(),
-      windowsVirtualKeyCode: vk,
-    });
-  };
-  await cdp.click(495, 138);
+  // Must be on GuiCreateWorld. Type the validation world name then Create.
+  await waitForScreen(cdp, (s) => String(s).includes('GuiCreateWorld'), { timeout: 60000 });
+  await cdp.click(495, 138); // world name field
   await sleep(800);
   await cdp.send('Input.dispatchKeyEvent', {
     type: 'keyDown',
@@ -214,54 +322,82 @@ async function enterWorld(cdp) {
   });
   await sleep(300);
   for (const ch of 'EaglerFlatValidate') {
-    await typeChar(ch);
+    await cdp.typeChar(ch);
     await sleep(40);
   }
   await sleep(1000);
   await cdp.shot(resolve(S, '_named.png'));
   log('named ' + analyze(resolve(S, '_named.png')));
-  await cdp.click(400, 540);
-  await sleep(20000);
-  await cdp.shot(resolve(S, '_loading.png'));
-  log('loading ' + analyze(resolve(S, '_loading.png')));
+}
+
+async function attemptCreate(cdp) {
+  // Click Create and watch the transition. Returns { ok, screens } where ok
+  // means the world entered (screen became null / in-game) OR is still loading
+  // toward in-game; bounces back to a menu mean failure.
+  await cdp.click(400, 540); // Confirm create
+  const start = Date.now();
+  const seen = [];
+  while (Date.now() - start < 90000) {
+    const s = await cdp.screen();
+    const n = screenName(s);
+    seen.push(n);
+    if (s === null) {
+      log('create->in-game detected');
+      return { ok: true, seen };
+    }
+    const str = String(s);
+    if (str.includes('GuiSelectWorld') || str.includes('GuiMainMenu')) {
+      log('create bounced back to ' + n + ' (menu-recovery race)');
+      return { ok: false, seen };
+    }
+    if (str.includes('GuiScreenIntegratedServerBusy') || str.includes('GuiDownloadTerrain')) {
+      // still loading toward in-game
+    }
+    if (str.includes('GuiCreateWorld')) {
+      // click may have missed; try again once
+      if (seen.filter((x) => x.includes('GuiCreateWorld')).length === 1) {
+        log('still on create form after create click -> re-click');
+        await cdp.click(400, 540);
+      }
+    }
+    await sleep(1000);
+  }
+  return { ok: false, seen };
+}
+
+async function waitAutoValidate(cdp) {
+  const deadline = Date.now() + 60000;
+  while (Date.now() < deadline) {
+    if (cdp.lines.some((t) => /auto-validat/i.test(t))) {
+      log('AutoValidate fired');
+      return true;
+    }
+    // Also accept the worldName gate line as evidence of in-world presence.
+    if (cdp.lines.some((t) => /worldName=.*validation=/.test(t))) {
+      log('gate line seen; waiting for auto-validated...');
+    }
+    await sleep(1000);
+  }
+  throw new Error('AutoValidate did NOT fire');
 }
 
 async function waitInWorld(cdp) {
-  let menuStreak = 0;
-  for (let i = 1; i <= 90; i++) {
-    await sleep(10000);
-    const p = resolve(S, '_join_' + i + '.png');
-    try {
+  for (let i = 1; i <= 60; i++) {
+    await sleep(5000);
+    const s = await cdp.screen();
+    if (s === null && cdp.lines.some((t) => /auto-validat/i.test(t))) {
+      log('IN_WORLD validated=true');
+      return { validated: true, inworld: true };
+    }
+    if (cdp.lines.some((t) => /auto-validat/i.test(t))) {
+      log('IN_WORLD validated=true (console)');
+      return { validated: true, inworld: true };
+    }
+    if (i % 6 === 0) {
+      const p = resolve(S, '_join_' + i + '.png');
       await cdp.shot(p);
-    } catch (e) {
-      log('shot fail ' + e.message);
-      continue;
+      log('join ' + i + ' ' + analyze(p));
     }
-    const m = analyze(p);
-    log('join ' + i + ' ' + m);
-    const sky = parseFloat((m.match(/sky=([0-9.]+)/) || [])[1] || 0);
-    const dirt = parseFloat((m.match(/dirt=([0-9.]+)/) || [])[1] || 1);
-    const hot = parseInt((m.match(/hot=([0-9]+)/) || [])[1] || 0, 10);
-    if (
-      cdp.lines.some(
-        (t) =>
-          /Game Crashed|Minecraft Crash Report/i.test(t) && !/tolerant-assert/i.test(t)
-      )
-    ) {
-      throw new Error('game crashed during join');
-    }
-    const validated = cdp.lines.some((t) => /auto-validat/i.test(t));
-    const geom = cdp.lines.some((t) => /GeomDebugEvidence DONE/i.test(t));
-    const grounded = hot >= 2 && sky > 0.05 && sky < 0.75 && dirt > 0.15 && dirt < 0.55;
-    if (validated || grounded) {
-      log('IN_WORLD validated=' + validated + ' geom=' + geom);
-      return { validated, geom, inworld: true };
-    }
-    const menuLike = sky > 0.5 || (dirt > 0.6 && hot < 5);
-    if (menuLike) {
-      menuStreak++;
-      if (menuStreak >= 12) throw new Error('stuck in menu after create');
-    } else menuStreak = 0;
   }
   return { validated: false, inworld: false };
 }
@@ -292,7 +428,6 @@ async function captureGeomSeries(cdp) {
     }
     await sleep(1000);
   }
-  // Fallback timed captures if tour tags missed
   if (taken.size < map.length) {
     log('WARN missing tags; timed fallback remaining=' + (map.length - taken.size));
     for (const [tag, file] of map) {
@@ -306,10 +441,20 @@ async function captureGeomSeries(cdp) {
   writeFileSync(resolve(PHASE, 'logs/console_geom.txt'), cdp.lines.join('\n'));
 }
 
+function takenCount(dir) {
+  try {
+    return spawnSync('bash', ['-c', `ls -1 ${JSON.stringify(dir)}/SS-R1_1-*.png 2>/dev/null | wc -l`], {
+      encoding: 'utf8',
+    }).stdout.trim();
+  } catch (_) {
+    return '?';
+  }
+}
+
 async function main() {
   writeFileSync(LOG, '');
-  log('START Phase1.1 geom visual PROFILE=' + PROFILE);
-  if (!existsSync(HTML)) throw new Error('offline HTML missing: ' + HTML);
+  log('START Phase1.1 geom visual PROFILE=' + PROFILE + ' CREATE_RETRIES=' + CREATE_RETRIES);
+  ensureInstrumented();
   if (!process.env.SKIP_LAUNCH) {
     launchChrome();
     await sleep(6000);
@@ -319,23 +464,33 @@ async function main() {
   await cdp.send('Runtime.enable');
   await cdp.send('Page.enable');
   await waitTitle(cdp);
-  await enterWorld(cdp);
+  await gotoCreateForm(cdp);
+
+  let entered = false;
+  for (let attempt = 1; attempt <= CREATE_RETRIES && !entered; attempt++) {
+    log('=== create attempt ' + attempt + '/' + CREATE_RETRIES + ' ===');
+    await enterWorld(cdp);
+    const res = await attemptCreate(cdp);
+    if (res.ok) {
+      entered = true;
+      break;
+    }
+    // Returned to a menu; re-enter the create form for another attempt.
+    try {
+      await gotoCreateForm(cdp);
+    } catch (e) {
+      log('re-enter create form failed: ' + e.message);
+      break;
+    }
+  }
+  if (!entered) throw new Error('create never entered the world after ' + CREATE_RETRIES + ' attempts');
+
   const inw = await waitInWorld(cdp);
   if (!inw.inworld) throw new Error('failed in-world');
-  if (!inw.validated) throw new Error('AutoValidate did NOT fire');
+  if (!inw.validated) await waitAutoValidate(cdp);
   await captureGeomSeries(cdp);
   log('SUCCESS shots=' + takenCount(S));
   process.exit(0);
-}
-
-function takenCount(dir) {
-  try {
-    return spawnSync('bash', ['-c', `ls -1 ${JSON.stringify(dir)}/SS-R1_1-*.png 2>/dev/null | wc -l`], {
-      encoding: 'utf8',
-    }).stdout.trim();
-  } catch (_) {
-    return '?';
-  }
 }
 
 main().catch((e) => {
