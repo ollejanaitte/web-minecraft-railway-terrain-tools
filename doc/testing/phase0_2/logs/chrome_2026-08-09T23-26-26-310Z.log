@@ -1,0 +1,14 @@
+[0810/082626.339137:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9361/devtools/browser/b3b77dbd-e1d0-4383-a140-93e2e0241372
+[1597352:1597370:0810/082631.940204:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[1597352:1597370:0810/082659.881974:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[1597352:1597370:0810/082757.600779:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+Warning: maxDynamicUniformBuffersPerPipelineLayout artificially reduced from 1000000 to 16 to fit dynamic offset allocation limit.
+Warning: maxDynamicStorageBuffersPerPipelineLayout artificially reduced from 1000000 to 16 to fit dynamic offset allocation limit.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1786318166.734965 1598509 environment.cc:521] Selected adapter: NVIDIA GeForce GTX 1050, arch=pascal, vendor=nvidia, backend=Vulkan, adapterType=Discrete GPU
+Warning: maxDynamicUniformBuffersPerPipelineLayout artificially reduced from 1000000 to 16 to fit dynamic offset allocation limit.
+Warning: maxDynamicStorageBuffersPerPipelineLayout artificially reduced from 1000000 to 16 to fit dynamic offset allocation limit.
+I0000 00:00:1786318166.844873 1598560 environment.cc:521] Selected adapter: NVIDIA GeForce GTX 1050, arch=pascal, vendor=nvidia, backend=Vulkan, adapterType=Discrete GPU

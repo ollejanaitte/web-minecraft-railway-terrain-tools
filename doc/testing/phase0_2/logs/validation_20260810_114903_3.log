@@ -1,0 +1,54 @@
+[2026-08-10T03:03:27.360Z] START retry PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_114903-3
+[2026-08-10T03:03:27.362Z] CHROME_PID=1661772 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_114903-3
+[2026-08-10T03:03:33.443Z] click 640,360
+[2026-08-10T03:03:36.121Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_0.png
+[2026-08-10T03:03:36.295Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=553
+[2026-08-10T03:03:36.295Z] click 640,390
+[2026-08-10T03:03:38.576Z] HIT [12:03:38+575][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[2026-08-10T03:03:39.780Z] HIT [12:03:39+779][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[2026-08-10T03:03:39.781Z] HIT [12:03:39+780][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[2026-08-10T03:03:40.830Z] click 640,450
+[2026-08-10T03:03:42.508Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_1.png
+[2026-08-10T03:03:42.684Z] boot 1 sky=0.000 dirt=1.059 hot=26 buttons=330,390
+[2026-08-10T03:03:42.684Z] click 640,390
+[2026-08-10T03:03:43.819Z] click 640,450
+[2026-08-10T03:03:45.624Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_2.png
+[2026-08-10T03:03:45.796Z] boot 2 sky=0.837 dirt=0.009 hot=20 buttons=238,426
+[2026-08-10T03:03:45.983Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-01_GAME_BOOT.png
+[2026-08-10T03:03:45.984Z] click 640,258
+[2026-08-10T03:03:46.175Z] HIT [12:03:46+173][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[2026-08-10T03:03:47.058Z] HIT [12:03:47+053][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[2026-08-10T03:03:58.261Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_select.png
+[2026-08-10T03:03:58.428Z] select sky=0.000 dirt=0.946 hot=26 buttons=492
+[2026-08-10T03:03:58.429Z] click 915,492
+[2026-08-10T03:04:06.626Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_submenu.png
+[2026-08-10T03:04:06.791Z] submenu sky=0.000 dirt=1.065 hot=26 buttons=242,292,342,422
+[2026-08-10T03:04:06.791Z] click 640,242
+[2026-08-10T03:04:16.975Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_form.png
+[2026-08-10T03:04:17.146Z] form sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-10T03:04:17.146Z] click 495,138
+[2026-08-10T03:04:19.995Z] click 400,540
+[2026-08-10T03:04:27.803Z] HIT [12:04:27+801][Client thread/INFO][Minecraft]: [CHAT] railsysv2: worldName=New aEaglerValidateWorld validation=true
+[2026-08-10T03:04:29.751Z] HIT [12:04:29+750][Client thread/INFO][Minecraft]: [CHAT] railsysv2: auto-validated (build + 4 cars started)
+[2026-08-10T03:04:35.356Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_loading.png
+[2026-08-10T03:04:35.540Z] loading sky=0.826 dirt=0.154 hot=12 buttons=206,353,484
+[2026-08-10T03:04:35.540Z] enter via created
+[2026-08-10T03:04:45.688Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_1.png
+[2026-08-10T03:04:45.865Z] join 1 sky=0.694 dirt=0.199 hot=18 buttons=221,366
+[2026-08-10T03:04:45.866Z] IN_WORLD validated=true grounded=true gate=Minecraft]: [CHAT] railsysv2: worldName=New aEaglerValidateWorld validation=true
+[2026-08-10T03:04:46.011Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-01b_IN_WORLD.png
+[2026-08-10T03:04:49.665Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-02_RAIL_STRAIGHT.png
+[2026-08-10T03:04:49.840Z] ok SS-02_RAIL_STRAIGHT.png sky=0.622 dirt=0.252 hot=17 buttons=369
+[2026-08-10T03:04:52.014Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-03_RAIL_CURVE.png
+[2026-08-10T03:04:52.182Z] ok SS-03_RAIL_CURVE.png sky=0.620 dirt=0.252 hot=18 buttons=370
+[2026-08-10T03:04:58.770Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-04_FULL_SCALE_TRAIN.png
+[2026-08-10T03:04:58.943Z] ok SS-04_FULL_SCALE_TRAIN.png sky=0.000 dirt=0.125 hot=24 buttons=
+[2026-08-10T03:05:07.168Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-05_TRAIN_ON_CURVE.png
+[2026-08-10T03:05:07.379Z] ok SS-05_TRAIN_ON_CURVE.png sky=0.646 dirt=0.261 hot=11 buttons=368
+[2026-08-10T03:05:15.593Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-06_FORMATION.png
+[2026-08-10T03:05:15.764Z] ok SS-06_FORMATION.png sky=0.789 dirt=0.178 hot=11 buttons=176,351,486
+[2026-08-10T03:05:24.971Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-07_PIECE_BOUNDARY.png
+[2026-08-10T03:05:25.145Z] ok SS-07_PIECE_BOUNDARY.png sky=0.792 dirt=0.178 hot=11 buttons=176,351,486
+[2026-08-10T03:05:33.372Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-08_EXTRA.png
+[2026-08-10T03:05:33.544Z] ok SS-08_EXTRA.png sky=0.792 dirt=0.178 hot=11 buttons=176,351,486
+[2026-08-10T03:05:33.544Z] SUCCESS

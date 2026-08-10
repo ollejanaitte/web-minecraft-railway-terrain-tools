@@ -1,0 +1,52 @@
+[2026-08-10T00:30:29.316Z] START retry PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_093029-1
+[2026-08-10T00:30:29.319Z] CHROME_PID=1629783 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_093029-1
+[2026-08-10T00:30:35.377Z] click 640,360
+[2026-08-10T00:30:38.396Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_0.png
+[2026-08-10T00:30:38.610Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=553
+[2026-08-10T00:30:38.610Z] click 640,390
+[2026-08-10T00:30:39.708Z] click 640,450
+[2026-08-10T00:30:41.794Z] HIT [09:30:41+792][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[2026-08-10T00:30:43.391Z] HIT [09:30:43+391][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[2026-08-10T00:30:43.393Z] HIT [09:30:43+392][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[2026-08-10T00:30:45.026Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_1.png
+[2026-08-10T00:30:45.292Z] boot 1 sky=0.000 dirt=0.000 hot=0 buttons=
+[2026-08-10T00:30:45.292Z] click 640,390
+[2026-08-10T00:30:47.408Z] click 640,450
+[2026-08-10T00:30:49.291Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_2.png
+[2026-08-10T00:30:49.541Z] boot 2 sky=0.837 dirt=0.012 hot=20 buttons=238,426
+[2026-08-10T00:30:49.767Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-01_GAME_BOOT.png
+[2026-08-10T00:30:49.768Z] click 640,258
+[2026-08-10T00:30:49.951Z] HIT [09:30:49+949][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[2026-08-10T00:30:51.070Z] HIT [09:30:51+069][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[2026-08-10T00:31:02.026Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_select.png
+[2026-08-10T00:31:02.243Z] select sky=0.000 dirt=0.946 hot=26 buttons=492
+[2026-08-10T00:31:02.244Z] click 915,492
+[2026-08-10T00:31:10.415Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_submenu.png
+[2026-08-10T00:31:10.675Z] submenu sky=0.000 dirt=1.065 hot=26 buttons=242,292,342,422
+[2026-08-10T00:31:10.675Z] click 640,242
+[2026-08-10T00:31:20.843Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_form.png
+[2026-08-10T00:31:21.065Z] form sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-10T00:31:21.065Z] click 495,138
+[2026-08-10T00:31:23.854Z] click 400,540
+[2026-08-10T00:31:23.944Z] HIT [09:31:23+942][Client thread/ERROR][SingleplayerServerController]: Shutting down integrated server due to unexpected client hangup, this is a memleak
+[2026-08-10T00:31:27.783Z] HIT ---- Minecraft Crash Report ----
+[2026-08-10T00:31:27.798Z] HIT java.lang.IllegalStateException: Recieved ACK 0 while the client state was 4 'WORLD_UNLOADING'
+[2026-08-10T00:31:27.800Z] HIT 	at net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController.handleIPCPacket() (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:9099:419)
+[2026-08-10T00:31:27.805Z] HIT 	at net.lax1dude.eaglercraft.v1_8.internal.PlatformInput.asyncRequestAnimationFrame$_asyncCall_$().callback.Qq (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:2886:308)
+[2026-08-10T00:31:27.807Z] HIT 	at org.teavm.platform.plugin.AsyncCallbackWrapper.complete() (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:2337:24)
+[2026-08-10T00:31:27.813Z] HIT Stacktrace:
+[2026-08-10T00:31:27.813Z] HIT 	at net.lax1dude.eaglercraft.v1_8.sp.SingleplayerServerController.handleIPCPacket() (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:9099:419)
+[2026-08-10T00:31:27.816Z] HIT 	at net.lax1dude.eaglercraft.v1_8.internal.PlatformInput.asyncRequestAnimationFrame$_asyncCall_$().callback.Qq (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:2886:308)
+[2026-08-10T00:31:27.816Z] HIT 	at org.teavm.platform.plugin.AsyncCallbackWrapper.complete() (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:2337:24)
+[2026-08-10T00:31:27.829Z] HIT 	Resource Packs: 
+[2026-08-10T00:31:27.832Z] HIT JavaError: Recieved ACK 0 while the client state was 4 'WORLD_UNLOADING'
+    at $rt_exception (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html:116:159)
+    at $rt_throw (file:///home/masaharu/Web%
+[2026-08-10T00:31:39.037Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_loading.png
+[2026-08-10T00:31:39.261Z] loading sky=0.000 dirt=0.854 hot=21 buttons=
+[2026-08-10T00:31:39.261Z] enter via created
+[2026-08-10T00:31:49.354Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_1.png
+[2026-08-10T00:31:49.581Z] join 1 sky=0.000 dirt=0.854 hot=21 buttons=
+[2026-08-10T00:31:49.581Z] FATAL Error: game crashed during join
+    at waitInWorld (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase0_2/scripts/retry_vulkan.mjs:242:13)
+    at async main (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase0_2/scripts/retry_vulkan.mjs:294:15)

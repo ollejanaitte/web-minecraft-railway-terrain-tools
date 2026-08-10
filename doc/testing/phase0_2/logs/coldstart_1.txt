@@ -1,0 +1,8 @@
+[run-validation] === Phase 0.2 validation run (20260810_101952) ===
+[run-validation] root=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools gpu_mode=vulkan max_runs=3
+[run-validation] using GPU_MODE=vulkan
+[run-validation] === validation run 1/3 ===
+[run-validation] run 1 PASS
+[run-validation] cleanup...
+[run-validation] === VALIDATION PASS ===
+VALIDATION_RESULT=PASS

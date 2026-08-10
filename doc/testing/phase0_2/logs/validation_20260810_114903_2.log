@@ -1,0 +1,56 @@
+[2026-08-10T03:00:41.795Z] START retry PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_114903-2
+[2026-08-10T03:00:41.799Z] CHROME_PID=1660999 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_114903-2
+[2026-08-10T03:00:47.851Z] click 640,360
+[2026-08-10T03:00:50.659Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_0.png
+[2026-08-10T03:00:50.872Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=553
+[2026-08-10T03:00:50.872Z] click 640,390
+[2026-08-10T03:00:51.978Z] click 640,450
+[2026-08-10T03:00:53.918Z] HIT [12:00:53+917][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[2026-08-10T03:00:55.657Z] HIT [12:00:55+656][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[2026-08-10T03:00:55.658Z] HIT [12:00:55+657][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[2026-08-10T03:00:57.282Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_1.png
+[2026-08-10T03:00:57.465Z] boot 1 sky=0.000 dirt=0.000 hot=0 buttons=
+[2026-08-10T03:00:57.466Z] click 640,390
+[2026-08-10T03:00:59.219Z] click 640,450
+[2026-08-10T03:01:01.028Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_2.png
+[2026-08-10T03:01:01.238Z] boot 2 sky=0.837 dirt=0.010 hot=19 buttons=237,426
+[2026-08-10T03:01:01.424Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-01_GAME_BOOT.png
+[2026-08-10T03:01:01.424Z] click 640,258
+[2026-08-10T03:01:01.637Z] HIT [12:01:01+635][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[2026-08-10T03:01:02.593Z] HIT [12:01:02+592][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[2026-08-10T03:01:13.597Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_select.png
+[2026-08-10T03:01:13.759Z] select sky=0.000 dirt=0.946 hot=26 buttons=492
+[2026-08-10T03:01:13.759Z] click 915,492
+[2026-08-10T03:01:21.957Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_submenu.png
+[2026-08-10T03:01:22.121Z] submenu sky=0.000 dirt=1.065 hot=26 buttons=242,292,342,422
+[2026-08-10T03:01:22.122Z] click 640,242
+[2026-08-10T03:01:32.306Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_form.png
+[2026-08-10T03:01:32.467Z] form sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-10T03:01:32.467Z] click 495,138
+[2026-08-10T03:01:35.317Z] click 400,540
+[2026-08-10T03:01:35.400Z] HIT [12:01:35+398][Client thread/ERROR][SingleplayerServerController]: Shutting down integrated server due to unexpected client hangup, this is a memleak
+[2026-08-10T03:01:37.659Z] HIT [12:01:37+657][Client thread/INFO][STDOUT]: [RAILSYSTEM] tolerant-assert: ACK 0 while state was 4 'WORLD_UNLOADING' (ignored)
+[2026-08-10T03:01:50.651Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_loading.png
+[2026-08-10T03:01:50.827Z] loading sky=0.261 dirt=0.010 hot=26 buttons=257,426
+[2026-08-10T03:01:50.827Z] enter via created
+[2026-08-10T03:02:01.050Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_1.png
+[2026-08-10T03:02:01.231Z] join 1 sky=0.001 dirt=0.008 hot=23 buttons=220,426
+[2026-08-10T03:02:11.458Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_2.png
+[2026-08-10T03:02:11.634Z] join 2 sky=0.002 dirt=0.009 hot=26 buttons=217,426
+[2026-08-10T03:02:21.863Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_3.png
+[2026-08-10T03:02:22.047Z] join 3 sky=0.002 dirt=0.009 hot=26 buttons=228,426
+[2026-08-10T03:02:32.256Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_4.png
+[2026-08-10T03:02:32.430Z] join 4 sky=0.365 dirt=0.008 hot=23 buttons=242,389,426
+[2026-08-10T03:02:42.632Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_5.png
+[2026-08-10T03:02:42.804Z] join 5 sky=0.544 dirt=0.010 hot=26 buttons=234,426
+[2026-08-10T03:02:53.009Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_6.png
+[2026-08-10T03:02:53.175Z] join 6 sky=0.817 dirt=0.009 hot=26 buttons=172,246,306,426
+[2026-08-10T03:03:03.358Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_7.png
+[2026-08-10T03:03:03.530Z] join 7 sky=0.854 dirt=0.010 hot=26 buttons=178,274,426
+[2026-08-10T03:03:13.713Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_8.png
+[2026-08-10T03:03:13.886Z] join 8 sky=0.790 dirt=0.008 hot=26 buttons=281,426
+[2026-08-10T03:03:24.093Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_9.png
+[2026-08-10T03:03:24.262Z] join 9 sky=0.752 dirt=0.010 hot=26 buttons=209,282,426
+[2026-08-10T03:03:24.262Z] FATAL Error: stuck in menu after create (menu-recovery race)
+    at waitInWorld (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase0_2/scripts/retry_vulkan.mjs:259:15)
+    at async main (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase0_2/scripts/retry_vulkan.mjs:305:15)

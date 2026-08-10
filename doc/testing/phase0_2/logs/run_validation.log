@@ -1,0 +1,12 @@
+[2026-08-09T23:26:26.314Z] CHROME_LAUNCH pid=1597352 mode=vulkan port=9361 profile=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/test3
+[2026-08-09T23:26:32.384Z] RENDERER ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA GeForce GTX 1050 (0x00001C8D)), NVIDIA)
+[2026-08-09T23:26:33.549Z] CONSOLE ClientMain: [INFO] eaglercraftx is starting...
+[2026-08-09T23:26:38.460Z] CONSOLE [08:26:38+459][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[2026-08-09T23:26:39.829Z] CONSOLE [08:26:39+828][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[2026-08-09T23:26:39.831Z] CONSOLE [08:26:39+830][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[2026-08-09T23:26:41.238Z] boot state=unknown sky=0.000 dirt=0.000 dark=0.020 bright=0.973 blue=0.000 buttons= worldthumb=0
+[2026-08-09T23:26:43.423Z] boot state=dirt-screen sky=0.000 dirt=0.976 dark=0.950 bright=0.015 blue=0.000 buttons=330,390 worldthumb=0
+[2026-08-09T23:26:43.424Z] MAIN_MENU state=dirt-screen sky=0.000 dirt=0.976 dark=0.950 bright=0.015 blue=0.000 buttons=330,390 worldthumb=0
+[2026-08-09T23:26:54.092Z] select state=dirt-screen sky=0.000 dirt=0.976 dark=0.950 bright=0.015 blue=0.017 buttons=390 worldthumb=0
+[2026-08-09T23:27:02.773Z] submenu state=dirt-screen sky=0.000 dirt=0.976 dark=0.950 bright=0.015 blue=0.000 buttons=330,390 worldthumb=0
+[2026-08-09T23:27:11.448Z] form state=dirt-screen sky=0.000 dirt=0.976 dark=0.950 bright=0.015 blue=0.017 buttons=390 worldthumb=0

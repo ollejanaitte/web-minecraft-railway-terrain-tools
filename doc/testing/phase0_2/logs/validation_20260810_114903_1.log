@@ -1,0 +1,161 @@
+[2026-08-10T02:49:03.664Z] START retry PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_114903-1
+[2026-08-10T02:49:03.671Z] CHROME_PID=1659557 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/profiles/validation-20260810_114903-1
+[2026-08-10T02:49:09.757Z] click 640,360
+[2026-08-10T02:49:12.445Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_0.png
+[2026-08-10T02:49:12.632Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=
+[2026-08-10T02:49:12.632Z] click 640,390
+[2026-08-10T02:49:13.794Z] click 640,450
+[2026-08-10T02:49:17.096Z] HIT [11:49:17+095][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[2026-08-10T02:49:17.126Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_1.png
+[2026-08-10T02:49:17.330Z] boot 1 sky=0.000 dirt=0.000 hot=0 buttons=
+[2026-08-10T02:49:17.330Z] click 640,390
+[2026-08-10T02:49:18.448Z] HIT [11:49:18+447][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[2026-08-10T02:49:18.450Z] HIT [11:49:18+449][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[2026-08-10T02:49:19.604Z] click 640,450
+[2026-08-10T02:49:21.294Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_2.png
+[2026-08-10T02:49:21.516Z] boot 2 sky=0.000 dirt=1.059 hot=26 buttons=330,390
+[2026-08-10T02:49:21.517Z] click 640,390
+[2026-08-10T02:49:22.622Z] click 640,450
+[2026-08-10T02:49:24.437Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_boot_3.png
+[2026-08-10T02:49:24.650Z] boot 3 sky=0.840 dirt=0.006 hot=19 buttons=237,426
+[2026-08-10T02:49:24.852Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/SS-01_GAME_BOOT.png
+[2026-08-10T02:49:24.852Z] click 640,258
+[2026-08-10T02:49:25.029Z] HIT [11:49:25+027][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[2026-08-10T02:49:25.924Z] HIT [11:49:25+920][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[2026-08-10T02:49:37.134Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_select.png
+[2026-08-10T02:49:37.325Z] select sky=0.000 dirt=0.946 hot=26 buttons=492
+[2026-08-10T02:49:37.325Z] click 915,492
+[2026-08-10T02:49:45.520Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_submenu.png
+[2026-08-10T02:49:45.720Z] submenu sky=0.000 dirt=1.065 hot=26 buttons=242,292,342,422
+[2026-08-10T02:49:45.720Z] click 640,242
+[2026-08-10T02:49:55.924Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_form.png
+[2026-08-10T02:49:56.102Z] form sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-10T02:49:56.102Z] click 495,138
+[2026-08-10T02:49:58.941Z] click 400,540
+[2026-08-10T02:49:59.015Z] HIT [11:49:59+013][Client thread/ERROR][SingleplayerServerController]: Shutting down integrated server due to unexpected client hangup, this is a memleak
+[2026-08-10T02:50:01.420Z] HIT [11:50:01+418][Client thread/INFO][STDOUT]: [RAILSYSTEM] tolerant-assert: ACK 0 while state was 4 'WORLD_UNLOADING' (ignored)
+[2026-08-10T02:50:14.260Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_loading.png
+[2026-08-10T02:50:14.495Z] loading sky=0.264 dirt=0.009 hot=26 buttons=257,426
+[2026-08-10T02:50:14.495Z] enter via created
+[2026-08-10T02:50:24.721Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_1.png
+[2026-08-10T02:50:24.895Z] join 1 sky=0.001 dirt=0.008 hot=23 buttons=220,426
+[2026-08-10T02:50:35.119Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_2.png
+[2026-08-10T02:50:35.287Z] join 2 sky=0.002 dirt=0.008 hot=26 buttons=217,426
+[2026-08-10T02:50:45.506Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_3.png
+[2026-08-10T02:50:45.712Z] join 3 sky=0.001 dirt=0.010 hot=26 buttons=228,426
+[2026-08-10T02:50:55.913Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_4.png
+[2026-08-10T02:50:56.090Z] join 4 sky=0.365 dirt=0.009 hot=23 buttons=242,389,426
+[2026-08-10T02:51:06.285Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_5.png
+[2026-08-10T02:51:06.584Z] join 5 sky=0.542 dirt=0.011 hot=26 buttons=234,426
+[2026-08-10T02:51:16.780Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_6.png
+[2026-08-10T02:51:16.977Z] join 6 sky=0.816 dirt=0.011 hot=26 buttons=172,246,306,426
+[2026-08-10T02:51:27.153Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_7.png
+[2026-08-10T02:51:27.332Z] join 7 sky=0.855 dirt=0.008 hot=26 buttons=178,275,426
+[2026-08-10T02:51:37.496Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_8.png
+[2026-08-10T02:51:37.668Z] join 8 sky=0.792 dirt=0.008 hot=26 buttons=281,426
+[2026-08-10T02:51:47.868Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_9.png
+[2026-08-10T02:51:48.039Z] join 9 sky=0.751 dirt=0.009 hot=26 buttons=209,282,426
+[2026-08-10T02:51:58.245Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_10.png
+[2026-08-10T02:51:58.414Z] join 10 sky=0.817 dirt=0.010 hot=26 buttons=216,306,426
+[2026-08-10T02:52:08.624Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_11.png
+[2026-08-10T02:52:08.817Z] join 11 sky=0.806 dirt=0.008 hot=26 buttons=195,306,426
+[2026-08-10T02:52:19.003Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_12.png
+[2026-08-10T02:52:19.196Z] join 12 sky=0.101 dirt=0.009 hot=26 buttons=199,306,426
+[2026-08-10T02:52:29.394Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_13.png
+[2026-08-10T02:52:29.597Z] join 13 sky=0.088 dirt=0.009 hot=26 buttons=196,306,426
+[2026-08-10T02:52:39.793Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_14.png
+[2026-08-10T02:52:39.993Z] join 14 sky=0.172 dirt=0.010 hot=26 buttons=196,306,426
+[2026-08-10T02:52:50.197Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_15.png
+[2026-08-10T02:52:50.420Z] join 15 sky=0.051 dirt=0.008 hot=26 buttons=196,306,426
+[2026-08-10T02:53:00.622Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_16.png
+[2026-08-10T02:53:00.817Z] join 16 sky=0.454 dirt=0.008 hot=26 buttons=222,426
+[2026-08-10T02:53:11.035Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_17.png
+[2026-08-10T02:53:11.309Z] join 17 sky=0.837 dirt=0.008 hot=21 buttons=294
+[2026-08-10T02:53:21.494Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_18.png
+[2026-08-10T02:53:21.730Z] join 18 sky=0.857 dirt=0.009 hot=25 buttons=317,426
+[2026-08-10T02:53:31.899Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_19.png
+[2026-08-10T02:53:32.124Z] join 19 sky=0.837 dirt=0.010 hot=0 buttons=258,337,426
+[2026-08-10T02:53:42.296Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_20.png
+[2026-08-10T02:53:42.489Z] join 20 sky=0.828 dirt=0.010 hot=8 buttons=321,426
+[2026-08-10T02:53:52.677Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_21.png
+[2026-08-10T02:53:52.881Z] join 21 sky=0.761 dirt=0.008 hot=26 buttons=191,316,426
+[2026-08-10T02:54:03.062Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_22.png
+[2026-08-10T02:54:03.266Z] join 22 sky=0.682 dirt=0.008 hot=26 buttons=237,426
+[2026-08-10T02:54:13.448Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_23.png
+[2026-08-10T02:54:13.668Z] join 23 sky=0.642 dirt=0.010 hot=26 buttons=220,426
+[2026-08-10T02:54:23.862Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_24.png
+[2026-08-10T02:54:24.082Z] join 24 sky=0.087 dirt=0.009 hot=24 buttons=220,426
+[2026-08-10T02:54:34.295Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_25.png
+[2026-08-10T02:54:34.481Z] join 25 sky=0.025 dirt=0.010 hot=26 buttons=218,426
+[2026-08-10T02:54:44.676Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_26.png
+[2026-08-10T02:54:44.871Z] join 26 sky=0.030 dirt=0.008 hot=26 buttons=217,426
+[2026-08-10T02:54:55.076Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_27.png
+[2026-08-10T02:54:55.268Z] join 27 sky=0.015 dirt=0.008 hot=26 buttons=218,426
+[2026-08-10T02:55:05.475Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_28.png
+[2026-08-10T02:55:05.675Z] join 28 sky=0.168 dirt=0.010 hot=26 buttons=197,306,426
+[2026-08-10T02:55:15.875Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_29.png
+[2026-08-10T02:55:16.084Z] join 29 sky=0.832 dirt=0.009 hot=26 buttons=202,306,426
+[2026-08-10T02:55:26.280Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_30.png
+[2026-08-10T02:55:26.507Z] join 30 sky=0.856 dirt=0.010 hot=26 buttons=249,426
+[2026-08-10T02:55:36.683Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_31.png
+[2026-08-10T02:55:37.003Z] join 31 sky=0.858 dirt=0.008 hot=26 buttons=276,426
+[2026-08-10T02:55:47.181Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_32.png
+[2026-08-10T02:55:47.364Z] join 32 sky=0.858 dirt=0.008 hot=26 buttons=307,426
+[2026-08-10T02:55:57.555Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_33.png
+[2026-08-10T02:55:57.732Z] join 33 sky=0.847 dirt=0.008 hot=26 buttons=293,426
+[2026-08-10T02:56:07.933Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_34.png
+[2026-08-10T02:56:08.149Z] join 34 sky=0.856 dirt=0.010 hot=12 buttons=305,426
+[2026-08-10T02:56:18.349Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_35.png
+[2026-08-10T02:56:18.569Z] join 35 sky=0.849 dirt=0.009 hot=21 buttons=279,426
+[2026-08-10T02:56:28.781Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_36.png
+[2026-08-10T02:56:28.987Z] join 36 sky=0.538 dirt=0.010 hot=26 buttons=232,426
+[2026-08-10T02:56:39.188Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_37.png
+[2026-08-10T02:56:39.381Z] join 37 sky=0.001 dirt=0.008 hot=26 buttons=217,426
+[2026-08-10T02:56:49.570Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_38.png
+[2026-08-10T02:56:49.767Z] join 38 sky=0.008 dirt=0.008 hot=19 buttons=221,426
+[2026-08-10T02:56:59.969Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_39.png
+[2026-08-10T02:57:00.192Z] join 39 sky=0.000 dirt=0.011 hot=21 buttons=236,376,426
+[2026-08-10T02:57:10.418Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_40.png
+[2026-08-10T02:57:10.661Z] join 40 sky=0.074 dirt=0.009 hot=24 buttons=220,426
+[2026-08-10T02:57:20.847Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_41.png
+[2026-08-10T02:57:21.043Z] join 41 sky=0.696 dirt=0.009 hot=26 buttons=219,426
+[2026-08-10T02:57:31.248Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_42.png
+[2026-08-10T02:57:31.477Z] join 42 sky=0.688 dirt=0.010 hot=26 buttons=199,306,426
+[2026-08-10T02:57:41.660Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_43.png
+[2026-08-10T02:57:41.846Z] join 43 sky=0.829 dirt=0.008 hot=26 buttons=157,282,426
+[2026-08-10T02:57:52.035Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_44.png
+[2026-08-10T02:57:52.241Z] join 44 sky=0.747 dirt=0.008 hot=26 buttons=271,426
+[2026-08-10T02:58:02.419Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_45.png
+[2026-08-10T02:58:02.623Z] join 45 sky=0.842 dirt=0.011 hot=26 buttons=272,426
+[2026-08-10T02:58:12.817Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_46.png
+[2026-08-10T02:58:13.024Z] join 46 sky=0.856 dirt=0.010 hot=26 buttons=231,306,426
+[2026-08-10T02:58:23.223Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_47.png
+[2026-08-10T02:58:23.420Z] join 47 sky=0.817 dirt=0.008 hot=26 buttons=196,306,426
+[2026-08-10T02:58:33.637Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_48.png
+[2026-08-10T02:58:33.834Z] join 48 sky=0.191 dirt=0.008 hot=26 buttons=196,306,426
+[2026-08-10T02:58:44.034Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_49.png
+[2026-08-10T02:58:44.245Z] join 49 sky=0.052 dirt=0.008 hot=26 buttons=196,306,426
+[2026-08-10T02:58:54.458Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_50.png
+[2026-08-10T02:58:54.679Z] join 50 sky=0.144 dirt=0.011 hot=26 buttons=218,426
+[2026-08-10T02:59:04.890Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_51.png
+[2026-08-10T02:59:05.139Z] join 51 sky=0.095 dirt=0.009 hot=24 buttons=240,426
+[2026-08-10T02:59:15.355Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_52.png
+[2026-08-10T02:59:15.554Z] join 52 sky=0.345 dirt=0.009 hot=26 buttons=256,426
+[2026-08-10T02:59:25.783Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_53.png
+[2026-08-10T02:59:25.979Z] join 53 sky=0.844 dirt=0.010 hot=24 buttons=276,426
+[2026-08-10T02:59:36.163Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_54.png
+[2026-08-10T02:59:36.360Z] join 54 sky=0.844 dirt=0.008 hot=13 buttons=302,426
+[2026-08-10T02:59:46.549Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_55.png
+[2026-08-10T02:59:46.772Z] join 55 sky=0.830 dirt=0.008 hot=26 buttons=171,314,426
+[2026-08-10T02:59:56.969Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_56.png
+[2026-08-10T02:59:57.170Z] join 56 sky=0.758 dirt=0.010 hot=26 buttons=331
+[2026-08-10T03:00:07.369Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_57.png
+[2026-08-10T03:00:07.558Z] join 57 sky=0.760 dirt=0.009 hot=26 buttons=191,305,426
+[2026-08-10T03:00:17.752Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_58.png
+[2026-08-10T03:00:17.944Z] join 58 sky=0.820 dirt=0.010 hot=26 buttons=172,240,306,426
+[2026-08-10T03:00:28.132Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_59.png
+[2026-08-10T03:00:28.326Z] join 59 sky=0.603 dirt=0.008 hot=26 buttons=207,306,426
+[2026-08-10T03:00:38.522Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase0_2/screenshots/_retry_join_60.png
+[2026-08-10T03:00:38.719Z] join 60 sky=0.192 dirt=0.008 hot=26 buttons=219,426
+[2026-08-10T03:00:38.720Z] FATAL Error: failed in-world
+    at main (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase0_2/scripts/retry_vulkan.mjs:293:27)
