@@ -779,3 +779,22 @@ End SHA: 002b52708cdcb97bc6ad6c1c6e8630199b219432
 Local == origin/main == GitHub main verified after final push.
 PHASE 0.7 VERDICT: PASS. Research Gate: READY.
 Clarification recommended before/during Phase 1.x docs; no contract redesign gate.
+
+====================================================================
+PHASE 1.1: Railsys v2 Geometry Core
+STATUS: IN_PROGRESS
+Agent: DeepSeek V4 Flash
+====================================================================
+
+STEP 601 - Checkpoint 0 start
+-----------------------------
+Start SHA ceeac6ca. Phase 0.6/0.7 gates confirmed. dirty v1 preserved.
+Discord START sent. Package net.minecraft.railsys.geometry (geometry-core).
+
+STEP 602 - Checkpoint 1-4 Geometry Core + Numerical
+----------------------------------------------------
+Implemented Straight, HorizontalBezier, adaptive ArcLengthTable,
+Vertical profiles/Bezier geometry, RailLocalFrame, CantProfile hook,
+AnchorDefinition + fromAnchors Hermite mapping.
+Harness: PASSED=49 FAILED=0 SKIPPED=3 (ProductionGeometryTest T01-T15).
+Spike railv2 retained. No Clothoid. Product dirty v1 untouched.

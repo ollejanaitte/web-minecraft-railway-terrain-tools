@@ -30,15 +30,18 @@ sourceSets {
 			"src/game/java",
 			"src/protocol-game/java",
 			"src/protocol-relay/java",
-			"src/platform-api/java"
+			"src/platform-api/java",
+			// Phase 1.1 production geometry core (pure math; also on harness)
+			"src/geometry-core/java"
 		)
 	}
 
 	// JVM-only Railway v2 test harness.
 	// Deliberately independent of the game "main" source set so math/simulation
 	// tests run fast on a plain JVM with NO Eaglercraft/TeaVM runtime.
+	// Includes production railsys geometry for Phase 1.1 numerical tests.
 	create("harness") {
-		java.srcDir("src/harness/java")
+		java.srcDirs("src/harness/java", "src/geometry-core/java")
 		resources.srcDir("src/harness/resources")
 	}
 }

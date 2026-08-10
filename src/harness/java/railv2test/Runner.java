@@ -13,6 +13,7 @@ import railv2test.tests.ContinuityScaffoldTest;
 import railv2test.tests.FormationScaffoldTest;
 import railv2test.tests.KnownFailureDocumentationTest;
 import railv2test.tests.PersistenceBaselineTest;
+import railv2test.tests.ProductionGeometryTest;
 import railv2test.tests.StraightMathTest;
 import railv2test.tests.V1ReferenceRegressionTest;
 
@@ -34,6 +35,7 @@ public final class Runner {
             V1ReferenceRegressionTest.class,
             PersistenceBaselineTest.class,
             KnownFailureDocumentationTest.class,
+            ProductionGeometryTest.class,
     };
 
     private static final class Case {

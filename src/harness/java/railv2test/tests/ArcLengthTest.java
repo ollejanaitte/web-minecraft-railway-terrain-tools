@@ -37,9 +37,9 @@ public final class ArcLengthTest {
         Assert.assertTrue(total > 100.0, "loop total length > 100m: " + total);
     }
 
-    /** distance -> progress round trip scaffold (reference oracle). */
+    /** distance -> progress round trip — covered by ProductionGeometryTest.productionDistanceRoundTrip */
     @Test
-    @Disabled("Phase 1: production ArcLengthTable not implemented yet; reference passes here.")
+    @Disabled("Superseded by ProductionGeometryTest.productionDistanceRoundTrip (Phase 1.1).")
     public static void productionDistanceRoundTripScaffold() {
         RefSample s = RailFixtures.FIXTURE_CURVE_90_DEG.sampleByDistance(5.0);
         Assert.assertEquals(5.0, s.distanceM, TOL, "production distance round-trip");
