@@ -722,3 +722,26 @@ PHASE 1 DESIGN GATE = OPEN.
 Standalone report: doc/testing/phase0_6/FINAL_REPORT_PHASE0_6.txt (committed
 + pushed). Product code untouched; dirty v1 preserved; GitHub synced;
 Discord COMPLETE sent with FINAL_REPORT_PHASE0_6.txt attachment.
+
+====================================================================
+PHASE 0.7: RTM 1.12.2 Rail Placement / Geometry UX Research
++ Railsys Clean-room Replication Proposal
+STATUS: IN_PROGRESS
+Agent: DeepSeek V4 Flash
+====================================================================
+
+STEP 501 - Checkpoint 0 start audit
+------------------------------------
+HEAD at start: b5763c7f (Phase 0.6 final). Local == origin/main == GitHub main.
+dirty v1 PRESERVED (CommandRailSystem +111/-6 md5 9afd512d...;
+EntityRailVehicle +13/-3 md5 77ce0d66...). Product code: NONE.
+Phase 0.6 DESIGN GATE OPEN confirmed as baseline (not discarded).
+Artifacts: doc/research/phase0_7_rtm_1_12_2/CHECKPOINT_0_START_AUDIT.md
+Discord START/Checkpoint 0 sent.
+
+STEP 502 - Checkpoint A1 Source Matrix / Version Mapping
+--------------------------------------------------------
+Created SOURCE_MATRIX.md (S01-S16) and VERSION_MAPPING.md.
+Key: MC1.12.2 = RTM2.4.x (VERIFIED RTM2.4.24-43 + NGTLib2.4.21-38).
+Slope markers removed RTM2.0+; cant GUI from RTM2.2.1(MC1.10.2)+.
+Warning: Addon Search initial guide is 1.7.10.44; 2.x UX renewed.
