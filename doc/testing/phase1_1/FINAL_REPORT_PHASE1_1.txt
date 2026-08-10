@@ -1,0 +1,154 @@
+====================================================================
+PHASE 1.1 FINAL REPORT
+Railsys v2 Geometry Core
+====================================================================
+Status: STOPPED by user request (2026-08-10)
+Agent: DeepSeek V4 Flash
+Final Verdict: PHASE 1.1 VERDICT: BLOCKED
+PHASE 1.2 ENTRY GATE = CLOSED
+====================================================================
+
+Scope
+-----
+Production Geometry Core: distance s [m] -> position / tangent / yaw /
+pitch / RailLocalFrame; Straight; HorizontalBezier; adaptive ArcLengthTable;
+Vertical profile; CantProfile extension point; AnchorDefinition compatibility.
+NO Piece/Path (1.2), NO final rail mesh (1.3), NO Marker UI (1.4), NO Clothoid.
+
+Start SHA
+---------
+ceeac6caecfc9a1faeaf8575436aceccf799aa10
+
+End SHA (at report commit tip — see Git after this file is committed)
+---------------------------------------------------------------------
+(recorded in root FINAL_REPORT.txt STEP after push)
+
+Git sync at numerical core commit
+---------------------------------
+Local == origin/main == GitHub main = e80a0f913bdbf2c0b565a9466e7743f92cf534ce
+(geometry core + harness numerical tests)
+
+dirty v1
+--------
+CommandRailSystem.java +111/-6 md5 9afd512d414a3b67a15235c9290936cf PRESERVED
+EntityRailVehicle.java +13/-3 md5 77ce0d66d8fbe4e4c6e2594579d10c0c PRESERVED
+Never staged / never edited by this Phase.
+
+Phase 0.6 / 0.7 prerequisites
+-----------------------------
+Phase 0.6 VERDICT PASS / DESIGN GATE OPEN — confirmed
+Phase 0.7 VERDICT PASS / Research Gate READY / Impact B Clarification —
+confirmed and applied (AnchorDefinition, RailLocalFrame, CantProfile hook,
+no Clothoid)
+
+====================================================================
+WHAT WAS COMPLETED
+====================================================================
+
+Implementation summary
+----------------------
+Package: net.minecraft.railsys.geometry (src/geometry-core/java)
+Shared by game main + harness via build.gradle.kts.
+
+Classes:
+- RailGeometry, RailSample, RailMath
+- StraightGeometry
+- HorizontalBezierGeometry (+ fromAnchors Hermite->Bezier)
+- ArcLengthTable (adaptive)
+- VerticalProfile, Flat/Linear/VerticalBezierProfile
+- VerticalBezierGeometry
+- RailLocalFrame
+- CantProfile, ZeroCantProfile, LinearCantProfile
+- AnchorDefinition
+
+Validation isolation (partial, uncommitted then included in stop commit):
+- RailsysGeomDebugEvidence (centerline debug markers)
+- RailV2AutoValidate hook + extended geom camera tour
+- run-phase1_1-geom-visual.sh + geom_validate.mjs
+
+Spike coexistence
+-----------------
+net.minecraft.railv2.* retained (no wholesale deletion).
+
+Coordinate convention
+---------------------
+Metres; yaw=atan2(tx,tz) NOT negated; pitch=atan2(ty,hypot(tx,tz));
+roll positive = right rail lower. Documented in GEOMETRY_API.md.
+
+Error policy
+------------
+Clamp out-of-range s; IllegalStateException on NaN/Inf sample path;
+IllegalArgumentException on degenerate ctor.
+
+Numerical results
+-----------------
+Harness: PASSED=49 FAILED=0 SKIPPED=3 RESULT=SUCCESS
+ProductionGeometryTest T01–T15 + extras all PASS.
+Independent 64k arc-length checks within 0.5%/0.1m.
+NaN count=0; unexpected exceptions=0 (expected rejects only).
+
+Build
+-----
+./gradlew makeMainOfflineDownload — BUILD SUCCESSFUL
+./gradlew harnessTest — SUCCESS
+
+Flat Validation / Visual
+------------------------
+ATTEMPTED then STOPPED by user.
+- Debug evidence placer + camera tour tags implemented
+- geom_validate.mjs run failed: stuck in title/menu after world create
+  (known Phase 0.5 menu-recovery race class of failure)
+- SS-R1_1-01..08: NOT captured (count=0)
+- Hardware Vulkan intended (GPU_MODE=auto / angle vulkan flags)
+- Visual Review: NOT COMPLETE
+
+Screenshot list
+---------------
+None of SS-R1_1-*.png produced. Boot/join diagnostic PNGs exist under
+doc/testing/phase1_1/screenshots/_*.png (not evidence PASS).
+
+====================================================================
+BLOCKING CONDITION
+====================================================================
+
+Phase 1.1 PASS requires:
+- Flat World Geometry visual PASS
+- real Screenshot Evidence SS-R1_1-*
+- Visual Review
+
+These were not completed before user-requested stop.
+Therefore:
+  PHASE 1.1 VERDICT: BLOCKED
+  PHASE 1.2 ENTRY GATE = CLOSED
+
+Non-blocking completed work (Geometry Core + Numerical) remains on main
+and is reusable when visual validation is resumed.
+
+Known Issues
+------------
+Defect / Gate:
+- Flat Validation world-create automation did not reach AutoValidate
+  (menu stuck); no SS-R1_1 evidence.
+
+Deferred / Not in scope (expected):
+- RailPiece/Path, renderer, Marker UI, cant physics, switches, clothoid
+
+User action needed
+------------------
+Resume Phase 1.1 Checkpoint 5 visual validation (fix world-create automation
+or manual Flat World capture of SS-R1_1-*) before claiming PASS / opening
+Phase 1.2 gate.
+
+Checkpoint commits
+------------------
+e80a0f91 — feat: Phase 1.1 production geometry core with numerical harness
+(+ stop commit for validation hooks + this Final Report)
+
+Discord record
+--------------
+START sent; Checkpoint 1-4 COMPLETE sent; STOPPED + Final Report attachment
+on user abort (webhook runtime only; URL not stored in repo).
+
+====================================================================
+END FINAL_REPORT_PHASE1_1
+====================================================================

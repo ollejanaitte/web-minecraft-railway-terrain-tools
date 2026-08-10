@@ -1,6 +1,6 @@
 # Phase 1.1 Implementation Log
 
-Status: IN_PROGRESS → numerical core complete (visual pending in later checkpoints)
+Status: STOPPED — numerical PASS; visual NOT complete → VERDICT BLOCKED
 
 ## Baseline (Checkpoint 0)
 
@@ -29,8 +29,8 @@ Status: IN_PROGRESS → numerical core complete (visual pending in later checkpo
 | 2 | HorizontalBezier + adaptive ArcLengthTable | DONE |
 | 3 | Vertical profile + LocalFrame + Cant hook | DONE |
 | 4 | Numerical regression T01–T15 | DONE (harness) |
-| 5 | Flat World visual proof | PENDING |
-| 6 | Docs cleanup / Final | PENDING |
+| 5 | Flat World visual proof | STOPPED / FAIL (no SS-R1_1) |
+| 6 | Docs cleanup / Final | DONE (stop report) |
 
 ## Production classes
 

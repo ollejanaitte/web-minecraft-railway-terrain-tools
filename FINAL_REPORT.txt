@@ -798,3 +798,14 @@ Vertical profiles/Bezier geometry, RailLocalFrame, CantProfile hook,
 AnchorDefinition + fromAnchors Hermite mapping.
 Harness: PASSED=49 FAILED=0 SKIPPED=3 (ProductionGeometryTest T01-T15).
 Spike railv2 retained. No Clothoid. Product dirty v1 untouched.
+
+STEP 603 - User STOP requested during Checkpoint 5 visual
+---------------------------------------------------------
+Stopped chrome/validation. SS-R1_1 screenshots = 0 (menu race).
+Numerical core remains green (e80a0f91). Writing FINAL_REPORT_PHASE1_1
+with VERDICT BLOCKED; Phase 1.2 GATE CLOSED. Discord Final Report + STOPPED.
+
+STEP 604 - Phase 1.1 stop commit (validation hooks + reports)
+-------------------------------------------------------------
+Include GeomDebugEvidence + AutoValidate tour hooks + visual scripts/docs.
+Do NOT commit chrome profiles. dirty v1 preserved.

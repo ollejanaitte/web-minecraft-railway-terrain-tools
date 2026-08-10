@@ -1,0 +1,32 @@
+[2026-08-10T11:07:02.307Z] START Phase1.1 geom visual PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/profiles/geom-20260810_200659-1
+[2026-08-10T11:07:02.315Z] CHROME_PID=1729440 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/profiles/geom-20260810_200659-1 GPU=auto
+[2026-08-10T11:07:12.984Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_boot_0.png
+[2026-08-10T11:07:13.157Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=
+[2026-08-10T11:07:17.017Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_boot_1.png
+[2026-08-10T11:07:17.178Z] boot 1 sky=0.000 dirt=1.059 hot=26 buttons=330,390
+[2026-08-10T11:07:20.094Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_boot_2.png
+[2026-08-10T11:07:20.268Z] boot 2 sky=0.837 dirt=0.008 hot=20 buttons=237,426
+[2026-08-10T11:07:57.274Z] HIT [08:07:57+273][Client thread/INFO][STDOUT]: [RAILSYSTEM] tolerant-assert: ACK 0 while state was 4 'WORLD_UNLOADING' (ignored)
+[2026-08-10T11:08:19.023Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_1.png
+[2026-08-10T11:08:19.184Z] join 1 sky=0.004 dirt=0.008 hot=26 buttons=221,426
+[2026-08-10T11:08:29.412Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_2.png
+[2026-08-10T11:08:29.570Z] join 2 sky=0.004 dirt=0.007 hot=26 buttons=217,426
+[2026-08-10T11:08:39.792Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_3.png
+[2026-08-10T11:08:39.954Z] join 3 sky=0.004 dirt=0.006 hot=26 buttons=218,426
+[2026-08-10T11:08:50.152Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_4.png
+[2026-08-10T11:08:50.312Z] join 4 sky=0.221 dirt=0.006 hot=24 buttons=252,426
+[2026-08-10T11:09:00.491Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_5.png
+[2026-08-10T11:09:00.654Z] join 5 sky=0.486 dirt=0.007 hot=26 buttons=231,426
+[2026-08-10T11:09:10.869Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_6.png
+[2026-08-10T11:09:11.027Z] join 6 sky=0.826 dirt=0.008 hot=26 buttons=211,306,426
+[2026-08-10T11:09:21.226Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_7.png
+[2026-08-10T11:09:21.384Z] join 7 sky=0.855 dirt=0.006 hot=26 buttons=177,271,426
+[2026-08-10T11:09:31.561Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_8.png
+[2026-08-10T11:09:31.720Z] join 8 sky=0.789 dirt=0.006 hot=26 buttons=285,426
+[2026-08-10T11:09:41.932Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_9.png
+[2026-08-10T11:09:42.088Z] join 9 sky=0.830 dirt=0.007 hot=26 buttons=149,282,426
+[2026-08-10T11:09:52.305Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_10.png
+[2026-08-10T11:09:52.466Z] join 10 sky=0.803 dirt=0.006 hot=26 buttons=222,306,426
+[2026-08-10T11:09:52.466Z] FATAL Error: stuck in menu after create
+    at waitInWorld (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase1_1/scripts/geom_validate.mjs:253:34)
+    at async main (file:///home/masaharu/Web%20Minecraft%20with%20Railway%20Mod%20&%20Terrain%20Editing%20Tools/doc/testing/phase1_1/scripts/geom_validate.mjs:313:15)

@@ -77,6 +77,7 @@ public final class RailV2AutoValidate {
 
 		preloadCourseChunks(world);
 		RailV2Course.INSTANCE.placeRails(world);
+		net.minecraft.railsys.validation.RailsysGeomDebugEvidence.placeAll(world);
 		world.setWorldTime(6000L);
 		placeCameraPads(world);
 
@@ -122,6 +123,31 @@ public final class RailV2AutoValidate {
 			setCamera(tourPlayer, 200.0D, 78.0D, 80.0D, 200.0F, 25.0F);
 			System.out.println("[RAILSYSTEM] camera tour=piece3");
 		} else if (tourTicks == 860) {
+			// Phase 1.1 geometry evidence cameras (production centerlines @ z≈200+)
+			setCamera(tourPlayer, 0.0D, 78.0D, 190.0D, 0.0F, 25.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_straight");
+		} else if (tourTicks == 980) {
+			setCamera(tourPlayer, 40.0D, 82.0D, 190.0D, -20.0F, 30.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_gentle");
+		} else if (tourTicks == 1100) {
+			setCamera(tourPlayer, 180.0D, 78.0D, 195.0D, -30.0F, 28.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_tight");
+		} else if (tourTicks == 1220) {
+			setCamera(tourPlayer, 220.0D, 80.0D, 195.0D, -10.0F, 28.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_s_curve");
+		} else if (tourTicks == 1340) {
+			setCamera(tourPlayer, 280.0D, 78.0D, 190.0D, 0.0F, 20.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_gradient");
+		} else if (tourTicks == 1460) {
+			setCamera(tourPlayer, 320.0D, 82.0D, 190.0D, -25.0F, 28.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_curve_grad");
+		} else if (tourTicks == 1580) {
+			setCamera(tourPlayer, 420.0D, 78.0D, 195.0D, 0.0F, 25.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_local_frame");
+		} else if (tourTicks == 1700) {
+			setCamera(tourPlayer, 200.0D, 95.0D, 250.0D, 180.0F, 45.0F);
+			System.out.println("[RAILSYSTEM] camera tour=geom_overview");
+		} else if (tourTicks == 1820) {
 			setCamera(tourPlayer, 40.0D, 74.0D, 16.0D, 180.0F, 32.0F);
 			System.out.println("[RAILSYSTEM] camera tour=final");
 			holdCamera();
