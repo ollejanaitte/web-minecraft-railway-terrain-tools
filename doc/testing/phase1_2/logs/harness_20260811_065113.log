@@ -1,0 +1,100 @@
+> Task :compileHarnessJava UP-TO-DATE
+> Task :processHarnessResources NO-SOURCE
+> Task :harnessClasses UP-TO-DATE
+
+> Task :harnessTest
+=== Railway v2 reference math harness ===
+Tests discovered: 87
+[PASS ] StraightMathTest.distance100
+[PASS ] StraightMathTest.samplingQuarters
+[PASS ] StraightMathTest.straightYawAlongZ
+[PASS ] StraightMathTest.gradientPitch
+[PASS ] BezierMathTest.bezierEndpoints
+[PASS ] BezierMathTest.bezierMidpointIsOnCurve
+[PASS ] BezierMathTest.bezierLengthReasonable
+[PASS ] BezierMathTest.arcLengthRoundTrip
+[PASS ] BezierMathTest.tangentAtEndYaw
+[PASS ] ArcLengthTest.straightLengthIsChord
+[PASS ] ArcLengthTest.curveLengthIndependentCheck
+[PASS ] ArcLengthTest.loopTotalLengthPositive
+[SKIP ] ArcLengthTest.productionDistanceRoundTripScaffold  (Superseded by ProductionGeometryTest.productionDistanceRoundTrip (Phase 1.1).)
+[PASS ] ContinuityScaffoldTest.multiPiecePositionContinuity
+[PASS ] ContinuityScaffoldTest.multiPieceYawContinuity
+[PASS ] ContinuityScaffoldTest.sCurveYawContinuity
+[PASS ] ContinuityScaffoldTest.cantZeroAtEdges
+[PASS ] ContinuityScaffoldTest.verticalCurvePitchContinuous
+[SKIP ] ContinuityScaffoldTest.productionCantRollContinuity  (Phase 1: production geometry not implemented; reference satisfies this.)
+[PASS ] FormationScaffoldTest.followerSameStraight
+[PASS ] FormationScaffoldTest.followerStaysOnPreviousPieceAtBoundary
+[PASS ] FormationScaffoldTest.longFormationSpacing
+[PASS ] FormationScaffoldTest.loopPlacement
+[PASS ] FormationScaffoldTest.reversePlacement
+[PASS ] FormationScaffoldTest.switchContractDocumented
+[SKIP ] FormationScaffoldTest.productionSolverNoTeleportAtBoundary  (Phase 2: production TrainFormation solver not implemented yet.)
+[PASS ] V1ReferenceRegressionTest.v1StraightLerp
+[PASS ] V1ReferenceRegressionTest.v1CubicBezierPoint
+[PASS ] V1ReferenceRegressionTest.v1NodeDistance
+[PASS ] PersistenceBaselineTest.straightSemanticRoundTrip
+[PASS ] PersistenceBaselineTest.curveSemanticRoundTrip
+[PASS ] KnownFailureDocumentationTest.followerWrapsAheadOfLeader
+[PASS ] KnownFailureDocumentationTest.desiredBehaviorContract
+[PASS ] ProductionGeometryTest.t01_straight100m
+[PASS ] ProductionGeometryTest.t02_straightShort
+[PASS ] ProductionGeometryTest.t03_gentleCurve
+[PASS ] ProductionGeometryTest.t04_tightCurve
+[PASS ] ProductionGeometryTest.t05_sCurveJoinFixture
+[PASS ] ProductionGeometryTest.t06_gradientUp
+[PASS ] ProductionGeometryTest.t07_gradientDown
+[PASS ] ProductionGeometryTest.t08_curvePlusGradient
+[PASS ] ProductionGeometryTest.t09_endpointSampling
+[PASS ] ProductionGeometryTest.t10_outOfRangeClamp
+[PASS ] ProductionGeometryTest.t11_determinism
+[PASS ] ProductionGeometryTest.t12_denseSampling
+[PASS ] ProductionGeometryTest.t13_degenerateRejected
+[PASS ] ProductionGeometryTest.t14_localFrameOrthonormal
+[PASS ] ProductionGeometryTest.t15_longGeometryStable
+[PASS ] ProductionGeometryTest.productionDistanceRoundTrip
+[PASS ] ProductionGeometryTest.fromAnchorsHermiteMapping
+[PASS ] ProductionGeometryTest.verticalBezierGeometry
+[PASS ] ProductionGeometryTest.nanDistanceThrows
+[PASS ] RailPathTest.p01_straightStraight
+[PASS ] RailPathTest.p02_straightCurveStraight
+[PASS ] RailPathTest.p03_gentleCurveChain
+[PASS ] RailPathTest.p04_tightCurveChain
+[PASS ] RailPathTest.p05_sCurve
+[PASS ] RailPathTest.p06_gradientChain
+[PASS ] RailPathTest.p07_curveGradientChain
+[PASS ] RailPathTest.p08_longPath
+[PASS ] RailPathTest.p09_exactBoundary
+[PASS ] RailPathTest.p10_boundaryNeighbourhood
+[PASS ] RailPathTest.p11_pathStart
+[PASS ] RailPathTest.p12_pathEnd
+[PASS ] RailPathTest.p13_outOfRangeClamp
+[PASS ] RailPathTest.p14_reverseSinglePiece
+[PASS ] RailPathTest.p15_reverseMultiPiece
+[PASS ] RailPathTest.p16_forwardReverseConsistency
+[PASS ] RailPathTest.p17_disconnectedRejected
+[PASS ] RailPathTest.p18_zeroLengthRejected
+[PASS ] RailPathTest.p19_nanInfRejected
+[PASS ] RailPathTest.p20_denseMultiPieceSampling
+[PASS ] RailPathTest.p21_localFrameContinuity
+[PASS ] RailPathTest.p22_determinism
+[PASS ] RailPathTest.connection_validJoin
+[PASS ] RailPathTest.connection_selfRejected
+[PASS ] RailPathTest.connection_positionTolerance
+[PASS ] RailPathTest.connection_angleTolerance
+[PASS ] RailPathTest.connection_nullRejected
+[PASS ] RailPathTest.endpoint_geometryDerived
+[PASS ] RailPathTest.piece_identityAndValidation
+[PASS ] RailPathTest.network_basic
+[PASS ] RailPathTest.network_duplicateAndSelfRejected
+[PASS ] RailPathTest.network_removePieceAndUnknown
+[PASS ] RailPathTest.network_multipleConnectionsPerEndpoint
+[PASS ] RailPathTest.path_emptyRejected
+[PASS ] RailPathTest.path_reverseEntryDirections
+==========================================
+PASSED=84 FAILED=0 SKIPPED=3
+RESULT: SUCCESS
+
+BUILD SUCCESSFUL in 940ms
+2 actionable tasks: 1 executed, 1 up-to-date
