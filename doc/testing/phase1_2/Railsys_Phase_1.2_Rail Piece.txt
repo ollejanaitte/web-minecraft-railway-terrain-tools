@@ -1,0 +1,201 @@
+====================================================================
+PHASE 1.2 FINAL REPORT
+Railsys v2 Rail Piece / Rail Path
+====================================================================
+Status: COMPLETE
+Agent: OpenCode (DeepSeek系, 2026-08-11)
+Final Verdict: PHASE 1.2 VERDICT: PASS
+PHASE 1.3 ENTRY GATE = OPEN
+====================================================================
+
+Scope
+-----
+Production Rail Path foundation: connect multiple Phase 1.1 RailGeometry into
+RailPiece / RailEndpoint / RailConnection / RailPath / RailNetwork so that a
+caller supplies only the physical path distance s [m] and receives the correct
+piece, local distance, position, tangent, yaw/pitch, and continuous
+RailLocalFrame across piece boundaries. NO renderer (1.3), NO marker UI (1.4),
+NO persistence (1.5), NO train/switch/A* (later).
+
+Start SHA / Final SHA / Git sync
+--------------------------------
+Start SHA : 9581fd7e (Local == origin/main == GitHub main at audit)
+Final SHA: b1eff42e (Local == origin/main == GitHub main after final push)
+Phase 1.1 prerequisite: VERDICT PASS / ENTRY GATE OPEN — confirmed from
+FINAL_REPORT_PHASE1_1.txt.
+
+dirty v1 (PRESERVED, never staged/edited)
+-----------------------------------------
+CommandRailSystem.java +111/-6 md5 9afd512d414a3b67a15235c9290936cf
+EntityRailVehicle.java +13/-3 md5 77ce0d66d8fbe4e4c6e2594579d10c0c
+Verified at start, every checkpoint, and final.
+
+====================================================================
+WHAT WAS COMPLETED
+====================================================================
+
+Package net.minecraft.railsys.path (src/geometry-core/java; shared main+harness)
+
+Production classes
+------------------
+- RailValidationResult (valid, reason, positionErrorM, angleErrorDeg)
+- RailEndpoint (START/END; geometry-derived pose; stable id = pieceId<<1|side)
+- RailPiece (identity = geometry.pieceId(); endpoints; validation; metadata hook)
+- RailConnection (position<=1e-4, tangent<=0.5deg; parallel either direction)
+- RailPathEntry (piece + direction +1/-1 + global start/end)
+- PathSample (globalM, entry index, pieceId, localM, travelDirection,
+  native RailSample + frame, travel yaw/pitch/tangent)
+- RailPath (ordered entries, prefix lengths, binary-search resolve,
+  sampleByDistance, reverse(), clamp/error policy, exact boundary rule)
+- RailNetwork (piece registry, connect/disconnect, adjacency, validation;
+  multi-connection per endpoint for future switch compatibility)
+
+RailPiece contract
+------------------
+Stable int pieceId = geometry.pieceId() (no duplicated id). Endpoint pose is
+derived from geometry at s=0 / s=length (single source of truth). Zero /
+non-finite length rejected. Optional metadata hook. Value-based endpoint
+identity for future persistence. See RAIL_PIECE_CONTRACT.md.
+
+RailEndpoint
+------------
+START at geometry s=0, END at s=length. Native tangent/yaw/pitch always along
+geometry start->end. Reverse traversal negates tangent for travel use.
+
+RailConnection / validation
+---------------------------
+Position tolerance 1e-4 m; tangent tolerance 0.5 deg (0 or 180 deg both valid
+for a physical join; a PATH additionally requires same-direction continuity).
+Null / self / duplicate / unknown-piece / misaligned connections rejected with
+reason + numeric errors. Silent gaps forbidden.
+
+RailPath / cumulative distance / resolver
+-----------------------------------------
+Ordered entries with cumulative prefix lengths; total = sum of piece lengths
+(exact: 80+65+100 = 245.0). resolve(globalM) binary-searches piece start
+offsets (upper-bound starts[i+1]>=s) then maps to local distance. Returns
+PathSample with piece id, index, local distance, traversal direction, native
+sample + frame and travel-adjusted heading.
+
+Boundary ownership rule (frozen Phase 0.6)
+------------------------------------------
+Internal boundary owned by the EARLIER piece (exit sample at its end); final
+boundary owned by the last piece. Implemented exactly via the binary search
+convention; NO magic epsilon in the resolver (B±δ used only as test input).
+
+Reverse traversal
+-----------------
+reverse() returns same pieces in reverse order, each direction -1. Local
+distance = globalEnd - g; travel tangent = -native; travel yaw = native+180
+(wrapped); travel pitch = -native. Forward/reverse consistency: same world
+position (8.6e-14 m worst) with opposite travel tangents.
+
+Error / clamp policy
+--------------------
+s<0 -> clamp 0; s>total -> clamp total; NaN/Inf -> IllegalStateException;
+empty path / zero-length piece / disconnected entries -> rejected at
+construction. Unexpected exceptions counted: 0.
+
+Lightweight RailNetwork
+-----------------------
+addPiece/getPiece/removePiece, connect/disconnect, adjacency lookup,
+network-wide validate. NO A*, NO switch routing, NO persistence. Multiple
+connections per endpoint allowed (future switch branch compatibility).
+
+Numerical tests / acceptance
+----------------------------
+Harness: PASSED=84 FAILED=0 SKIPPED=3 (Phase 1.1 49 + Phase 1.2 35).
+P01-P22 all PASS: straight->straight; straight->curve->straight; gentle chain;
+tight chain; S-curve; gradient chain; curve+gradient chain; 3+ piece long path
+(245m); exact internal boundary; boundary epsilon neighbourhood; path start;
+path end; out-of-range clamp; reverse single piece; reverse multi-piece;
+forward/reverse consistency; disconnected rejection; zero-length rejection;
+NaN/Inf rejection; dense sampling; local-frame continuity (no flip); determinism.
+Worst-case measured: join position error 0.0 m; yaw/pitch/roll 0.0 deg;
+boundary jump 1.0e-7 m; fwd/rev position 8.6e-14 m; NaN 0; exceptions 0.
+See NUMERICAL_VALIDATION.md.
+
+Harness
+-------
+./gradlew harnessTest — SUCCESS (PASSED=84 FAILED=0 SKIPPED=3).
+
+Build
+-----
+./gradlew makeMainOfflineDownload — BUILD SUCCESSFUL (multiple times).
+
+Flat Validation / Visual
+------------------------
+- World: New aEaglerFlatValidateWorld (Superflat via eaglerflat name hook).
+- AutoValidate fired: "auto-validated (build + 4 cars started)".
+- Renderer: ANGLE Vulkan / NVIDIA GeForce GTX 1050 (Hardware, Discrete GPU).
+- Screenshots SS-R1_2-01..08: ALL CAPTURED (8/8), all 8 tour tags fired.
+- Debug visualization RailsysPathDebugEvidence (production RailPath used,
+  world-name gated): centerline + per-piece colored markers + white-wool
+  boundary markers + travel-direction torch ticks; reverse column shows dir -1.
+- Visual Review: PASS (tour-tag confirmation + pixel composition + marker
+  color analysis + numerical continuity; agent runtime has no image input so
+  review is automated-pixel + numerical, documented in VISUAL_VALIDATION.md).
+
+Screenshot list (doc/testing/phase1_2/screenshots/)
+---------------------------------------------------
+SS-R1_2-01_MULTI_STRAIGHT.png
+SS-R1_2-02_STRAIGHT_CURVE_STRAIGHT.png
+SS-R1_2-03_S_CURVE.png
+SS-R1_2-04_PIECE_BOUNDARY.png
+SS-R1_2-05_GRADIENT_CHAIN.png
+SS-R1_2-06_CURVE_GRADIENT.png
+SS-R1_2-07_REVERSE_PATH.png
+SS-R1_2-08_OVERVIEW.png
+
+Spike coexistence / v1 non-interference
+---------------------------------------
+net.minecraft.railv2.* and net.minecraft.rail.* retained untouched (spike /
+v1). No normalized-segment-progress API introduced; external API is metres.
+dirty v1 files untouched. Validation-only debug is world-name gated; no
+pollution of normal worlds.
+
+Checkpoint commits (all on GitHub main)
+---------------------------------------
+- 436b0f8d docs: Phase 1.2 implementation plan
+- 068d3eff feat: Phase 1.2 RailPiece + RailEndpoint + connection validation
+- 07988bac feat: Phase 1.2 RailPath resolver + reverse traversal + RailNetwork
+- 775b52a6 test: Phase 1.2 numerical regression evidence (P01-P22)
+- b1eff42e test: Phase 1.2 RailPath visual evidence (SS-R1_2-01..08)
+Each pushed to GitHub main; Local == origin/main == GitHub main verified after
+every checkpoint and at the final state.
+
+Discord notification record
+---------------------------
+START / Checkpoint 0..6 progress / status reports sent in Japanese via the
+runtime webhook. Final Report attachment + COMPLETE + ENDED at close. Webhook
+URL used at runtime only; never stored in the repository.
+
+Known issues / deferred
+-----------------------
+No defects. Deferred: renderer (1.3), marker UI (1.4), persistence (1.5),
+train/switch/A*/cant physics (later). FYI: Phase 1.1 RailLocalFrame "up" sign
+matches its own code but not its doc comment (pre-existing Phase 1.1
+discrepancy, not changed in 1.2; flagged for 1.3 renderer review). See
+KNOWN_ISSUES.md.
+
+Validation isolation
+--------------------
+RailsysPathDebugEvidence is validation-only (AutoValidate world-name gate).
+No debug markers, test paths or camera tours in normal worlds.
+
+Secret leak check
+-----------------
+No webhook URL or credential fragments present in tracked or untracked repo
+files (grep verified before final push).
+
+====================================================================
+FINAL VERDICT
+====================================================================
+
+  PHASE 1.2 VERDICT: PASS
+  PHASE 1.3 ENTRY GATE = OPEN
+
+Phase 1.3 is NOT started. STOP.
+====================================================================
+END Railsys_Phase_1.2_Rail Piece
+====================================================================

@@ -1,6 +1,7 @@
 # Phase 1.2 Implementation Plan — Rail Piece / Rail Path
 
-Status: IN PROGRESS (Checkpoint 0 baseline audit)
+Status: **COMPLETE** — numerical PASS + Flat-World visual PASS → VERDICT PASS
+(2026-08-11)
 
 ## Purpose
 
@@ -37,13 +38,23 @@ RailLocalFrame even when a boundary between pieces is crossed.
 | CP | Content | Status |
 |----|---------|--------|
 | 0 | Baseline / repo / design audit + plan doc | DONE |
-| 1 | RailPiece + RailEndpoint + connection validation | |
-| 2 | RailPath + cumulative distance + global resolve + sampleByDistance | |
-| 3 | Exact boundary resolver + reverse traversal + clamp/error policy | |
-| 4 | Lightweight RailNetwork (registry + adjacency + validation) | |
-| 5 | Multi-piece numerical regression P01–P22 + Phase 0.6 tolerance | |
-| 6 | Flat Validation World visual proof (SS-R1_2-01..08) | |
-| 7 | Full regression / cleanup / docs / Final Report | |
+| 1 | RailPiece + RailEndpoint + connection validation | DONE (commit 068d3eff) |
+| 2 | RailPath + cumulative distance + global resolve + sampleByDistance | DONE (commit 07988bac) |
+| 3 | Exact boundary resolver + reverse traversal + clamp/error policy | DONE (commit 07988bac) |
+| 4 | Lightweight RailNetwork (registry + adjacency + validation) | DONE (commit 07988bac) |
+| 5 | Multi-piece numerical regression P01–P22 + Phase 0.6 tolerance | DONE (commit 775b52a6) |
+| 6 | Flat Validation World visual proof (SS-R1_2-01..08) | DONE (commit b1eff42e) |
+| 7 | Full regression / cleanup / docs / Final Report | DONE (final commits) |
+
+## Final results
+
+- Harness: PASSED=84 FAILED=0 SKIPPED=3 (Phase 1.1 49 + Phase 1.2 35).
+- Build: `./gradlew makeMainOfflineDownload` BUILD SUCCESSFUL.
+- Visual: 8/8 real Eaglercraft screenshots on Hardware Vulkan (NVIDIA GTX 1050).
+- Boundary ownership: internal boundary owned by the earlier piece; exact
+  binary-search rule (no magic epsilon); join pos 0.0 m; yaw/pitch/roll 0.0 deg.
+- Forward/reverse world-position consistency: 8.6e-14 m.
+- Final report: `Railsys_Phase_1.2_Rail Piece.txt`.
 
 ## Package / layout
 

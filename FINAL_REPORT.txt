@@ -859,3 +859,50 @@ PHASE1_1_IMPLEMENTATION updated. Root report appended.
 Phase 1.2 NOT started. END of Phase 1.1.
 
 Resume final SHA dd95d539 (Local==origin==GitHub main) verified after final push.
+
+====================================================================
+PHASE 1.2: Railsys v2 Rail Piece / Rail Path
+STATUS: COMPLETE
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 701 - Checkpoint 0 start
+------------------------------
+Start SHA 9581fd7e. Phase 1.1 PASS / Gate OPEN confirmed. dirty v1 preserved.
+Plan doc doc/testing/phase1_2/PHASE1_2_IMPLEMENTATION.md. Commit 436b0f8d.
+
+STEP 702 - CP1-4 implementation
+--------------------------------
+Package net.minecraft.railsys.path (src/geometry-core/java):
+RailValidationResult, RailEndpoint, RailPiece, RailConnection (CP1, 068d3eff),
+RailPathEntry, PathSample, RailPath (cumulative + binary-search resolve +
+exact earlier-piece boundary + reverse), RailNetwork (CP2-4, 07988bac).
+Harness 84/0/3. Build SUCCESS.
+
+STEP 703 - CP5 numerical regression
+-----------------------------------
+P01-P22 + connection/network tests all PASS. Worst-case: join pos 0.0m,
+yaw/pitch/roll 0.0deg, boundary jump 1e-7m, fwd/rev 8.6e-14m, NaN 0, exc 0.
+NUMERICAL_VALIDATION.md. Commit 775b52a6.
+
+STEP 704 - CP6 visual proof
+----------------------------
+Flat Validation World (EaglerFlatValidate, Superflat), Hardware Vulkan
+(NVIDIA GTX 1050), SS-R1_2-01..08 captured 8/8. Debug visualization
+RailsysPathDebugEvidence (production RailPath, world-gated). Fixed a
+disconnected evidence fixture that crashed the integrated server
+(GuiScreenIntegratedServerCrashed). VISUAL_VALIDATION.md. Commit b1eff42e.
+
+STEP 705 - CP7 close
+---------------------
+Full regression PASSED=84 FAILED=0 SKIPPED=3; build SUCCESS; secret leak
+none; stale processes none; dirty v1 preserved (9afd512d / 77ce0d66).
+Docs: RAIL_PIECE_CONTRACT, RAIL_PATH_CONTRACT, CONNECTION_AND_BOUNDARY_RULES,
+NUMERICAL_VALIDATION, VISUAL_VALIDATION, REGRESSION_RESULTS, KNOWN_ISSUES,
+PHASE1_2_IMPLEMENTATION. Final Report "Railsys_Phase_1.2_Rail Piece.txt"
+created and merged to GitHub main + attached to Discord.
+  PHASE 1.2 VERDICT: PASS
+  PHASE 1.3 ENTRY GATE = OPEN
+Phase 1.3 NOT started. END of Phase 1.2.
+
+Final SHA b1eff42e (Local==origin==GitHub main) verified after final push.
