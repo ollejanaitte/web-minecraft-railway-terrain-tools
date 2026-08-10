@@ -27,3 +27,11 @@ doc/testing/phase0_2/chrome_retry.log
 doc/testing/phase0_2/retry_run.log
 doc/testing/phase0_2/vw_afterclick.png
 doc/testing/phase0_2/EaglercraftX_Offline_ST.html
+
+# Phase 0.5 runtime profiles / intermediate probes
+doc/testing/phase0_5/profiles/
+doc/testing/phase0_5/screenshots/_*.png
+doc/testing/phase0_2/screenshots/_op*.png
+doc/testing/phase0_2/screenshots/_ot*.png
+doc/testing/phase0_2/screenshots/_probe*.png
+doc/testing/phase0_2/screenshots/_re*.png

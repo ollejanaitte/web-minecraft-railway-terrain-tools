@@ -56,7 +56,10 @@ public final class RailV2AutoValidate {
 		// teleports the camera. The automated validation launcher creates the world
 		// with the marker name; any other world name disables it.
 		String levelName = world.getWorldInfo().getWorldName();
-		boolean enabled = levelName != null && levelName.toLowerCase().contains("eaglervalidate");
+		// Phase 0.5: "eaglerflat" is an additional validation marker (the flat
+		// validation world is named EaglerFlatValidate).
+		boolean enabled = levelName != null
+				&& (levelName.toLowerCase().contains("eaglervalidate") || levelName.toLowerCase().contains("eaglerflat"));
 		System.out.println("[RAILSYSTEM] worldName=" + levelName + " validationEnabled=" + enabled);
 		if (!gateLogged) {
 			gateLogged = true;

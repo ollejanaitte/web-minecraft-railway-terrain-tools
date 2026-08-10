@@ -224,6 +224,18 @@ public class GuiCreateWorld extends GuiScreen {
 					}
 				}
 
+				// Phase 0.5: flat validation world support — if the world name carries
+				// the "eaglerflat" marker, force the existing Superflat (FLAT) type so
+				// the automated validation pipeline gets a flat testing ground without
+				// extra UI navigation.
+				if (this.field_146333_g.getText().trim().toLowerCase().contains("eaglerflat")) {
+					for (int k = 0; k < WorldType.worldTypes.length; k++) {
+						if (WorldType.worldTypes[k] == WorldType.FLAT) {
+							this.selectedIndex = k;
+							break;
+						}
+					}
+				}
 				WorldSettings.GameType worldsettings$gametype = WorldSettings.GameType.getByName(this.gameMode);
 				WorldSettings worldsettings = new WorldSettings(i, worldsettings$gametype, this.field_146341_s,
 						this.field_146337_w, WorldType.worldTypes[this.selectedIndex]);
