@@ -1,0 +1,176 @@
+====================================================================
+PHASE 0.7 FINAL REPORT
+RTM 1.12.2 Rail Placement / Geometry UX Research
++ Railsys Clean-room Replication Proposal
+====================================================================
+Status: COMPLETE
+Agent: DeepSeek V4 Flash
+Date: 2026-08-10
+====================================================================
+
+Scope
+-----
+Research / architecture proposal only. Product code changes: NONE.
+Phase 1.1 NOT started. Clean-room: public sources only; no RTM jar/assets.
+
+Start SHA
+---------
+b5763c7f6375be5065ff543c472a29f53ab267b2
+(Local == origin/main == GitHub main at start)
+
+End SHA
+-------
+(see final commit after this report is included; recorded in root FINAL_REPORT.txt)
+
+Git sync
+--------
+All Phase 0.7 checkpoints pushed to GitHub main with Local == origin == GitHub
+verification after each push. No force push. No dirty v1 staging.
+
+dirty v1
+--------
+CommandRailSystem.java +111/-6 md5 9afd512d414a3b67a15235c9290936cf PRESERVED
+EntityRailVehicle.java +13/-3 md5 77ce0d66d8fbe4e4c6e2594579d10c0c PRESERVED
+Checked at start, each checkpoint, and final.
+
+Source count / categories
+-------------------------
+Catalogued: 16 matrix entries (S01–S16) + video class.
+Categories: community wiki (kotl.io, Gamerch), high-quality JP manual
+(Addon Search), support wiki, blogs, KaizPatch/fixRTM notes, CN encyclopedia,
+JSON pack docs, CurseForge pins, install blogs.
+
+Version confidence
+------------------
+MC 1.12.2 <-> RTM 2.4.x (example RTM2.4.24-43 + NGTLib2.4.21-38): VERIFIED (S01).
+Feature dating for cant GUI (RTM2.2.1 / MC1.10.2+): VERIFIED intro statement.
+1.7.10 guides used for comparison only; Addon Search warns 2.x renewal.
+
+Verified / strongly supported RTM 1.12.2-family rail workflow
+-------------------------------------------------------------
+1) Obtain markers + rail item
+2) Place two facing markers (arrows opposite)
+3) Optional wrench shape edit (preview + green handles) before generate
+4) Optional marker settings GUI (cant; likely anchor pitch)
+5) Optional model/ballast selection via rail item / craft UI
+6) R-click marker to confirm generation
+7) Failures: length limit, obstacles, excessive height difference
+
+Markers
+-------
+Red center / red edge; blue center / blue edge; slope markers REMOVED on RTM2.
+Facing + pair rules STRONGLY SUPPORTED. Junction patterns STRONGLY SUPPORTED.
+
+Anchor UI
+---------
+Handle direction + length STRONGLY SUPPORTED.
+Named "anchor pitch" LIKELY (secondary blog).
+Exact GUI strings Anchor Yaw / Length H / Length V: UNKNOWN (behavioural analogues proposed for Railsys).
+
+Curve findings
+--------------
+External: endpoint + handle continuous path.
+Internal math: UNKNOWN. No public Bezier/Clothoid naming.
+Clothoid / transition-curve UI: no positive evidence -> UNKNOWN / not required for parity.
+
+Gradient
+--------
+ΔY / height tools / pitch; slope markers absent on 1.12.2. Vertical civil curves not documented.
+
+Cant
+----
+Present on RTM2 family STRONGLY SUPPORTED. Negative flips side.
+Cant Center mentioned, meaning UNKNOWN. Edge/Random unconfirmed.
+Interpolation / units / vehicle coupling: UNKNOWN.
+Phase 1 remains data-model-only (Phase 0.6) — compatible.
+
+Switch
+------
+Blue marker turnouts, crossings, scissors documented. RS switching documented.
+Out of Phase 1; piece type reservation sufficient.
+
+Version differences
+-------------------
+See VERSION_COMPARISON.md. Key: slope removal; cant GUI; wrench UX renewal warning;
+companion mods (fixRTM vs KaizPatch).
+
+Contradictions
+--------------
+Max length 60 vs 64; preview colour variants; 1.7.10 vs 2.x sameness vs renewal.
+See CONTRADICTIONS.md.
+
+Unknowns
+--------
+See UNRESOLVED_QUESTIONS.md (math, units, GUI field inventory, renewal itemization).
+
+Geometry math confidence
+------------------------
+UNKNOWN for RTM internals. Railsys recommendation: HorizontalBezier via Hermite mapping.
+
+RTM imitation strategy
+----------------------
+Three layers: UX workflow / domain model / Railsys mathematics.
+Match external experience; never copy code/assets.
+
+Railsys target UX
+-----------------
+Marker A/B -> preview -> anchor handles -> optional cant -> appearance -> confirm.
+State machine documented in replication proposal.
+
+Proposed data / geometry / cant models
+--------------------------------------
+AnchorDefinition; CantProfile; AppearanceRef; RailLocalFrame; keep Straight +
+HorizontalBezier + Vertical profile + ArcLengthTable from Phase 0.6.
+
+Placement state machine
+-----------------------
+IDLE -> MARKER_A -> MARKER_B -> PREVIEW -> EDIT_SHAPE -> EDIT_CANT? -> CONFIRM.
+
+Parity matrix result
+--------------------
+Core behavioural parity feasible in Phase 1.4 MVP; cant UI / switches / packs later.
+Clothoid not a parity requirement.
+
+Phase 0.6 impact
+----------------
+Verdict B: CLARIFICATION RECOMMENDED (anchors, local frame, cant profile sketch,
+1.4 MVP note, anti-clothoid-myth). NOT C (no mandatory redesign before 1.1).
+
+Recommended action before Phase 1.1
+-----------------------------------
+1) Proceed to Phase 1.1 Geometry Core on frozen contracts.
+2) Apply documentation clarifications (appendix or follow-up doc) without closing gate.
+3) Do not expand 1.1 scope to placement UI or cant physics.
+4) Track UNKNOWN list; do not invent RTM math claims.
+
+Research Gate
+-------------
+READY (with clarification backlog).
+
+Checkpoint commits (abbrev)
+---------------------------
+42bacb26 — Checkpoint 0/A1 source matrix + version mapping
+efe7f15d — PART B/C workflow marker curve gradient cant switch
+(subsequent) — PART D/E/F + this final report
+
+Discord record
+--------------
+START / Checkpoint 0, A1, B/C, D/E, COMPLETE notifications sent via runtime
+webhook (URL never stored in repository). Final report attached or split on COMPLETE.
+
+Final Verdict
+-------------
+PHASE 0.7 VERDICT: PASS
+
+- 1.12.2 primary versioning done
+- Source matrix complete
+- Placement / marker / anchor / curve / gradient / cant / junction researched
+- Version diff, contradictions, unknowns recorded with confidence labels
+- Railsys replication proposal + parity matrix complete
+- Phase 0.6 impact = Clarification recommended
+- Product code unchanged; dirty v1 preserved; GitHub main synced
+- Phase 1.1 NOT started
+
+====================================================================
+END FINAL_REPORT_PHASE0_7
+====================================================================

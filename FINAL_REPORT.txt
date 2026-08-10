@@ -754,3 +754,21 @@ C1-C4: CURVE_AND_GEOMETRY_RESEARCH.md, GRADIENT_VERTICAL_ALIGNMENT.md,
 CANT_RESEARCH.md, SWITCH_JUNCTION_RESEARCH.md
 Key: internal curve math UNKNOWN; no clothoid evidence; cant STRONGLY
 SUPPORTED on RTM2; Anchor Length H/V labels UNKNOWN (handle UX known).
+
+STEP 504 - Checkpoint D Version / Contradictions / Unknowns
+-----------------------------------------------------------
+VERSION_COMPARISON.md, CONTRADICTIONS.md, UNRESOLVED_QUESTIONS.md.
+
+STEP 505 - Checkpoint E Replication proposal + Parity matrix
+------------------------------------------------------------
+RAILSYS_RTM_RAIL_PLACEMENT_REPLICATION_PROPOSAL.md
+RTM_RAIL_PLACEMENT_PARITY_MATRIX.md
+Recommendation: Bezier via Hermite-map anchors; no clothoid parity requirement;
+Phase 1.4 MVP = 2 markers + handles + preview + confirm.
+
+STEP 506 - Checkpoint F Contract impact + Final Report
+------------------------------------------------------
+PHASE0_6_CONTRACT_IMPACT_REVIEW.md -> Verdict B CLARIFICATION RECOMMENDED.
+Research Gate: READY. PHASE 0.7 VERDICT: PASS.
+Standalone: doc/research/phase0_7_rtm_1_12_2/FINAL_REPORT_PHASE0_7.txt
+Product code untouched; dirty v1 preserved; Phase 1.1 not started.
