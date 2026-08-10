@@ -43,9 +43,10 @@ Resume SHA (actual)
 -------------------
 0fcd361fd4201adb34c13fef0178b0efdaa3ebcc (Local == origin/main == GitHub main at resume audit)
 
-Final SHA (after this report is pushed)
-----------------------------------------
-See Git after final commit/push (recorded in root FINAL_REPORT.txt).
+Final SHA (verified after final push)
+--------------------------------------
+dd95d53968b9c50ff9721ca99fcefcc3c2e5c251
+Local == origin/main == GitHub main after final push.
 
 Git sync at resume audit
 ------------------------
