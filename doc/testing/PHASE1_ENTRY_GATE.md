@@ -3,6 +3,12 @@
 Conditions the Phase 1 Agent must confirm BEFORE starting Phase 1
 (Rail Geometry / RailNetwork Core v2).
 
+## Phase 0.3 status
+**PHASE 1 ENTRY GATE = OPEN** (see
+`doc/testing/railway_v2_regression/PHASE0_3_ENTRY_GATE.md` for the Phase 0.3
+judgment: Golden Baseline, Regression Matrix, Evidence Rules, Development
+Workflow, Formal Regression).
+
 ## Gate checklist
 - [ ] Repository scope confirmed (local path + GitHub repo + branch main).
 - [ ] Pre-existing dirty Railway files preserved:
