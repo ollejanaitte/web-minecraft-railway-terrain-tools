@@ -21,7 +21,7 @@ ceeac6caecfc9a1faeaf8575436aceccf799aa10
 
 End SHA (at report commit tip — see Git after this file is committed)
 ---------------------------------------------------------------------
-(recorded in root FINAL_REPORT.txt STEP after push)
+7548470719477a28ae85d0bdfef813f8060311b6
 
 Git sync at numerical core commit
 ---------------------------------
