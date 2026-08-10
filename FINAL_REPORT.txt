@@ -680,3 +680,45 @@ PHASE 0.5 VERDICT: PASS
   in-world (SS-FLAT-RE_01_REENTRY.png).
 - Harness 30/0/3, Build SUCCESS, dirty v1 preserved, GitHub synced.
 => The standard flat Railway Validation World is established for Phase 1+.
+
+====================================================================
+PHASE 0.6: Rail Core Design Freeze
+STATUS: COMPLETE (VERDICT PASS / DESIGN GATE OPEN)
+Agent: DeepSeek V4 Flash
+====================================================================
+
+STEP 401 - Phase 0.6 start / Checkpoint 0
+------------------------------------------
+HEAD 9b45a3b6 (Phase 0.5 final), sync OK, dirty v1 preserved
+(111/6 + 13/3, md5 match), Phase 0.5 VERDICT PASS confirmed.
+Scope: research/design only; Product Code changes NONE.
+
+STEP 402 - PART A Discovery
+----------------------------
+Completed docs/code exploration (v1 + v2 + persistence + rendering +
+placement + Flat Validation World). RAIL_CORE_DISCOVERY.md (commit 455058ff).
+Key: distance-centred v2 spike near-ideal; v1 debts identified; gaps,
+contradictions (yaw sign), unresolved questions recorded.
+
+STEP 403 - PART B Architecture Options
+---------------------------------------
+Compared geometry/piece-path/rendering/placement/persistence candidates.
+Selected: distance-centred geometry + adaptive arc length; horizontal+vertical
+curve separation; piece-local metres + global path resolver; hybrid visible
+rails; command placement prototype; WorldRailData v2 + migration.
+RAIL_CORE_ARCHITECTURE_OPTIONS.md (commit 400290fd).
+
+STEP 404 - PART C/D Design Freeze
+-----------------------------------
+Frozen: RAIL_GEOMETRY_CONTRACT.md, RAIL_RENDERING_VISUAL_CONTRACT.md,
+PHASE1_TEST_COURSE.md (TC-01..08), PHASE1_SCOPE_AND_ACCEPTANCE.md
+(numerical + visual acceptance, scope/exclusions/prohibitions, 1.x sequence),
+PHASE0_6_RAIL_CORE_DESIGN_FREEZE.md. Commit 5c2a6a2c.
+
+STEP 405 - Phase 1 Design Gate
+-------------------------------
+All design questions answered; no critical unresolved architecture question.
+PHASE 1 DESIGN GATE = OPEN.
+Standalone report: doc/testing/phase0_6/FINAL_REPORT_PHASE0_6.txt (committed
++ pushed). Product code untouched; dirty v1 preserved; GitHub synced;
+Discord COMPLETE sent with FINAL_REPORT_PHASE0_6.txt attachment.
