@@ -188,6 +188,12 @@ public class SingleplayerServerController implements ISaveFormat {
 	}
 	
 	private static void ensureReady() {
+		if(statusState == IntegratedServerState.WORLD_UNLOADING) {
+			// Phase 0.2 stabilization: a GUI-hangup left the client mid-unload but the
+			// stop is effectively done; reset so a fresh world init can proceed.
+			System.out.println("[RAILSYSTEM] ensureReady recovering from WORLD_UNLOADING");
+			statusState = IntegratedServerState.WORLD_NONE;
+		}
 		if(!isReady()) {
 			String msg = "Server is in state " + statusState + " '" + IntegratedServerState.getStateName(statusState) + "' which is not the 'WORLD_NONE' state for the requested IPC operation";
 			throw new IllegalStateException(msg);

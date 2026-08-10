@@ -21,6 +21,7 @@ import net.minecraft.world.WorldServer;
  */
 public final class RailV2AutoValidate {
 	private static boolean ran = false;
+	private static boolean gateLogged = false;
 	private static int waitTicks = 0;
 	private static int tourTicks = -1;
 	private static EntityPlayerMP tourPlayer = null;
@@ -48,9 +49,24 @@ public final class RailV2AutoValidate {
 		if (waitTicks++ < 80) {
 			return;
 		}
-		ran = true;
 		EntityPlayerMP player = players.get(0);
 		World world = player.worldObj;
+		// Phase 0.2: gate AutoValidate behind an explicit validation world name so
+		// normal single-player play never auto-builds courses / spawns trains /
+		// teleports the camera. The automated validation launcher creates the world
+		// with the marker name; any other world name disables it.
+		String levelName = world.getWorldInfo().getWorldName();
+		boolean enabled = levelName != null && levelName.toLowerCase().contains("eaglervalidate");
+		System.out.println("[RAILSYSTEM] worldName=" + levelName + " validationEnabled=" + enabled);
+		if (!gateLogged) {
+			gateLogged = true;
+			player.addChatMessage(new ChatComponentText(
+					"railsysv2: worldName=" + levelName + " validation=" + enabled));
+		}
+		if (!enabled) {
+			return;
+		}
+		ran = true;
 		System.out.println("[RAILSYSTEM] AutoValidate START");
 
 		enableFlight(player);

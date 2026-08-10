@@ -16,3 +16,14 @@ bin
 /desktopRuntime/screenshots/*
 .gradle-local/
 .gradle-local/
+
+# Chrome runtime profiles / cache (Phase 0.2/0.3 runtime artifacts)
+doc/testing/phase0_2/chrome-profile-run/
+doc/testing/phase0_2/profiles/
+doc/testing/phase0_2/gp-vulkan/
+doc/testing/phase0_2/gp-vulkan2/
+doc/testing/phase0_2/gp-vulkan2.log
+doc/testing/phase0_2/chrome_retry.log
+doc/testing/phase0_2/retry_run.log
+doc/testing/phase0_2/vw_afterclick.png
+doc/testing/phase0_2/EaglercraftX_Offline_ST.html
