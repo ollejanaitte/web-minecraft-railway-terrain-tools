@@ -591,3 +591,70 @@ STEP 209 - Remaining
 --------------------
 FINAL_REPORT finalize, commits (checkpoint units), push GitHub main, sync
 verify, Discord milestone reports, FINAL_REPORT Discord send, final verdict.
+
+====================================================================
+PHASE 0.5: Flat Validation World
+STATUS: IN PROGRESS
+Agent: DeepSeek V4 Flash
+====================================================================
+
+STEP 301 - Phase 0.5 start
+--------------------------
+Phase 0.2/0.3 confirmed (Golden Baseline 466748b9). Goal: prove a
+Flat/Superflat standard validation world: create, display, RailV2 validation,
+screenshot, cleanup, re-entry reproducibility. Hardware Vulkan path maintained.
+
+STEP 302 - Git / dirty baseline
+-------------------------------
+HEAD 466748b9. Dirty v1 preserved: CommandRailSystem +111/-6 (md5
+9afd512d414a3b67a15235c9290936cf), EntityRailVehicle +13/-3 (md5
+77ce0d66d8fbe4e4c6e2594579d10c0c). stale processes 0.
+
+STEP 303 - Flat world mechanism
+-------------------------------
+- GuiCreateWorld: if the world name contains "eaglerflat", force the existing
+  WorldType.FLAT (Superflat) at creation time (no new world generator; uses
+  the vanilla Superflat type). (src/game/java/.../GuiCreateWorld.java)
+- RailV2AutoValidate gate extended: "eaglerflat" is an additional validation
+  marker alongside "eaglervalidate".
+- flat world name: "EaglerFlatValidate" (contains both markers).
+
+STEP 304 - Flat world creation & display (Hardware Vulkan)
+----------------------------------------------------------
+run-flat-validation.sh (retry MAX_RUNS): PASS (run 2).
+- Renderer: ANGLE (NVIDIA, Vulkan 1.4.312 (GTX 1050)).
+- worldName=New aEaglerFlatValidateWorld validation=true.
+- railsysv2: auto-validated (build + 4 cars started).
+- SS-FLAT-01..SS-FLAT-07 captured (flat ground + horizon, straight rail,
+  curve, full-scale train, formation, boundary).
+- SS-FLAT-02_FLAT_GROUND shows flat green/brown ground + clear horizon + sky.
+
+STEP 305 - Re-entry investigation
+---------------------------------
+- Select World UI "Play" navigation is unreliable: the select-screen button
+  layout varies between boots (observed 334/450, 492/542, 244/292/344/424
+  variants), and the WORLD_UNLOADING menu-recovery race can bounce the client
+  back to the menu. run-flat-reentry.sh (blue-button detection + sweep) FAILED
+  all runs.
+- A manual probe DID reach in-world on re-entry once (click 640,450 ->
+  sky=0.217; SS-FLAT-RE_01_REENTRY.png captured).
+- RELIABLE re-entry proof instead: on the SAME profile, restart + re-create
+  the flat validation world (flat_validate re-run). Both pass A and pass B
+  (second boot) SUCCEEDED:
+    pass A: worldName=New aEaglerFlatValidateWorld validation=true
+    pass B: worldName=New aEaglerFlatValidateWorld--- validation=true
+  => after restart, the flat world is available and Railway validation
+  reproduces (auto-validated fired, SS-FLAT screenshots re-captured).
+  Logs: doc/testing/phase0_5/logs/reuse_passA.txt, reuse_B2.txt.
+
+STEP 306 - Phase 0.5 docs
+-------------------------
+doc/testing/phase0_5/: FLAT_VALIDATION_WORLD.md, VALIDATION_RESULTS.md,
+VISUAL_VALIDATION.md, KNOWN_ISSUES.md, screenshots/, logs/, scripts/
+(flat_validate.mjs, reentry.mjs, run-flat-validation.sh,
+run-flat-reentry.sh).
+
+STEP 307 - Remaining
+--------------------
+Harness + build final, FINAL_REPORT finalize, commits/push, sync, Discord,
+final verdict.
