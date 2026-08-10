@@ -1,0 +1,128 @@
+ClientMain: [INFO] eaglercraftx is starting...
+ClientMain: [INFO] configuration was successful
+ClientMain: [INFO] initializing eaglercraftx runtime
+[12:03:34+013][main/INFO][EagRuntime]: Version: EagRuntimeX 1.0
+[12:03:34+016][main/INFO][BrowserRuntime]: ES6 Shim Status: Disabled
+[12:03:34+020][main/INFO][BrowserRuntime]: Creating main game canvas
+[12:03:34+033][main/INFO][BrowserRuntime]: Note: Detected game is embedded in body, some screens may be resized to window.visualViewport instead for a better mobile experience
+[12:03:34+034][main/INFO][BrowserRuntime]: Endianness: this CPU is little endian
+[12:03:34+046][main/INFO][BrowserRuntime]: Loading keyboard layout data
+[12:03:34+055][main/INFO][BrowserRuntime]: Creating WebGL context
+[12:03:34+066][main/INFO][BrowserRuntime]: OpenGL Version: WebGL 2.0 (OpenGL ES 3.0 Chromium)
+[12:03:34+066][main/INFO][BrowserRuntime]: OpenGL Renderer: ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA GeForce GTX 1050 (0x00001C8D)), NVIDIA)
+[12:03:34+067][main/INFO][BrowserRuntime]: Unlocked the following OpenGL ES extensions:
+[12:03:34+067][main/INFO][BrowserRuntime]:  - EXT_color_buffer_float
+[12:03:34+068][main/INFO][BrowserRuntime]:  - EXT_texture_filter_anisotropic
+[12:03:34+068][main/INFO][BrowserRuntime]:  - OES_texture_float_linear
+[12:03:34+068][main/INFO][BrowserRuntime]:  - WEBGL_debug_renderer_info
+[12:03:34+214][main/INFO][BrowserRuntime]: Downloading: <data: 9661001 chars>
+[12:03:35+023][main/INFO][BrowserRuntime]: Decompressing: <data: 9661001 chars>
+[12:03:35+405][main/INFO][BrowserRuntime]: Downloading: <data: 2573585 chars>
+[12:03:35+511][main/INFO][BrowserRuntime]: Decompressing: <data: 2573585 chars>
+[12:03:35+683][main/INFO][BrowserRuntime]: Loaded 4875 resources from EPKs
+[12:03:35+752][main/INFO][BrowserRuntime]: Initializing filesystem...
+[12:03:35+941][main/INFO][BrowserRuntime]: Initializing sound engine...
+[12:03:36+069][main/INFO][PlatformScreenRecord]: MediaRecorder is supported, checking codecs...
+[12:03:36+074][main/INFO][PlatformScreenRecord]: Found 19 codecs that are probably supported!
+[12:03:36+075][main/INFO][BrowserRuntime]: Platform initialization complete
+[12:03:36+086][main/INFO][EaglercraftGPU]: 16-bit HDR render target support: true
+[12:03:36+088][main/INFO][EaglercraftGPU]: 16-bit HDR linear filter support: true
+[12:03:36+089][main/INFO][EaglercraftGPU]: 32-bit HDR render target support: true
+[12:03:36+090][main/INFO][EaglercraftGPU]: 32-bit HDR linear filter support: true
+ClientMain: [INFO] launching eaglercraftx main thread
+[12:03:36+245][Client thread/INFO][Minecraft]: Setting user: EaglVigg9162
+[12:03:38+379][Client thread/INFO][Minecraft]: EagRuntime Version: EagRuntimeX 1.0
+[12:03:38+385][Client thread/INFO][Minecraft]: Reloading ResourceManager: Default
+[12:03:38+451][Client thread/INFO][ShaderSource]: Cleared Cache
+[12:03:38+524][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/calm1.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+525][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/calm2.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+525][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/calm3.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+526][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal1.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+527][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal2.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+528][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal3.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+528][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/hal4.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+529][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nuance1.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+530][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nuance2.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+530][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/piano1.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+531][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/piano2.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+531][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/piano3.ogg does not exist, cannot add it to event minecraft:music.game
+[12:03:38+532][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative1.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[12:03:38+533][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative2.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[12:03:38+533][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative3.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[12:03:38+534][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative4.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[12:03:38+535][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative5.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[12:03:38+536][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/creative/creative6.ogg does not exist, cannot add it to event minecraft:music.game.creative
+[12:03:38+537][Client thread/WARN][Minecraft]: File minecraft:sounds/records/cat.ogg does not exist, cannot add it to event minecraft:records.cat
+[12:03:38+538][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/end/boss.ogg does not exist, cannot add it to event minecraft:music.game.end.dragon
+[12:03:38+539][Client thread/WARN][Minecraft]: File minecraft:sounds/records/mall.ogg does not exist, cannot add it to event minecraft:records.mall
+[12:03:38+541][Client thread/WARN][Minecraft]: File minecraft:sounds/records/stal.ogg does not exist, cannot add it to event minecraft:records.stal
+[12:03:38+543][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/end/end.ogg does not exist, cannot add it to event minecraft:music.game.end
+[12:03:38+546][Client thread/WARN][Minecraft]: File minecraft:sounds/records/ward.ogg does not exist, cannot add it to event minecraft:records.ward
+[12:03:38+547][Client thread/WARN][Minecraft]: File minecraft:sounds/records/blocks.ogg does not exist, cannot add it to event minecraft:records.blocks
+[12:03:38+551][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/end/credits.ogg does not exist, cannot add it to event minecraft:music.game.end.credits
+[12:03:38+552][Client thread/WARN][Minecraft]: File minecraft:sounds/records/chirp.ogg does not exist, cannot add it to event minecraft:records.chirp
+[12:03:38+553][Client thread/WARN][Minecraft]: File minecraft:sounds/records/11.ogg does not exist, cannot add it to event minecraft:records.11
+[12:03:38+554][Client thread/WARN][Minecraft]: File minecraft:sounds/records/13.ogg does not exist, cannot add it to event minecraft:records.13
+[12:03:38+556][Client thread/WARN][Minecraft]: File minecraft:sounds/records/strad.ogg does not exist, cannot add it to event minecraft:records.strad
+[12:03:38+557][Client thread/WARN][Minecraft]: File minecraft:sounds/records/far.ogg does not exist, cannot add it to event minecraft:records.far
+[12:03:38+561][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu1.ogg does not exist, cannot add it to event minecraft:music.menu
+[12:03:38+562][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu2.ogg does not exist, cannot add it to event minecraft:music.menu
+[12:03:38+563][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu3.ogg does not exist, cannot add it to event minecraft:music.menu
+[12:03:38+564][Client thread/WARN][Minecraft]: File minecraft:sounds/music/menu/menu4.ogg does not exist, cannot add it to event minecraft:music.menu
+[12:03:38+565][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether1.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[12:03:38+566][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether2.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[12:03:38+567][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether3.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[12:03:38+569][Client thread/WARN][Minecraft]: File minecraft:sounds/music/game/nether/nether4.ogg does not exist, cannot add it to event minecraft:music.game.nether
+[12:03:38+571][Client thread/WARN][Minecraft]: File minecraft:sounds/records/wait.ogg does not exist, cannot add it to event minecraft:records.wait
+[12:03:38+574][Client thread/WARN][Minecraft]: File minecraft:sounds/records/mellohi.ogg does not exist, cannot add it to event minecraft:records.mellohi
+[12:03:38+575][Client thread/INFO][EaglercraftX]: Download this resource pack if you want music: https://bafybeiayojww5jfyzvlmtuk7l5ufkt7nlfto7mhwmzf2vs4bvsjd5ouiuq.ipfs.nftstorage.link/?filename=Music_For_Eaglercraft.zip
+[12:03:39+742][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/0_glass_white/glass_pane_white.properties
+[12:03:39+753][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/0_glass_white/glass_white.properties
+[12:03:39+754][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/10_glass_purple/glass_pane_purple.properties
+[12:03:39+758][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/10_glass_purple/glass_purple.properties
+[12:03:39+760][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/11_glass_blue/glass_blue.properties
+[12:03:39+762][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/11_glass_blue/glass_pane_blue.properties
+[12:03:39+765][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/12_glass_brown/glass_brown.properties
+[12:03:39+767][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/12_glass_brown/glass_pane_brown.properties
+[12:03:39+770][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/13_glass_green/glass_green.properties
+[12:03:39+772][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/13_glass_green/glass_pane_green.properties
+[12:03:39+775][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/14_glass_red/glass_pane_red.properties
+[12:03:39+778][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/14_glass_red/glass_red.properties
+[12:03:39+779][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_black.properties
+[12:03:39+780][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/15_glass_black/glass_pane_black.properties
+[12:03:39+783][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/1_glass_orange/glass_orange.properties
+[12:03:39+785][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/1_glass_orange/glass_pane_orange.properties
+[12:03:39+788][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/2_glass_magenta/glass_magenta.properties
+[12:03:39+789][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/2_glass_magenta/glass_pane_magenta.properties
+[12:03:39+792][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/3_glass_light_blue/glass_light_blue.properties
+[12:03:39+793][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/3_glass_light_blue/glass_pane_light_blue.properties
+[12:03:39+796][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/4_glass_yellow/glass_pane_yellow.properties
+[12:03:39+799][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/4_glass_yellow/glass_yellow.properties
+[12:03:39+800][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/5_glass_lime/glass_lime.properties
+[12:03:39+802][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/5_glass_lime/glass_pane_lime.properties
+[12:03:39+805][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/6_glass_pink/glass_pane_pink.properties
+[12:03:39+809][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/6_glass_pink/glass_pink.properties
+[12:03:39+810][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/7_glass_gray/glass_gray.properties
+[12:03:39+811][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/7_glass_gray/glass_pane_gray.properties
+[12:03:39+814][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/8_glass_silver/glass_pane_silver.properties
+[12:03:39+817][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/8_glass_silver/glass_silver.properties
+[12:03:39+818][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/9_glass_cyan/glass_cyan.properties
+[12:03:39+819][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/9_glass_cyan/glass_pane_cyan.properties
+[12:03:39+823][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/bookshelf.properties
+[12:03:39+823][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/glass.properties
+[12:03:39+824][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/glasspane.properties
+[12:03:39+825][Client thread/DEBUG][OptiFine]: ConnectedTextures: mcpatcher/ctm/default/sandstone.properties
+[12:03:39+827][Client thread/DEBUG][OptiFine]: Multipass connected textures: false
+[12:03:41+316][Client thread/INFO][Minecraft]: Created: 1024x512 textures-atlas
+[12:03:41+982][Client thread/DEBUG][OptiFine]: *** Reloading custom textures ***
+[12:03:41+989][Client thread/DEBUG][OptiFine]: Enable face culling: acacia_leaves, birch_leaves, dark_oak_leaves, jungle_leaves, oak_leaves, spruce_leaves
+[12:03:42+707][Client thread/INFO][UpdateService]: Found new update: EaglercraftX 1.8 - u53
+[12:03:46+173][Client thread/INFO][ClientPlatformSingleplayer]: Loading integrated server from inline script tag
+[12:03:47+053][Client thread/INFO][SingleplayerServerController]: Integrated server signaled a successful boot
+[12:03:47+586][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[12:04:05+651][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[12:04:14+801][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound
+[12:04:22+654][Client thread/INFO][NetHandlerSingleplayerLogin]: Server is using protocol: 5
+[12:04:27+801][Client thread/INFO][Minecraft]: [CHAT] railsysv2: worldName=New aEaglerValidateWorld validation=true
+[12:04:29+750][Client thread/INFO][Minecraft]: [CHAT] railsysv2: auto-validated (build + 4 cars started)
+[12:04:43+254][Client thread/WARN][SoundManager]: Unable to play empty soundEvent(2): meta:missing_sound

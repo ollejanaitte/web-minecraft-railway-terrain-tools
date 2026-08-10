@@ -1,0 +1,21 @@
+{
+  "runId": "20260810_114903_88493175",
+  "sha": "88493175",
+  "shaNote": "HEAD at run time; Phase 0.2 product fixes (tolerant-assert, ensureReady recovery, AutoValidate world-name gate) were applied as uncommitted work on top of HEAD.",
+  "date": "2026-08-10T11:49:00+0900",
+  "gpuMode": "vulkan",
+  "renderer": "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA GeForce GTX 1050))",
+  "harness": "PASSED=30 FAILED=0 SKIPPED=3",
+  "build": "SUCCESS",
+  "coldStart": "PASS (run 3; runs 1-2 hit the documented menu-recovery race)",
+  "autoValidate": "railsysv2: auto-validated (build + 4 cars started)",
+  "gate": "worldName=New aEaglerValidateWorld validation=true",
+  "verdict": "PASS",
+  "evidence": {
+    "screenshots": "screenshots/SS-01..SS-08",
+    "console": "console.log",
+    "launcher": "launcher.log",
+    "retry": "retry.log"
+  },
+  "cleanup": "validation chrome terminated; stale-process check ok"
+}
