@@ -1,51 +1,38 @@
-[2026-08-10T11:10:42.247Z] START Phase1.1 geom visual PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/profiles/geom-20260810_201042-1
-[2026-08-10T11:10:42.251Z] CHROME_PID=1730110 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/profiles/geom-20260810_201042-1 GPU=auto
-[2026-08-10T11:10:53.013Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_boot_0.png
-[2026-08-10T11:10:53.193Z] boot 0 sky=0.000 dirt=0.000 hot=0 buttons=
-[2026-08-10T11:10:57.729Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_boot_1.png
-[2026-08-10T11:10:57.892Z] boot 1 sky=0.000 dirt=1.059 hot=26 buttons=330,390
-[2026-08-10T11:11:00.835Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_boot_2.png
-[2026-08-10T11:11:01.001Z] boot 2 sky=0.835 dirt=0.007 hot=20 buttons=237,426
-[2026-08-10T11:11:13.195Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_select.png
-[2026-08-10T11:11:13.365Z] select sky=0.000 dirt=0.946 hot=26 buttons=492
-[2026-08-10T11:11:21.578Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_submenu.png
-[2026-08-10T11:11:21.739Z] submenu sky=0.000 dirt=1.065 hot=26 buttons=242,292,342,422
-[2026-08-10T11:11:31.941Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_form.png
-[2026-08-10T11:11:32.101Z] form sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
-[2026-08-10T11:11:35.269Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_named.png
-[2026-08-10T11:11:35.416Z] named sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
-[2026-08-10T11:11:39.015Z] HIT [08:11:39+014][Client thread/INFO][STDOUT]: [RAILSYSTEM] tolerant-assert: ACK 0 while state was 4 'WORLD_UNLOADING' (ignored)
-[2026-08-10T11:11:55.740Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_loading.png
-[2026-08-10T11:11:55.911Z] loading sky=0.081 dirt=0.007 hot=26 buttons=240,426
-[2026-08-10T11:12:06.139Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_1.png
-[2026-08-10T11:12:06.297Z] join 1 sky=0.004 dirt=0.008 hot=25 buttons=219,426
-[2026-08-10T11:12:16.522Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_2.png
-[2026-08-10T11:12:16.685Z] join 2 sky=0.001 dirt=0.008 hot=26 buttons=217,426
-[2026-08-10T11:12:26.908Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_3.png
-[2026-08-10T11:12:27.072Z] join 3 sky=0.043 dirt=0.010 hot=24 buttons=241,426
-[2026-08-10T11:12:37.288Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_4.png
-[2026-08-10T11:12:37.446Z] join 4 sky=0.451 dirt=0.008 hot=26 buttons=245,416
-[2026-08-10T11:12:47.671Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_5.png
-[2026-08-10T11:12:47.833Z] join 5 sky=0.715 dirt=0.008 hot=26 buttons=233,426
-[2026-08-10T11:12:58.041Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_6.png
-[2026-08-10T11:12:58.196Z] join 6 sky=0.846 dirt=0.007 hot=26 buttons=180,253,306,426
-[2026-08-10T11:13:08.404Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_7.png
-[2026-08-10T11:13:08.556Z] join 7 sky=0.842 dirt=0.010 hot=26 buttons=178,283,426
-[2026-08-10T11:13:18.734Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_8.png
-[2026-08-10T11:13:18.891Z] join 8 sky=0.809 dirt=0.008 hot=26 buttons=165,282,426
-[2026-08-10T11:13:29.088Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_9.png
-[2026-08-10T11:13:29.244Z] join 9 sky=0.636 dirt=0.008 hot=26 buttons=191,223,282,426
-[2026-08-10T11:13:39.450Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_10.png
-[2026-08-10T11:13:39.606Z] join 10 sky=0.842 dirt=0.009 hot=26 buttons=206,306,426
-[2026-08-10T11:13:49.816Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_11.png
-[2026-08-10T11:13:49.978Z] join 11 sky=0.692 dirt=0.009 hot=26 buttons=215,426
-[2026-08-10T11:14:00.177Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_12.png
-[2026-08-10T11:14:00.333Z] join 12 sky=0.001 dirt=0.006 hot=26 buttons=196,306,426
-[2026-08-10T11:14:10.552Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_13.png
-[2026-08-10T11:14:10.707Z] join 13 sky=0.127 dirt=0.007 hot=26 buttons=196,306,426
-[2026-08-10T11:14:20.942Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_14.png
-[2026-08-10T11:14:21.103Z] join 14 sky=0.144 dirt=0.009 hot=26 buttons=196,306,426
-[2026-08-10T11:14:31.326Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_15.png
-[2026-08-10T11:14:31.518Z] join 15 sky=0.102 dirt=0.009 hot=26 buttons=196,306,426
-[2026-08-10T11:14:41.750Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_join_16.png
-[2026-08-10T11:14:41.912Z] join 16 sky=0.652 dirt=0.007 hot=26 buttons=226,419
+[2026-08-10T13:43:46.231Z] START Phase1.1 geom visual PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/profiles/geom-run CREATE_RETRIES=3
+[2026-08-10T13:43:46.232Z] regenerating instrumented HTML
+[2026-08-10T13:43:46.372Z] instrumented HTML written: /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/scripts/geom_validate_instrumented.html
+[2026-08-10T13:43:46.377Z] CHROME_PID=1774422 PROFILE=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/profiles/geom-run GPU=auto
+[2026-08-10T13:44:05.310Z] content warning -> continue
+[2026-08-10T13:44:07.304Z] title reached: GuiMainMenu
+[2026-08-10T13:44:10.088Z] on create form
+[2026-08-10T13:44:10.088Z] === create attempt 1/3 ===
+[2026-08-10T13:44:13.307Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/_named.png
+[2026-08-10T13:44:13.520Z] named sky=0.000 dirt=1.054 hot=8 buttons=248,392,540
+[2026-08-10T13:44:19.814Z] create->in-game detected
+[2026-08-10T13:44:23.899Z] HIT [10:44:23+897][Client thread/INFO][Minecraft]: [CHAT] railsysv2: auto-validated (build + 4 cars started)
+[2026-08-10T13:44:24.819Z] IN_WORLD validated=true
+[2026-08-10T13:45:08.814Z] HIT [10:45:08+812][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_straight
+[2026-08-10T13:45:10.424Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-01_STRAIGHT_GEOMETRY.png
+[2026-08-10T13:45:10.643Z] ok SS-R1_1-01_STRAIGHT_GEOMETRY.png sky=0.882 dirt=0.127 hot=4 buttons=
+[2026-08-10T13:45:14.813Z] HIT [10:45:14+812][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_gentle
+[2026-08-10T13:45:17.226Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-02_GENTLE_CURVE.png
+[2026-08-10T13:45:17.439Z] ok SS-R1_1-02_GENTLE_CURVE.png sky=0.880 dirt=0.123 hot=4 buttons=
+[2026-08-10T13:45:20.814Z] HIT [10:45:20+812][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_tight
+[2026-08-10T13:45:23.012Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-03_TIGHT_CURVE.png
+[2026-08-10T13:45:23.227Z] ok SS-R1_1-03_TIGHT_CURVE.png sky=0.888 dirt=0.123 hot=4 buttons=
+[2026-08-10T13:45:26.814Z] HIT [10:45:26+812][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_s_curve
+[2026-08-10T13:45:28.822Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-04_S_CURVE_FIXTURE.png
+[2026-08-10T13:45:29.029Z] ok SS-R1_1-04_S_CURVE_FIXTURE.png sky=0.885 dirt=0.125 hot=5 buttons=
+[2026-08-10T13:45:32.813Z] HIT [10:45:32+811][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_gradient
+[2026-08-10T13:45:34.606Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-05_GRADIENT.png
+[2026-08-10T13:45:34.857Z] ok SS-R1_1-05_GRADIENT.png sky=0.882 dirt=0.127 hot=4 buttons=
+[2026-08-10T13:45:38.813Z] HIT [10:45:38+811][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_curve_grad
+[2026-08-10T13:45:40.450Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-06_CURVE_GRADIENT.png
+[2026-08-10T13:45:40.728Z] ok SS-R1_1-06_CURVE_GRADIENT.png sky=0.885 dirt=0.123 hot=5 buttons=
+[2026-08-10T13:45:44.813Z] HIT [10:45:44+811][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_local_frame
+[2026-08-10T13:45:47.307Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-07_LOCAL_FRAME.png
+[2026-08-10T13:45:47.523Z] ok SS-R1_1-07_LOCAL_FRAME.png sky=0.884 dirt=0.123 hot=4 buttons=
+[2026-08-10T13:45:50.812Z] HIT [10:45:50+811][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_overview
+[2026-08-10T13:45:53.112Z] shot /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_1/screenshots/SS-R1_1-08_OVERVIEW.png
+[2026-08-10T13:45:53.345Z] ok SS-R1_1-08_OVERVIEW.png sky=0.883 dirt=0.125 hot=4 buttons=
+[2026-08-10T13:45:54.349Z] SUCCESS shots=8
