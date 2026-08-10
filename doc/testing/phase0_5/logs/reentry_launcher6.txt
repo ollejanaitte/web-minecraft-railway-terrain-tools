@@ -1,0 +1,10 @@
+[run-flat-reentry] === re-entry run 1/4 ===
+[run-flat-reentry] run 1 FAILED - retrying
+[run-flat-reentry] === re-entry run 2/4 ===
+[run-flat-reentry] run 2 FAILED - retrying
+[run-flat-reentry] === re-entry run 3/4 ===
+[run-flat-reentry] run 3 FAILED - retrying
+[run-flat-reentry] === re-entry run 4/4 ===
+[run-flat-reentry] run 4 FAILED - retrying
+[run-flat-reentry] === FLAT RE-ENTRY FAIL ===
+FLAT_REENTRY_RESULT=FAIL

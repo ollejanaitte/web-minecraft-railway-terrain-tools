@@ -1,0 +1,6 @@
+[run-flat-validation] === flat validation run 1/4 ===
+[run-flat-validation] run 1 FAILED - retrying
+[run-flat-validation] === flat validation run 2/4 ===
+[run-flat-validation] run 2 PASS
+[run-flat-validation] === FLAT VALIDATION PASS ===
+FLAT_VALIDATION_RESULT=PASS
