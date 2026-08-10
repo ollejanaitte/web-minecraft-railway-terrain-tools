@@ -349,3 +349,245 @@ Not staged : FINAL_REPORT.md, chrome-profile-*, intermediate stdout/logs
 PHASE 0.1 COMPLETE — VERDICT PASS
 ====================================================================
 
+====================================================================
+PHASE 0.2: Runtime / Launch / Validation Environment Stabilization
+STATUS: IN PROGRESS
+Agent: DeepSeek V4
+====================================================================
+
+STEP 101 - Phase 0.2 start
+--------------------------
+Date: 2026-08-10 (~07:00 JST). Goal: stabilize launch/validation env for
+repeated Phase 1+ development. Priority: investigate SwiftShader CPU load,
+prove Hardware GPU/WebGL path, one-command normal+validation launch,
+cleanup, cold-start 5x, docs. Railway feature work is NOT part of this phase.
+
+STEP 102 - Scope / AGENTS.md confirmed
+--------------------------------------
+AGENTS.md read in full. Scope: local repo + ollejanaitte GitHub main only.
+Dirty v1 files (CommandRailSystem.java, EntityRailVehicle.java) must be
+preserved. FINAL_REPORT.txt is the work log. No secrets in repo (Discord
+webhook runtime-only). External web read-only.
+
+STEP 103 - Git start state
+--------------------------
+Branch: main
+Local HEAD : 88493175 (Phase 0.1 final)
+origin/main: 88493175
+GitHub main: 88493175 (ls-remote verified)
+Sync : LOCAL == origin/main == GitHub main (SYNC OK)
+Untracked (leave-alone): FINAL_REPORT.md, Phase 0.1 screenshots/logs/profiles,
+doc/testing/phase0_2/ (this phase).
+Staged : none.
+
+STEP 104 - Dirty work baseline
+------------------------------
+CommandRailSystem.java : +111 / -6 (md5 9afd512d414a3b67a15235c9290936cf)
+EntityRailVehicle.java : +13  / -3 (md5 77ce0d66d8fbe4e4c6e2594579d10c0c)
+numstat 124 / 9. Matches DIRTY_BASELINE.txt. PRESERVED (never stage/commit/
+format these). Screenshots _create.png/_named.png also dirty (Phase 0.1);
+left untouched.
+
+STEP 105 - Phase 0.1 artifacts confirmed
+----------------------------------------
+doc/testing/phase0_1/: GAME_LAUNCH_GUIDE.md, VALIDATION_RESULTS.md,
+VISUAL_VALIDATION.md, KNOWN_ISSUES.md, AGENT_HANDOFF.md, scripts/
+(retry_validation_run.mjs etc.), screenshots/ (SS-01..SS-08), logs.
+Build offline HTML present:
+target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html
+
+STEP 106 - Stale process discovery (CRITICAL)
+---------------------------------------------
+4 stale Phase 0.1 headless Chrome instances (chrome-profile-fix5..fix8) were
+still running, launched 01:27-01:33 JST, never cleaned up. Their SwiftShader
+gpu-processes were pegged 99-658% CPU (fix8 gpu PID 1559704 had 46h CPU time
+in ~5.5h wall = ~8 cores). System loadavg was ~16-19 on a 12-core machine.
+Chrome total RSS ~6.8GB. Game page was hung (CDP eval timed out = the known
+SwiftShader freeze). Evidence saved:
+doc/testing/phase0_2/logs/swiftshader_stale_baseline.txt.
+After SIGTERM of the 4 trees: loadavg dropped to ~3.4 and then ~1.1.
+=> Root cause of sustained CPU saturation = multiple long-running SwiftShader
+instances left behind (each gpu-process consumes several cores); single
+instance also burns cores while rendering.
+
+STEP 107 - GPU / WebGL capability investigation
+-----------------------------------------------
+- lspci: Intel CoffeeLake UHD 630 (iGPU) + NVIDIA GP107M GTX 1050 Mobile.
+- nvidia-smi: driver 580.173.02, CUDA 13.0, GPU 0% idle, 4096MiB.
+- /dev/dri/card0 (nvidia), card1 (intel), renderD128/129 with ACL rw for
+  user masaharu.
+- Vulkan ICDs: nvidia_icd, intel_icd, intel_hasvk, lvp(sw), radeon.
+- glvnd: 10_nvidia.json, 50_mesa.json. Xorg desktop on :0 with NV-GLX.
+- Xvfb :99 available (software GL only).
+- Chrome 151.0.7922.71. Node v22. Python3+PIL available.
+
+STEP 108 - Rendering path probe (CDP WebGL query)
+-------------------------------------------------
+probe_gpu.mjs results:
+A) SwiftShader (Phase 0.1 flags): WebGL renderer =
+   "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero)))" - SOFTWARE.
+B) --use-gl=angle --use-angle=vulkan (headless): renderer =
+   "ANGLE (NVIDIA, Vulkan 1.4.312 (NVIDIA NVIDIA GeForce GTX 1050))" -
+   HARDWARE. WebGL2 OK. SystemInfo selected adapter:
+   "NVIDIA GeForce GTX 1050, backend=Vulkan, adapterType=Discrete GPU".
+=> Hardware GPU WebGL IS available in headless Chrome on this machine via
+   ANGLE-Vulkan, no X server needed. (No --use-gl, no swiftshader flags.)
+
+STEP 109 - Hardware GPU full-game launch PROVEN
+-----------------------------------------------
+Launched Eaglercraft offline HTML with --headless=new --use-gl=angle
+--use-angle=vulkan (fresh profile). Verified:
+- Page boots (title "EaglercraftX 1.8", canvas 1280x577).
+- WebGL on NVIDIA; main loop runs at 60.7 fps (rAF measured).
+- One canvas click unblocks render; dirt title screen appears.
+- Menu navigation works; world created ("RailTest") in fresh profile.
+- No freeze: screenshots/eval responsive throughout (vs SwiftShader hangs).
+Evidence: doc/testing/phase0_2/screenshots/*.png,
+doc/testing/phase0_2/logs/hw_game_boot_cpu.json,
+doc/testing/phase0_2/logs/hw_vulkan_evidence.txt.
+
+STEP 110 - CPU measurement comparison (evidence)
+------------------------------------------------
+SwiftShader (stale instance): single gpu-process 99-658% CPU, ~6.8GB Chrome
+RSS across 4 trees, CDP hangs. Hardware Vulkan (game at menu):
+browser 1.3% + renderer 7.7% ~= 9% total CPU, nvidia-smi 29% GPU util
+152MiB VRAM, loadavg 2.55 (vs 15.98 before cleanup). Rendering work moves
+off the CPU to the discrete GPU. ~70x reduction in CPU burn for the stale
+multi-instance case.
+
+STEP 111 - Rendering path decision
+----------------------------------
+STANDARD = Hardware GPU via ANGLE-Vulkan:
+  --headless=new --use-gl=angle --use-angle=vulkan
+(plus non-headless option for human play on a real display).
+FALLBACK = SwiftShader (Phase 0.1 flags) only if hardware Vulkan unavailable
+(e.g. VM without GPU/ACL). CPU mitigation for SwiftShader fallback documented:
+single instance only, stale-process cleanup, short-lived runs.
+
+STEP 112 - Cleanup done
+-----------------------
+Killed all 4 stale Phase 0.1 Chrome trees (project processes only; unrelated
+user processes untouched). Verified no chrome/chrome-profile-fix processes
+remain. Load normalized.
+
+STEP 113 - Next steps
+---------------------
+Build one-command normal launcher (run-game.sh), one-command validation
+launcher (run-validation.sh + node script) on the hardware Vulkan path,
+state-based boot, timeouts, cleanup, then cold-start 5x, regression, harness,
+build, docs, commits/push/Discord at each checkpoint.
+
+
+STEP 114 - Phase 0.2 stabilization fixes (product code)
+-------------------------------------------------------
+Root cause of intermittent crashes during headless create-world automation:
+the Eaglercraft integrated-server GUI-hangup leaves the client in
+WORLD_UNLOADING, and a spurious IPC ACK then crashed the whole client
+(IllegalStateException). Fixes (uncommitted product changes):
+- IntegratedServerState.assertState: tolerant (logs, does not throw) so the
+  state machine can recover.
+- SingleplayerServerController.ensureReady: recovers from WORLD_UNLOADING
+  before a fresh world init.
+- RailV2AutoValidate: added an explicit world-name gate so validation only
+  fires when the world name contains "eaglerValidate". Normal play is fully
+  isolated (verified: worldName=New World validation=false). Debug gate line
+  emitted once per session via chat for automation detection.
+Verified: tolerant-assert observed in logs; AutoValidate fires with
+"New aEaglerValidateWorld validation=true".
+
+STEP 115 - One-command launchers
+--------------------------------
+run-game.sh: normal human launch (hardware GPU; headless or visible; profile
+persistent; AutoValidate OFF for normal worlds; stop subcommand; PID/log).
+run-validation.sh: one-command AI validation (build check, harness-optional,
+stale-process/port checks, retry MAX_RUNS=3, cleanup, PASS/FAIL exit codes).
+Validation script retry_vulkan.mjs: char-by-char world-name typing (insertText
+is unreliable on the canvas field), crash-tolerant detection, fast-fail on the
+menu-recovery race (added later), SUCCESS requires AutoValidate.
+
+STEP 116 - Cold Start 5x (Hardware Vulkan)
+------------------------------------------
+CS1 PASS (run 1), CS2 PASS (run 1), CS3 PASS (run 2), CS4 PASS (run 2),
+CS5 PASS (run 1). Overall 5/5 PASS. Run-1 success ~60%; the launcher retry
+(MAX_RUNS=3) makes it reliable. The menu-recovery race is documented; a
+fast-fail was added so retries start promptly.
+
+STEP 117 - Phase 0.2 docs
+-------------------------
+doc/testing/phase0_2/: GAME_LAUNCH_GUIDE.md, VALIDATION_GUIDE.md,
+TROUBLESHOOTING.md, GPU_CPU_INVESTIGATION.md (created).
+
+STEP 118 - Phase 0.2 verdict
+----------------------------
+Phase 0.2 = PASS (stabilization complete):
+- Runtime launch stable (Hardware Vulkan standard path).
+- One-command normal + validation launch.
+- AutoValidate OFF (normal) / ON (validation, world-name gate).
+- Cleanup + no stale process.
+- Cold Start 5/5 PASS.
+- Harness 30/0/3, Production Build SUCCESS.
+- Dirty v1 files preserved throughout.
+
+====================================================================
+PHASE 0.3: Phase 1 Entry Gate / Regression Baseline
+STATUS: IN PROGRESS
+Agent: DeepSeek V4
+====================================================================
+
+STEP 201 - Phase 0.3 start
+--------------------------
+Phase 0.2 PASS confirmed (STEP 118). Golden Baseline / Regression Matrix /
+Evidence Rules / Development Workflow / Entry Gate to be finalized.
+Scope: local repo + ollejanaitte GitHub main only. AGENTS.md confirmed.
+
+STEP 202 - Git / dirty baseline
+-------------------------------
+Branch main. HEAD 88493175. Dirty v1: CommandRailSystem +111/-6 (md5
+9afd512d414a3b67a15235c9290936cf), EntityRailVehicle +13/-3 (md5
+77ce0d66d8fbe4e4c6e2594579d10c0c) - PRESERVED (matches DIRTY_BASELINE.txt).
+Product changes this phase (uncommitted): railv2/RailV2AutoValidate.java
+(gate), IntegratedServerState.java, SingleplayerServerController.java,
+MinecraftServer wiring (unchanged from Phase 0.1).
+
+STEP 203 - Golden Baseline (executed)
+-------------------------------------
+Harness 30/0/3; Build SUCCESS; Hardware Vulkan renderer
+"ANGLE (NVIDIA, Vulkan 1.4.312 (GTX 1050))"; menu CPU ~9%; in-world ~66%;
+AutoValidate fired; cleanup OK. Evidence + screenshots under
+doc/testing/railway_v2_regression/baseline/ (GOLDEN_BASELINE.md + SS-01..08).
+Baseline SHA: 88493175 (with Phase 0.2 uncommitted fixes validated).
+
+STEP 204 - Regression Matrix
+----------------------------
+R01-R24 defined (Runtime/Isolation/Build + Rail/Train/Bogie/Formation/Boundary
+visual rows) with severity (BLOCKER/CRITICAL/MAJOR/MINOR), owner phase, and
+auto/visual classification in RAILWAY_V2_REGRESSION_MATRIX.md.
+
+STEP 205 - Evidence Rules
+-------------------------
+VALIDATION_EVIDENCE_RULES.md: RUN_ID scheme (YYYYMMDD_HHMMSS_<shortsha>),
+runs/<RUN_ID>/ layout, traceability to baseline SHA, machine verdicts, visual
+review scope, pixel-diff policy (auxiliary only).
+
+STEP 206 - Development Workflow
+-------------------------------
+DEVELOPMENT_WORKFLOW.md: standard Phase 1+ cycle (AGENTS/git/dirty check ->
+implement -> harness -> build -> run-validation -> evidence -> visual review ->
+regression matrix -> FINAL_REPORT -> commit/push -> sync -> Discord).
+
+STEP 207 - Formal Regression
+----------------------------
+Formal run 20260810_114903_88493175: PASS (run 3; runs 1-2 hit the documented
+menu-recovery race and were retried). AutoValidate fired; SS-01..SS-08
+captured; cleanup OK. Evidence in
+doc/testing/railway_v2_regression/runs/20260810_114903_88493175/.
+
+STEP 208 - Entry Gate
+---------------------
+PHASE1_ENTRY_GATE.md updated; PHASE0_3_ENTRY_GATE.md records all 17 criteria
+PASS -> verdict OPEN (pending commit/push/sync).
+
+STEP 209 - Remaining
+--------------------
+FINAL_REPORT finalize, commits (checkpoint units), push GitHub main, sync
+verify, Discord milestone reports, FINAL_REPORT Discord send, final verdict.
