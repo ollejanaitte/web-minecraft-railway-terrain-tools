@@ -745,3 +745,12 @@ Created SOURCE_MATRIX.md (S01-S16) and VERSION_MAPPING.md.
 Key: MC1.12.2 = RTM2.4.x (VERIFIED RTM2.4.24-43 + NGTLib2.4.21-38).
 Slope markers removed RTM2.0+; cant GUI from RTM2.2.1(MC1.10.2)+.
 Warning: Addon Search initial guide is 1.7.10.44; 2.x UX renewed.
+
+STEP 503 - Checkpoint A2 / B / C research docs
+----------------------------------------------
+A2: VERSION_MAPPING frozen as working baseline (RTM2.4.24-43).
+B1/B2: RTM_1_12_2_RAIL_PLACEMENT_WORKFLOW.md, MARKER_AND_ANCHOR_UI.md
+C1-C4: CURVE_AND_GEOMETRY_RESEARCH.md, GRADIENT_VERTICAL_ALIGNMENT.md,
+CANT_RESEARCH.md, SWITCH_JUNCTION_RESEARCH.md
+Key: internal curve math UNKNOWN; no clothoid evidence; cant STRONGLY
+SUPPORTED on RTM2; Anchor Length H/V labels UNKNOWN (handle UX known).
