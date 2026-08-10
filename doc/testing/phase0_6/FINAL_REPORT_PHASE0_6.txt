@@ -113,12 +113,12 @@ Checkpoints / commits / pushes
 - Checkpoint A: 455058ff "docs: Phase 0.6 rail core discovery checkpoint (PART A)"
 - Checkpoint B: 400290fd "docs: Phase 0.6 architecture options checkpoint (PART B)"
 - Checkpoint C: 5c2a6a2c "docs: freeze Phase 1 rail core contracts (PART C/D)"
-- Final Checkpoint: <FINAL_SHA> "docs: complete Phase 0.6 rail core design freeze"
+- Final Checkpoint: 72a2687089e166f4c107611e3e4eb9d48bd95310 "docs: complete Phase 0.6 rail core design freeze"
 Each pushed to GitHub main; Local == origin/main == GitHub main verified after
 each push.
 
-Final HEAD: <FINAL_SHA>
-Git sync: Local == origin/main == GitHub main = <FINAL_SHA>
+Final HEAD: 72a2687089e166f4c107611e3e4eb9d48bd95310
+Git sync: Local == origin/main == GitHub main = 72a2687089e166f4c107611e3e4eb9d48bd95310
 
 ====================================================================
 dirty v1 final preservation
