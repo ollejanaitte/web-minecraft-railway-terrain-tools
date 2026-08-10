@@ -1,15 +1,14 @@
 # Railway System v2 Golden Baseline
 
 **Status: CONFIRMED** (Phase 0.3 STEP A/D)
-Golden Baseline SHA: `88493175` (Phase 0.1 final) — the validation was
-re-executed on this HEAD under the Phase 0.2 stabilized environment; the
-Phase 0.2 product fixes (tolerant-assert, ensureReady recovery, AutoValidate
-gate) are uncommitted work-in-progress that this baseline covers.
+Golden Baseline SHA: `7cf0e9fd` (current main after Phase 0.2/0.3 commits:
+runtime stabilization fixes + launchers + regression docs). The validation was
+executed under the Phase 0.2 stabilized environment (Hardware GPU +
+tolerant-assert + world-name gate) and that exact state is now committed.
 
-> NOTE: the regression was executed with the Phase 0.2 stabilized HTML
-> (Hardware GPU + tolerant-assert + world-name gate) on top of HEAD
-> `88493175`. The final committed Golden Baseline SHA is recorded after the
-> Phase 0.2/0.3 commits are pushed; run IDs link evidence to SHAs.
+> NOTE: run evidence for the Formal Regression was captured under HEAD
+> `88493175` with the Phase 0.2 fixes applied; the fixes are committed in
+> `7f976d68`, so `7cf0e9fd` represents the same validated build.
 
 ## Baseline facts (executed, not assumed)
 - Harness: PASSED 30 / FAILED 0 / SKIPPED 3.

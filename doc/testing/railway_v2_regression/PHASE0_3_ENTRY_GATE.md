@@ -1,7 +1,9 @@
 # Phase 0.3 Entry Gate (Phase 1 readiness)
 
-**Verdict: PHASE 1 ENTRY GATE = OPEN** (confirmed by Formal Regression on the
-Phase 0.2/0.3 baseline).
+**Verdict: PHASE 1 ENTRY GATE = OPEN**
+Confirmed by Formal Regression on the Phase 0.2/0.3 baseline.
+Baseline SHA: `7cf0e9fd` (committed after Phase 0.2/0.3; equals the validated
+build of `88493175` + runtime stabilization fixes `7f976d68`).
 
 ## Criteria
 | # | Criterion | Status |
