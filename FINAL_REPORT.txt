@@ -996,3 +996,10 @@ ZIP検証済みの旧検証用Chrome profile元フォルダーを削除（約9.4
 保持: runtime/profiles/game（通常プレイ用・稼働中）, backup/ZIP 7個,
 検証ログ・screenshots・trackedファイル。
 git status 約514件 -> 18件。保全対象MD5変更なし。
+
+STEP 807 - CP-07 README導線整理
+--------------------------------
+README.md冒頭に「How to Start / 起動方法（通常プレイ）」セクションを追加。
+- START_WEB_MINECRAFT.sh が唯一の起動入口
+- mainが正本 / backup/は旧検証データZIP保存 / validation scriptは開発用
+- runtime/logs/ ログ確認方法

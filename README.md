@@ -8,6 +8,25 @@
 
 ---
 
+## How to Start / 起動方法（通常プレイ）
+
+**Ubuntuで通常プレイする場合:**
+1. リポジトリ直下の **`START_WEB_MINECRAFT.sh`** をダブルクリック（またはターミナルで `./START_WEB_MINECRAFT.sh`）してください。
+2. クライアント未ビルド・古い場合は自動でビルドされます（初回のみ時間がかかります）。
+3. Chromeが通常プレイ専用プロファイル（`runtime/profiles/game`）で起動し、ゲーム画面まで自動で到達します。
+
+- **唯一の起動入口は `START_WEB_MINECRAFT.sh` です。** デスクトップの「Web Minecraft (Railsys)」アイコンからも起動できます。
+- 停止するには、ターミナルで `./START_WEB_MINECRAFT.sh stop` を実行してください。
+- セーブデータ（ワールド）は `runtime/profiles/game` 内に保存され、再起動後も引き継がれます。
+
+### 注意
+- **`main` ブランチが正本です。** ローカルでもGitHubでも `main` を使用してください。
+- 旧検証用の `run-validation.sh` / `run-*.sh`（`doc/testing/` 配下）は開発・検証用であり、通常プレイには必要ありません。
+- 旧検証データは `backup/` 内にZIP保存されています（必要時のみ参照）。
+- 問題発生時の基本確認: `./START_WEB_MINECRAFT.sh` 実行時のログは `runtime/logs/` に出力されます。
+
+---
+
 ## Overview / 概要
 
 This project builds on the [EaglercraftX 1.8](https://github.com/Eaglercraft-TeaVM-Fork) base and adds two major feature sets:
