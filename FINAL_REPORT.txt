@@ -983,3 +983,16 @@ doc/doc（古い重複stray）はZIP検証後削除。
 大型Chrome profileの元フォルダー削除はユーザー判断待ちで保留。
 
 END CP-05 / CP-06
+
+STEP 806 - CP-05/06 ユーザー判断: 旧profile削除
+------------------------------------------------
+ユーザー判断（Discord回答）: 「削除してディスク解放」。
+ZIP検証済みの旧検証用Chrome profile元フォルダーを削除（約9.4GB解放）:
+  doc/testing/phase0_1/chrome-profile-* (9 dirs)
+  doc/testing/phase0_2/profiles
+  doc/testing/phase0_5/profiles
+  doc/testing/phase1_1/profiles
+  doc/testing/phase1_2/profiles
+保持: runtime/profiles/game（通常プレイ用・稼働中）, backup/ZIP 7個,
+検証ログ・screenshots・trackedファイル。
+git status 約514件 -> 18件。保全対象MD5変更なし。
