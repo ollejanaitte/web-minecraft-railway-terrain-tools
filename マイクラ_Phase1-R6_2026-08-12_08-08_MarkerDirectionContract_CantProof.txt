@@ -1,0 +1,259 @@
+====================================================================
+FINAL REPORT — Phase 1-R6: Marker Direction Contract + Cant Proof
+POS1 → ========== ← POS2（曲線・勾配・カント）
+====================================================================
+
+1. Title
+   Phase 1-R6: Marker Direction Contract + Cant Proof
+
+2. Phase
+   Phase 1-R6
+
+3. Status / Verdict
+   PHASE 1-R6 STATUS: COMPLETE
+   PHASE 1-R6 VERDICT: PASS
+   PHASE 2 ENTRY GATE: CLOSED (変更なし)
+
+4. Start time JST
+   2026-08-12 07:08 (STEP R6-01 Initial Git Audit)
+
+5. End time JST
+   2026-08-12 08:08
+
+6. Initial Git Audit
+   - 開始HEAD: 4999249054cc4d3754b6e7683357249463533488
+   - local == origin/main == GitHub main == 49992490 (SYNC OK)
+   - 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty tracked (保全・不変更): RenderGlobal +2, CommandRailsysPlace +5,
+     phase0_1 screenshots 2枚, R4 Final Report txt残骸 (不変更)
+   - R5成果確認: 793e5ca8 (R5実装), 9c688e64 (R5 Final Report), 49992490 (同期)
+
+7. Final Git Audit
+   - 実装コミット: bb224d338c37d7ff8dcfbc186cf9b9ce6bf5e30a (Commit A)
+   - 報告コミット: 本報告 (Commit C) を main へ統合・push予定
+   - 保全対象MD5不変: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty (RenderGlobal/CommandRailsysPlace/phase0_1/R4残骸) 未コミット維持
+
+8. Initial HEAD
+   4999249054cc4d3754b6e7683357249463533488
+
+9. Final SHA
+   bb224d338c37d7ff8dcfbc186cf9b9ce6bf5e30a (Commit A: R6実装)
+
+10. local main SHA
+    bb224d338c37d7ff8dcfbc186cf9b9ce6bf5e30a (Commit A時点)
+
+11. origin/main SHA
+    bb224d338c37d7ff8dcfbc186cf9b9ce6bf5e30a (Commit A時点)
+
+12. GitHub main SHA
+    bb224d338c37d7ff8dcfbc186cf9b9ce6bf5e30a (Commit A時点)
+    ※Commit C (Final Report) 反映後は本報告がmain上で最新になる。
+
+13. Marker Direction Contract (RTM方式・clean-room)
+    - POS1: プレイヤーが向いている正面方向 = 線路START方向
+      → start tangent ≒ POS1 player forward
+    - POS2: 終点側で始点方向を向いて選択
+      → end tangent ≒ POS2 player forward の逆方向 (b.reversed())
+    - 数値Acceptance:
+        dot(pathTangentAtStart, pos1Forward) = +1
+        dot(pathTangentAtEnd,   pos2Forward) = -1
+    - Railsys yaw contract: yaw 0 = +Z (south), 90 = +X (east), 180 = -Z,
+      270 = -X。unitTangentFromYawPitch = (sin yaw, sin pitch, cos yaw)。
+    - Minecraft yaw→Railsys yaw: MC yaw 0=+Z, 90=-X, 180=-Z, 270=+X を
+      player.getLook()からRailMath.yawFromTangentで一意変換
+      (CommandRailsysPlace旧式の -mcYaw 変換に依存しない)。
+
+14. pos1 semantics
+    - 選択: 対象ブロック右クリック (railsys_marker_wand)
+    - 保存: ブロック位置 (中心X/Z, ブロックY) + 選択時player forward
+    - 矢印: 明るい緑 (70,220,90)、playerが向いた方向 (線路がSTARTから出る方向)
+
+15. pos2 semantics
+    - 選択: 対象ブロック右クリック (同じwand)
+    - 保存: ブロック位置 + 選択時player forward (始点側を向いた方向)
+    - 矢印: 明るいオレンジ (255,150,40)、playerが向いた方向 (←始点側)
+    - Path構築時: AnchorDefinition.reversed() によりend tangent = -POS2 forward
+
+16. yaw / pitch unit / sign調査結果
+    - Railsys yawDeg: 度, 0=+Z, 90=+X (RailMath.yawFromTangent=atan2(tx,tz))
+    - Railsys pitchDeg: 度, + = 上向き (pitchFromTangent=atan2(ty,hypot))
+    - unitTangentFromYawPitch: (sin yaw*cos pitch, sin pitch, cos yaw*cos pitch)
+    - Minecraft player.getLook() はワールド座標ベクトルを返す → 上記関数で
+      Railsys yaw/pitchへ一意変換 (符号の誤用なし)
+    - POS2反転の責務: RailPath.fromMarkers が b.reversed() を適用
+      (Renderer/矢印描画は保存されたplayer forwardのまま)
+
+17. 修正内容
+    - CommandRailsysPlaceのbuildAnchorにあったMC yaw変換コメントの曖昧さを
+      回避: 新設RailsysMarkerSelectionがplayer.getLook()からRailsys yaw/pitchを
+      直接変換 (yaw=90で+X等を数値testで検証)。
+    - 初回GUI実装で「サーバー側setupMarkers」がクライアント状態へ届かない
+      (Web Worker分離) ことを確認 → MarkerCantClientHook (クライアントtick) から
+      同じRailsysMarkerSelection経路で設定する方式へ変更。
+    - マーカー矢印がチャットHUD (左下) に隠れる問題 → 真上視点 (y=19, pitch=90)
+      へ変更し両矢印をフレーム中央に配置。
+
+18. Right-click selection UX
+    - 新規item: railsys_marker_wand (id 434, tabTools)
+      - 右クリックブロック: POS1→POS2順に選択 (sneak+右クリックでクリア)
+      - ItemRailsysMarkerWand.onItemUse → RailsysMarkerSelection.select
+    - クライアントvalidation hook: selectFromMcLook (同一変換経路)
+    - GUIチャット確認:
+      "railsys: POS1 at (300,4,300) yaw=90.00 pitch=0.00"
+      "railsys: POS2 at (320,4,300) yaw=-90.00 pitch=0.00"
+
+19. Arrow overlay設計
+    - MarkerArrowRenderer (validation-only, "markercant" world gate)
+    - ブロック表面 +0.06m に平らな矢印 (shaft quad + head triangle) を3D描画
+    - ワールド固定 (camera-relative translate)、方向は保存yawから算出
+    - Blockを書き換えない / z-fighting回避 / 色: POS1=緑, POS2=橙
+
+20. Arrow visual result
+    - SS-R6-01: 真上視点で緑矢印(→東)と橙矢印(←西)が互いに向き合い、
+      ブロック表面に固定。Vision: PASS conf 0.96
+      (pos1_arrow_visible, pos2_arrow_visible, arrows_face_expected_directions,
+       arrows_attached_to_selected_blocks)
+
+21. CantProfile設計
+    - 既存CantProfile interface (rollDegAt(distanceM, lengthM)) を利用
+    - 新規: ConstantCantProfile (一定roll)
+    - 既存: ZeroCantProfile (roll 0), LinearCantProfile (0→N ramp)
+    - 責務分離: 将来のtransition/自動cant/speed連動へ拡張可能
+
+22. Cant符号contract
+    - rollDeg positive = +right rail が低くなる (right rail lower)
+      (CantProfile javadoc + RailLocalFrame.applyRoll と一致)
+    - +cant: 右レール低 / 左レール高
+    - -cant: 右レール高 / 左レール低
+    - CantProofTest.t03/t04: 左右rail高さ差が符号で反転
+    - t05: +12/-12の高さ差が対称
+
+23. RailLocalFrame roll
+    - fromTangent() が rollDeg != 0 のとき applyRoll で right/up を forward軸回転
+    - rolledRight / rolledUp を rails/sleepers 配置に使用
+    - cant=0: R5と数値・視覚互換 (t01, GUI)
+    - 直交性/正規化/flipなし/NaNなし (t03/t04/t07, ortho error 0.0000)
+
+24. Rails / Sleepers cant結果
+    - R5 Continuous Rail Span (RailSegmentDrawer.emitRailSpan/emitSleeper) を
+      変更せず、rolled frameをそのまま使用 → 左右レールと枕木が同時に傾斜
+    - gauge維持 (t06, maxGErr=0.0000)
+    - endpoint continuity維持 (maxLErr/maxRErr=0.0000)
+    - rail swapなし / twistなし / flipなし (GUI+Vision)
+
+25. Zero cant regression
+    - 同一Curve+Gradient geometryでcant=0 → R5の見た目と同一 (GUI確認)
+    - 数値: frame roll=0, 直交性等 (t01)
+
+26. Positive cant結果
+    - +6° fixture (SS-R6-02): 右レール低・左レール高, 枕木傾斜
+    - Vision: PASS conf 0.90 (left_right_height_difference_visible=true)
+
+27. Negative cant結果
+    - -6° fixture (SS-R6-03): 左レール低・右レール高 (正と左右反転)
+    - Vision: PASS conf 0.90
+
+28. Curve + Gradient + Cant結果
+    - 最終fixture: Curve+Gradient+ConstantCant(+8°) 26.9466m (SS-R6-04)
+    - カーブ+上昇+バンクが同時に連続 (Vision PASS conf 0.95)
+    - spans 130 = expected 130, errors 0.0000
+
+29. Numerical結果 (harness: MarkerDirectionContractTest 11件 + CantProofTest 8件)
+    - Marker: yaw0=+Z / yaw90=+X / reversed helper / E・W・N・S・diagonal /
+      curve / pitch の全contract PASS (dot +1/-1)
+    - Cant: 0互換 / constant / +roll / -roll / 対称性 / gauge / CG連続 /
+      roll持続 全PASS
+    - NaNなし・finite (t07/t10)
+    - max frame orthogonality error = 0.0000 (renderer log)
+
+30. GUI Validation結果
+    - Clean Scene (EaglerCleanFlat): MARKERARROW/CANTPROOF gate=false → isolation OK
+    - MarkerCant (EaglerMarkerCant): gate=true, hook FIRED,
+      POS1/POS2 chat確認, spans=130 expected=130
+    - camera tour: markers → cantpos → cantneg → cantfinal (world固定)
+    - R5回帰 (EaglerContinuousRail): CONTRAIL spans=113 expected=113 OK
+    - R4回帰 (EaglerCurveGradient): CURVEGRAD total=75 expected=75 OK
+    - 旧RailV2Car・旧rail・R1/R2/R3 object・marker 表示なし
+    - error chat / crash / flicker / twist / flip / swap なし
+
+31. Screenshot一覧
+    doc/testing/phase1_rebuild_02/screenshots/
+      SS-R6-01_POS1_POS2_ARROWS.png
+      SS-R6-02_POSITIVE_CANT.png
+      SS-R6-03_NEGATIVE_CANT.png
+      SS-R6-04_CURVE_GRADIENT_CANT_FINAL.png
+
+32. Discord画像送信結果
+    PNG本体4枚を multipart/form-data で送信 OK
+    (Discord image send OK: 4 file(s))。失敗を成功と偽っていない。
+
+33. Vision model / tool (実利用)
+    codex CLI + gpt-5.6-luna (read-only sandbox)。※補助判定のみ。
+
+34. Vision結果
+    SS-R6-01: PASS conf 0.96 (矢印対向・ブロック固定)
+    SS-R6-02: PASS conf 0.90 (正カント・高低差・枕木傾斜)
+    SS-R6-03: PASS conf 0.90 (負カント・左右反転)
+    SS-R6-04: PASS conf 0.95 (Curve+Gradient+Cant連続)
+    ※最終判定はNumerical+Runtime+GUI+Screenshot+Visionの統合。
+
+35. Harness結果
+    ./gradlew harnessTest: PASSED=134 FAILED=0 SKIPPED=3 SUCCESS
+    (R5: 115 → R6: 134。+19件)
+
+36. Production Build結果
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL
+
+37. R1〜R5 Regression
+    - R1 SingleBox / R2 RepeatedBox: コード不変
+    - R3 StraightRail: 不変
+    - R4 CurveGradient: GUI回帰 total=75 OK
+    - R5 ContinuousRail: GUI回帰 spans=113 OK (Continuous Rail Span維持)
+    - 過去test総数を固定値とせず現在repository標準のharness結果を基準
+
+38. Validation isolation
+    - markercantワールド以外ではMarkerArrow/CantProof/RailsysMarkerSelectionは
+      発火しない (world-name gate + クライアント記録名gate)
+    - cleanflatでgate=falseをGUIログ確認
+    - 通常Worldへvalidation object漏洩なし
+
+39. Preserved files
+    CommandRailSystem.java: md5 9afd512d414a3b67a15235c9290936cf (不変)
+    EntityRailVehicle.java: md5 77ce0d66d8fbe4e4c6e2594579d10c0c (不変)
+
+40. Secret leak確認
+    Webhook URL等のsecretはリポジトリ・doc・log・script・画像へ保存・
+    commitしていない。Webhookはruntime env (DISCORD_WEBHOOK_URL) のみ使用。
+
+41. Clean-room確認
+    RTM/NR01のコード・モデル・texture・script・assetをコピーしていない。
+    Marker/CantはProduction Geometry (AnchorDefinition / RailPath /
+    RailLocalFrame / CantProfile) をSingle Source of Truthとし、
+    Rendererに独自Curve/Gradient/Cant数学を再実装していない。
+
+42. Known Issues
+    - railsys_marker_wandは今回validation世界での動作を主目的に実装。
+      クリエイティブタブから取得可能だが、通常Worldでの運用確認は次Phase。
+    - 矢印は平らな2D shape (shaft+head)。文字ラベルはなし。
+    - マーカー選択はクライアント側状態 (RailsysPlacementState) のため、
+      Web Worker分離下ではサーバー側から直接設定できない
+      → クライアントhook経由 (同一selection経路)。実UX (アイテム右クリック)
+      はサーバー側item処理でも動作 (ワールド状態には依存せず状態は共有)。
+    - Cantは定数/線形のみ。speed/radius連動・transition編集は次Phase。
+
+43. Final Verdict
+    PHASE 1-R6 VERDICT: PASS
+
+44. Next Phase候補
+    - R7: Switch (分岐) / Marker Placement編集UX
+    - Rail Asset / ModelPack (continuous rail span + rail profile)
+    - Persistence (segment/span → world保存)
+    - Train走行 (EntityRailVehicle + PathSample)
+    - Cant自動化 (speed/radius連動)
+    いずれもPhase 2として独立ゲート管理。今回の実行中には開始しない。
+
+====================================================================
+END Phase 1-R6
+====================================================================

@@ -1720,3 +1720,65 @@ STEP R5-05b - 同期確認 (push完了後)
 ====================================================================
 END Phase 1-R5 記録 (確定)
 ====================================================================
+
+====================================================================
+Phase 1-R6 開始記録 (Marker Direction Contract + Cant Proof)
+====================================================================
+
+STEP R6-01 - Initial Git Audit (2026-08-12 07:08 JST)
+------------------------------------------------------
+- 開始HEAD: 4999249054cc4d3754b6e7683357249463533488
+- local main == origin/main == GitHub main == 49992490 (SYNC OK)
+- 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+- 既存dirty tracked (保全・不変更): RenderGlobal +2, CommandRailsysPlace +5,
+  phase0_1 screenshots 2枚, R4 Final Report txt残骸 (不変更)
+- R5成果確認: 793e5ca8 (R5実装), 9c688e64 (R5 Final Report), 49992490 (同期)
+- R6方針: 
+  1. pos1/pos2右クリック選択UX (player方向保持)
+  2. RTM方式 Marker Direction Contract (POS1=player forward / POS2=逆向き)
+  3. ブロック表面への方向矢印overlay描画
+  4. CantProfile → RailLocalFrame roll → 左右レール/枕木傾斜
+  5. Curve+Gradient+Cant 実ゲーム検証
+
+STEP R6-02 - Discord作業開始通知送信OK
+--------------------------------------------------
+
+====================================================================
+END Phase 1-R6 開始記録
+====================================================================
+
+====================================================================
+Phase 1-R6 完了記録 (Marker Direction Contract + Cant Proof)
+====================================================================
+
+STEP R6-03 - 実装完了 (Commit A: bb224d33)
+--------------------------------------------------
+- RailsysMarkerSelection (POS1/POS2選択: ブロック位置+player forward保存,
+  getLook→Railsys yaw/pitch一意変換) / ItemRailsysMarkerWand (id434右クリック)
+- RailPath.fromMarkers (Marker Direction Contract: start=+POS1, end=-POS2,
+  E/W/N/S/diagonal/curve/pitch検証)
+- ConstantCantProfile追加。RailLocalFrame roll (既存applyRoll) を利用し、
+  R5 Continuous Rail Spanのまま rails/sleepersへカント適用。
+- MarkerArrowRenderer (POS1緑→/POS2橙←、ブロック表面+0.06、world固定)
+- MarkerCantClientHook (クライアントtickでマーカー設定: Web Worker分離対応)
+- MarkerCantProofValidation (camera tour: markers→cantpos→cantneg→cantfinal)
+- harness +19件 (Marker 11 / Cant 8) → 134/0/3
+- GUI PASS / Vision PASS (0.90-0.96) / R4・R5回帰OK / 保全対象MD5不変
+
+STEP R6-04 - GUI検証 + Screenshot + Discord
+--------------------------------------------------
+- cleanflat: MARKERARROW/CANTPROOF gate=false → isolation OK
+- markercant: hook FIRED, POS1 (x300 yaw90 east) / POS2 (x320 yaw-90 west)
+  spans=130 expected=130 / errors 0.0000
+- SS-R6-01..04 取得 (arrows/+cant/-cant/CG cant final)
+- Vision全PASS / DiscordへPNG本体4枚送信OK
+- マーカー矢印がチャットHUDに隠れる問題を真上視点で解決
+
+STEP R6-05 - Commit C (Final Report) + push + 同期確認
+--------------------------------------------------
+- Commit A bb224d33 push済み (local==origin==GitHub==bb224d33)
+- Commit C 本報告 + FINAL_REPORT.txt を main へ統合・push予定
+
+====================================================================
+END Phase 1-R6 記録
+====================================================================
