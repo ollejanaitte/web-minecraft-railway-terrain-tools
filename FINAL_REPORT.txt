@@ -1150,3 +1150,18 @@ RailsysのGeometry/RailPathはSingle Source of Truth維持（再設計不要）�
 解析文書 doc/rtm-reference/RTM_RAIL_RENDERING_ANALYSIS.md 作成。
 
 END CP-01/02/03/04
+
+STEP 1003 - CP-05 RailLocalFrame契約確定（ユーザー判断: 今Phaseでコード修正）
+----------------------------------------------------------------------------
+RailLocalFrame up符号問題を実測で確定:
+- 現行コード: up = f×r = (0,-1,0)（下向き）。doc commentは up=r×f（上向き）。
+- 全方向でupが逆さ、rightは正しいことをFrameCheckで実測。
+- 既存テスト（T14直交性・P21連続性）はup絶対方向に依存しないことを確認。
+ユーザー判断「今Phaseでコード修正」に基づき修正:
+- fromTangent: up = right × forward（正しい上向き）に変更
+- applyRoll: 正のrollで+right側が下がる方向に符号修正
+- 検証: 東/南/西/北すべて up=(0,+1,0)。roll+5でright.y=-0.087（右が下）
+- harnessTest: PASSED=84 FAILED=0 SKIPPED=3（既存contract維持）
+- 契約文書 doc/content-system/RAILLOCALFRAME_CONTRACT.md 作成
+
+END CP-05

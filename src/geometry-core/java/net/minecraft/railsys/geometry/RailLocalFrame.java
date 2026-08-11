@@ -2,8 +2,11 @@ package net.minecraft.railsys.geometry;
 
 /**
  * Orthonormal rail local frame at distance s.
- * Handedness: right = forward × worldUp (flattened), then up = right × forward,
+ * Right-handed {forward, right, up}: right = normalize(forward × worldUp)
+ * (flattened, degeneracy -> forward × worldNorth), up = right × forward,
  * then optional roll about forward (cant). Phase 1.1 roll usually 0.
+ * With Minecraft Y-up world (+Y up), up points UP (positive Y) for a
+ * horizontal track. Positive rollDeg lowers the +right side.
  */
 public final class RailLocalFrame {
 
@@ -65,14 +68,12 @@ public final class RailLocalFrame {
 		ry /= rn;
 		rz /= rn;
 
-		// up = right × forward? Wait: right × forward for Y-up RHS:
-		// Actually standard: up = forward × right? 
-		// We want: forward, right, up right-handed: up = right × forward? 
-		// i×j=k: if f=forward, r=right, u=up: f×r should = u for RHS with f,r,u.
-		// f × r = u
-		double ux = f[1] * rz - f[2] * ry;
-		double uy = f[2] * rx - f[0] * rz;
-		double uz = f[0] * ry - f[1] * rx;
+		// up = right × forward gives the correct upward normal for a
+		// right-handed frame {forward, right, up} with Minecraft Y-up world.
+		// (Phase 1.2.3 fix: previous code used f × r which yields down.)
+		double ux = ry * f[2] - rz * f[1];
+		double uy = rz * f[0] - rx * f[2];
+		double uz = rx * f[1] - ry * f[0];
 		double un = RailMath.hypot3(ux, uy, uz);
 		if (un < RailMath.EPS) {
 			ux = 0.0D;
@@ -104,14 +105,14 @@ public final class RailLocalFrame {
 		double a = Math.toRadians(rollDeg);
 		double c = Math.cos(a);
 		double s = Math.sin(a);
-		// right' = right*cos + up*sin ; up' = -right*sin + up*cos
-		// (positive roll lowers +right side → rotate toward -up for right vector)
-		double nrx = rx * c + ux * s;
-		double nry = ry * c + uy * s;
-		double nrz = rz * c + uz * s;
-		double nux = -rx * s + ux * c;
-		double nuy = -ry * s + uy * c;
-		double nuz = -rz * s + uz * c;
+		// With correct up (right × forward), positive roll lowers the +right
+		// side: right' = right*cos - up*sin ; up' = right*sin + up*cos.
+		double nrx = rx * c - ux * s;
+		double nry = ry * c - uy * s;
+		double nrz = rz * c - uz * s;
+		double nux = rx * s + ux * c;
+		double nuy = ry * s + uy * c;
+		double nuz = rz * s + uz * c;
 		return new double[] { nrx, nry, nrz, nux, nuy, nuz };
 	}
 }
