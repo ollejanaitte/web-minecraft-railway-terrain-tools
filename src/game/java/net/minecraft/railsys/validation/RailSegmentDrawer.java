@@ -89,6 +89,103 @@ public final class RailSegmentDrawer {
 	}
 
 	/**
+	 * Emit ONLY the sleeper for the given PathSample (Phase 1-R5: sleepers stay
+	 * independent geometry; only the rails become continuous spans).
+	 */
+	public static void emitSleeper(WorldRenderer wr, PathSample ps) {
+		double fx = ps.frame.fx, fy = ps.frame.fy, fz = ps.frame.fz;
+		double rx = ps.frame.rx, ry = ps.frame.ry, rz = ps.frame.rz;
+		double ux = ps.frame.ux, uy = ps.frame.uy, uz = ps.frame.uz;
+		double ox = ps.sample.x, oy = ps.sample.y, oz = ps.sample.z;
+		prism(wr, ox, oy, oz, fx, fy, fz, rx, ry, rz, ux, uy, uz,
+				0.0D, 0.0D, SLEEPER_CENTER_UP_M,
+				SLEEPER_WIDTH_M * 0.5D, SLEEPER_LENGTH_M * 0.5D, SLEEPER_HEIGHT_M * 0.5D,
+				SLEEPER_R, SLEEPER_G, SLEEPER_B);
+	}
+
+	/**
+	 * Emit CONTINUOUS left+right rail spans between two adjacent PathSamples
+	 * (Phase 1-R5). Each rail is a single oriented prism whose endpoints are the
+	 * ACTUAL world-space rail points derived from the two samples' RailLocalFrame
+	 * (position + right*gauge/2 + up*RAIL_CENTER_UP_M). Because span i and span
+	 * i+1 both derive their shared endpoint from the SAME sample, the endpoints
+	 * coincide exactly (no gap, no overlap) — the key Continuous Rail contract.
+	 */
+	public static void emitRailSpan(WorldRenderer wr, PathSample a, PathSample b) {
+		double[] la = railPoint(a, -1.0D);
+		double[] lb = railPoint(b, -1.0D);
+		emitSpanBox(wr, a, b, la, lb, RAIL_R, RAIL_G, RAIL_B);
+		double[] ra = railPoint(a, +1.0D);
+		double[] rb = railPoint(b, +1.0D);
+		emitSpanBox(wr, a, b, ra, rb, RAIL_R, RAIL_G, RAIL_B);
+	}
+
+	/** World-space rail-centre point at a sample: pos + right*(side*gauge/2) + up*offset. */
+	private static double[] railPoint(PathSample ps, double side) {
+		double g = GAUGE_M * 0.5D * side;
+		return new double[] {
+				ps.sample.x + ps.frame.rx * g + ps.frame.ux * RAIL_CENTER_UP_M,
+				ps.sample.y + ps.frame.ry * g + ps.frame.uy * RAIL_CENTER_UP_M,
+				ps.sample.z + ps.frame.rz * g + ps.frame.uz * RAIL_CENTER_UP_M };
+	}
+
+	/** Oriented rail-span prism from world point p1 to p2, using the averaged frame up. */
+	private static void emitSpanBox(WorldRenderer wr, PathSample a, PathSample b,
+			double[] p1, double[] p2, int r, int g, int bl) {
+		double dx = p2[0] - p1[0];
+		double dy = p2[1] - p1[1];
+		double dz = p2[2] - p1[2];
+		double len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+		if (len < 1.0E-9D) {
+			return;
+		}
+		double fx = dx / len, fy = dy / len, fz = dz / len;
+
+		// up = averaged frame up (orthonormalised against forward)
+		double ux = a.frame.ux + b.frame.ux;
+		double uy = a.frame.uy + b.frame.uy;
+		double uz = a.frame.uz + b.frame.uz;
+		double ul = Math.sqrt(ux * ux + uy * uy + uz * uz);
+		if (ul < 1.0E-9D) {
+			ux = 0.0D;
+			uy = 1.0D;
+			uz = 0.0D;
+			ul = 1.0D;
+		}
+		ux /= ul;
+		uy /= ul;
+		uz /= ul;
+
+		// right = normalize(up x forward)
+		double rx = uy * fz - uz * fy;
+		double ry = uz * fx - ux * fz;
+		double rz = ux * fy - uy * fx;
+		double rl = Math.sqrt(rx * rx + ry * ry + rz * rz);
+		if (rl < 1.0E-9D) {
+			rx = 0.0D;
+			ry = 0.0D;
+			rz = 1.0D;
+			rl = 1.0D;
+		}
+		rx /= rl;
+		ry /= rl;
+		rz /= rl;
+
+		// re-orthogonalise up = forward x right
+		double nux = fy * rz - fz * ry;
+		double nuy = fz * rx - fx * rz;
+		double nuz = fx * ry - fy * rx;
+
+		double cx = (p1[0] + p2[0]) * 0.5D;
+		double cy = (p1[1] + p2[1]) * 0.5D;
+		double cz = (p1[2] + p2[2]) * 0.5D;
+		prism(wr, cx, cy, cz, fx, fy, fz, rx, ry, rz, nux, nuy, nuz,
+				0.0D, 0.0D, 0.0D,
+				len * 0.5D, RAIL_WIDTH_M * 0.5D, RAIL_HEIGHT_M * 0.5D,
+				r, g, bl);
+	}
+
+	/**
 	 * Emit a frame-aligned box (prism) centred at
 	 * origin + cF*forward + cR*right + cU*up with half extents
 	 * hF (forward) x hR (right) x hU (up).

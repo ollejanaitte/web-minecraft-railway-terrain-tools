@@ -10,6 +10,7 @@ import railv2test.harness.Test;
 import railv2test.tests.ArcLengthTest;
 import railv2test.tests.BezierMathTest;
 import railv2test.tests.ContinuityScaffoldTest;
+import railv2test.tests.ContinuousRailProofTest;
 import railv2test.tests.CurveGradientSegmentProofTest;
 import railv2test.tests.FormationScaffoldTest;
 import railv2test.tests.KnownFailureDocumentationTest;
@@ -44,6 +45,7 @@ public final class Runner {
             RepeatedSegmentProofTest.class,
             StraightRailSegmentProofTest.class,
             CurveGradientSegmentProofTest.class,
+            ContinuousRailProofTest.class,
     };
 
     private static final class Case {
