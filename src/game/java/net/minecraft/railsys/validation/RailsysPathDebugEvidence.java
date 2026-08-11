@@ -118,7 +118,9 @@ public final class RailsysPathDebugEvidence {
 			int y = MathHelper.floor_double(s.sample.y);
 			int zi = MathHelper.floor_double(s.sample.z);
 			safeSet(world, xi, y - 1, zi, Blocks.stone);
-			safeSet(world, xi, y, zi, Blocks.rail);
+			// Vanilla rail's onBlockAdded races Alfheim chunk relight on a fresh
+			// world and can crash the integrated server; use a passive block.
+			safeSet(world, xi, y, zi, Blocks.iron_block);
 			if (i % 2 == 0) {
 				safeSet(world, xi, y + 1, zi, Blocks.lapis_block);
 			}
@@ -140,7 +142,8 @@ public final class RailsysPathDebugEvidence {
 			int y = MathHelper.floor_double(s.sample.y);
 			int z = MathHelper.floor_double(s.sample.z);
 			safeSet(world, x, y - 1, z, Blocks.stone);
-			safeSet(world, x, y, z, Blocks.rail);
+			// See note above: avoid Blocks.rail in validation placement.
+			safeSet(world, x, y, z, Blocks.iron_block);
 			if (i % stepM == 0) {
 				int idx = MathHelper.clamp_int(s.entryIndex, 0, pieceMarkers.length - 1);
 				safeSet(world, x, y + 1, z, pieceMarkers[idx]);

@@ -1656,26 +1656,31 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		double camZ = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * (double) partialTicks;
 		java.util.List<net.minecraft.railsys.path.RailPath> paths = net.minecraft.railsys.render.RailsysRenderManager
 				.getRenderPaths();
-		if (paths.isEmpty()) {
-			return;
-		}
-		GlStateManager.disableTexture2D();
-		GlStateManager.disableLighting();
-		net.minecraft.railsys.render.RailAssetDefinition asset = net.minecraft.railsys.render.RailsysRenderManager
-				.getActiveAsset();
-		for (net.minecraft.railsys.path.RailPath p : paths) {
-			if (p != null) {
-				net.minecraft.railsys.render.RailRenderer.renderPath(asset, p, camX, camY, camZ, 0.0D);
-			}
-		}
-		// Placement preview (distinct semi-transparent colour, production asset).
+
+		// Placement preview must render even when no production path exists yet.
 		net.minecraft.railsys.placement.RailsysPlacementState st = net.minecraft.railsys.placement.RailsysPlacementState
 				.getInstance();
-		if (st != null && st.hasPreview()) {
+		boolean hasPreview = st != null && st.hasPreview();
+		if (paths.isEmpty() && !hasPreview) {
+			return;
+		}
+
+		GlStateManager.disableTexture2D();
+		GlStateManager.disableLighting();
+		if (hasPreview) {
 			GlStateManager.enableBlend();
 			GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 			net.minecraft.railsys.render.RailRenderer.renderPreview(st.getPreviewPath(), camX, camY, camZ);
 			GlStateManager.disableBlend();
+		}
+		if (!paths.isEmpty()) {
+			net.minecraft.railsys.render.RailAssetDefinition asset = net.minecraft.railsys.render.RailsysRenderManager
+					.getActiveAsset();
+			for (net.minecraft.railsys.path.RailPath p : paths) {
+				if (p != null) {
+					net.minecraft.railsys.render.RailRenderer.renderPath(asset, p, camX, camY, camZ, 0.0D);
+				}
+			}
 		}
 		GlStateManager.enableLighting();
 		GlStateManager.enableTexture2D();
