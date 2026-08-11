@@ -58,10 +58,10 @@ worktree    : main (repo root) only
 stash       : (empty)
 local branch: main only
 remote branch: origin/main only (origin/master は削除)
-HEAD        : (Final SHA 参照)
-local main  : (Final SHA 参照)
-origin/main : (Final SHA 参照)
-GitHub main : (Final SHA 参照)
+HEAD        : 49c67841
+local main  : 49c67841
+origin/main : 49c67841
+GitHub main : 49c67841
 SYNC        : LOCAL == origin/main == GitHub main (SYNC OK)
 
 untracked visible: 約18件（phase0_2 screenshots / FINAL_REPORT.md / 保存対象の
@@ -71,11 +71,11 @@ untracked visible: 約18件（phase0_2 screenshots / FINAL_REPORT.md / 保存対
 8. Initial HEAD / 9. Final SHA
 ====================================================================
 Initial HEAD : 9371f7a4
-Final SHA    : (下記 commit 反映後の最終 SHA)
+Final SHA    : 49c67841
 
-10. local main SHA  : Final SHA（push 後確認）
-11. origin/main SHA : Final SHA（push 後確認）
-12. GitHub main SHA : Final SHA（ls-remote 後確認）
+10. local main SHA  : 49c67841（push 後確認）
+11. origin/main SHA : 49c67841（push 後確認）
+12. GitHub main SHA : 49c67841（ls-remote 後確認）
 
 ====================================================================
 13. branch整理結果 / 14. remote branch整理結果
