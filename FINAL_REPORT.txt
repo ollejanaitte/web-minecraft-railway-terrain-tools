@@ -1003,3 +1003,10 @@ README.md冒頭に「How to Start / 起動方法（通常プレイ）」セク�
 - START_WEB_MINECRAFT.sh が唯一の起動入口
 - mainが正本 / backup/は旧検証データZIP保存 / validation scriptは開発用
 - runtime/logs/ ログ確認方法
+
+STEP 808 - CP-08 Phase 1.2 Regression確認
+------------------------------------------
+harnessTest: PASSED=84 FAILED=0 SKIPPED=3 SUCCESS（Phase 1.2正式結果と一致）
+makeMainOfflineDownload: BUILD SUCCESSFUL（UP-TO-DATE）
+HTML成果物は最新ソースより新しい（プレイ中クライアントは最新Production実装）。
+保全対象MD5変更なし（9afd512d / 77ce0d66）。Phase 1.2 Production実装は無変更。

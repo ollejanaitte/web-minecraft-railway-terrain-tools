@@ -1,0 +1,18 @@
+> Task :target_teavm_javascript:compileMainEpk UP-TO-DATE
+> Task :target_teavm_javascript:compileMainLanguageEpk UP-TO-DATE
+> Task :compileJava UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar UP-TO-DATE
+> Task :target_teavm_javascript:compileJava UP-TO-DATE
+> Task :target_teavm_javascript:processResources UP-TO-DATE
+> Task :target_teavm_javascript:classes UP-TO-DATE
+> Task :target_teavm_javascript:compileTeavmJava NO-SOURCE
+> Task :target_teavm_javascript:processTeavmResources NO-SOURCE
+> Task :target_teavm_javascript:teavmClasses UP-TO-DATE
+> Task :target_teavm_javascript:generateJavaScript UP-TO-DATE
+> Task :target_teavm_javascript:assembleMainComponents UP-TO-DATE
+> Task :target_teavm_javascript:makeMainOfflineDownload UP-TO-DATE
+
+BUILD SUCCESSFUL in 1s
+8 actionable tasks: 8 up-to-date
