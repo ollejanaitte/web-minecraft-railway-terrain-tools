@@ -1,0 +1,240 @@
+====================================================================
+FINAL REPORT — Phase 1-R5: Continuous Rail Quality Proof
+「短い直線パーツの列」から「RailPathに沿って連続する3Dレール」へ
+====================================================================
+
+1. Title
+   Phase 1-R5: Continuous Rail Quality Proof
+
+2. Phase
+   Phase 1-R5
+
+3. Status / Verdict
+   PHASE 1-R5 STATUS: COMPLETE
+   PHASE 1-R5 VERDICT: PASS
+   PHASE 2 ENTRY GATE: CLOSED (変更なし)
+
+4. Start time JST
+   2026-08-12 06:03 (STEP R5-01 Initial Git Audit)
+
+5. End time JST
+   2026-08-12 06:34
+
+6. Initial Git Audit
+   - 開始HEAD: 85586c095480dbbe7393dc32bf2d45ab2b8275b9
+   - local == origin/main == GitHub main == 85586c09 (SYNC OK)
+   - 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty tracked (保全・不変更): RenderGlobal +2, CommandRailsysPlace +5,
+     phase0_1 screenshots 2枚, R4 Final Report txt (R4残骸、不変更)
+   - R4成果確認: 5de75955 (R4実装), 7a83790a (R4 Final Report), 85586c09 (同期)
+
+7. Final Git Audit
+   - 実装コミット: 793e5ca84b0159b0b377f0183c7a4232dbcab068 (Commit A)
+   - 報告コミット: 本報告 (Commit C) を main へ統合・push予定
+   - 保全対象MD5不変: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty (RenderGlobal/CommandRailsysPlace/phase0_1/R4残骸) は未コミット維持
+
+8. Initial HEAD
+   85586c095480dbbe7393dc32bf2d45ab2b8275b9
+
+9. Final SHA
+   793e5ca84b0159b0b377f0183c7a4232dbcab068 (Commit A: R5実装)
+
+10. local main SHA
+    793e5ca84b0159b0b377f0183c7a4232dbcab068 (Commit A時点)
+
+11. origin/main SHA
+    793e5ca84b0159b0b377f0183c7a4232dbcab068 (Commit A時点)
+
+12. GitHub main SHA
+    793e5ca84b0159b0b377f0183c7a4232dbcab068 (Commit A時点)
+    ※Commit C (Final Report) 反映後は本報告がmain上で最新になる。
+
+13. R4からの変更点 (R5の本質)
+    R4: 各PathSample位置を中心に固定長1m straight prismを置く方式
+        → 曲率が大きいと隣接segment端部に小さなgap / overlapが発生し得る。
+    R5: 隣接PathSample A/Bの実際のworld-space rail endpoint (RailLocalFrameから
+        算出) を使って A→B を直接1本の3D rail spanで接続する方式
+        → 各span終点と次span始点が同じsample pointを共有するため、
+           gapもoverlapも原理的に発生しない。
+    実装: RailSegmentDrawer に emitRailSpan / emitSleeper を追加し、
+          R4のprism描画を再利用。ContinuousRailProofRenderer (validation-only,
+          "continuousrail" world gate) がspanを生成。
+
+14. Continuous Rail Span設計
+    - sampleA = RailPath.resolve(s0), sampleB = RailPath.resolve(s1)
+    - 各sampleのRailLocalFrameから左右レール中心点を算出:
+        left  = pos + right*(-gauge/2) + up*RAIL_CENTER_UP_M
+        right = pos + right*(+gauge/2) + up*RAIL_CENTER_UP_M
+    - leftA→leftB, rightA→rightB をそれぞれ1本のoriented prismで描画
+      (up = 平均frame up, right = up×forward, forward = (B-A)/|B-A|)
+    - Renderer内でCurve/Gradient数学は一切再実装していない
+      (position/frameはProduction RailPathから取得)。
+    - 枕木はR3/R4同様、実距離s[m]ごとの独立sleeper geometryを維持
+      (continuous mesh化しない)。
+
+15. Sample contract
+    PathSample.position (frame origin = path centerline)。
+    実距離s[m] sampling (RailPath.resolve(s))。normalized progress不使用。
+
+16. Span contract
+    span i = (sample[i], sample[i+1])。span i のend == span i+1 のstart
+    (同一sampleから同一式で算出されるため浮動小数点誤差0)。
+
+17. Rail dimensions / Gauge
+    - rail: 断面0.12m(幅) x 0.18m(高), 長さはspan長 (=隣接sample間距離)
+    - gauge: 1.0m (GAUGE_M, R4と同一)
+    - rail base y=4.12 / sleeper base y=4.02 (地面top y=4.0の直上, R4と同一)
+    - colors: rail (88,88,100) / sleeper (120,82,48) (R4と同一)
+
+18. Sampling interval
+    1.0 m (SPACING_M)。全fixtureで1.0m維持。
+    ※span方式では隣接sampleを直接つなぐため、1.0mでもvisible gap/overlapなし。
+      sampling短縮は不要だった (強カーブtightでも改善確認)。
+
+19. Sample count / Span count
+    straight (20.0m):    21 samples / 20 spans
+    curve    (26.8257m): 27 samples / 26 spans
+    gradient (20.2237m): 21 samples / 20 spans
+    cg       (26.9466m): 27 samples / 26 spans
+    tight    (21.7339m): 22 samples / 21 spans
+    total: 118 samples / 113 spans / expected 113 (一致)
+    GUIログ: "samples=118 spans=113 expected=113"
+
+20. Endpoint continuity (主要Acceptance Criteria)
+    - maxLeftEndpointError  = 0.0000 m
+    - maxRightEndpointError = 0.0000 m
+    - (span i end == span i+1 start が同一sample由来で完全一致)
+    - harness: ENDPOINT_TOL 1e-9 で全path PASS
+
+21. Gauge continuity
+    - maxGaugeError = 0.0000 m (全sampleで左右レール間1.0m)
+    - left/right swapなし (harness t05/t06, GUI+Vision確認)
+
+22. Straight結果
+    - 連続spanで一直線。endpoint/gauge error 0。
+    - R3/R4見た目から重大退行なし (SS-R5-01, Vision PASS conf 0.99
+      ※旧デバッグ物体ワールド内なし確認)
+
+23. Curve結果
+    - 緩カーブで左右レール連続。gap/overlapなし (SS-R5-02, Vision conf 0.94)
+
+24. Gradient結果
+    - 勾配に沿って連続上昇。階段状/埋没/浮遊なし (SS-R5-03, Vision conf 0.95)
+
+25. Curve + Gradient結果
+    - yaw+pitch同時変化で連続。twist/flip/swapなし (SS-R5-04, Vision conf 0.96
+      ※ワールド内旧デバッグ物体なし確認)
+
+26. Tight Curve結果 (R5の品質証明fixture)
+    - 強カーブ (90°turn, 21.7m, max yaw deltaはcurveより+1°以上大きく設定)
+      SS-R5-05: 連続・gap/overlapなし (Vision conf 0.95)
+    - R4 vs R5比較 (SS-R5-06): 左R5=滑らか連続 / 右R4=segment境界に
+      visible gap・角折れ。Vision: "隙間や不連続は右側にのみ見え、左側には
+      目立って見えません" (R4→R5でgap/overlapが明確に改善)
+
+27. R4 vs R5 visual quality
+    - R4方式: 固定1m prismのため、曲率大でsegment端が開く/重なる
+      (tight curveのlegacy比較で確認)
+    - R5方式: 実endpoint接続のため、tight curveでも連続
+    - 比較用legacy描画はvalidation-only (ContinuousRailProofRendererの
+      tightLegacyPath, "continuousrail" world gate内)。Productionへ残さない
+      (world-name gateで通常Worldに漏洩なし)。
+
+28. GUI Validation結果
+    - Clean Scene (EaglerCleanFlat): CONTRAIL gate=false → isolation OK
+    - ContinuousRail (EaglerContinuousRail): gate=true, hook FIRED,
+      samples=118 spans=113 expected=113
+    - camera tour: straight → curve → gradient → cg → tight → compare
+      (カメラ移動後も線路は世界位置固定)
+    - R3回帰 (EaglerStraightRail): STRAIGHTRAIL segments=21 expected=21 OK
+    - R4回帰 (EaglerCurveGradient): CURVEGRAD total=75 expected=75 OK
+    - 旧RailV2Car・旧rail・marker・R1 BOX・R2 cyan BOX 表示なし
+      (Visionワールド内判定: 全てfalse)
+    - error chat / crash / flicker / twist / flip / swap なし
+
+29. Screenshot一覧
+    doc/testing/phase1_rebuild_02/screenshots/
+      SS-R5-01_STRAIGHT_CONTINUOUS.png
+      SS-R5-02_CURVE_CONTINUOUS.png
+      SS-R5-03_GRADIENT_CONTINUOUS.png
+      SS-R5-04_CURVE_GRADIENT_CONTINUOUS.png
+      SS-R5-05_TIGHT_CURVE_FINAL.png
+      SS-R5-06_R4_VS_R5_COMPARISON.png
+
+30. Discord画像送信結果
+    PNG本体4枚 (SS-R5-01/02/05/06) を multipart/form-data で送信 OK
+    (Discord image send OK: 4 file(s))。失敗を成功と偽っていない。
+
+31. Vision model / tool (実利用)
+    codex CLI + gpt-5.6-luna。※Visionは補助観測。単独でPASS判定しない。
+
+32. Vision結果
+    SS-R5-01 straight: PASS conf 0.99 (ワールド内旧デバッグ物体なし)
+    SS-R5-02 curve:    PASS conf 0.94 (連続・gapなし)
+    SS-R5-03 gradient: PASS conf 0.95 (連続・階段状なし)
+    SS-R5-04 cg:       PASS conf 0.96 (連続・twistなし, ワールド内旧物体なし)
+    SS-R5-05 tight:    PASS conf 0.95 (連続・gap/overlapなし)
+    SS-R5-06 compare:  PASS conf 0.95 (R5連続 / R4にgap・角折れ → R5改善を確認)
+    ※初期のSUSPECT判定はチャットHUD・手持ちアイテム・空色グラデーションを
+      旧デバッグ物体と誤認したもの。pixel解析で旧物体(シアン/オレンジ/青赤/
+      鉄柱) 0px を確認し、ワールド内のみの再判定で全てPASS。
+
+33. Harness結果
+    ./gradlew harnessTest: PASSED=115 FAILED=0 SKIPPED=3 SUCCESS
+    (R4: 107 → R5: 115。ContinuousRailProofTest 8件追加)
+
+34. Production Build結果
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL
+
+35. Regression結果
+    - R1 SingleBox / R2 RepeatedBox: コード不変 (gate排他)
+    - R3 StraightRail: RailSegmentDrawer変更後もGUI回帰 segments=21 OK
+    - R4 CurveGradient: コード不変、GUI回帰 total=75 OK
+    - straightrail / curvegradient / continuousrail / cleanflat のgate分離確認
+    - 過去test総数を固定値とせず、現在repository標準のharness結果を基準
+
+36. Validation isolation
+    - continuousrailワールド以外ではContinuousRailProofRenderer/Validationは
+      発火しない (クライアント記録ワールド名gate + サーバー側worldName gate)
+    - Clean Scene (cleanflat) で gate=false をGUIログで確認
+    - legacy比較 (R4 style tight) も"continuousrail" gate内のみ
+    - validation-only fixtureは通常Worldへ漏洩なし
+
+37. Preserved files
+    CommandRailSystem.java: md5 9afd512d414a3b67a15235c9290936cf (不変)
+    EntityRailVehicle.java: md5 77ce0d66d8fbe4e4c6e2594579d10c0c (不変)
+
+38. Secret leak確認
+    Webhook URL等のsecretはリポジトリ・doc・log・script・画像へ保存・
+    commitしていない。Webhookはruntime env (DISCORD_WEBHOOK_URL) のみ使用。
+
+39. Clean-room確認
+    RTM/NR01のコード・モデル・texture・script・assetをコピーしていない。
+    Continuous Rail SpanはProduction Geometry / RailPath / RailLocalFrameを
+    Single Source of Truthとし、独自Curve/Gradient数学をRendererへ書いていない。
+
+40. Known Issues
+    - R4のRailSegmentDrawer.emit (固定prism) は残置 (R3/R4回帰用・将来の
+      asset pipeline用)。R5ではrailsにemitRailSpanを使用。
+    - spanの断面向きは前後のframe up平均から直交化 (厳密な"rail web垂直"でなく
+      平均frame up基準)。1m間隔で視覚差は無視できる (Visionで確認)。
+    - samplingは1.0m固定。より急なカーブや高品質化で0.5mへ短縮可能だが、
+      R5ではtight curveでも連続性が成立したため1.0mを維持。
+    - rail/sleeperはflat color単色。texture・本格rail profileは後工程。
+
+41. Final Verdict
+    PHASE 1-R5 VERDICT: PASS
+
+42. Next Phase候補
+    - R6: Cant本適用 (RailLocalFrame.rollDeg + CantProfile)
+    - Switch / Marker Placement
+    - 本格Rail Asset / ModelPack (continuous span + 断面profile)
+    - Persistence (segment/span → world保存)
+    - Train走行 (EntityRailVehicle + PathSample)
+    いずれもPhase 2として独立ゲート管理。今回の実行中には開始しない。
+
+====================================================================
+END Phase 1-R5
+====================================================================

@@ -1644,3 +1644,68 @@ STEP R4-05b - 同期確認 (push完了後)
 ====================================================================
 END Phase 1-R4 記録 (確定)
 ====================================================================
+
+====================================================================
+Phase 1-R5 開始記録 (Continuous Rail Quality Proof)
+====================================================================
+
+STEP R5-01 - Initial Git Audit (2026-08-12 06:03 JST)
+------------------------------------------------------
+- 開始HEAD: 85586c095480dbbe7393dc32bf2d45ab2b8275b9
+- local main == origin/main == GitHub main == 85586c09 (SYNC OK)
+- 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+- 既存dirty tracked (保全・不変更): RenderGlobal +2, CommandRailsysPlace +5,
+  phase0_1 screenshots 2枚。R4 Final Report txtのworking tree差分は
+  R4セッション残骸 (HEAD側がGitHub反映済み) のため触らず維持。
+- R4成果確認: 5de75955 (実装), 7a83790a (R4 Final Report), 85586c09 (同期)
+- R5方針: R4の固定1m straight prism (各PathSample中心配置) を、
+  隣接PathSample A/Bの実world-space endpoint (frameから算出) で
+  直接接続するcontinuous rail spanへ発展。RendererにCurve/Gradient数学を
+  追加せず、Production Geometry / RailPath / RailLocalFrameを
+  Single Source of Truthとして維持。endpoint連続性を主要Acceptance Criteriaに。
+  枕木は既存sleeper方式 (実距離間隔の独立geometry) を維持。
+
+STEP R5-02 - Discord作業開始通知送信OK (HTTP 204)
+--------------------------------------------------
+
+====================================================================
+END Phase 1-R5 開始記録
+====================================================================
+
+====================================================================
+Phase 1-R5 完了記録 (Continuous Rail Quality Proof)
+====================================================================
+
+STEP R5-03 - 実装完了 (Commit A: 793e5ca8)
+--------------------------------------------------
+- ContinuousRailProofRenderer 追加: 隣接PathSample A/Bの実world-space
+  endpoint (RailLocalFrame) で左右レールを直接接続 (emitRailSpan)。
+  fixture: straight 20.0m / curve 26.8257m / gradient 20.2237m /
+  cg 26.9466m / tight 21.7339m。legacy比較 (R4固定prism) を同worldに描画。
+- RailSegmentDrawer: emitRailSpan / emitSleeper 追加 (R4 prismを再利用)。
+- ContinuousRailProofValidation: camera tour (straight→curve→gradient→cg→
+  tight→compare→release)。
+- Hook: EntityRenderer / MinecraftServer / GuiCreateWorld flat gate追加。
+- ContinuousRailProofTest (harness 8件) 追加。
+- harness 115/0/3 / build SUCCESS / GUI PASS / Vision PASS
+  (tight 0.95, compare 0.95。R4方式のgap/角折れ vs R5連続を確認)
+- samples=118 spans=113 expected=113 / endpoint error 0.0000 / gauge 0.0000
+- R3回帰 (segments=21) / R4回帰 (total=75) OK。保全対象MD5不変。
+
+STEP R5-04 - GUI検証 + Screenshot + Discord
+--------------------------------------------------
+- cleanflat: CONTRAIL gate=false → isolation OK
+- continuousrail: hook FIRED counts 118/113/113
+- SS-R5-01..06 取得 (Straight/Curve/Gradient/CG/Tight/Compare)
+- Vision (codex GPT-5.6 Luna): 全PASS (0.94-0.99)
+- DiscordへPNG本体4枚送信OK
+- 旧デバッグ物体はワールド内0px (pixel解析)・Visionワールド内判定PASS
+
+STEP R5-05 - Commit C (Final Report) + push + 同期確認
+--------------------------------------------------
+- Commit A 793e5ca8 push済み (local==origin==GitHub==793e5ca8)
+- Commit C 本報告 + FINAL_REPORT.txt を main へ統合・push予定
+
+====================================================================
+END Phase 1-R5 記録
+====================================================================
