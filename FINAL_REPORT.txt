@@ -1417,7 +1417,17 @@ STEP 3006 - CP-R1-08 Discord送信 + USER_DECISION_REQUIRED
 -----------------------------------------------------------
 Discordへ Screenshot 4枚 (画像本体) 送信 OK。
 USER_DECISION_REQUIRED 送信済み（BOXを次Phaseの基礎として使ってよいか）。
-ユーザー承認待ち。承認前は Phase 1-R2 ENTRY GATE: CLOSED。
+commit 1db4f45f を push（local==origin/main==GitHub main確認）。
+Final Report 「マイクラ_Phase1-R1_2026-08-11_20-53_Clean3DPrimitiveProof.txt」
+作成。commit 27628553 で push、GitHub main反映。
+
+STEP 3007 - ユーザー確認 + PASS確定
+--------------------------------------
+ユーザー: 「おけ。物体確認しました」（2026-08-11 JST）
+→ Discord添付のScreenshotで独立3D BOXを視覚確認された。
+→ PHASE 1-R1 VERDICT: PASS
+→ PHASE 1-R2 ENTRY GATE: OPEN
+→ PHASE 2 ENTRY GATE: CLOSED (変更なし)
 
 変更ファイル (uncommitted):
   src/game/java/net/minecraft/client/Minecraft.java

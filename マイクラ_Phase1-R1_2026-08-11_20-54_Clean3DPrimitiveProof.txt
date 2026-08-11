@@ -10,10 +10,9 @@ FINAL REPORT — Phase 1-R1: Clean 3D Primitive Proof
    Phase 1-R1 (Phase 1 Rebuild の最初のHuman-driven Visual Gate)
 
 3. Status / Verdict
-   PHASE 1-R1 STATUS: USER_DECISION_REQUIRED
-   (技術検証は完了。ユーザー本人の視覚確認・承認待ち)
-   PHASE 1-R1 VERDICT: (未確定 — ユーザー判断待ち)
-   PHASE 1-R2 ENTRY GATE: CLOSED
+   PHASE 1-R1 STATUS: COMPLETE
+   PHASE 1-R1 VERDICT: PASS (ユーザー承認済み 2026-08-11)
+   PHASE 1-R2 ENTRY GATE: OPEN
    PHASE 2 ENTRY GATE: CLOSED
 
 4. Start time JST
@@ -181,8 +180,11 @@ FINAL REPORT — Phase 1-R1: Clean 3D Primitive Proof
 
 35. Human Acceptance状態
     USER_DECISION_REQUIRED をDiscordへ送信済み（Screenshot 4枚添付）。
-    ユーザーの明示承認（このBOX描画方式を次Phaseの基礎として使ってよいか）
-    待ち。承認前は R1 VERDICT 未確定 / R2 gate CLOSED。
+    ユーザー「おけ。物体確認しました」（2026-08-11 20:5x JST）で
+    独立3D BOXの視覚確認を承認。
+    → PHASE 1-R1 VERDICT: PASS
+    → PHASE 1-R2 ENTRY GATE: OPEN
+    （Phase 2 ENTRY GATE は CLOSED のまま）
 
 36. 次Phase候補
     Phase 1-R2: Repeated Segment Proof
