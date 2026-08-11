@@ -1042,3 +1042,22 @@ OPENROUTER_API_KEY invalid (401); using opencode auth tokenrouter key.
 Audit doc doc/testing/phase1_2_2/INITIAL_AUDIT.md.
 
 END CP-01
+
+STEP 902 - CP-02/03/04 GUI Validation + Stage/Heartbeat/Timeout/Retry + Human Assist
+------------------------------------------------------------------------------------
+run-validation-workflow.sh 新規（GUI/headless切替・検証専用profile・RUN ID発行）
+validation_workflow.mjs 新規（stage/ heartbeat/ per-stage timeout/ bounded retry/
+  HUMAN_REQUIRED検出・Discord操作指示・検証専用profile cleanup）
+WORKFLOW_SPEC.md（RUN ID/ GUI切替/ stage 9種/ heartbeat 12s/ timeout/ retry仕様）
+GUIモード正式標準化。headlessはfallbackとして維持。
+検証profile = doc/testing/phase1_2_2/profiles/run-<RUNID>（runtime/profiles/game不使用）
+
+STEP 903 - CP-05/06 Discord Human Assist + Vision Observer
+-----------------------------------------------------------
+HUMAN_REQUIRED時: Discordへ日本語の具体的手順（画面名/クリック順/入力文字列/
+完了目印）を送信し、最大5分ポーリングでユーザー操作を待機。
+Vision Observer実装（vision_observer.mjs）:
+  VISION_MODEL=kimi      -> TokenRouter moonshotai/kimi-k3-free（直接API）
+  VISION_MODEL=codex-luna-> Codex CLI + gpt-5.6-luna（ChatGPTログイン）
+両モデルで実測成功（content warning画面を正しく分類、machine-readable JSON）。
+Visionは「目」のみ・単独PASS禁止。
