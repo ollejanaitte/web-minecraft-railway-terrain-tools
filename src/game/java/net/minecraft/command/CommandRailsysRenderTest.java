@@ -112,8 +112,17 @@ public class CommandRailsysRenderTest extends CommandBase {
 			int count = RailsysRenderManager.getRenderPaths().size();
 			double len = RailsysRenderManager.totalLength();
 			boolean on = RailsysRenderManager.isProductionRenderEnabled();
+			int segs = RailsysRenderManager.getLastSegmentCount();
+			double ms = RailsysRenderManager.getLastRenderMs();
+			logger.info("[RAILRENDER] STATUS paths=" + count + " length=" + len + " enabled=" + on
+					+ " asset=" + RailsysRenderManager.getActiveAssetId()
+					+ " segments=" + segs + " renderMs=" + String.format("%.2f", ms));
+			System.out.println("[RAILRENDER] STATUS paths=" + count + " length=" + len + " enabled=" + on
+					+ " asset=" + RailsysRenderManager.getActiveAssetId()
+					+ " segments=" + segs + " renderMs=" + String.format("%.2f", ms));
 			player.addChatMessage(new ChatComponentText("railrender: paths=" + count + " length=" + len
-					+ " enabled=" + on));
+					+ " enabled=" + on + " asset=" + RailsysRenderManager.getActiveAssetId()
+					+ " segments=" + segs + " renderMs=" + String.format("%.2f", ms)));
 		} else {
 			this.showHelp(sender);
 		}

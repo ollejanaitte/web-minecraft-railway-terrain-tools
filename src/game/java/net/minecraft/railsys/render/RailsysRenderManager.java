@@ -24,7 +24,31 @@ public final class RailsysRenderManager {
 	private static volatile boolean productionRenderEnabled = true;
 	private static volatile String activeAssetId = "railsys.straight_1435_wood";
 
+	// Performance telemetry (Phase 1.3D).
+	private static volatile long lastRenderNanos = 0L;
+	private static volatile int lastSegmentCount = 0;
+	private static volatile long renderCount = 0L;
+
 	private RailsysRenderManager() {
+	}
+
+	/** Called by the renderer after a frame's rail pass. */
+	public static void reportRender(long nanos, int segmentCount) {
+		lastRenderNanos = nanos;
+		lastSegmentCount = segmentCount;
+		renderCount++;
+	}
+
+	public static long getLastRenderNanos() {
+		return lastRenderNanos;
+	}
+
+	public static int getLastSegmentCount() {
+		return lastSegmentCount;
+	}
+
+	public static double getLastRenderMs() {
+		return lastRenderNanos / 1000000.0D;
 	}
 
 	/** Set the asset used for rendering (falls back if unknown). */

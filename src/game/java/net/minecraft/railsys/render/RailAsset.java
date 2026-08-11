@@ -60,29 +60,32 @@ public final class RailAsset {
 
 	/**
 	 * Draw one segment at the given frame using the asset definition.
-	 * The current matrix must already be translated to the sample world position
-	 * (camera-relative). Local space: +Z = forward, +X = right, +Y = up.
+	 * All boxes are emitted into a SINGLE Tessellator session (begin once,
+	 * draw once) to minimise GL calls for long paths.
 	 */
 	public static void drawSegment(RailAssetDefinition def, RailLocalFrame frame, double spacingM) {
 		applyFrame(frame);
 		double halfLen = spacingM * 0.5D;
 		double gaugeHalf = def.gaugeM * 0.5D;
 
+		Tessellator tessellator = Tessellator.getInstance();
+		WorldRenderer wr = tessellator.getWorldRenderer();
+		wr.begin(7, DefaultVertexFormats.POSITION_COLOR);
+
 		// Left rail
-		drawBox(-gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, -gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
+		box(wr, -gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, -gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
 				def.railR, def.railG, def.railB);
 		// Right rail
-		drawBox(gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
+		box(wr, gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
 				def.railR, def.railG, def.railB);
 
 		if (def.hasBase) {
-			drawBox(-BASE_HALF_WIDTH_M, -BASE_DEPTH_M, -halfLen, BASE_HALF_WIDTH_M, 0.0D, halfLen,
+			box(wr, -BASE_HALF_WIDTH_M, -BASE_DEPTH_M, -halfLen, BASE_HALF_WIDTH_M, 0.0D, halfLen,
 					def.baseR, def.baseG, def.baseB);
 		}
 		if (def.hasBallast) {
-			// ballast: wider, slightly higher base colour
 			double bw = BASE_HALF_WIDTH_M * 1.4D;
-			drawBox(-bw, -BASE_DEPTH_M - 0.04D, -halfLen, bw, -BASE_DEPTH_M, halfLen,
+			box(wr, -bw, -BASE_DEPTH_M - 0.04D, -halfLen, bw, -BASE_DEPTH_M, halfLen,
 					(int) (def.baseR * 0.8D), (int) (def.baseG * 0.8D), (int) (def.baseB * 0.8D));
 		}
 
@@ -90,10 +93,12 @@ public final class RailAsset {
 			double sleeperStep = def.sleeperSpacingM > 0.0D ? def.sleeperSpacingM : SLEEPER_SPACING_M;
 			double sw = def.sleeperWidthM > 0.0D ? def.sleeperWidthM : SLEEPER_WIDTH_M;
 			for (double d = -halfLen + 0.05D; d <= halfLen; d += sleeperStep) {
-				drawBox(-SLEEPER_HALF_LENGTH_M, -BASE_DEPTH_M - 0.01D, d - sw * 0.5D, SLEEPER_HALF_LENGTH_M,
+				box(wr, -SLEEPER_HALF_LENGTH_M, -BASE_DEPTH_M - 0.01D, d - sw * 0.5D, SLEEPER_HALF_LENGTH_M,
 						RAIL_HEAD_Y_M * 0.55D, d + sw * 0.5D, def.sleeperR, def.sleeperG, def.sleeperB);
 			}
 		}
+
+		tessellator.draw();
 	}
 
 	/** Compatibility: draw with the default/fallback asset. */
@@ -107,38 +112,24 @@ public final class RailAsset {
 	 * where columns are right, up, forward.
 	 */
 	private static void applyFrame(RailLocalFrame f) {
-		// Build rotation from orthonormal basis. We use glMultMatrix equivalent via
-		// the column vectors: columns = (right, up, forward).
 		float[] m = new float[] {
 				(float) f.rx, (float) f.ry, (float) f.rz, 0.0F,
 				(float) f.ux, (float) f.uy, (float) f.uz, 0.0F,
 				(float) f.fx, (float) f.fy, (float) f.fz, 0.0F,
 				0.0F, 0.0F, 0.0F, 1.0F,
 		};
-		// glMultMatrix expects row-major in the array but OpenGL reads column-major;
-		// Eaglercraft glMultMatrix takes a float[] in the same layout Minecraft uses.
 		GlStateManager.multMatrix(m);
 	}
 
-	/** Draw an axis-aligned box in local model space (right, up, forward axes). */
-	private static void drawBox(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, int r,
-			int g, int b) {
-		Tessellator tessellator = Tessellator.getInstance();
-		WorldRenderer wr = tessellator.getWorldRenderer();
-		wr.begin(7, DefaultVertexFormats.POSITION_COLOR);
-		// +Z face
-		face(wr, minX, minY, maxZ, maxX, maxY, maxZ, r, g, b);
-		// -Z face
-		face(wr, maxX, minY, minZ, minX, maxY, minZ, r, g, b);
-		// +X face
-		face(wr, maxX, minY, maxZ, maxX, maxY, minZ, r, g, b);
-		// -X face
-		face(wr, minX, minY, minZ, minX, maxY, maxZ, r, g, b);
-		// +Y face (top)
-		face(wr, minX, maxY, minZ, maxX, maxY, maxZ, r, g, b);
-		// -Y face (bottom)
-		face(wr, minX, minY, maxZ, maxX, minY, minZ, r, g, b);
-		tessellator.draw();
+	/** Emit a box's six faces into an active Tessellator session. */
+	private static void box(WorldRenderer wr, double minX, double minY, double minZ, double maxX, double maxY,
+			double maxZ, int r, int g, int b) {
+		face(wr, minX, minY, maxZ, maxX, maxY, maxZ, r, g, b);   // +Z
+		face(wr, maxX, minY, minZ, minX, maxY, minZ, r, g, b);   // -Z
+		face(wr, maxX, minY, maxZ, maxX, maxY, minZ, r, g, b);   // +X
+		face(wr, minX, minY, minZ, minX, maxY, maxZ, r, g, b);   // -X
+		face(wr, minX, maxY, minZ, maxX, maxY, maxZ, r, g, b);   // +Y
+		face(wr, minX, minY, maxZ, maxX, minY, minZ, r, g, b);   // -Y
 	}
 
 	private static void face(WorldRenderer wr, double x1, double y1, double z1, double x2, double y2, double z2, int r,

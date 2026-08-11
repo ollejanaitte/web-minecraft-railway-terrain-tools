@@ -53,13 +53,14 @@ public final class RailRenderer {
 		if (total <= 0.0D) {
 			return;
 		}
+		long t0 = System.nanoTime();
+		int segments = 0;
 
 		GlStateManager.disableTexture2D();
 		GlStateManager.disableLighting();
 		GlStateManager.disableCull();
 
 		double d = 0.0D;
-		// Include the exact end sample so the rail reaches the path end.
 		while (d <= total + 1.0E-9D) {
 			PathSample ps = path.resolve(Math.min(d, total));
 			RailLocalFrame f = ps.frame;
@@ -68,11 +69,14 @@ public final class RailRenderer {
 			RailAsset.drawSegment(def, f, step);
 			GlStateManager.popMatrix();
 			d += step;
+			segments++;
 		}
 
 		GlStateManager.enableCull();
 		GlStateManager.enableLighting();
 		GlStateManager.enableTexture2D();
+
+		RailsysRenderManager.reportRender(System.nanoTime() - t0, segments);
 	}
 
 	/**

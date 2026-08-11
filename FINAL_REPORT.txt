@@ -1267,3 +1267,19 @@ assets (ballast +, concrete +). Fallback for unknown id works (logs + renders
 fallback). harness 84/0/3, build SUCCESS.
 
 END Phase 1.3C
+
+STEP 1105 - Phase 1.3D Rendering Optimization
+------------------------------------------------
+Tessellator batching: RailAsset.drawSegment now emits ALL boxes (rails, base,
+ballast, sleepers) into ONE begin/draw session instead of one draw per box
+(cuts GL calls per segment by ~4-6x). Render telemetry: RailsysRenderManager
+records last segment count + renderMs; /railrender status prints them
+(System.out + chat). Long-rail validation (RUN 20260811_13d4/13d5):
+straight 100m/250m/500m render without crash; 500m overview shows continuous
+rail; status chat capture shows the railrender status line.
+Vision on 500m status capture: PASS (L/R rails + sleepers continuous,
+conf 0.98). Visual regression: no gap/break. batching keeps per-frame cost
+bounded; transform reuse via RailPath (resolve caches piece tables).
+harness 84/0/3, build SUCCESS.
+
+END Phase 1.3D
