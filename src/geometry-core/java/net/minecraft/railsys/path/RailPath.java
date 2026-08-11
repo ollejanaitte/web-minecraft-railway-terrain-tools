@@ -4,9 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.railsys.geometry.AnchorDefinition;
+import net.minecraft.railsys.geometry.HorizontalBezierGeometry;
 import net.minecraft.railsys.geometry.RailLocalFrame;
 import net.minecraft.railsys.geometry.RailMath;
 import net.minecraft.railsys.geometry.RailSample;
+import net.minecraft.railsys.geometry.StraightGeometry;
 
 /**
  * RailPath — an ordered traversal of RailPieces forming one continuous railway.
@@ -108,6 +111,35 @@ public final class RailPath {
 			list.add(p);
 		}
 		return of(list);
+	}
+
+	/**
+	 * Phase 1-R6 Marker Direction Contract factory.
+	 *
+	 * Builds a path from two marker anchors with the RTM-style direction
+	 * contract:
+	 *   - POS1: player faces the direction the rail leaves the START
+	 *     -> start tangent == POS1 player forward
+	 *   - POS2: player stands at the END facing BACK toward the start
+	 *     -> end tangent == -POS2 player forward (b.reversed())
+	 *
+	 * A straight path is used when the (reversed) end tangent aligns with the
+	 * start tangent (no turn); otherwise a Hermite→Bezier curve is built with
+	 * the reversed end anchor so the endpoint tangent contract holds exactly.
+	 */
+	public static RailPath fromMarkers(AnchorDefinition a, AnchorDefinition b, int pieceId) {
+		if (a == null || b == null) {
+			throw new IllegalArgumentException("fromMarkers requires both anchors");
+		}
+		AnchorDefinition bEnd = b.reversed();
+		double da = RailMath.wrapYaw(a.yawDeg - bEnd.yawDeg);
+		boolean curve = Math.abs(da) > 1.0D || Math.abs(a.pitchDeg - bEnd.pitchDeg) > 1.0D;
+		if (curve) {
+			HorizontalBezierGeometry g = HorizontalBezierGeometry.fromAnchors(a, bEnd, pieceId);
+			return of(new RailPiece(g));
+		}
+		StraightGeometry g = new StraightGeometry(a.x, a.y, a.z, b.x, b.y, b.z, pieceId);
+		return of(new RailPiece(g));
 	}
 
 	public static Builder builder() {

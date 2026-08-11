@@ -9,11 +9,13 @@ import railv2test.harness.Disabled;
 import railv2test.harness.Test;
 import railv2test.tests.ArcLengthTest;
 import railv2test.tests.BezierMathTest;
+import railv2test.tests.CantProofTest;
 import railv2test.tests.ContinuityScaffoldTest;
 import railv2test.tests.ContinuousRailProofTest;
 import railv2test.tests.CurveGradientSegmentProofTest;
 import railv2test.tests.FormationScaffoldTest;
 import railv2test.tests.KnownFailureDocumentationTest;
+import railv2test.tests.MarkerDirectionContractTest;
 import railv2test.tests.PersistenceBaselineTest;
 import railv2test.tests.ProductionGeometryTest;
 import railv2test.tests.RailPathTest;
@@ -46,6 +48,8 @@ public final class Runner {
             StraightRailSegmentProofTest.class,
             CurveGradientSegmentProofTest.class,
             ContinuousRailProofTest.class,
+            MarkerDirectionContractTest.class,
+            CantProofTest.class,
     };
 
     private static final class Case {

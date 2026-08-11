@@ -44,4 +44,24 @@ public final class AnchorDefinition {
 		out3[1] *= lengthH_m;
 		out3[2] *= lengthH_m;
 	}
+
+	/**
+	 * Phase 1-R6 Marker Direction Contract:
+	 * reversed tangent for an END (POS2) anchor. The user stands at the END and
+	 * faces back toward the START, so the rail's END tangent is the REVERSE of
+	 * the POS2 player forward. Returns a new anchor with yaw wrapped +180 and
+	 * pitch negated (unit tangent exactly negated). Same position/handle.
+	 */
+	public AnchorDefinition reversed() {
+		double ry = RailMath.wrapYaw(this.yawDeg + 180.0D);
+		double rp = -this.pitchDeg;
+		return new AnchorDefinition(this.x, this.y, this.z, ry, rp, this.lengthH_m, this.lengthV_m);
+	}
+
+	/** Unit forward vector (player-facing / tangent direction) as {x,y,z}. */
+	public double[] forwardUnit() {
+		double[] out = new double[3];
+		RailMath.unitTangentFromYawPitch(this.yawDeg, this.pitchDeg, out);
+		return out;
+	}
 }

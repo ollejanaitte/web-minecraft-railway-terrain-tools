@@ -222,6 +222,7 @@ public class Items {
 	public static Item banner;
 	public static Item wrench;
 	public static Item rail_wand;
+	public static Item railsys_marker_wand;
 
 	private static Item getRegisteredItem(String name) {
 		return (Item) Item.itemRegistry.getObject(new ResourceLocation(name));
@@ -420,6 +421,7 @@ public class Items {
 			banner = getRegisteredItem("banner");
 			wrench = getRegisteredItem("wrench");
 			rail_wand = getRegisteredItem("rail_wand");
+			railsys_marker_wand = getRegisteredItem("railsys_marker_wand");
 		}
 	}
 }

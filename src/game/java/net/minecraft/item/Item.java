@@ -1031,6 +1031,8 @@ public class Item {
 				(new ItemDoor(Blocks.dark_oak_door)).setUnlocalizedName("doorDarkOak"));
 		registerItem(432, (String) "wrench", (new ItemWrench()).setUnlocalizedName("wrench"));
 		registerItem(433, (String) "rail_wand", (new ItemRailWand()).setUnlocalizedName("railWand"));
+		registerItem(434, (String) "railsys_marker_wand",
+				(new ItemRailsysMarkerWand()).setUnlocalizedName("railsysMarkerWand"));
 		registerItem(2256, (String) "record_13", (new ItemRecord("13")).setUnlocalizedName("record"));
 		registerItem(2257, (String) "record_cat", (new ItemRecord("cat")).setUnlocalizedName("record"));
 		registerItem(2258, (String) "record_blocks", (new ItemRecord("blocks")).setUnlocalizedName("record"));
