@@ -71,11 +71,12 @@ untracked visible: 約18件（phase0_2 screenshots / FINAL_REPORT.md / 保存対
 8. Initial HEAD / 9. Final SHA
 ====================================================================
 Initial HEAD : 9371f7a4
-Final SHA    : 49c67841
+Final SHA    : 49c67841（本レポート内容 commit）
+最終同期 HEAD: 37a4dfa4（Final SHA 記録 commit 後の最終確認 HEAD）
 
-10. local main SHA  : 49c67841（push 後確認）
-11. origin/main SHA : 49c67841（push 後確認）
-12. GitHub main SHA : 49c67841（ls-remote 後確認）
+10. local main SHA  : 37a4dfa4（push 後確認）
+11. origin/main SHA : 37a4dfa4（push 後確認）
+12. GitHub main SHA : 37a4dfa4（ls-remote 後確認）
 
 ====================================================================
 13. branch整理結果 / 14. remote branch整理結果
