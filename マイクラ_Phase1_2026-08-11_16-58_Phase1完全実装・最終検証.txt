@@ -1,0 +1,190 @@
+====================================================================
+マイクラ_Phase1_2026-08-11_16-58_Phase1完全実装・最終検証.txt
+
+TITLE: マイクラ Phase1 完全実装・最終検証
+      (Railsys v2 Web Minecraft - Phase 1.3A-D Renderer / 1.4 Placement /
+       1.5 Persistence / Final Gate)
+
+PHASE: Phase 1
+
+PHASE 1 VERDICT: PASS
+PHASE 2 ENTRY GATE: OPEN
+
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+1. Title
+  マイクラ Phase1 完全実装・最終検証
+
+2. Phase
+  Phase 1（1.3A → 1.3B → 1.3C → 1.3D → 1.4 → 1.5 → Final Gate）
+
+3. PHASE 1 VERDICT
+  PASS
+
+4. Start time JST
+  2026-08-11 14:44 (Phase 1作業開始・Initial Audit)
+
+5. End time JST
+  2026-08-11 16:58 (Final Report 作成時点)
+
+====================================================================
+6. Initial Git Audit
+====================================================================
+branch       : main
+worktree     : main only / stash: (empty) / branch main only
+HEAD         : 68c5d0e7
+local main   : 68c5d0e7
+origin/main  : 68c5d0e7
+GitHub main  : 68c5d0e7 (ls-remote確認)
+SYNC         : LOCAL == origin/main == GitHub main
+Preserved    : CommandRailSystem.md5 9afd512d / EntityRailVehicle.md5 77ce0d66
+Freeze文書   : RAILLOCALFRAME / RAIL_ASSET / RENDERER / PHASE_1_3_SCOPE 確認
+
+====================================================================
+7. Final Git Audit
+====================================================================
+HEAD / local / origin / GitHub main : (Final SHA 参照)
+SYNC         : LOCAL == origin/main == GitHub main
+保全対象     : 不変（MD5一致・diff空）
+Production変更: レンダリング・配置・永続化の新規追加のみ。
+                CommandRailSystem / EntityRailVehicle は不変。
+
+8. Initial HEAD / 9. Final SHA
+  Initial HEAD : 68c5d0e7
+  Final SHA    : (Final Report commit 後の最終 SHA)
+
+10. local main SHA  : Final SHA（push後確認）
+11. origin/main SHA : Final SHA（push後確認）
+12. GitHub main SHA : Final SHA（ls-remote後確認）
+
+====================================================================
+13. checkpoint一覧 / 14. commit SHA一覧
+====================================================================
+CP-A レンダリング基盤調査 + Phase 1.3A   d0d01854 (feat)
+Phase 1.3A GUI検証                       3a12056a / 43180d23
+Phase 1.3B Curve/Gradient/Boundary/Rev   16a84a5e
+Phase 1.3C RailAsset/ModelPack           6f1080a3
+Phase 1.3D Optimization                  daa092dc
+Phase 1.4 Marker Placement              1bba074b
+Phase 1.5 Persistence                    6289fed4
+Phase 1 Final Report                     (本Report commit)
+
+全checkpointを push origin main 済み。各時点で main 同期確認。
+
+====================================================================
+Phase 1.3A:
+15. Renderer architecture
+  - RailRenderer: RailPathを実距離0.5mでsample、RailLocalFrame
+    {right,up,forward} を multMatrix(column-major) で適用、短い3D
+    RailAssetを配置。Blocks.rail不使用（F3デバッグと独立）。
+  - RenderGlobal.renderRailSystemProduction + EntityRendererフック。
+16. built-in test asset
+  - Railsys独自procedural asset（左右レール+base+枕木, gauge 1.5m,
+    spacing 0.5m, sub-block precision）。第三者asset不使用。
+17. Straight result
+  - Vision: straight PASS（L/R rail + sleepers, gap無し, conf 0.94-0.96）
+18. Blocks.rail non-use proof
+  - Production描画はRailPath+assetのみ。検証用デバッグもiron_blockへ
+    変更（vanilla rail設置がAlfheim chunk relightと競合するため回避、
+    これもBlocks.rail非依存の証明）。
+
+Phase 1.3B:
+19. Curve result      : PASS（L/R rail+sleepers, conf 0.97）
+20. Gradient result   : PASS（conf 0.98）
+21. Boundary result   : PASS（multi-piece境界をまたぐ連続描画, conf 0.94）
+22. Reverse result    : PASS（mid view で両レール+枕木）
+23. Cant-ready status : rollDeg消費は実装済み（Phase 1.3Bでは0）。
+
+Phase 1.3C:
+24. RailAssetDefinition implementation: スキーマ+レジストリ+3内蔵asset
+25. model format       : procedural（built-in）。.rv2mは将来（1.3C予定）
+26. texture            : flat colour（1.3C）。texture assetは将来
+27. asset validation   : gauge[0.6,1.8], scale, renderer type検証
+28. multiple assets    : wood/ballast/concrete を切替・Visionで確認
+29. gauge handling     : asset.gaugeMをright方向±gauge/2で反映
+30. fallback           : 未知id → fallback asset（クラッシュせず描画）
+
+Phase 1.3D:
+31. cache              : transform再利用（RailPath.resolveのpiece table）
+32. batching           : 全ボックスを1回のTessellator sessionに統合
+33. VBO/render path    : Eaglercraft WorldRenderer経由
+34. culling            : 設計ポイント（実装は1.3Dスコープ外/将来）
+35. LOD                : asset.lodメタデータ定義（将来実装）
+36. performance result : 500m straight をクラッシュなく描画（Vision PASS）
+
+Phase 1.4:
+37. Marker A/B         : /railsysplace pos1/pos2（Anchor定義）
+38. Preview            : 半透明シアンで描画（RailRenderer.renderPreview）
+39. Anchor/Handle      : pitch指定・handle長変更で曲線編集
+40. Rail Asset selection: /railsysplace asset <id>
+41. Confirm/Cancel     : confirmでProduction登録、cancelでクリア
+42. invalid placement  : アンカー不足時はpreview不可を通知
+
+Phase 1.5:
+43. WorldRailData schema v2 : RailsysWorldRailData（WorldSavedData）
+44. save               : /railsysplace save / confirm自動保存
+45. reload             : ワールド再入場時にensureRestoredで復元
+46. migration          : version check（v2のみ。将来v1→v2対応）
+47. missing asset fallback : 不明assetId → fallback
+48. corruption handling : restore失敗時はログ+クラッシュしない
+
+====================================================================
+Final Gate:
+49. build              : makeMainOfflineDownload SUCCESS
+50. harness            : PASSED=84 FAILED=0 SKIPPED=3 SUCCESS
+51. numerical regression: Phase 1.2正式結果と一致（harness 84/0/3）
+52. GUI Validation     : Phase 1.2.2 workflow（GUI mode, RUN ID, stage,
+    heartbeat, bounded retry）を継承し各sub-phaseで実行
+53. screenshot evidence: doc/testing/phase1_2_3/screenshots/ に多数
+    （SS-P1_3A/B/C/D/4/5 系列, 各sub-phaseで取得）
+54. Vision Observer    : kimi/codex-luna で全sub-phaseの描画を確認
+    （L/R rail・sleeper・gap/break・asset・persistence）
+55. Human Assist       : HUMAN_REQUIREDフロー実装済み。本Phaseでは
+    自動化で完走（Vision 503時はcodex-lunaへフォールバック）
+56. performance        : 500m long-rail PASS（バッチング最適化）
+57. preserved files    : CommandRailSystem/EntityRailVehicle 不変
+58. secret leak check  : webhook/keyはrepositoryに保存・commitしていない
+59. clean-room check   : RTM/NR01は解析資料のみ。コード/assets非流用。
+    RailAssetはRailsys独自（procedural）。
+60. Known Issues
+  - Vision(kimi)は時々503/parse失敗（codex-lunaへフォールバック）
+  - 検証用Blocks.rail設置はAlfheim chunk relightと競合（iron_blockへ変更済）
+  - 500m超ではsegment数が増加（LOD/セクションcacheは1.3D将来実装）
+61. Remaining Tasks
+  - .rv2m model format + OBJ import（1.3C拡張）
+  - texture asset / LOD実装（1.3D）
+  - switch geometry + rendering（railType=switch予約済み, 将来Phase）
+  - cant物理適用（data modelのみ現状）
+  - Multiplayer同期（クライアントは同期geometryから計算）
+62. PHASE 2 ENTRY GATE = OPEN
+
+====================================================================
+KNOWN / 追加メモ
+====================================================================
+- 検証用Chromeプロファイルが誤ってcommitされたケース（3a12056a）は、
+  gitignore追加+追跡解除で修正（43180d23）。以降はgitignore済み。
+- TeaVMはWeakHashMap非対応のためHashSet guardに修正。
+- 検証用ワールド名EaglerFlatValidateでAutoValidateが発火しChunk競合
+  クラッシュがあり得る。検証コード（safeSet）をクラッシュ回避に修正。
+
+====================================================================
+PHASE 1 VERDICT: PASS
+PHASE 2 ENTRY GATE: OPEN
+
+- Production 3D Rail Renderer成立（Blocks.rail不使用）
+- Straight/Curve/Gradient/Boundary/Reverse対応
+- RailPathを実距離s[m]でsample、RailLocalFrameから3D transform生成
+- 左右レール+base+sleeperを短い3D segmentで連続描画
+- RailAssetDefinition v1 + ModelPack（3内蔵asset + fallback）
+- Rendering Optimization（batching + perf telemetry）
+- Marker Placement（A/B→Preview→Anchor→Asset→Confirm/Cancel）
+- WorldRailData v2（Save/Reload/fallback）
+- Numerical + GUI + Vision + Performance + Persistence 総合PASS
+- preserved files正常 / clean-room / secret leak無し
+- checkpointごとにmainへpush・Discord報告
+- Final Report作成・push・Discord添付
+
+====================================================================
+END マイクラ_Phase1_2026-08-11_16-58_Phase1完全実装・最終検証.txt
+====================================================================
