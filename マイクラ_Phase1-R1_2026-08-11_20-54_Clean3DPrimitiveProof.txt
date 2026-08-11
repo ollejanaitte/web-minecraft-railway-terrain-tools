@@ -1,0 +1,251 @@
+====================================================================
+FINAL REPORT — Phase 1-R1: Clean 3D Primitive Proof
+真っ平らなWorldに独立3D BOXを1個だけ表示する
+====================================================================
+
+1. Title
+   Phase 1-R1: Clean 3D Primitive Proof
+
+2. Phase
+   Phase 1-R1 (Phase 1 Rebuild の最初のHuman-driven Visual Gate)
+
+3. Status / Verdict
+   PHASE 1-R1 STATUS: USER_DECISION_REQUIRED
+   (技術検証は完了。ユーザー本人の視覚確認・承認待ち)
+   PHASE 1-R1 VERDICT: (未確定 — ユーザー判断待ち)
+   PHASE 1-R2 ENTRY GATE: CLOSED
+   PHASE 2 ENTRY GATE: CLOSED
+
+4. Start time JST
+   2026-08-11 20:0x (Phase 1-R1 作業開始)
+
+5. End time JST
+   2026-08-11 20:54
+
+6. Initial Git Audit
+   開始HEAD: c6c77c2cbd31fd20c5ebaa98a53094639b788b01
+   local == origin/main == GitHub main (SYNC OK)
+   保全対象md5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   dirty tracked(保全): RenderGlobal +2, CommandRailsysPlace +5,
+     phase0_1 screenshots 2枚 (既存未コミット差分、触らない)
+
+7. Final Git Audit
+   最終HEAD: 1db4f45f6a65ebb4b6be280fea28349e56425d35
+   local == origin/main == GitHub main (SYNC OK)
+   保全対象md5不変: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+
+8. Initial HEAD
+   c6c77c2cbd31fd20c5ebaa98a53094639b788b01
+
+9. Final SHA
+   1db4f45f6a65ebb4b6be280fea28349e56425d35
+
+10. local main SHA
+    1db4f45f6a65ebb4b6be280fea28349e56425d35
+
+11. origin/main SHA
+    1db4f45f6a65ebb4b6be280fea28349e56425d35
+
+12. GitHub main SHA
+    1db4f45f6a65ebb4b6be280fea28349e56425d35
+    (2026-08-11 20:5x に push 確認済み)
+
+13. Checkpoint一覧
+    CP-R1-01 Initial Audit (開始SHA確認・保全対象・dirty把握)
+    CP-R1-02 Existing Railsys/Renderer Audit
+    CP-R1-03 Clean Scene: village-free flat preset + render hook調査
+    CP-R1-04 Single Box Renderer: pass==2修正 + ワールド名gate修正
+    CP-R1-05 GUI First Proof: gate=true確認、BOX描画確認
+    CP-R1-06 Screenshot Evidence: SS-01..04取得 + ピクセル解析
+    CP-R1-07 Vision / Regression: 4枚PASS、harness 84/0/3、build SUCCESS
+    CP-R1-08 Discord送信 + USER_DECISION_REQUIRED + GitHub反映
+
+14. Commit SHA一覧
+    1db4f45f feat: Phase 1-R1 Clean 3D Primitive Proof - single 3D box
+    renders in-game (fix render pass gate to pass==2, record client world
+    name for validation gate, village-free clean flat scene), GUI+Vision PASS
+    (6 files, +124/-7)
+
+15. Project Background
+    ブラウザ上のEaglercraft/Minecraft 1.8系環境に独自鉄道システム
+    「Railsys v2」を実装するプロジェクト。RTM等は研究資料としてのみ扱い、
+    clean-room独自実装。最終長期ゴール: 3D線路モデルをRailPathに沿って
+    連続配置（直線/曲線/勾配/分岐/Marker/Asset/保存/将来は列車）。
+
+16. Phase 1 Rebuild理由
+    旧Phase 1は技術的には多くの項目がPASSだったが、実ゲーム画面に
+    旧RailV2Car・旧validation rail・debug evidence・camera tour等が混在し、
+    「今回作ったものが何か」「線路として正しいか」をユーザーが判断できない
+    状態だった。そこでPhase 1-R1として、何もないClean Worldに独立3D BOXを
+    1個だけ表示し、ユーザー本人が確認できる最小Gateから再構築する。
+
+17. KEEPした既存基盤
+    Geometry / RailPath / RailLocalFrame / RailRenderer / RailsysRenderManager /
+    RailAsset / Placement / Persistence / GUI Validation基盤 / Vision Observer /
+    Human Assist / flat hook / launcher。いずれも変更・削除していない。
+
+18. ISOLATEした旧validation要素
+    RailV2AutoValidate / EntityRailV2Car / RenderRailV2Car / 旧camera tour /
+    RailsysGeom・PathDebugEvidence / CommandRailV2Validate / 旧marker・formation。
+    DELETEせず、Clean Scene (EaglerCleanFlat / EaglerSingleBox) では
+    spawn/register/render/triggerしないよう隔離。通常World非漏洩。
+
+19. Clean Validation Scene仕様
+    ワールド名 "EaglerCleanFlat" (cleanflat marker) / "EaglerSingleBox"
+    (singlebox marker)。GuiCreateWorldでFLAT強制 + village-free superflat
+    preset "2;7,3,3,2;1;" を設定（bedrock+dirt+dirt+grass、ground top y=4、
+    plains biome、構造物なし）。旧RailV2Car/rail/marker/debug等は非生成。
+
+20. BOX renderer設計
+    SingleBoxProofRenderer (validation-only):
+      - 独立3D geometry (Tessellator/WorldRenderer POSITION_COLOR)
+      - setBlockしない / Entity不要 / texture不要
+      - world座標に固定、camera-relative translate
+      - singleboxワールドのみ (クライアント記録ワールド名でgate)
+      - 6面直方体・単色
+
+21. BOX寸法
+    Length = 0.50 m (X) / Width = 0.30 m (Z) / Height = 0.20 m (Y)
+    1ブロック(1m)より十分小さい。
+
+22. BOX world座標
+    origin (299.75, 4.00, 299.85)〜(300.25, 4.20, 300.15)
+    center (300.0, 4.10, 300.0) / ground top y=4.0 (底面が接する)
+
+23. camera-relative処理
+    camX/Y/Z = viewEntityの補間位置 (lastTickPos + (pos-lastTickPos)*partial)
+    GlStateManager.translate(BOX_CX-camX, BOX_CY-camY, BOX_CZ-camZ) で
+    ワールド座標に固定。カメラ移動してもズレない（SS-02..04で検証）。
+
+24. GUI Validation結果
+    - SS-01 Clean Scene: 平坦な草地面のみ、旧検証物なし (Vision PASS)
+    - SS-02 front:  BOX 35x23px 検出 (Vision PASS conf 0.99)
+    - SS-03 diag:   BOX 32x23px 検出 (Vision PASS)
+    - SS-04 far:    BOX 17x11px 検出 (Vision PASS)
+    - カメラ距離に応じたBOXサイズ縮小を確認（3D固定描画の証拠）
+    - duplicate/flicker/crash/Unknown command/permission error なし
+    - render hook発火: [SINGLEBOX] render ... gate=true を実ゲームで確認
+
+25. Screenshot一覧
+    doc/testing/phase1_rebuild_02/screenshots/
+      SS-01_CLEAN_SCENE.png      (20:45)
+      SS-02_BOX_FRONT.png        (20:46)
+      SS-03_BOX_DIAGONAL.png     (20:46)
+      SS-04_BOX_FAR.png          (20:46)
+
+26. Discord画像送付結果
+    SS-01..04 の PNG 画像本体を Discord Webhook (multipart/form-data) で
+    送信成功 (Discord image send OK: 4 file(s))。
+
+27. Vision結果
+    codex-luna (vision_box.mjs) にて4枚全て PASS。
+    single_box_visible=true / box_small=true / only_box_on_ground=true /
+    old_train_visible=false / old_rail_visible=false / camera_valid=true
+    いずれも confidence 0.96-0.99。
+    ※Vision単独ではPASS判定せず、あくまで補助観測。
+
+28. Harness結果
+    ./gradlew harnessTest: PASSED=84 FAILED=0 SKIPPED=3 RESULT: SUCCESS
+
+29. Build結果
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL
+    Offline HTML: target_teavm_javascript/javascript/
+      EaglercraftX_1.8_Offline_International.html
+
+30. Preserved files
+    CommandRailSystem.java : md5 9afd512d... (ベースラインと一致・不変)
+    EntityRailVehicle.java : md5 77ce0d66... (ベースラインと一致・不変)
+    未stage・未commit維持。
+
+31. Normal world非漏洩
+    singlebox/cleanflat以外のワールドではSingleBoxProofRendererは
+    描画しない（クライアント記録ワールド名 gate=false）。
+    通常プレイWorldへBOXが漏洩しないことを確認。
+
+32. Secret leak確認
+    Webhook URL等のsecretはリポジトリ・doc・log・script・画像へ
+    保存・commitしていない。Webhookはruntime envのみで使用。
+
+33. Clean-room確認
+    RTM/NR01のコード・モデル・texture・scriptをコピーしていない。
+    単一BOX描画はEaglercraft標準API (Tessellator/GlStateManager) で実装。
+
+34. Known Issues
+    - クライアント側ワールド名が常に "MpServer" のため、ワールド名gateは
+      クライアント記録ワールド名 (Minecraft.launchIntegratedServer 経由) に依存。
+      Web Worker (統合サーバー) とクライアントでstatic非共有のため、
+      サーバー側フラグでの判定は不可。
+    - SS-01..04 はGUI自動操作 (CDP) で取得。GUI環境のDISPLAY設定等で
+      再現性が環境依存となる場合あり。
+
+35. Human Acceptance状態
+    USER_DECISION_REQUIRED をDiscordへ送信済み（Screenshot 4枚添付）。
+    ユーザーの明示承認（このBOX描画方式を次Phaseの基礎として使ってよいか）
+    待ち。承認前は R1 VERDICT 未確定 / R2 gate CLOSED。
+
+36. 次Phase候補
+    Phase 1-R2: Repeated Segment Proof
+      承認された「同じBOX」をStraight RailPath上へ一定間隔で複数配置する。
+      ※ユーザー承認後の別プロンプトで実施。今回は実装しない。
+
+====================================================================
+Phase 1-R1 作業詳細
+====================================================================
+
+STEP 3001 - CP-R1-01/02 Initial Audit + Renderer Audit
+  開始SHA c6c77c2c。既存STEP1/2にSingleBoxProofRenderer等が実装済み。
+  render hookは EntityRenderer.renderWorldPass(pass==0) に配置されていた。
+
+STEP 3002 - CP-R1-03 原因特定1: pass==0では通常描画で発火しない
+  renderWorld() の通常パスは renderWorldPass(2) を呼ぶ
+  (pass==0はアナグリフ時のみ)。→ EntityRenderer を pass==0||pass==2 に修正。
+  実ゲームで [SINGLEBOX] render ... 出力を確認 → render hook発火YES。
+
+STEP 3003 - CP-R1-04 原因特定2: クライアントワールド名がMpServer
+  WorldClient.java:81 が常にワールド名 "MpServer" を設定。
+  'singlebox' 判定が常に false。さらに統合サーバーは Web Worker で
+  別スレッドのため static (validationEnabled) も共有されない。
+  → Minecraft.launchIntegratedServer() でワールド名をクライアント側static
+     (SingleBoxProofValidation.setClientWorldName) に保存し、
+     SingleBoxProofRenderer が getClientWorldName() を参照するよう修正。
+  → 実ゲームで gate=true、'SINGLEBOX render hook FIRED (gate=true)' を確認。
+
+STEP 3004 - CP-R1-05/06 Clean Scene + GUI First Proof + Screenshot
+  Clean Scene: cleanflat/singlebox に village-free preset "2;7,3,3,2;1;"
+  を適用（村の家がBOX視界を塞ぐ問題を回避）。
+  GUI検証 (RUN r5a_2045):
+    SS-01 CLEAN_SCENE 平坦な草地面のみ (Vision PASS)
+    SS-02 BOX_FRONT   BOX 35x23px (Vision PASS conf 0.99)
+    SS-03 BOX_DIAGONAL BOX 32x23px (Vision PASS)
+    SS-04 BOX_FAR     BOX 17x11px (Vision PASS)
+  ピクセル解析: BOX色(255,60,40) をworld領域(y<425)で検出。
+  カメラ距離に応じたBOXサイズ変化 = ワールド座標固定の3D描画を確認。
+
+STEP 3005 - CP-R1-07 Vision / Regression
+  Vision 4枚PASS。harness 84/0/3、makeMainOfflineDownload SUCCESS。
+  保全対象md5不変。
+
+STEP 3006 - CP-R1-08 Discord送信 + USER_DECISION_REQUIRED + GitHub反映
+  DiscordへScreenshot 4枚(画像本体)送信OK。
+  USER_DECISION_REQUIRED送信。
+  commit 1db4f45f を push、local==origin/main==GitHub main確認。
+
+====================================================================
+変更ファイル (commit 1db4f45f)
+====================================================================
+  src/game/java/net/minecraft/client/Minecraft.java
+    + launchIntegratedServer() で setClientWorldName(worldName) を呼ぶ
+  src/game/java/net/minecraft/client/gui/GuiCreateWorld.java
+    + cleanflat/singlebox に village-free preset "2;7,3,3,2;1;" を設定
+  src/game/java/net/minecraft/client/renderer/EntityRenderer.java
+    + renderWorldPass の hook 条件を pass==0||pass==2 に修正
+  src/game/java/net/minecraft/railsys/validation/SingleBoxProofRenderer.java
+    + gate をクライアント記録ワールド名ベースに修正、描画本体は変更なし
+  src/game/java/net/minecraft/railsys/validation/SingleBoxProofValidation.java
+    + clientWorldName static + setClientWorldName/getClientWorldName 追加
+  FINAL_REPORT.txt (Phase 1-R1 STEP 3001..3006 追記)
+
+====================================================================
+この報告書はGitHub main (commit 1db4f45f で反映済み) に追記されている。
+====================================================================
