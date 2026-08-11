@@ -63,3 +63,6 @@ doc/doc/
 
 # Normal-play runtime profile / logs (START_WEB_MINECRAFT.sh)
 /runtime/
+
+# Local validation-artifact backups (Phase 1.2.1) - large, NOT pushed to GitHub
+/backup/

@@ -965,3 +965,21 @@ EGL初期化失敗("No suitable EGL configs")でウィンドウがマップさ�
 - ユーザー通常Chromeは不干渉（専用profileのみ管理）
 
 END CP-03 / CP-04
+
+STEP 805 - CP-05/06 Backup棚卸し + ZIP作成・検証
+------------------------------------------------
+BACKUP_INVENTORY.md 作成。旧検証アーティファクト（Chrome profile・ログ・
+screenshots・stray doc/doc）を棚卸し。全7個ZIP作成し unzip -t で検証、
+secret leak確認（全てOK）。
+backup/（.gitignore追加、GitHubにはpushしない。容量5.3GB）
+  railsys_validation_logs_2026-08-11.zip (65MB, 776 files)
+  railsys_validation_profiles_phase0_1_2026-08-11.zip (815MB, 8176 files)
+  railsys_validation_profiles_phase0_2_2026-08-11.zip (2.0GB, 20985 files)
+  railsys_validation_profiles_phase0_5_2026-08-11.zip (363MB)
+  railsys_validation_profiles_phase1_1_2026-08-11.zip (1.0GB)
+  railsys_validation_profiles_phase1_2_2026-08-11.zip (1.4GB)
+  railsys_stray_doc_doc_2026-08-11.zip (108K, 8 files)
+doc/doc（古い重複stray）はZIP検証後削除。
+大型Chrome profileの元フォルダー削除はユーザー判断待ちで保留。
+
+END CP-05 / CP-06
