@@ -1843,6 +1843,10 @@ public class Minecraft implements IThreadListener {
 	 * Arguments: World foldername, World ingame name, WorldSettings
 	 */
 	public void launchIntegratedServer(String folderName, String worldName, WorldSettings worldSettingsIn) {
+		// Phase 1-R1: remember the real singleplayer level name on the CLIENT
+		// thread (WorldClient always reports "MpServer"), so validation renderers
+		// can gate on it without relying on server/worker shared state.
+		net.minecraft.railsys.validation.SingleBoxProofValidation.setClientWorldName(worldName);
 		this.loadWorld((WorldClient) null);
 		renderManager.setEnableFNAWSkins(this.gameSettings.enableFNAWSkins);
 		SingleplayerServerController.launchEaglercraftServer(folderName, gameSettings.difficulty.getDifficultyId(),

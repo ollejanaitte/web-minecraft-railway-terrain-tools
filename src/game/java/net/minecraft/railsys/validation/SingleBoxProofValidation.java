@@ -25,6 +25,23 @@ public final class SingleBoxProofValidation {
 	/** Validation world-name marker. */
 	public static final String WORLD_MARKER = "singlebox";
 
+	/**
+	 * The real singleplayer level name, recorded on the CLIENT thread by
+	 * Minecraft.launchIntegratedServer(). The client-side WorldClient always
+	 * reports "MpServer", so renderers gate on this instead of the client
+	 * world's WorldInfo name. (Web Worker / server-thread state is NOT shared
+	 * with the client, hence this client-side copy.)
+	 */
+	private static String clientWorldName = null;
+
+	public static void setClientWorldName(String name) {
+		clientWorldName = name;
+	}
+
+	public static String getClientWorldName() {
+		return clientWorldName;
+	}
+
 	private static boolean ran = false;
 	private static boolean gateLogged = false;
 	private static int waitTicks = 0;
@@ -74,8 +91,9 @@ public final class SingleBoxProofValidation {
 		System.out.println("[RAILSYSTEM] SingleBoxProof START");
 
 		enableFlight(player);
-		// Front-near view (SS-02): camera south of the box looking north (-Z).
-		setCamera(player, 300.0D, 5.6D, 301.6D, 180.0F, 12.0F);
+		// Front-near view (SS-02): camera south of the box looking north (-Z),
+		// low and far enough that the small box (top y=4.2) is near screen centre.
+		setCamera(player, 300.0D, 4.9D, 304.0D, 180.0F, 15.0F);
 		player.addChatMessage(new ChatComponentText("railsysv2: single box proof stage=front"));
 		System.out.println("[RAILSYSTEM] singlebox stage=front");
 		tourPlayer = player;
@@ -86,16 +104,16 @@ public final class SingleBoxProofValidation {
 		enableFlight(tourPlayer);
 		if (tourTicks == 200) {
 			// Diagonal view (SS-03): south-east, looking north-west at the box.
-			setCamera(tourPlayer, 301.6D, 5.6D, 301.6D, 135.0F, 12.0F);
+			setCamera(tourPlayer, 303.5D, 4.9D, 303.5D, 135.0F, 15.0F);
 			tourTag("diagonal");
 		} else if (tourTicks == 400) {
 			// Far view (SS-04): south, elevated.
-			setCamera(tourPlayer, 300.0D, 7.5D, 305.0D, 180.0F, 8.0F);
+			setCamera(tourPlayer, 300.0D, 6.5D, 308.0D, 180.0F, 10.0F);
 			tourTag("far");
 		} else if (tourTicks == 600) {
 			// Return to front-near and RELEASE the camera so the human (or the
 			// user) can fly around and verify the box stays at its world position.
-			setCamera(tourPlayer, 300.0D, 5.6D, 301.6D, 180.0F, 12.0F);
+			setCamera(tourPlayer, 300.0D, 4.9D, 304.0D, 180.0F, 15.0F);
 			tourTag("hold");
 			holdCamera();
 			tourTicks = -1;

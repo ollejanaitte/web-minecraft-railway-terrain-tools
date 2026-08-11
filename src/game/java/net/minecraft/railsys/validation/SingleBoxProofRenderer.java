@@ -39,6 +39,11 @@ public final class SingleBoxProofRenderer {
 	private static final int BOX_G = 60;
 	private static final int BOX_B = 40;
 
+	/** Debug/diagnostic counter (validation-only). */
+	private static long dbgCounter = 0L;
+	/** One-shot chat probe so the GUI/automation can confirm the render hook fires. */
+	private static boolean chatProbeDone = false;
+
 	private SingleBoxProofRenderer() {
 	}
 
@@ -54,8 +59,26 @@ public final class SingleBoxProofRenderer {
 		if (viewEntity == null || world == null) {
 			return;
 		}
+		// The client-side WorldClient always reports "MpServer" as its name, so
+		// gate on the CLIENT-recorded level name from launchIntegratedServer()
+		// (SingleBoxProofValidation.getClientWorldName()) which is set on the
+		// client thread and survives worker/thread separation.
+		String cw = SingleBoxProofValidation.getClientWorldName();
+		boolean gate = cw != null && cw.toLowerCase().contains(SingleBoxProofValidation.WORLD_MARKER);
 		String name = world.getWorldInfo().getWorldName();
-		if (name == null || !name.toLowerCase().contains("singlebox")) {
+		if ((++dbgCounter % 100) == 0) {
+			System.out.println("[SINGLEBOX] render name=" + name + " gate=" + gate + " view="
+					+ (viewEntity != null) + " world=" + (world != null));
+		}
+		if (gate && !chatProbeDone) {
+			chatProbeDone = true;
+			net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+			if (mc != null && mc.thePlayer != null) {
+				mc.thePlayer.addChatMessage(new net.minecraft.util.ChatComponentText(
+						"railsysv2: SINGLEBOX render hook FIRED (gate=true)"));
+			}
+		}
+		if (!gate) {
 			return;
 		}
 

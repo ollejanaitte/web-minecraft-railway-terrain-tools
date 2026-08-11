@@ -1362,3 +1362,66 @@ CommandRailV2Validate, old marker blocks / test formations。DELETEなし。
 Reopen doc: doc/testing/phase1_rebuild_02/PHASE1_REOPEN.md
 Plan doc: doc/testing/phase1_rebuild_02/IMPLEMENTATION_PLAN.md
 → commit 9d4e5e59 / ... (CP-01/02)
+
+====================================================================
+PHASE 1-R1: Clean 3D Primitive Proof (2026-08-11, JST)
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 3001 - CP-R1-01/02 Initial Audit + Renderer Audit
+--------------------------------------------------------
+開始SHA: c6c77c2c（local == origin/main == GitHub main、SYNC OK）。
+保全対象 md5: CommandRailSystem 9afd512d / EntityRailVehicle 77ce0d66（不変）。
+dirty tracked（保全）: RenderGlobal +2, CommandRailsysPlace +5, phase0_1 screenshots 2枚。
+既存STEP1/2 (c6c77c2c) にSingleBoxProofRenderer/SingleBoxProofValidationあり。
+render hookはEntityRenderer.renderWorldPass(pass==0)に配置済み。
+
+STEP 3002 - CP-R1-03 原因特定1: render hookがpass==0のみ
+----------------------------------------------------------
+調査で判明: renderWorld()の通常描画は pass==2 で呼ばれる
+(pass==0はアナグリフ時のみ)。既存フックは pass==0 のみなので
+通常プレイで発火しない。→ EntityRenderer を pass==0||pass==2 に修正。
+実ゲームで [SINGLEBOX] render ... 出力を確認 → render hook発火 YES。
+
+STEP 3003 - CP-R1-04 原因特定2: クライアントワールド名がMpServer
+------------------------------------------------------------------
+クライアント側 WorldClient は常にワールド名 "MpServer" (WorldClient.java:81)。
+そのため 'singlebox' ワールド名判定が常に false。
+さらに統合サーバーは Web Worker (MessageChannel) で別スレッドのため
+static (validationEnabled) も共有されない。
+→ Minecraft.launchIntegratedServer() でワールド名をクライアント側static
+   (SingleBoxProofValidation.setClientWorldName) に保存。
+   SingleBoxProofRenderer は getClientWorldName() を参照するよう修正。
+→ 実ゲームで gate=true、'SINGLEBOX render hook FIRED (gate=true)' を確認。
+
+STEP 3004 - CP-R1-05/06 Clean Scene + GUI First Proof + Screenshot
+-------------------------------------------------------------------
+Clean Scene: GuiCreateWorld で cleanflat/singlebox ワールドに
+village-free superflat preset "2;7,3,3,2;1;" を適用（村の家が視界を塞ぐ問題を回避）。
+GUI検証 (RUN r5a_2045):
+  SS-01 CLEAN_SCENE: 平坦な草地面のみ、旧検証物なし (Vision PASS)
+  SS-02 BOX_FRONT:   BOX 35x23px 検出 (Vision PASS conf 0.99)
+  SS-03 BOX_DIAGONAL: BOX 32x23px 検出 (Vision PASS)
+  SS-04 BOX_FAR:     BOX 17x11px 検出 (Vision PASS)
+ピクセル解析: BOX色(255,60,40)をworld領域(y<425)で検出。
+カメラ距離に応じてBOXサイズが縮小 → ワールド座標に固定された3D描画を確認。
+
+STEP 3005 - CP-R1-07 Vision / Regression
+------------------------------------------
+Vision (codex-luna) 4枚全て PASS。旧RailV2Car/rail/marker 非表示。
+BOX 1個のみ / サイズ小 / 位置妥当。
+build: makeMainOfflineDownload SUCCESS。
+保全対象 md5 不変（CommandRailSystem 9afd512d / EntityRailVehicle 77ce0d66）。
+
+STEP 3006 - CP-R1-08 Discord送信 + USER_DECISION_REQUIRED
+-----------------------------------------------------------
+Discordへ Screenshot 4枚 (画像本体) 送信 OK。
+USER_DECISION_REQUIRED 送信済み（BOXを次Phaseの基礎として使ってよいか）。
+ユーザー承認待ち。承認前は Phase 1-R2 ENTRY GATE: CLOSED。
+
+変更ファイル (uncommitted):
+  src/game/java/net/minecraft/client/Minecraft.java
+  src/game/java/net/minecraft/client/gui/GuiCreateWorld.java
+  src/game/java/net/minecraft/client/renderer/EntityRenderer.java
+  src/game/java/net/minecraft/railsys/validation/SingleBoxProofRenderer.java
+  src/game/java/net/minecraft/railsys/validation/SingleBoxProofValidation.java

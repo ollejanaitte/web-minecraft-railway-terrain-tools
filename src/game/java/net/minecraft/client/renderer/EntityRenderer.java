@@ -1320,7 +1320,10 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		this.renderRainSnow(partialTicks);
 		GlStateManager.depthMask(true);
 		renderglobal.renderWorldBorder(entity, partialTicks);
-		if (pass == 0) {
+		// Note: the normal (non-anaglyph) render path uses pass == 2, so the
+		// railsys production/debug render and the single-box proof hook must
+		// run on pass 2 as well (pass 0 only happens under anaglyph 3D).
+		if (pass == 0 || pass == 2) {
 			renderglobal.renderRailSystemDebug(entity, partialTicks);
 			renderglobal.renderRailSystemProduction(entity, partialTicks);
 			net.minecraft.railsys.validation.SingleBoxProofRenderer.render(entity, partialTicks, entity.worldObj);

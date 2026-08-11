@@ -230,6 +230,8 @@ public class GuiCreateWorld extends GuiScreen {
 				// extra UI navigation.
 				// Phase 1 Rebuild: "cleanflat" (Clean Validation Scene, no hooks) and
 				// "singlebox" (Single 3D Box Proof) also force the flat type.
+				// Phase 1-R1: also pin a village-free superflat preset so the clean
+				// scene never generates village houses that obscure the single 3D box.
 				String wname = this.field_146333_g.getText().trim().toLowerCase();
 				if (wname.contains("eaglerflat") || wname.contains("cleanflat") || wname.contains("singlebox")) {
 					for (int k = 0; k < WorldType.worldTypes.length; k++) {
@@ -238,6 +240,10 @@ public class GuiCreateWorld extends GuiScreen {
 							break;
 						}
 					}
+					// bedrock(1) + dirt(2) + grass(1), plains biome (id 1), NO structures.
+					// Format: "version;layers;biome;features" (empty features = clean).
+					// 7=bedrock 3=dirt 2=grass -> ground top at y=4, empty feature list.
+					this.chunkProviderSettingsJson = "2;7,3,3,2;1;";
 				}
 				WorldSettings.GameType worldsettings$gametype = WorldSettings.GameType.getByName(this.gameMode);
 				WorldSettings worldsettings = new WorldSettings(i, worldsettings$gametype, this.field_146341_s,
