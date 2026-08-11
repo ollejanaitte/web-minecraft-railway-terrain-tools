@@ -1300,3 +1300,18 @@ preview PASS, asset switch PASS, confirmed PASS, after-cancel PASS. harness
 84/0/3, build SUCCESS.
 
 END Phase 1.4
+
+STEP 1107 - Phase 1.5 Persistence / Reload
+--------------------------------------------
+RailsysWorldRailData (WorldSavedData, schema v2): saves confirmed rail as
+anchors (A/B: x,y,z,yaw,pitch,handle) + assetId in world save. restoreInto
+rebuilds via the SAME Anchor -> Geometry -> RailPiece -> RailPath pipeline.
+/railsysplace save / load; confirm auto-saves. RailsysRenderManager.
+ensureRestored(world) restores once per world at first render (TeaVM-safe
+HashSet guard; WeakHashMap is not supported by TeaVM -> fixed).
+GUI validation (RUN 20260811_15): place -> confirm -> exit to title -> re-enter
+world. Vision: placed PASS (L/R+sleepers), after_reload PASS (rails+sleepers
+visible under pause overlay). Pixel: base/rail present after reload. harness
+84/0/3, build SUCCESS (WeakHashMap fix made makeMainOfflineDownload green).
+
+END Phase 1.5

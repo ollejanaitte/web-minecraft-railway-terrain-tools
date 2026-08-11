@@ -16,6 +16,7 @@ import net.minecraft.railsys.render.RailsysRenderManager;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
 
 /**
  * Phase 1.4 placement command (Marker A/B -> Preview -> Confirm/Cancel).
@@ -51,7 +52,7 @@ public class CommandRailsysPlace extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/railsysplace <pos1|pos2 [x y z] [handle]|pitch <deg>|preview|asset <id>|confirm|cancel|status>";
+		return "/railsysplace <pos1|pos2 [x y z] [handle]|pitch <deg>|preview|asset <id>|confirm|save|load|cancel|status>";
 	}
 
 	@Override
@@ -112,6 +113,19 @@ public class CommandRailsysPlace extends CommandBase {
 					+ fmt(st.getConfirmedPath().totalLength()) + "m, asset "
 					+ RailsysRenderManager.getActiveAssetId() + ")"));
 			logger.info("[RAILSYS_PLACE] CONFIRM length=" + st.getConfirmedPath().totalLength());
+			this.saveToWorld(player.worldObj);
+		} else if ("save".equals(action)) {
+			this.saveToWorld(player.worldObj);
+			player.addChatMessage(new ChatComponentText("railsysplace: saved"));
+		} else if ("load".equals(action)) {
+			net.minecraft.railsys.persist.RailsysWorldRailData data = net.minecraft.railsys.persist.RailsysWorldRailData
+					.get(player.worldObj);
+			if (data != null) {
+				data.restoreInto(player.worldObj);
+				player.addChatMessage(new ChatComponentText("railsysplace: loaded"));
+			} else {
+				player.addChatMessage(new ChatComponentText("railsysplace: no saved rail"));
+			}
 		} else if ("cancel".equals(action)) {
 			st.cancel();
 			player.addChatMessage(new ChatComponentText("railsysplace: cancelled"));
@@ -166,6 +180,14 @@ public class CommandRailsysPlace extends CommandBase {
 		}
 	}
 
+	private void saveToWorld(World world) {
+		net.minecraft.railsys.persist.RailsysWorldRailData data = net.minecraft.railsys.persist.RailsysWorldRailData
+				.get(world);
+		if (data != null) {
+			data.captureFromState(RailsysPlacementState.getInstance());
+		}
+	}
+
 	private static String fmt(double d) {
 		return String.format("%.2f", d);
 	}
@@ -177,12 +199,13 @@ public class CommandRailsysPlace extends CommandBase {
 		sender.addChatMessage(new ChatComponentText("/railsysplace pitch <deg>"));
 		sender.addChatMessage(new ChatComponentText("/railsysplace preview"));
 		sender.addChatMessage(new ChatComponentText("/railsysplace asset <id>"));
-		sender.addChatMessage(new ChatComponentText("/railsysplace confirm|cancel|status"));
+		sender.addChatMessage(new ChatComponentText("/railsysplace confirm|save|load|cancel|status"));
 	}
 
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		return args.length == 1 ? getListOfStringsMatchingLastWord(args,
-				new String[] { "pos1", "pos2", "pitch", "preview", "asset", "confirm", "cancel", "status" }) : null;
+				new String[] { "pos1", "pos2", "pitch", "preview", "asset", "confirm", "save", "load", "cancel",
+						"status" }) : null;
 	}
 }

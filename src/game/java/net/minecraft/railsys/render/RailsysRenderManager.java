@@ -109,6 +109,32 @@ public final class RailsysRenderManager {
 		return t;
 	}
 
+	// One-shot world restore guard (Phase 1.5). HashSet is TeaVM-safe.
+	private static final java.util.HashSet<net.minecraft.world.World> restoredWorlds = new java.util.HashSet<net.minecraft.world.World>();
+
+	/**
+	 * If this world hasn't had its saved rail restored yet, do so. Called by the
+	 * renderer each frame (cheap after first restore). Integrated/server only.
+	 */
+	public static void ensureRestored(net.minecraft.world.World world) {
+		if (world == null || world.isRemote) {
+			return;
+		}
+		if (restoredWorlds.contains(world)) {
+			return;
+		}
+		restoredWorlds.add(world);
+		try {
+			net.minecraft.railsys.persist.RailsysWorldRailData data = net.minecraft.railsys.persist.RailsysWorldRailData
+					.get(world);
+			if (data != null) {
+				data.restoreInto(world);
+			}
+		} catch (RuntimeException e) {
+			// never let restore crash the render path
+		}
+	}
+
 	/**
 	 * All paths to render: confirmed production paths + the placement preview
 	 * (rendered in a distinct style by the caller).

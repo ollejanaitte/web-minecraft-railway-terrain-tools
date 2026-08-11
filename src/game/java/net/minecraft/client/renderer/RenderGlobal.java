@@ -1650,6 +1650,7 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		if (viewEntity == null || !net.minecraft.railsys.render.RailsysRenderManager.isProductionRenderEnabled()) {
 			return;
 		}
+		net.minecraft.railsys.render.RailsysRenderManager.ensureRestored(this.mc.theWorld);
 		double camX = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * (double) partialTicks;
 		double camY = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * (double) partialTicks;
 		double camZ = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * (double) partialTicks;

@@ -22,6 +22,9 @@ public final class RailsysPlacementState {
 	private AnchorDefinition markerB;
 	private RailPath previewPath;
 	private RailPath confirmedPath;
+	private AnchorDefinition confirmedAnchorA;
+	private AnchorDefinition confirmedAnchorB;
+	private String confirmedAssetId = "railsys.straight_1435_wood";
 
 	private RailsysPlacementState() {
 	}
@@ -70,11 +73,34 @@ public final class RailsysPlacementState {
 	public void confirm() {
 		if (hasPreview()) {
 			this.confirmedPath = this.previewPath;
+			this.confirmedAnchorA = this.markerA;
+			this.confirmedAnchorB = this.markerB;
+			this.confirmedAssetId = net.minecraft.railsys.render.RailsysRenderManager.getActiveAssetId();
 		}
 	}
 
 	public RailPath getConfirmedPath() {
 		return this.confirmedPath;
+	}
+
+	public AnchorDefinition getConfirmedAnchorA() {
+		return this.confirmedAnchorA;
+	}
+
+	public AnchorDefinition getConfirmedAnchorB() {
+		return this.confirmedAnchorB;
+	}
+
+	public String getConfirmedAssetId() {
+		return this.confirmedAssetId;
+	}
+
+	/** Restore a persisted confirmed rail. */
+	public void restore(RailPath path, AnchorDefinition a, AnchorDefinition b, String assetId) {
+		this.confirmedPath = path;
+		this.confirmedAnchorA = a;
+		this.confirmedAnchorB = b;
+		this.confirmedAssetId = assetId == null ? "railsys.straight_1435_wood" : assetId;
 	}
 
 	public boolean hasConfirmed() {
@@ -86,6 +112,8 @@ public final class RailsysPlacementState {
 		this.markerB = null;
 		this.previewPath = null;
 		this.confirmedPath = null;
+		this.confirmedAnchorA = null;
+		this.confirmedAnchorB = null;
 	}
 
 	public void clearPreview() {
