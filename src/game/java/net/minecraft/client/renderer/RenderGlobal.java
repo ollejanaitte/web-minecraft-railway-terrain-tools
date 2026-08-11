@@ -1667,6 +1667,15 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 				net.minecraft.railsys.render.RailRenderer.renderPath(asset, p, camX, camY, camZ, 0.0D);
 			}
 		}
+		// Placement preview (distinct semi-transparent colour, production asset).
+		net.minecraft.railsys.placement.RailsysPlacementState st = net.minecraft.railsys.placement.RailsysPlacementState
+				.getInstance();
+		if (st != null && st.hasPreview()) {
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+			net.minecraft.railsys.render.RailRenderer.renderPreview(st.getPreviewPath(), camX, camY, camZ);
+			GlStateManager.disableBlend();
+		}
 		GlStateManager.enableLighting();
 		GlStateManager.enableTexture2D();
 	}

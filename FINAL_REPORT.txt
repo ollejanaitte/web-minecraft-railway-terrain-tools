@@ -1283,3 +1283,20 @@ bounded; transform reuse via RailPath (resolve caches piece tables).
 harness 84/0/3, build SUCCESS.
 
 END Phase 1.3D
+
+STEP 1106 - Phase 1.4 Marker Placement / Editing
+-------------------------------------------------
+RailsysPlacementState (Marker A/B anchors via AnchorDefinition) +
+/railsysplace command: pos1/pos2 [handle], pitch, preview, asset, confirm,
+cancel, status. Preview & confirmed rail both built through the SAME
+AnchorDefinition -> Geometry (Straight/HorizontalBezier) -> RailPiece ->
+RailPath pipeline (no placement-specific geometry). Preview rendered
+semi-transparent cyan via RailRenderer.renderPreview + RailAsset.drawPreview;
+RenderGlobal draws preview when present. Confirm promotes preview to
+production render path; cancel clears markers/preview (keeps confirmed).
+GUI validation (RUN 20260811_14): pos1/pos2 -> preview -> edited preview ->
+asset 1067 -> confirm -> cancel. Vision: preview PASS (L/R+sleepers), edited
+preview PASS, asset switch PASS, confirmed PASS, after-cancel PASS. harness
+84/0/3, build SUCCESS.
+
+END Phase 1.4

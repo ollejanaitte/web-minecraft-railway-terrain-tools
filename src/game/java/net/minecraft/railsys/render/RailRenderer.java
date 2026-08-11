@@ -80,6 +80,39 @@ public final class RailRenderer {
 	}
 
 	/**
+	 * Render a placement preview: semi-transparent rails/base to show a pending
+	 * path before Confirm. Uses a built-in highlight style (not the asset).
+	 */
+	public static void renderPreview(RailPath path, double camX, double camY, double camZ) {
+		if (path == null || path.entryCount() == 0) {
+			return;
+		}
+		double step = DEFAULT_SPACING_M;
+		double total = path.totalLength();
+		if (total <= 0.0D) {
+			return;
+		}
+		GlStateManager.disableTexture2D();
+		GlStateManager.disableLighting();
+		GlStateManager.disableCull();
+
+		double d = 0.0D;
+		while (d <= total + 1.0E-9D) {
+			PathSample ps = path.resolve(Math.min(d, total));
+			RailLocalFrame f = ps.frame;
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(f.x - camX, f.y - camY, f.z - camZ);
+			RailAsset.drawPreview(f, step);
+			GlStateManager.popMatrix();
+			d += step;
+		}
+
+		GlStateManager.enableCull();
+		GlStateManager.enableLighting();
+		GlStateManager.enableTexture2D();
+	}
+
+	/**
 	 * Render with the default spacing (0.5 m).
 	 */
 	public static void renderPath(RailPath path, double camX, double camY, double camZ) {

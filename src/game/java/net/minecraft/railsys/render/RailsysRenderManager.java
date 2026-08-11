@@ -108,4 +108,18 @@ public final class RailsysRenderManager {
 		}
 		return t;
 	}
+
+	/**
+	 * All paths to render: confirmed production paths + the placement preview
+	 * (rendered in a distinct style by the caller).
+	 */
+	public static java.util.List<RailPath> getPreviewPaths() {
+		net.minecraft.railsys.placement.RailsysPlacementState st = net.minecraft.railsys.placement.RailsysPlacementState
+				.getInstance();
+		java.util.List<RailPath> out = new java.util.ArrayList<RailPath>();
+		if (st != null && st.getPreviewPath() != null) {
+			out.add(st.getPreviewPath());
+		}
+		return out;
+	}
 }

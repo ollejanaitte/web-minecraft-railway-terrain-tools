@@ -107,6 +107,50 @@ public final class RailAsset {
 	}
 
 	/**
+	 * Draw a placement preview: semi-transparent cyan rails + base to show a
+	 * pending path. Single tessellator session.
+	 */
+	public static void drawPreview(RailLocalFrame frame, double spacingM) {
+		applyFrame(frame);
+		double halfLen = spacingM * 0.5D;
+		double gaugeHalf = GAUGE_M * 0.5D;
+		int railR = 80, railG = 220, railB = 255;
+		int baseR = 60, baseG = 160, baseB = 200;
+
+		Tessellator tessellator = Tessellator.getInstance();
+		WorldRenderer wr = tessellator.getWorldRenderer();
+		wr.begin(7, DefaultVertexFormats.POSITION_COLOR);
+
+		boxA(wr, -gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, -gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
+				railR, railG, railB);
+		boxA(wr, gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
+				railR, railG, railB);
+		boxA(wr, -BASE_HALF_WIDTH_M, -BASE_DEPTH_M, -halfLen, BASE_HALF_WIDTH_M, 0.0D, halfLen,
+				baseR, baseG, baseB);
+
+		tessellator.draw();
+	}
+
+	/** Emit a box with alpha 160 (semi-transparent preview). */
+	private static void boxA(WorldRenderer wr, double minX, double minY, double minZ, double maxX, double maxY,
+			double maxZ, int r, int g, int b) {
+		faceA(wr, minX, minY, maxZ, maxX, maxY, maxZ, r, g, b);
+		faceA(wr, maxX, minY, minZ, minX, maxY, minZ, r, g, b);
+		faceA(wr, maxX, minY, maxZ, maxX, maxY, minZ, r, g, b);
+		faceA(wr, minX, minY, minZ, minX, maxY, maxZ, r, g, b);
+		faceA(wr, minX, maxY, minZ, maxX, maxY, maxZ, r, g, b);
+		faceA(wr, minX, minY, maxZ, maxX, minY, minZ, r, g, b);
+	}
+
+	private static void faceA(WorldRenderer wr, double x1, double y1, double z1, double x2, double y2, double z2, int r,
+			int g, int b) {
+		wr.pos(x1, y1, z1).color(r, g, b, 160).endVertex();
+		wr.pos(x2, y1, z1).color(r, g, b, 160).endVertex();
+		wr.pos(x2, y2, z2).color(r, g, b, 160).endVertex();
+		wr.pos(x1, y2, z2).color(r, g, b, 160).endVertex();
+	}
+
+	/**
 	 * Apply the frame basis as a GL rotation so that local (+X=right, +Y=up,
 	 * +Z=forward) maps to world. Column-major matrix: worldDir = M * localDir
 	 * where columns are right, up, forward.
