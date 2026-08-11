@@ -64,5 +64,10 @@ doc/doc/
 # Normal-play runtime profile / logs (START_WEB_MINECRAFT.sh)
 /runtime/
 
+# Phase 1.2.2 validation runtime artifacts (profiles, chrome logs, instrumented html)
+doc/testing/phase1_2_2/profiles/
+doc/testing/phase1_2_2/logs/chrome_*.log
+doc/testing/phase1_2_2/scripts/validation_instrumented.html
+
 # Local validation-artifact backups (Phase 1.2.1) - large, NOT pushed to GitHub
 /backup/
