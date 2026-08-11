@@ -1636,8 +1636,10 @@ STEP R4-05b - 同期確認 (push完了後)
 --------------------------------------------------
 - Commit C: 7a83790a2b1a047144843af029f9616597d0469f
 - push: 5de75955..7a83790a main -> main OK
-- local main == origin/main == GitHub main == 7a83790a (SYNC OK)
-- Final Report txt をDiscordへ送信予定
+- 最終確定SHA: 317b7ea1fb501b51791d9aae39cdbd7d5aef411c
+- local main == origin/main == GitHub main == 317b7ea1 (SYNC OK)
+  (※R4-05b同期記録の重複ブロックをdedupeしたcommitを含む最終状態)
+- Final Report txt をDiscordへ送信
 
 ====================================================================
 END Phase 1-R4 記録 (確定)
