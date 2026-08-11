@@ -228,7 +228,10 @@ public class GuiCreateWorld extends GuiScreen {
 				// the "eaglerflat" marker, force the existing Superflat (FLAT) type so
 				// the automated validation pipeline gets a flat testing ground without
 				// extra UI navigation.
-				if (this.field_146333_g.getText().trim().toLowerCase().contains("eaglerflat")) {
+				// Phase 1 Rebuild: "cleanflat" (Clean Validation Scene, no hooks) and
+				// "singlebox" (Single 3D Box Proof) also force the flat type.
+				String wname = this.field_146333_g.getText().trim().toLowerCase();
+				if (wname.contains("eaglerflat") || wname.contains("cleanflat") || wname.contains("singlebox")) {
 					for (int k = 0; k < WorldType.worldTypes.length; k++) {
 						if (WorldType.worldTypes[k] == WorldType.FLAT) {
 							this.selectedIndex = k;

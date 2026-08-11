@@ -1323,6 +1323,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		if (pass == 0) {
 			renderglobal.renderRailSystemDebug(entity, partialTicks);
 			renderglobal.renderRailSystemProduction(entity, partialTicks);
+			net.minecraft.railsys.validation.SingleBoxProofRenderer.render(entity, partialTicks, entity.worldObj);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.enableCull();
