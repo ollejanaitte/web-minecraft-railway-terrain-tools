@@ -234,7 +234,7 @@ public class GuiCreateWorld extends GuiScreen {
 				// scene never generates village houses that obscure the single 3D box.
 				String wname = this.field_146333_g.getText().trim().toLowerCase();
 				if (wname.contains("eaglerflat") || wname.contains("cleanflat") || wname.contains("singlebox")
-						|| wname.contains("repeatedbox")) {
+						|| wname.contains("repeatedbox") || wname.contains("straightrail")) {
 					for (int k = 0; k < WorldType.worldTypes.length; k++) {
 						if (WorldType.worldTypes[k] == WorldType.FLAT) {
 							this.selectedIndex = k;
