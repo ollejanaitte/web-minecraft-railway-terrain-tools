@@ -8,6 +8,7 @@
  * never made by vision alone.
  *
  * Supported backends:
+ *   VISION_MODEL=auto       (default) kimi first, auto-fallback to codex-luna
  *   VISION_MODEL=kimi      -> TokenRouter moonshotai/kimi-k3-free (direct API)
  *   VISION_MODEL=codex-luna-> Codex CLI + gpt-5.6-luna (OpenAI ChatGPT login)
  *   VISION_MODEL=<name>    -> any TokenRouter model id (direct API)
@@ -25,7 +26,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { homedir } from 'node:os';
 
-const MODEL = process.env.VISION_MODEL || 'kimi';
+const MODEL = process.env.VISION_MODEL || 'auto';
 const AUTH = process.env.OPENCODE_AUTH || resolve(homedir(), '.local/share/opencode/auth.json');
 const TOKENROUTER_URL = 'https://api.tokenrouter.com/v1/chat/completions';
 
@@ -44,8 +45,9 @@ function loadTokenrouterKey() {
 async function callTokenRouter(imgB64) {
   const key = loadTokenrouterKey();
   if (!key) throw new Error('tokenrouter key not found in ' + AUTH);
+  const modelId = MODEL === 'kimi' || MODEL === 'auto' ? 'moonshotai/kimi-k3-free' : MODEL;
   const body = {
-    model: MODEL === 'kimi' ? 'moonshotai/kimi-k3-free' : MODEL,
+    model: modelId,
     messages: [
       {
         role: 'user',
@@ -103,12 +105,26 @@ async function main() {
   }
   const imgB64 = readFileSync(imgPath).toString('base64');
   let raw;
-  if (MODEL === 'codex-luna') {
+  const model = MODEL === 'auto' ? 'kimi' : MODEL;
+  if (model === 'codex-luna') {
     raw = callCodexLuna(imgPath);
   } else {
     raw = await callTokenRouter(imgB64);
   }
-  const obj = extractJson(raw);
+  let obj = extractJson(raw);
+  if (!obj) {
+    // Primary model produced unparsable output; fall back to Codex GPT-5.6 Luna
+    // when allowed (auto). kimi-k3-free is known to be occasionally unstable.
+    if (MODEL === 'auto') {
+      console.error('kimi parse failed, falling back to codex-luna');
+      try {
+        raw = callCodexLuna(imgPath);
+        obj = extractJson(raw);
+      } catch (e) {
+        console.error('codex-luna fallback error: ' + e.message);
+      }
+    }
+  }
   if (!obj) {
     // Machine-readable fallback even on parse failure.
     console.log(JSON.stringify({ status: 'SUSPECT', screen_state: 'OTHER', rail_visible: false, camera_valid: false, notes: 'vision parse failed: ' + raw.slice(0, 120).replace(/\n/g, ' '), confidence: 0.0 }));

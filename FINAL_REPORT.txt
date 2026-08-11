@@ -1061,3 +1061,11 @@ Vision Observer実装（vision_observer.mjs）:
   VISION_MODEL=codex-luna-> Codex CLI + gpt-5.6-luna（ChatGPTログイン）
 両モデルで実測成功（content warning画面を正しく分類、machine-readable JSON）。
 Visionは「目」のみ・単独PASS禁止。
+
+STEP 904 - CP-06 Vision Observer 自動フォールバック実装
+---------------------------------------------------------
+ユーザー指示: kimi-k3-freeは不安定な場合があるため、ダメならGPT-5.6 Lunaを使う。
+VISION_MODEL=auto（既定）: kimiを試し、parse失敗/HTTPエラー時は自動的に
+  Codex CLI + gpt-5.6-luna へフォールバックするよう実装。
+実測: kimi単体は安定する場合も不安定な場合もある（確認済み）。
+autoモードでkimi失敗→luna成功の実測確認（{status:PASS, screen_state:WARNING}）。
