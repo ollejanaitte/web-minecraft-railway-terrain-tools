@@ -1322,6 +1322,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 		renderglobal.renderWorldBorder(entity, partialTicks);
 		if (pass == 0) {
 			renderglobal.renderRailSystemDebug(entity, partialTicks);
+			renderglobal.renderRailSystemProduction(entity, partialTicks);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.enableCull();

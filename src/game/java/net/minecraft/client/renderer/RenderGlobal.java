@@ -1646,6 +1646,29 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		}
 	}
 
+	public void renderRailSystemProduction(Entity viewEntity, float partialTicks) {
+		if (viewEntity == null || !net.minecraft.railsys.render.RailsysRenderManager.isProductionRenderEnabled()) {
+			return;
+		}
+		double camX = viewEntity.lastTickPosX + (viewEntity.posX - viewEntity.lastTickPosX) * (double) partialTicks;
+		double camY = viewEntity.lastTickPosY + (viewEntity.posY - viewEntity.lastTickPosY) * (double) partialTicks;
+		double camZ = viewEntity.lastTickPosZ + (viewEntity.posZ - viewEntity.lastTickPosZ) * (double) partialTicks;
+		java.util.List<net.minecraft.railsys.path.RailPath> paths = net.minecraft.railsys.render.RailsysRenderManager
+				.getRenderPaths();
+		if (paths.isEmpty()) {
+			return;
+		}
+		GlStateManager.disableTexture2D();
+		GlStateManager.disableLighting();
+		for (net.minecraft.railsys.path.RailPath p : paths) {
+			if (p != null) {
+				net.minecraft.railsys.render.RailRenderer.renderPath(p, camX, camY, camZ);
+			}
+		}
+		GlStateManager.enableLighting();
+		GlStateManager.enableTexture2D();
+	}
+
 	public void renderRailSystemDebug(Entity viewEntity, float partialTicks) {
 		if (!RAIL_SYSTEM_DEBUG_RENDER || !this.mc.gameSettings.showDebugInfo || this.mc.gameSettings.hideGUI
 				|| viewEntity == null) {
