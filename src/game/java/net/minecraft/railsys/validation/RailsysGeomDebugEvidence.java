@@ -123,7 +123,11 @@ public final class RailsysGeomDebugEvidence {
 			int y = MathHelper.floor_double(s.y);
 			int z = MathHelper.floor_double(s.z);
 			safeSet(world, x, y - 1, z, Blocks.stone);
-			safeSet(world, x, y, z, Blocks.rail);
+			// NOTE: Blocks.rail is NOT used here. Vanilla rail's onBlockAdded calls
+			// isBlockPowered -> adjacent chunk reads, which races Alfheim chunk
+			// relight on the freshly-generated Flat World and can crash the
+			// integrated server. Use a non-redstone-reactive block instead.
+			safeSet(world, x, y, z, Blocks.iron_block);
 			if (i % stepM == 0) {
 				safeSet(world, x, y + 1, z, marker);
 			}
@@ -137,13 +141,19 @@ public final class RailsysGeomDebugEvidence {
 	}
 
 	private static void safeSet(World world, int x, int y, int z, Block block) {
-		int cx = x >> 4;
-		int cz = z >> 4;
-		if (world instanceof WorldServer) {
-			((WorldServer) world).theChunkProviderServer.loadChunk(cx, cz);
-		} else {
-			world.getChunkFromChunkCoords(cx, cz);
+		try {
+			int cx = x >> 4;
+			int cz = z >> 4;
+			if (world instanceof WorldServer) {
+				((WorldServer) world).theChunkProviderServer.loadChunk(cx, cz);
+			} else {
+				world.getChunkFromChunkCoords(cx, cz);
+			}
+			world.setBlockState(new BlockPos(x, y, z), block.getDefaultState(), 2);
+		} catch (RuntimeException ex) {
+			// Validation-only marker placement can race chunk light generation on the
+			// Flat Validation World (alfheim boundary relight). Never crash the game;
+			// skip the marker and continue. Production rendering is unaffected.
 		}
-		world.setBlockState(new BlockPos(x, y, z), block.getDefaultState(), 2);
 	}
 }

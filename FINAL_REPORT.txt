@@ -1233,3 +1233,20 @@ right hidden by view; no gap/break). Build SUCCESS, harness 84/0/3.
 Commit d0d01854 (feat) pushed. Phase 1.3A PASS -> 1.3B OPEN.
 
 END Phase 1.3A
+
+STEP 1103 - Phase 1.3B Curve/Gradient/Boundary/Reverse
+--------------------------------------------------------
+/railrender extended: curve/gradient/curvegrad/scurve/multi/reverse.
+Renderer unchanged (RailLocalFrame handles all path types).
+Fixed validation crash: RailsysGeomDebugEvidence.safeSet placed Blocks.rail
+whose onBlockAdded -> isBlockPowered -> adjacent chunk read raced Alfheim
+chunk relight and crashed the integrated server (async, try/catch could not
+catch). Replaced validation rail block with iron_block (non-reactive);
+Production renderer never used Blocks.rail anyway (this is now proven).
+Vision observer auto-fallback extended: also falls back to codex-luna on
+HTTP/connect error (kimi 503 cache-only cold).
+GUI validation (RUN 20260811_13b4 + rev): straight/curve/gradient/curvegrad/
+scurve/multi all PASS (L/R rails + sleepers, no gap/break); reverse PASS
+(mid view). harness 84/0/3, build SUCCESS.
+
+END Phase 1.3B

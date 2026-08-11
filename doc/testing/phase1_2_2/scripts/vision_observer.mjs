@@ -105,24 +105,26 @@ async function main() {
   }
   const imgB64 = readFileSync(imgPath).toString('base64');
   let raw;
+  let primaryErr = null;
   const model = MODEL === 'auto' ? 'kimi' : MODEL;
   if (model === 'codex-luna') {
     raw = callCodexLuna(imgPath);
   } else {
-    raw = await callTokenRouter(imgB64);
+    try {
+      raw = await callTokenRouter(imgB64);
+    } catch (e) {
+      primaryErr = e;
+    }
   }
   let obj = extractJson(raw);
-  if (!obj) {
-    // Primary model produced unparsable output; fall back to Codex GPT-5.6 Luna
-    // when allowed (auto). kimi-k3-free is known to be occasionally unstable.
-    if (MODEL === 'auto') {
-      console.error('kimi parse failed, falling back to codex-luna');
-      try {
-        raw = callCodexLuna(imgPath);
-        obj = extractJson(raw);
-      } catch (e) {
-        console.error('codex-luna fallback error: ' + e.message);
-      }
+  if (!obj && MODEL === 'auto') {
+    // Primary model unavailable or unparsable; fall back to Codex GPT-5.6 Luna.
+    console.error('kimi failed (' + (primaryErr ? primaryErr.message : 'parse') + '), falling back to codex-luna');
+    try {
+      raw = callCodexLuna(imgPath);
+      obj = extractJson(raw);
+    } catch (e) {
+      console.error('codex-luna fallback error: ' + e.message);
     }
   }
   if (!obj) {
