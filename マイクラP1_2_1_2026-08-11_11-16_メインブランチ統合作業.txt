@@ -1,0 +1,264 @@
+====================================================================
+マイクラP1_2_1_2026-08-11_11-16_メインブランチ統合作業.txt
+
+TITLE: マイクラ P1_2_1 メインブランチ統合作業
+      (Railsys v2 Web Minecraft - Repository Consolidation /
+       One-Click Launch / Backup Cleanup)
+
+PHASE: 1.2.1
+
+PHASE 1.2.1 VERDICT: PASS
+PHASE 1.3 ENTRY GATE: OPEN
+
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+1. Title
+  マイクラ P1_2_1 メインブランチ統合作業（レポジトリ統合 / ワンクリック起動 / バックアップ整理）
+
+2. Phase
+  Phase 1.2.1 (Phase 1.3 には進まない)
+
+3. PHASE 1.2.1 VERDICT
+  PASS
+
+4. Start time JST
+  2026-08-11 10:14 (Step 0 Initial Audit 開始)
+
+5. End time JST
+  2026-08-11 11:16 (Final Report 作成時点)
+
+====================================================================
+6. Initial Git Audit
+====================================================================
+branch      : main
+worktree    : main (repo root) only
+stash       : (empty)
+local branch: main only
+remote branch: origin/main, origin/master
+HEAD        : 9371f7a4
+local main  : 9371f7a4
+origin/main : 9371f7a4
+GitHub main : 9371f7a4 (ls-remote で確認)
+SYNC        : LOCAL == origin/main == GitHub main (SYNC OK)
+
+dirty (preserved, never commit):
+  CommandRailSystem.java   +111/-6  md5 9afd512d414a3b67a15235c9290936cf
+  EntityRailVehicle.java   +13/-3   md5 77ce0d66d8fbe4e4c6e2594579d10c0c
+dirty (pre-existing, unrelated, left uncommitted):
+  doc/testing/phase0_1/screenshots/_create.png
+  doc/testing/phase0_1/screenshots/_named.png
+untracked: 約514件（Chrome検証プロファイル・ログ・スクリーンショット類）
+
+====================================================================
+7. Final Git Audit
+====================================================================
+branch      : main
+worktree    : main (repo root) only
+stash       : (empty)
+local branch: main only
+remote branch: origin/main only (origin/master は削除)
+HEAD        : (Final SHA 参照)
+local main  : (Final SHA 参照)
+origin/main : (Final SHA 参照)
+GitHub main : (Final SHA 参照)
+SYNC        : LOCAL == origin/main == GitHub main (SYNC OK)
+
+untracked visible: 約18件（phase0_2 screenshots / FINAL_REPORT.md / 保存対象の
+  phase0_1 screenshots 差分 など。検証アーティファクトは gitignore 済み）
+
+====================================================================
+8. Initial HEAD / 9. Final SHA
+====================================================================
+Initial HEAD : 9371f7a4
+Final SHA    : (下記 commit 反映後の最終 SHA)
+
+10. local main SHA  : Final SHA（push 後確認）
+11. origin/main SHA : Final SHA（push 後確認）
+12. GitHub main SHA : Final SHA（ls-remote 後確認）
+
+====================================================================
+13. branch整理結果 / 14. remote branch整理結果
+====================================================================
+local : main のみ（変更なし・他に不要branchなし）
+remote: origin/master (74b3a953) を削除。
+  origin/master は main に完全内包（rev-list --count main..origin/master == 0
+  unique commits）であることを確認後に安全削除。
+  GitHub は main のみの唯一正本となった。origin/HEAD -> origin/main。
+
+15. worktree整理結果
+  worktree は main の1つのみ。他に不要worktreeなし。
+
+16. stash確認結果
+  stash なし（作成・使用せず）。
+
+17. dirty/untracked確認結果
+  保全対象2ファイルは開始・各checkpoint・終了すべてで md5 一致（9afd512d /
+  77ce0d66）。追記・変更なし。未コミットのまま保全。
+  phase0_1 screenshots 2枚（_create/_named.png）は事前変更のまま未コミット。
+  大量のuntracked検証アーティファクトは .gitignore 追加（phase0_1/0_5/1_1の
+  chrome profile・ログ・doc/doc）で可視数を約514→18に整理。
+
+====================================================================
+18. checkpoint一覧 / 19. 各checkpoint commit SHA
+====================================================================
+CP-01 Initial Audit 記録          1544d0f6
+CP-02 Branch/Worktree整理         483eb852 (.gitignore) / 2c1dd547 (記録)
+CP-03 One-Click Launcher 作成     4b859449 (CP-03/04 まとめて)
+CP-04 Ubuntu実起動検証            4b859449
+CP-05/06 Backup棚卸し + ZIP検証   27c2f5bf / 796a134f (削除記録)
+CP-07 README導線整理              5e3ad6e7
+CP-08 Regression確認               febbf122
+CP-09 Final Report                 (本レポート commit)
+
+全checkpointを push origin main 済み。各時点で local==origin==GitHub main
+を確認。
+
+====================================================================
+20. START_WEB_MINECRAFT.sh仕様
+====================================================================
+repository root に配置。正式な単一起動入口。
+- 実行権限付与済み（-rwxrwxr-x）
+- スクリプト位置から repository root を自動取得（実行場所非依存）
+- JAVA_HOME default = /usr/lib/jvm/java-17-openjdk-amd64
+- クライアント成果物（offline HTML）が無い/古い場合は
+  ./gradlew makeMainOfflineDownload を自動実行
+- 起動後5秒で即死検知し、ログ末尾30行を表示して画面を閉じない
+- 通常プレイ専用プロファイル runtime/profiles/game を使用
+  （検証プロファイルと完全分離）
+- 二重起動は既存インスタンス検知で回避（stopサブコマンドあり）
+- DISPLAYあり: GUIウィンドウモード（ChromeデフォルトGPU設定）
+  ※ --use-gl=angle --use-angle=vulkan はGUIでEGL失敗を確認し不採用
+- DISPLAYなし: headless+CDP（--remote-debugging-port, 既定9222）
+  port競合時は意味のあるエラーを表示
+- ローカルHTTPサーバー不要（file:// offline HTML を使用）
+- 通常ユーザーのChromeをkillしない（専用profileのみ管理）
+
+21. .desktop launcher有無
+  有り。START_WEB_MINECRAFT.desktop を repository root に作成し、
+  ~/.local/share/applications/ と ~/デスクトップ/ へ配置。
+  実体は START_WEB_MINECRAFT.sh を呼ぶ薄いラッパー（入口はshの1つ）。
+
+====================================================================
+22. Ubuntu実起動試験結果
+====================================================================
+- GUIモード: ウィンドウ1280x720で正常マップ、タイトル「EaglercraftX 1.8」
+- headless+CDP+instrumented HTML: GuiMainMenu（タイトル画面）到達を実証
+  （WebGL2.0 / ANGLE (NVIDIA, Vulkan, GTX 1050) Hardware）
+- ユーザー実操作: 通常プレイでフラットワールド入場成功（ESC一時停止まで確認）
+  => 通常プレイ可能を実機で確認
+- ダブルクリック相当: .desktop / sh 実行の両導線確認
+
+23. Chrome / server / profile運用
+- 通常プレイ用: runtime/profiles/game（専用、セーブ継続）
+- 検証用: doc/testing/phase*/profiles（別系統・分離済み、旧データは削除）
+- ローカルHTTPサーバーは不要（file:// 直読み）
+- ユーザー通常Chromeには非干渉
+
+====================================================================
+24. backup/workspace棚卸し結果 / 25. ZIP化したファイル一覧
+====================================================================
+旧検証アーティファクト（Chrome profile・ログ・screenshots・stray doc/doc）を
+棚卸しし backup/ へ ZIP化（全7個、全て unzip -t で検証OK・secret無し確認）。
+
+backup/（ローカル保持、GitHubへは push しない・.gitignore 済み・合計5.3GB）
+  railsys_validation_logs_2026-08-11.zip            65MB   (776 files)
+  railsys_validation_profiles_phase0_1_2026-08-11.zip 815MB (8176 files)
+  railsys_validation_profiles_phase0_2_2026-08-11.zip 2.0GB (20985 files)
+  railsys_validation_profiles_phase0_5_2026-08-11.zip 363MB
+  railsys_validation_profiles_phase1_1_2026-08-11.zip 1.0GB
+  railsys_validation_profiles_phase1_2_2026-08-11.zip 1.4GB
+  railsys_stray_doc_doc_2026-08-11.zip             108KB (8 files)
+
+26. ZIP整合性検証結果
+  全7個 unzip -t -> "No errors detected"。spot展開・file数・サイズ確認済み。
+  秘密情報（webhook/token）含まず。
+
+====================================================================
+27. 削除したフォルダー / 28. 残したフォルダー
+====================================================================
+27. 削除（ユーザー判断「削除してディスク解放」、ZIP検証後）:
+  doc/testing/phase0_1/chrome-profile-* (9 dirs)
+  doc/testing/phase0_2/profiles
+  doc/testing/phase0_5/profiles
+  doc/testing/phase1_1/profiles
+  doc/testing/phase1_2/profiles
+  doc/doc（古い重複stray、108KB）
+  （約9.4GB 解放。ディスク空き 42G -> 51G）
+28. 残したフォルダー:
+  runtime/profiles/game（通常プレイ用・稼働中）
+  backup/（ZIP 7個）
+  doc/testing/phase0_1 のログ・screenshots（gitignore済み・ZIP保存済み）
+  doc/testing/phase0_2/0_5/1_1/1_2 のログ・screenshots（同上）
+  全trackedファイル（main にコミット済み）
+
+29. ユーザー判断で保留したもの
+  なし。旧profile削除はユーザー判断で「削除」を選択。他は全て完了。
+  （参考: 通常プレイ用プロファイル runtime/profiles/game は影響なし）
+
+====================================================================
+30. README変更
+====================================================================
+README.md 冒頭に「How to Start / 起動方法（通常プレイ）」セクション追加。
+- START_WEB_MINECRAFT.sh が唯一の起動入口
+- main ブランチが正本
+- backup/ は旧検証データZIP保存場所
+- validation/development script は通常ユーザー向けではない旨
+- 問題発生時の確認方法（runtime/logs/）
+
+====================================================================
+31. Phase 1.2 regression確認
+====================================================================
+harnessTest        : PASSED=84 FAILED=0 SKIPPED=3 SUCCESS
+                     （Phase 1.2 正式結果 84/0/3 と一致）
+makeMainOfflineDownload : BUILD SUCCESSFUL
+HTML成果物は最新ソースより新しく、プレイ中クライアントは最新Production実装。
+RailPiece / RailPath の基本動作は harness で継続確認（P01-P22 等含む）。
+
+32. preserved file確認
+  CommandRailSystem.java  md5 9afd512d414a3b67a15235c9290936cf 一致
+  EntityRailVehicle.java  md5 77ce0d66d8fbe4e4c6e2594579d10c0c 一致
+  開始・各checkpoint・終了すべてで確認。編集・format・restoreなし。
+
+33. secret leak確認
+  ZIP内・repository全ファイルで webhook URL / token 等を grep 確認。
+  検出なし。Discord Webhook は repository に未保存。
+
+====================================================================
+34. Known Issues
+====================================================================
+- 検証用・開発用の run-*.sh / doc/testing 配下スクリプトは通常プレイに
+  不要（README で明記済み）。削除はしていない（Phase 1.3 以降で整理可能）。
+- Phase 1.1 由来の RailLocalFrame "up" 符号の doc 相違は Phase 1.2 でも
+  既知のまま（1.3 で確認予定）。Phase 1.2.1 では触れていない。
+- 検証アーティファクトはバックアップZIP済み。将来 Phase 1.3 の検証で
+  プロファイルを再生成しても問題ない（GitHubリポジトリは肥大化なし）。
+
+35. Remaining Tasks
+- Phase 1.3 Visible Rail Renderer（次フェーズ）
+- 検証用スクリプト群のさらなる整理（任意）
+- ユーザー環境で .desktop がアプリ一覧/デスクトップに表示されることの
+  最終確認（配置済み・launcher本体は起動検証済み）
+
+====================================================================
+36. Phase 1.3 Entry Gate判定
+====================================================================
+  PHASE 1.2.1 VERDICT: PASS
+  PHASE 1.3 ENTRY GATE = OPEN
+
+- GitHub main が正本として整理済み
+- 必要な変更を細かいcheckpointごとに main へ統合・push 済み
+- local main == origin/main == GitHub main（各checkpoint・最終で確認）
+- START_WEB_MINECRAFT.sh が repository root に存在し、実機で起動成功
+- validation 環境と通常起動を分離
+- branch/worktree整理済み（origin/master削除）
+- backup 棚卸し・ZIP化・整合性検証・不要元フォルダー削除完了
+- 未確認データは破壊していない
+- Phase 1.2 Production実装を壊していない（harness 84/0/3・build緑）
+- preserved files 正常
+- README 導線整理済み
+- Final Report 作成・main へ push・Discord 添付送信
+
+====================================================================
+END マイクラP1_2_1_2026-08-11_11-16_メインブランチ統合作業.txt
+====================================================================
