@@ -20,7 +20,7 @@
  *   NO_LAUNCH=1 (attach to existing chrome on CDP_PORT), RUN_ID
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, statSync, readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -33,9 +33,11 @@ const PROFILES = resolve(PHASE, 'profiles');
 const RUN_ID = process.env.RUN_ID || new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
 const PROFILE = process.env.VALIDATION_PROFILE || resolve(PROFILES, 'run-' + RUN_ID);
 const PORT = process.env.CDP_PORT || '9402';
-const HTML =
+const HTML_RAW =
   process.env.VALIDATION_HTML ||
   resolve(ROOT, 'target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html');
+const INSTR = resolve(PHASE, 'scripts/validation_instrumented.html');
+const HTML = INSTR;
 const LOG = resolve(LOGD, 'validation_' + RUN_ID + '.log');
 const GPU_MODE = process.env.GUI_MODE || 'auto';
 const CREATE_RETRIES = parseInt(process.env.CREATE_RETRIES || '3', 10);
@@ -190,7 +192,9 @@ class CDP {
           reject(e);
         },
       });
-      this.ws.send(JSON.stringify({ id, method, params }));
+      const msg = { id, method, params };
+      if (this.sessionId) msg.sessionId = this.sessionId;
+      this.ws.send(JSON.stringify(msg));
     });
   }
   async eval(e) {
@@ -236,16 +240,42 @@ class CDP {
 }
 
 async function getWs() {
-  for (let i = 0; i < 60; i++) {
+  let pageUrl = null;
+  for (let i = 0; i < 90; i++) {
+    // Prefer the Eaglercraft page target (intro/newtab pages are skipped).
     try {
       const r = await fetch(`http://127.0.0.1:${PORT}/json/list`);
       const list = await r.json();
-      const p = list.find((t) => t.type === 'page');
+      const p = list.find((t) => t.type === 'page' && /EaglercraftX/i.test(t.url || ''));
       if (p) return p.webSocketDebuggerUrl;
+      const anyPage = list.find((t) => t.type === 'page' && !/^chrome:\/\//.test(t.url || ''));
+      if (anyPage) return anyPage.webSocketDebuggerUrl;
     } catch (_) {}
+    if (!pageUrl) {
+      try {
+        const r = await fetch(`http://127.0.0.1:${PORT}/json/version`);
+        const v = await r.json();
+        if (v.webSocketDebuggerUrl) pageUrl = v.webSocketDebuggerUrl;
+      } catch (_) {}
+    }
     await sleep(1000);
   }
+  if (pageUrl) return pageUrl;
   throw new Error('CDP unavailable on port ' + PORT);
+}
+
+async function attachPage(cdp) {
+  // If connected to the browser WS (Target domain), attach to a page target.
+  try {
+    const targets = await cdp.send('Target.getTargets');
+    const page = (targets.targetInfos || []).find((t) => t.type === 'page');
+    if (page) {
+      const { sessionId } = await cdp.send('Target.attachToTarget', { targetId: page.targetId, flatten: true });
+      cdp.sessionId = sessionId;
+    }
+  } catch (_) {
+    // Already on a page target; no-op.
+  }
 }
 
 function launchChrome(guiMode) {
@@ -253,7 +283,7 @@ function launchChrome(guiMode) {
   mkdirSync(S, { recursive: true });
   mkdirSync(LOGD, { recursive: true });
   const isGui = guiMode === 'gui';
-  const args = ['--no-sandbox', '--autoplay-policy=no-user-gesture-required', '--mute-audio', '--hide-scrollbars', '--window-size=1280,720', `--user-data-dir=${PROFILE}`];
+  const args = ['--no-sandbox', '--no-first-run', '--no-default-browser-check', '--autoplay-policy=no-user-gesture-required', '--mute-audio', '--hide-scrollbars', '--window-size=1280,720', `--user-data-dir=${PROFILE}`];
   if (!isGui) {
     args.push('--headless=new', `--remote-debugging-port=${PORT}`);
     args.push('--use-gl=angle', '--use-angle=swiftshader');
@@ -283,6 +313,31 @@ function screenName(s) {
   if (!s) return s === null ? 'NULL(in-game)' : '(undefined)';
   const parts = String(s).split('.');
   return parts[parts.length - 1];
+}
+
+// ---- screenChanged hook injection (same technique as Phase 1.2) ----
+const HOOK_NEEDLE = Buffer.from('container: "game_frame",');
+function ensureInstrumented() {
+  if (!existsSync(HTML_RAW)) throw new Error('offline HTML missing: ' + HTML_RAW);
+  const needRebuild =
+    !existsSync(INSTR) ||
+    statSync(INSTR).mtimeMs < statSync(HTML_RAW).mtimeMs ||
+    !existsSync(INSTR);
+  if (!needRebuild) return;
+  log('regenerating instrumented HTML');
+  const src = readFileSync(HTML_RAW);
+  const idx = src.indexOf(HOOK_NEEDLE);
+  if (idx < 0) throw new Error('instrumentation needle not found in HTML');
+  const hook =
+    HOOK_NEEDLE +
+    Buffer.from(
+      `\n\thooks: {\n\t\tscreenChanged: function(name, w, h, dw, dh, s) {\n` +
+        `\t\t\ttry { window.__eagScreen = name; window.__eagScreenTime = Date.now(); } catch (e) {}\n` +
+        `\t\t}\n\t},`,
+    );
+  const out = Buffer.concat([src.slice(0, idx), Buffer.from(hook), src.slice(idx + HOOK_NEEDLE.length)]);
+  writeFileSync(INSTR, out);
+  log('instrumented HTML written: ' + INSTR);
 }
 let safeScreen = async () => null;
 async function waitForScreen(cdp, want, opts = {}) {
@@ -347,17 +402,29 @@ async function gotoCreateForm(cdp) {
   curStage = stage('create_form', T.create_form);
   await waitForScreen(cdp, (s) => String(s).includes('GuiMainMenu'), { timeout: 60000 });
   await cdp.click(640, 258); // Singleplayer
-  const onSelect = (s) =>
-    String(s).includes('GuiSelectWorld') || String(s).includes('GuiScreenCreateWorldSelection');
-  await waitForScreen(cdp, onSelect, { timeout: 60000 });
+  // SP integrated server may show a startup screen before the world list.
+  await waitForScreen(
+    cdp,
+    (s) =>
+      String(s).includes('GuiSelectWorld') ||
+      String(s).includes('GuiScreenCreateWorldSelection') ||
+      String(s).includes('GuiScreenIntegratedServerStartup'),
+    { timeout: 60000 },
+  );
+  await waitForScreen(
+    cdp,
+    (s) => String(s).includes('GuiSelectWorld') || String(s).includes('GuiScreenCreateWorldSelection'),
+    { timeout: 60000 },
+  );
   let s = await cdp.screen();
   if (String(s).includes('GuiScreenCreateWorldSelection')) {
     log('on create-selection screen -> Create');
     await cdp.click(640, 242);
   } else {
-    await cdp.click(915, 492);
+    // Create New World button on GuiSelectWorld (viewport 1208x505 coords).
+    await cdp.click(762, 420);
     await waitForScreen(cdp, (s) => String(s).includes('GuiScreenCreateWorldSelection'), { timeout: 60000 });
-    await cdp.click(640, 242);
+    await cdp.click(640, 242); // Create
   }
   await waitForScreen(cdp, (s) => String(s).includes('GuiCreateWorld'), { timeout: 60000 });
   log('on create form');
@@ -365,7 +432,7 @@ async function gotoCreateForm(cdp) {
 
 async function enterWorld(cdp) {
   await waitForScreen(cdp, (s) => String(s).includes('GuiCreateWorld'), { timeout: 60000 });
-  await cdp.click(495, 138);
+  await cdp.click(500, 145); // world name field
   await sleep(800);
   await cdp.send('Input.dispatchKeyEvent', {
     type: 'keyDown',
@@ -393,7 +460,8 @@ async function enterWorld(cdp) {
 
 async function attemptCreate(cdp) {
   curStage = stage('world_join', T.world_join);
-  await cdp.click(400, 540); // Confirm create
+  // Create button on GuiCreateWorld is the LEFT button (viewport 1208x505).
+  await cdp.click(444, 470);
   const start = Date.now();
   const seen = [];
   let menuBounces = 0;
@@ -559,11 +627,7 @@ async function run(cdp) {
         cleanupChrome();
         await sleep(3000);
         launchChrome(guiMode);
-        const ws = await getWs();
-        cdp = new CDP(ws);
-        await cdp.connect();
-        await cdp.send('Runtime.enable');
-        await cdp.send('Page.enable');
+        cdp = await connectCdp();
         continue;
       }
     }
@@ -573,26 +637,29 @@ async function run(cdp) {
 
 log('START Phase1.2.2 validation RUN=' + RUN_ID + ' gui=' + guiMode + ' profile=' + PROFILE + ' create_retries=' + CREATE_RETRIES);
 
+async function connectCdp() {
+  curStage = stage('cdp_connect', T.cdp_connect);
+  const ws = await getWs();
+  const cdp = new CDP(ws);
+  await cdp.connect();
+  await attachPage(cdp);
+  await cdp.send('Runtime.enable');
+  await cdp.send('Page.enable');
+  return cdp;
+}
+
 async function main() {
   writeFileSync(LOG, '');
+  ensureInstrumented();
+  let cdp;
   if (!process.env.NO_LAUNCH) {
     curStage = stage('chrome_boot', T.chrome_boot);
     launchChrome(guiMode);
     await sleep(6000);
-    curStage = stage('cdp_connect', T.cdp_connect);
-    const ws = await getWs();
-    const cdp = new CDP(ws);
-    await cdp.connect();
-    await cdp.send('Runtime.enable');
-    await cdp.send('Page.enable');
+    cdp = await connectCdp();
     await run(cdp);
   } else {
-    curStage = stage('cdp_connect', T.cdp_connect);
-    const ws = await getWs();
-    const cdp = new CDP(ws);
-    await cdp.connect();
-    await cdp.send('Runtime.enable');
-    await cdp.send('Page.enable');
+    cdp = await connectCdp();
     await run(cdp);
   }
   curStage = stage('cleanup', T.cleanup);

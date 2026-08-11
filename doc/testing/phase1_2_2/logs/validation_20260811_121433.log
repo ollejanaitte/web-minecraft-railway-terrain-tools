@@ -1,0 +1,57 @@
+[2026-08-11T03:14:33.391Z][20260811_121433] chrome launched pid=1920394 mode=gui profile=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2_2/profiles/run-20260811_121433
+[2026-08-11T03:14:39.458Z][20260811_121433] === create attempt 1/3 ===
+[2026-08-11T03:14:45.382Z][20260811_121433] [HEARTBEAT] stage=title_ready elapsed=6s autovalidate=no tour=0/8 shots=0 screen=(undefined) chrome_pid=1920394 retry=1/3
+[2026-08-11T03:14:54.301Z][20260811_121433] content warning -> continue
+[2026-08-11T03:14:56.288Z][20260811_121433] default-username note -> continue anyway
+[2026-08-11T03:14:57.383Z][20260811_121433] [HEARTBEAT] stage=title_ready elapsed=18s autovalidate=no tour=0/8 shots=0 screen=GuiScreenDefaultUsernameNote chrome_pid=1920394 retry=1/3
+[2026-08-11T03:14:57.529Z][20260811_121433] title reached: GuiMainMenu
+[2026-08-11T03:15:00.286Z][20260811_121433] on create form
+[2026-08-11T03:15:03.493Z][20260811_121433] world named
+[2026-08-11T03:15:09.383Z][20260811_121433] [HEARTBEAT] stage=world_join elapsed=6s autovalidate=no tour=0/8 shots=1 screen=GuiScreenIntegratedServerBusy chrome_pid=1920394 retry=1/3
+[2026-08-11T03:15:09.765Z][20260811_121433] create->in-game detected
+[2026-08-11T03:15:16.321Z][20260811_121433] HIT [12:15:16+316][Client thread/INFO][Minecraft]: [CHAT] railsysv2: auto-validated (build + 4 cars started)
+[2026-08-11T03:15:18.776Z][20260811_121433] IN_WORLD validated=true
+[2026-08-11T03:15:20.325Z][20260811_121433] HIT [12:15:20+324][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=formation_side
+[2026-08-11T03:15:21.384Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=3s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:15:29.333Z][20260811_121433] HIT [12:15:29+332][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=along_track
+[2026-08-11T03:15:33.385Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=15s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:15:37.332Z][20260811_121433] HIT [12:15:37+331][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=close_formation
+[2026-08-11T03:15:45.332Z][20260811_121433] HIT [12:15:45+331][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=curve
+[2026-08-11T03:15:45.384Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=27s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:15:54.324Z][20260811_121433] HIT [12:15:54+323][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=piece3
+[2026-08-11T03:15:57.385Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=39s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:16:04.293Z][20260811_121433] HIT [12:16:04+290][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_straight
+[2026-08-11T03:16:09.386Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=51s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:16:10.275Z][20260811_121433] HIT [12:16:10+272][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_gentle
+[2026-08-11T03:16:16.282Z][20260811_121433] HIT [12:16:16+280][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_tight
+[2026-08-11T03:16:21.385Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=63s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:16:22.273Z][20260811_121433] HIT [12:16:22+272][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_s_curve
+[2026-08-11T03:16:28.282Z][20260811_121433] HIT [12:16:28+280][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_gradient
+[2026-08-11T03:16:33.386Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=75s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:16:34.282Z][20260811_121433] HIT [12:16:34+281][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_curve_grad
+[2026-08-11T03:16:40.282Z][20260811_121433] HIT [12:16:40+281][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_local_frame
+[2026-08-11T03:16:45.386Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=87s autovalidate=yes tour=0/8 shots=1 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:16:46.281Z][20260811_121433] HIT [12:16:46+280][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=geom_overview
+[2026-08-11T03:16:52.281Z][20260811_121433] HIT [12:16:52+280][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_multi_straight
+[2026-08-11T03:16:54.434Z][20260811_121433] tour shot 1/8 20260811_121433_SS-01_MULTI_STRAIGHT.png
+[2026-08-11T03:16:57.386Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=99s autovalidate=yes tour=1/8 shots=2 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:16:58.290Z][20260811_121433] HIT [12:16:58+289][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_straight_curve_straight
+[2026-08-11T03:17:00.014Z][20260811_121433] tour shot 2/8 20260811_121433_SS-02_STRAIGHT_CURVE_STRAIGHT.png
+[2026-08-11T03:17:04.273Z][20260811_121433] HIT [12:17:04+272][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_s_curve
+[2026-08-11T03:17:06.612Z][20260811_121433] tour shot 3/8 20260811_121433_SS-03_S_CURVE.png
+[2026-08-11T03:17:09.387Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=111s autovalidate=yes tour=3/8 shots=4 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:17:10.273Z][20260811_121433] HIT [12:17:10+272][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_boundary
+[2026-08-11T03:17:12.203Z][20260811_121433] tour shot 4/8 20260811_121433_SS-04_PIECE_BOUNDARY.png
+[2026-08-11T03:17:16.273Z][20260811_121433] HIT [12:17:16+272][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_gradient
+[2026-08-11T03:17:18.805Z][20260811_121433] tour shot 5/8 20260811_121433_SS-05_GRADIENT_CHAIN.png
+[2026-08-11T03:17:21.387Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=123s autovalidate=yes tour=5/8 shots=6 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:17:22.273Z][20260811_121433] HIT [12:17:22+272][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_curve_gradient
+[2026-08-11T03:17:24.405Z][20260811_121433] tour shot 6/8 20260811_121433_SS-06_CURVE_GRADIENT.png
+[2026-08-11T03:17:28.282Z][20260811_121433] HIT [12:17:28+280][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_reverse
+[2026-08-11T03:17:30.009Z][20260811_121433] tour shot 7/8 20260811_121433_SS-07_REVERSE_PATH.png
+[2026-08-11T03:17:33.388Z][20260811_121433] [HEARTBEAT] stage=tour elapsed=135s autovalidate=yes tour=7/8 shots=8 screen=n/a chrome_pid=1920394 retry=1/3
+[2026-08-11T03:17:34.281Z][20260811_121433] HIT [12:17:34+280][Client thread/INFO][Minecraft]: [CHAT] railsysv2: camera tour=path_overview
+[2026-08-11T03:17:36.590Z][20260811_121433] tour shot 8/8 20260811_121433_SS-08_OVERVIEW.png
+[2026-08-11T03:17:37.591Z][20260811_121433] SUCCESS tour=8 shots=9
+[2026-08-11T03:17:37.592Z][20260811_121433] cleanup chrome profile=/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2_2/profiles/run-20260811_121433
+[2026-08-11T03:17:37.617Z][20260811_121433] END SUCCESS tour=8 shots=9

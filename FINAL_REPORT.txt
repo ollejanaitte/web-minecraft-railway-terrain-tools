@@ -1069,3 +1069,23 @@ VISION_MODEL=auto（既定）: kimiを試し、parse失敗/HTTPエラー時は�
   Codex CLI + gpt-5.6-luna へフォールバックするよう実装。
 実測: kimi単体は安定する場合も不安定な場合もある（確認済み）。
 autoモードでkimi失敗→luna成功の実測確認（{status:PASS, screen_state:WARNING}）。
+
+STEP 905 - CP-07 GUI実ゲームValidation
+----------------------------------------
+run-validation-workflow.sh をGUIモードでフル実行 → VALIDATION PASS。
+- GUI Chrome起動（検証用profile, RUN 20260811_121433）
+- タイトル到達 GuiMainMenu → content warning continue → Singleplayer
+- Eaglercraftの実フローに合わせナビゲーション修正:
+  GuiSelectWorld: Create New World=(762,420)
+  GuiScreenCreateWorldSelection: Create=(640,242)
+  GuiCreateWorld: ワールド名フィールド=(500,145)、Createボタン=左側(444,470)
+  （※P1.2の旧座標(915,492)/(400,540)はEaglercraft GUIと不一致を実測し修正）
+- AutoValidate発火: autovalidate=yes
+- camera tour 8/8 全発火（path_multi_straight..path_overview）
+- スクリーンショット 8/8 取得（SS-01..08, 9枚目named）
+- heartbeat 12s毎に stage/elapsed/tour/shots/autovalidate 表示
+- cleanup正常（検証profileのみkill・ユーザーChrome非干渉）
+- Vision Observer補助観測: SS-01/04 rail_visible=true（境界の連続性確認）、
+  SS-08は俯瞰画面を「レールなし」と判定（観測の不確実性の事例。
+  Vision単独判定はせず、console tour 8/8 + AutoValidateを主証拠とする）
+- 通常プレイ用runtime/profiles/game、ユーザーChromeは非干渉を確認
