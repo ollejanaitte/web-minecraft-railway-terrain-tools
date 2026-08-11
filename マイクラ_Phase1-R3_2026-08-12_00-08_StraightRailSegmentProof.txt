@@ -1,0 +1,210 @@
+====================================================================
+FINAL REPORT — Phase 1-R3: Straight Rail Segment Proof
+短い独立3D Rail SegmentをStraight RailPath上へ連続配置し
+「一本の直線線路」を実ゲームGUIで成立させる
+====================================================================
+
+1. Title
+   Phase 1-R3: Straight Rail Segment Proof
+
+2. Phase
+   Phase 1-R3
+
+3. Status / Verdict
+   PHASE 1-R3 STATUS: COMPLETE
+   PHASE 1-R3 VERDICT: PASS (ユーザー確認済み 2026-08-12)
+   PHASE 1-R3 後の次Phase候補: 本報告25節を参照
+   PHASE 2 ENTRY GATE: CLOSED (変更なし)
+
+4. Start time JST
+   2026-08-11 23:44 (STEP R3-01 Initial Git Audit)
+
+5. End time JST
+   2026-08-12 00:08
+
+6. Initial Git Audit
+   - 開始HEAD: 3554a05a8ff66290150931359c823b84901997dc
+   - local == origin/main == GitHub main == 3554a05a (SYNC OK)
+   - 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty tracked (保全): RenderGlobal +2, CommandRailsysPlace +5,
+     phase0_1 screenshots 2枚 (既存未コミット差分、触らない)
+   - R2成果確認: d9b18468 (feat), 3554a05a (R2 final report)
+
+7. Final Git Audit
+   - 実装コミット: bcb9c67233048b94d091cc40d81e50b71f69a305 (Commit A)
+   - 報告コミット: 本報告 (Commit C) を main へ統合・push予定
+   - 保全対象MD5不変: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty (RenderGlobal/CommandRailsysPlace/phase0_1) は未コミット維持
+
+8. Initial HEAD
+   3554a05a8ff66290150931359c823b84901997dc
+
+9. Final SHA
+   bcb9c67233048b94d091cc40d81e50b71f69a305 (Commit A: R3実装)
+
+10. local main SHA
+    bcb9c67233048b94d091cc40d81e50b71f69a305 (Commit A時点)
+
+11. origin/main SHA
+    bcb9c67233048b94d091cc40d81e50b71f69a305 (Commit A時点)
+
+12. GitHub main SHA
+    bcb9c67233048b94d091cc40d81e50b71f69a305 (Commit A時点)
+    ※Commit C (Final Report) 反映後は本報告がmain上で最新になる。
+       同期確認はFINAL_REPORT.txt作業ログSTEP R3-05に記録。
+
+13. 実装概要
+    - R2のRepeatedBoxProofRenderer pipelineをそのまま再利用し、
+      1m cube (drawCube相当) を「最小3D Rail Segment (drawRailSegment相当)」
+      へ置換。
+    - 各segment = 左レール + 右レール + 枕木 の3 prism
+      (独立3D geometry / setBlockしない / Entity化不要 / texture不要 /
+       単色flat color / camera-relative rendering)。
+    - Straight RailPath 1本 (20m, R2 fixture再利用) を実距離 s[m] で
+      1m間隔にsamplingし、PathSample.frame (RailLocalFrame) に沿って
+      segmentを配置 (future Curve/Gradientへの拡張と整合)。
+    - normalized progress不使用。実距離のみ。
+
+14. 再利用したR2 pipeline
+    StraightGeometry
+    → RailPiece
+    → RailPath (production API, 再設計なし)
+    → RailPath.resolve(s) 実距離sampling
+    → PathSample (sample + frame)
+    → world-space position
+    → camera-relative rendering (GlStateManager.translate(-cam))
+    → 反復配置
+    ※EntityRenderer pass==0||pass==2 hook / MinecraftServer.onServerTick /
+      クライアント記録ワールド名gate / GuiCreateWorld flat強制 もR1/R2流儀を踏襲。
+
+15. Straight RailPath start/end/length
+    start: (300.0, 5.0, 300.0)
+    end:   (320.0, 5.0, 300.0)
+    pieceId: 7001
+    totalLength: 20.0 m (水平直線, +X方向)  ※R2と同一fixture
+
+16. Rail Segment geometry仕様
+    - segment長: 1.0 m (SEGMENT_LENGTH_M)
+    - spacing: 1.0 m (SPACING_M) → segment長 == spacing で隙間・重なりゼロのタイル
+    - gauge相当の左右間隔: 1.0 m (GAUGE_M, レール中心間)
+    - 左レール: frameの -right 側に gauge/2 オフセット
+    - 右レール: frameの +right 側に gauge/2 オフセット
+    - 枕木: centerline上 (横方向オフセットなし)
+
+17. rail / sleeper主要寸法
+    - rail : 長さ1.0m x 幅0.12m x 高0.18m (steel gray 88,88,100)
+    - sleeper: 長さ1.6m x 幅0.12m x 高0.10m (brown 120,82,48)
+    - sleeper base: y=4.02 (地面top y=4.0の直上)
+    - rail base = sleeper base + sleeper高 = y=4.12 (枕木上に着座)
+    - rail top: y=4.30
+
+18. Segment origin contract
+    PathSample.position (frame.x/y/z = path centerline点) = segment CENTER。
+    レールは frameのright±gauge/2、枕木はcenterline、すべてframeのup方向へ
+    鉛直オフセット (RAIL_CENTER_UP_M / SLEEPER_CENTER_UP_M)。
+    frame align なのでfuture Curveでもそのまま成立する設計。
+
+19. Segment length
+    SEGMENT_LENGTH_M = 1.0 m
+
+20. Spacing
+    SPACING_M = 1.0 m (endpoint-inclusive sampling, s = 0,1,2,...,20)
+
+21. Expected / Rendered segment count
+    totalLength = 20.0 m, spacing = 1.0 m
+    expected = floor(20/1)+1 = 21 segment
+    rendered = 21 segment (rails 42, sleepers 21)
+    GUIチャット確認:
+      "STRAIGHTRAIL hook FIRED (gate=true) pathLen=20.0 segLen=1.0 spacing=1.0 segCount=21"
+      "render ... segments=21 expected=21 rails=42 sleepers=21"
+    harness: StraightRailSegmentProofTest 8件 PASS (21件カウント/等間隔/タイル継続/contract)
+
+22. RailPath沿い配置の数値検証 (harness)
+    - frame contract: forward(1,0,0) / right(0,0,1) / up(0,1,0)
+    - rail配置: 左右レール中心間 = gauge 1.0m, 同高さ, rail center y=4.21
+    - sleeper配置: centerline上, sleeper top == rail base (4.12)
+    - tiling: 連続segment中心間隔1.0m = segment長 → gapなし / overlapなし
+      (segment sの+forward端 == segment s+1の-forward端)
+    - 全21 sampleが centerline上 (x=300..320, y=5.0)
+
+23. GUI Validation結果
+    - Clean Scene (EaglerCleanFlat): STRAIGHTRAIL gate=false, hook FIREDなし
+      → validation isolation OK
+    - Straight Rail (EaglerStraightRail): gate=true, hook FIRED, count=21一致
+    - camera tour: stage=view → close → final (カメラ移動後も線路は世界位置に固定)
+    - 旧RailV2Car・旧rail・marker・debug object・R1 BOX・R2 cyan BOX は表示なし
+    - error chat / permission error / duplicate / flicker / crash なし
+    - ユーザー「私もちらっと画面見ましたが問題ないと思います」
+      「作業成功で問題ありません」→ 視覚確認・承認
+
+24. Screenshot (最終1枚)
+    doc/testing/phase1_rebuild_02/screenshots/SS-R3-01_STRAIGHT_RAIL_FINAL.png
+    - 沿線POV (camera 297,8,300 yaw=270 pitch=10): 中央下→遠方へ走る
+      直線レール、左右レール並行、枕木約11本、連続性が明瞭
+    - 旧debug objectなし
+    - Vision (codex GPT-5.6-luna): status=PASS, left/right_rail_visible=true,
+      sleepers_visible=true, continuous_straight_rail=true,
+      old_debug_objects_visible=false, camera_valid=true, confidence=0.98
+
+25. Discord Screenshot送信結果
+    【Phase 1-R3 Visual Evidence】PNGファイル本体1枚を multipart/form-data で
+    送信 OK (Discord image send OK: 1 file(s))。
+    スクリーンショット送信失敗を成功と偽っていない。
+
+26. Harness結果
+    ./gradlew harnessTest: PASSED=99 FAILED=0 SKIPPED=3 SUCCESS
+    (R2: 91 → R3: 99。StraightRailSegmentProofTest 8件追加)
+
+27. Production Build結果
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL
+    Offline HTML: target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html
+
+28. Regression結果
+    - R1 SingleBoxProofRenderer / Validation: 動作維持 (gateは互いに排他)
+    - R2 RepeatedBoxProofRenderer / Validation: 動作維持
+      (straightrailワールドではrepeatedbox/singlebox gate=falseで非干渉)
+    - cleanflat / singlebox / repeatedbox / straightrail 各ワールドでgate分離確認
+    - 過去test総数を固定値とせず、現在repository標準のharness結果を基準に採用
+
+29. Validation isolation
+    - straightrailワールド以外ではStraightRailProofRenderer/Validationは発火しない
+      (クライアント記録ワールド名gate + サーバー側worldName gate)
+    - Clean Scene (cleanflat) でのgate=falseをGUIログで確認
+    - validation-only fixtureは通常Worldへ漏洩なし
+
+30. Preserved files
+    CommandRailSystem.java: md5 9afd512d414a3b67a15235c9290936cf (不変)
+    EntityRailVehicle.java: md5 77ce0d66d8fbe4e4c6e2594579d10c0c (不変)
+
+31. Secret leak確認
+    Webhook URL等のsecretはリポジトリ・doc・log・script・画像へ保存・
+    commitしていない。Webhookはruntime env (DISCORD_WEBHOOK_URL) のみで使用。
+
+32. Clean-room確認
+    RTM/NR01のコード・モデル・texture・script・assetをコピーしていない。
+    レールsegmentは既存Eaglercraft描画API + 既存Core (Geometry/RailPath/
+    RailLocalFrame) で独自実装。
+
+33. Known Issues
+    - 枕木はsegment中心に1本 (1m間隔)。実物より疎だが「最低限の枕木」要件を満たす。
+    - segment境界でレール頂点が完全にmesh weldされない (立方体prismの突合)。
+      R3では許容 (perfect mesh weldingは後工程)。
+    - rail/sleeperはflat color単色。texture・ballastは後工程。
+    - endpointで線路はstart/endより0.5mずつ延長 (segment center配置の自然な端)。
+      duplicate/gapはなし。
+
+34. Final Verdict
+    PHASE 1-R3 VERDICT: PASS
+
+35. Next Phase候補
+    - R4: Curve RailPath上でのRail Segment連続配置 (frame align活用)
+    - R5: Gradient / Cant への対応
+    - R6: Switch / Marker Placement
+    - Persistence (segment→world保存)
+    - Train走行 (EntityRailVehicle + PathSample)
+    いずれもPhase 2として独立ゲート管理。今回の実行中には開始しない。
+
+====================================================================
+END Phase 1-R3
+====================================================================

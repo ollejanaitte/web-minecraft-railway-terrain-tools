@@ -1490,3 +1490,71 @@ Final Report「マイクラ_Phase1-R2_2026-08-11_23-27_RepeatedSegmentProof.txt�
 ====================================================================
 END Phase 1-R2 記録
 ====================================================================
+
+====================================================================
+Phase 1-R3 開始記録 (Straight Rail Segment Proof)
+====================================================================
+
+STEP R3-01 - Initial Git Audit (2026-08-11 23:44 JST)
+------------------------------------------------------
+- 開始HEAD: 3554a05a8ff66290150931359c823b84901997dc
+- local main == origin/main == GitHub main == 3554a05a (SYNC OK)
+- branch: main
+- 既存dirty tracked (保全・今回触らない):
+  - src/game/java/net/minecraft/command/CommandRailSystem.java (保全対象, 117行差分=Phase6-F-FIX3)
+  - src/game/java/net/minecraft/entity/item/EntityRailVehicle.java (保全対象, 16行差分)
+  - src/game/java/net/minecraft/client/renderer/RenderGlobal.java (+2: 既存debug print)
+  - src/game/java/net/minecraft/command/CommandRailsysPlace.java (+5: 既存debug print)
+  - doc/testing/phase0_1/screenshots/_create.png, _named.png (既存)
+- R2成果確認: d9b18468 (feat Phase 1-R2), 3554a05a (R2 final report)
+- R2 pipeline: StraightGeometry→RailPiece→RailPath→resolve(s)→PathSample→
+  PathSample.sample(x,y,z)+frame(RailLocalFrame)→camera-relative描画
+- R3方針: R2のRepeatedBoxProofRendererを踏襲し、drawCube相当を
+  drawRailSegment相当 (左レール+右レール+枕木, frame align) へ置換。
+  normalized progress不使用。Straight RailPath 1本 (20m) はR2 fixture再利用。
+
+STEP R3-02 - Discord作業開始通知送信OK (HTTP 204)
+--------------------------------------------------
+
+====================================================================
+END Phase 1-R3 開始記録
+====================================================================
+
+====================================================================
+Phase 1-R3 完了記録 (Straight Rail Segment Proof)
+====================================================================
+
+STEP R3-03 - 実装完了 (Commit A: bcb9c672)
+--------------------------------------------------
+- StraightRailProofRenderer 追加:
+  R2 pipeline再利用 (StraightGeometry→RailPiece→RailPath→resolve(s)→
+  PathSample.frame)。drawCube相当→drawRailSegment相当へ置換。
+  各segment = 左レール(88,88,100) + 右レール + 枕木(120,82,48)。
+  1.0m segment x 21 (s=0..20), rails 42 / sleepers 21。
+  frame align (RailLocalFrame {f,r,u}) でfuture Curveと整合。
+- StraightRailProofValidation 追加: camera tour (view→close→final→release)。
+- Hook: EntityRenderer pass==0||pass==2, MinecraftServer.onServerTick,
+  GuiCreateWorld flat強制に "straightrail" 追加。
+- StraightRailSegmentProofTest (harness 8件) 追加。
+- harness 99/0/3 / build SUCCESS / GUI+Vision PASS (conf 0.98)。
+- 保全対象MD5不変: CommandRailSystem 9afd512d / EntityRailVehicle 77ce0d66。
+
+STEP R3-04 - GUI検証 + Screenshot + Discord
+--------------------------------------------------
+- cleanflat: STRAIGHTRAIL gate=false → isolation OK
+- straightrail: hook FIRED pathLen=20.0 segLen=1.0 spacing=1.0 segCount=21
+  render segments=21 expected=21 rails=42 sleepers=21
+- 最終Screenshot 1枚: SS-R3-01_STRAIGHT_RAIL_FINAL.png (沿線POV)
+- Vision PASS conf 0.98 / ユーザー「作業成功で問題ありません」
+- DiscordへPNG本体1枚送信OK
+- Final Report: マイクラ_Phase1-R3_2026-08-12_00-08_StraightRailSegmentProof.txt
+
+STEP R3-05 - Commit C (Final Report) + push + 同期確認
+--------------------------------------------------
+- Commit A bcb9c672 (実装7ファイル, +611/-1)
+- Commit C 本報告 + FINAL_REPORT.txt を main へ統合・push
+- push後: local == origin/main == GitHub main を確認予定
+
+====================================================================
+END Phase 1-R3 記録
+====================================================================
