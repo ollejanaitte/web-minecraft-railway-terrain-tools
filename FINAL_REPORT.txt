@@ -1107,3 +1107,11 @@ headless（swiftshader）でも検証ワークフローを成功させた（RUN 
 - ユーザーゲーム（runtime/profiles/game）は検証中も一時停止なく無事。
   検証終了後に停止を確認（ユーザー操作によるものと判断）
 - GUIを標準、headlessをfallbackとして両方動作確認済み
+
+STEP 907 - CP-09 Regression / Preservation確認
+------------------------------------------------
+harnessTest: PASSED=84 FAILED=0 SKIPPED=3 SUCCESS（Phase 1.2正式結果と一致）
+makeMainOfflineDownload: BUILD SUCCESSFUL（UP-TO-DATE）
+Production diff: 保全対象のみ（CommandRailSystem +111/-6, EntityRailVehicle
++13/-3、Phase 1.2.1から不変）。Phase 1.2.2でProductionコード変更なし。
+保全対象MD5: 9afd512d / 77ce0d66（不変）。validation専用変更のみ。

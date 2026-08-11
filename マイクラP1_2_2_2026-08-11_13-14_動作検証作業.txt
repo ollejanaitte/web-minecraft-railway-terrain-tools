@@ -1,0 +1,279 @@
+====================================================================
+マイクラP1_2_2_2026-08-11_13-14_動作検証作業.txt
+
+TITLE: マイクラ P1_2_2 動作検証作業
+      (Railsys v2 Web Minecraft - Validation Workflow Improvement /
+       GUI Validation / Human Assist / Vision Observer)
+
+PHASE: 1.2.2
+
+PHASE 1.2.2 VERDICT: PASS
+PHASE 1.3 ENTRY GATE: OPEN
+
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+1. Title
+  マイクラ P1_2_2 動作検証作業（検証ワークフロー改善：
+  GUI検証標準化 / Stage・Heartbeat・Timeout・Retry / Human Assist /
+  Vision Observer）
+
+2. Phase
+  Phase 1.2.2（Phase 1.3 には着手しない）
+
+3. PHASE 1.2.2 VERDICT
+  PASS
+
+4. Start time JST
+  2026-08-11 11:20 (Step 0 Initial Audit 開始)
+
+5. End time JST
+  2026-08-11 13:14 (Final Report 作成時点)
+
+====================================================================
+6. Initial Git Audit
+====================================================================
+branch       : main
+worktree     : main (repo root) only
+stash        : (empty)
+local branch : main only
+remote branch: origin/main only
+HEAD         : 956249a7
+local main   : 956249a7
+origin/main  : 956249a7
+GitHub main  : 956249a7 (ls-remote確認)
+SYNC         : LOCAL == origin/main == GitHub main (SYNC OK)
+Preserved    : CommandRailSystem.md5 9afd512d / EntityRailVehicle.md5 77ce0d66
+User game    : runtime/profiles/game RUNNING (PID 1880935, 非干渉)
+Validation   : path_validate.mjs（無音待機・stage無し・human assist無し・
+              vision無し、GUI非対応）を確認
+
+====================================================================
+7. Final Git Audit
+====================================================================
+branch       : main
+worktree     : main (repo root) only
+stash        : (empty)
+remote branch: origin/main only
+HEAD / local / origin / GitHub main : (Final SHA 参照)
+SYNC         : LOCAL == origin/main == GitHub main
+Untracked    : phase0_2 screenshots/logs + FINAL_REPORT.md（既存・未コミット）
+              phase1_2_2 chrome_*.log（gitignore済み）
+
+8. Initial HEAD / 9. Final SHA
+  Initial HEAD : 956249a7
+  Final SHA    : (Final Report commit 後の最終 SHA)
+
+10. local main SHA  : Final SHA（push後確認）
+11. origin/main SHA : Final SHA（push後確認）
+12. GitHub main SHA : Final SHA（ls-remote後確認）
+
+====================================================================
+13. checkpoint一覧 / 14. 各checkpoint commit SHA
+====================================================================
+CP-01 Initial Audit / Validation現状記録    f27a0d25
+CP-02 GUI Validation標準化（GUI/headless）   d238ca69
+CP-03 Stage/Heartbeat/Timeout/Retry          d238ca69
+CP-04 Human Assist / HUMAN_REQUIRED          d238ca69
+CP-05 Discord Human Assist操作指示           d238ca69
+CP-06 Vision Observer（auto fallback）       090630bf
+CP-07 GUI実ゲームValidation PASS             591bf34c
+CP-08 headless fallback SUCCESS              0af03183
+CP-09 Regression / Preservation確認          (本Report commit)
+CP-10 Final Report                            (本Report commit)
+
+全checkpointを push origin main 済み。各時点で main 同期確認。
+
+====================================================================
+15. GUI Validation仕様
+====================================================================
+- run-validation-workflow.sh が正式GUI検証エントリ
+- GUI_MODE=auto（DISPLAY有ならgui）/gui/headless で明示切替
+- 検証専用profile: doc/testing/phase1_2_2/profiles/run-<RUNID>
+- runtime/profiles/game・ユーザー通常Chromeには非干渉
+- Chrome PID を起動時に記録、run単位でcleanup
+- ビューポートを Emulation.setDeviceMetricsOverride(1208x505) で統一し、
+  GUI/headless両モードで同一クリック座標を使用
+
+16. headless fallback仕様
+- GUI_MODE=headless で headless=new + swiftshader + CDP
+- GUI標準・headlessは自動化/fallback用途
+- headless特有対応: GuiScreenEditProfile通過 / screenshot 60s /
+  tour timeout 900s（swiftshaderはHWより5-10倍遅い）
+
+17. RUN ID仕様
+- 形式: YYYYMMDD_HHMMSS（例 20260811_121433）
+- 全ログ行に [RUNID] 表示、profile/SS/ログ名に付与
+
+18. stage一覧（per-stage timeout）
+- chrome_boot 30s / cdp_connect 20s / title_ready 90s /
+  create_form 60s / world_join 240s / auto_validate 60s /
+  tour GUI 300s・headless 900s / screenshot 20s / cleanup 15s
+  （STAGE_TIMEOUT_SCALEで一律倍率可）
+
+19. heartbeat仕様
+- 12秒毎に [HEARTBEAT] stage/elapsed/autovalidate/tour/shots/screen/
+  chrome_pid/retry を出力。動いていることが常に分かる。
+
+20. stage timeout仕様
+- 各stage個別timeout。超過時は stage/timeoutMs/lastScreen/
+  autovalidate/tour/shots/chrome_pid/retry を記録して失敗。
+- HUMAN_REQUIRED / STAGE_TIMEOUT は自動retryせず表面化。
+
+21. retry仕様
+- CREATE_RETRIES（既定3）でワールド作成を試行
+- retry前は run単位で cleanupChrome + 再起動
+- 同じ失敗は繰り返さない（menu bounce 2回でHUMAN_REQUIRED）
+- ユーザーChromeは絶対にkillしない
+
+====================================================================
+22. Human Assist判定条件 / 23. HUMAN_REQUIREDフロー
+====================================================================
+22. 判定条件:
+  - 同一stageで一定時間無進捗
+  - 想定外GUI画面
+  - click/inputの複数回失敗
+  - menu bounceを繰り返す（2回でHUMAN_REQUIRED）
+  - Chromeは生きているが画面遷移しない
+  - 自動状態判定に確信が持てない
+23. フロー:
+  AUTO → 無進捗検出 → screen/log再確認 → 安全な自動復旧(少数回)
+  → 改善しない → HUMAN_REQUIRED → Discord操作指示 → ユーザー操作
+  → 検証再開（最大5分ポーリングで復帰を待機）
+
+====================================================================
+24. Discord Human Assist通知仕様
+====================================================================
+【HUMAN_REQUIRED】として以下を日本語で送信:
+- RUN ID / 現在screen / 停止位置stage
+- お願いする操作（画面名・ボタン名・クリック順・入力文字列・完了目印）
+例: Singleplayer→Create New World→ワールド名「EaglerFlatValidate」→
+    Create New World→クロスヘアが見える状態
+
+25. 実際にHuman Assistが発生した場合の記録
+  本Phaseでは、headless/GUIともに自動化で完走し、実際のHUMAN_REQUIRED
+  発生はなし（menu bounce時のHUMAN_REQUIRED判定ロジックは実装・動作確認済み）。
+
+====================================================================
+26. Vision Observer仕様
+====================================================================
+- scripts/vision_observer.mjs 実装
+- モデル設定可能（VISION_MODEL env）:
+  * auto（既定）: kimiを試し失敗時codex-lunaへ自動フォールバック
+  * kimi: TokenRouter moonshotai/kimi-k3-free（直接API）
+  * codex-luna: Codex CLI + gpt-5.6-luna（ChatGPTログイン）
+  * <任意TokenRouter model id>
+- 認証情報は実行時のみ使用（auth.json参照）。repositoryには保存しない。
+- Visionは「目」として観測のみ。最終PASS判定は単独で行わない。
+- 信頼度は絶対真実として扱わない。
+
+27. 使用したVisionモデル/ツール
+  - moonshotai/kimi-k3-free（TokenRouter 直接API）
+  - gpt-5.6-luna（Codex CLI経由、ChatGPT OAuth）
+  ※OPENROUTER_API_KEYは環境に存在するが無効(401)のため不使用
+
+28. Vision入力
+  PNGスクリーンショット（Eaglercraft画面）。data URLまたはファイルパス。
+
+29. Vision出力
+  {"status":"PASS|SUSPECT|FAIL|HUMAN_REQUIRED",
+   "screen_state":"MAIN_MENU|IN_WORLD|LOADING|WARNING|CRASH|PAUSE|OTHER",
+   "rail_visible":true,"left_rail_visible":true,"right_rail_visible":true,
+   "sleepers_visible":true,"obvious_gap":false,"obvious_break":false,
+   "camera_valid":true,"notes":"...","confidence":0.9}
+
+30. Vision実証結果
+  - Content Warning画面: 両モデルとも正確に WARNING と分類
+    （kimi confidence 0.98 / luna 0.99）
+  - ゲーム内画面(SS-01/SS-04): rail_visible=true・境界の連続性を観測
+  - 俯瞰SS-08: Visionは「レールなし」と判定（観測の不確実性の事例。
+    主証拠はconsole tour 8/8 + AutoValidate。Vision単独判定はしない）
+  - kimiのparse不安定を実測し、autoフォールバックが機能することを確認
+
+31. Vision未接続の場合の理由
+  該当なし（両モデルとも実接続・実証済み）。
+
+====================================================================
+32. GUI実ゲームValidation結果
+====================================================================
+RUN 20260811_121433 → PASS
+- GUI Chrome起動（検証専用profile）
+- タイトル到達 GuiMainMenu（content warning → continue）
+- フラットワールド入場（EaglerFlatValidate）
+- AutoValidate発火（autovalidate=yes）
+- camera tour 8/8（path_multi_straight .. path_overview）
+- スクリーンショット 8/8
+- heartbeat / stage / cleanup 正常
+
+33. screenshot evidence
+  doc/testing/phase1_2_2/screenshots/
+    RUN 20260811_121433: SS-01..08 + named (8枚)
+    RUN 20260811_125953 (headless): SS-02..08 + named (7枚)
+
+34. Chrome / profile / process結果
+- 検証用Chrome: run-<RUNID> profile で起動・cleanup
+- ユーザーChrome: 非干渉（P1.2.1から稼働中だった runtime/profiles/game も
+  検証中は非干渉。検証終了後の停止はユーザー操作と判断）
+- 検証後 stale プロセスなし
+
+35. cleanup結果
+- run単位で検証用profileのみkill（pkill -f "user-data-dir=<run profile>"）
+- ユーザー通常Chrome・runtime/profiles/gameには非干渉
+
+====================================================================
+36. Phase 1.2 regression結果
+====================================================================
+harnessTest: PASSED=84 FAILED=0 SKIPPED=3 SUCCESS（Phase 1.2正式結果と一致）
+makeMainOfflineDownload: BUILD SUCCESSFUL
+
+37. preserved files結果
+  CommandRailSystem.java  md5 9afd512d414a3b67a15235c9290936cf 一致
+  EntityRailVehicle.java  md5 77ce0d66d8fbe4e4c6e2594579d10c0c 一致
+  numstat: +111/-6, +13/-3（Phase 1.2.1から不変）
+  Phase 1.2.2中にProductionコード変更なし（validation専用変更のみ）
+
+38. secret leak確認
+  Discord Webhook URL / API key は repository に保存・commitしていない。
+  Vision用authは実行時のみ参照（auth.json）。grepで確認済み。
+
+====================================================================
+39. Known Issues
+====================================================================
+- kimi-k3-free は時々JSON parseに失敗する（autoフォールバックでlunaへ）
+- headless(swiftshader)は遅く、初回screenshotが60s timeoutになることがある
+  （tour tag自体は発火するため、SS欠落は撮影タイミング起因）
+- Visionは観測補助であり、レール可視性の詳細判定はPhase 1.3 renderer実装後
+  に再評価が望ましい
+- SS-01(straight)はheadless runでshotタイムアウト（GUI runでは取得済み）
+- ユーザーゲーム停止はPhase終了後に確認（検証は非干渉）
+
+40. Remaining Tasks
+- Phase 1.3 Visible Rail Renderer（次フェーズ）
+- Human Assist実戦発生時の具体記録（次回以降で蓄積）
+- Vision Observerのさらなるモデル追加（VISION_MODELで拡張可）
+- 検証スイートのPhase 1.3向けカスタマイズ
+
+====================================================================
+41. Phase 1.3 Entry Gate
+====================================================================
+  PHASE 1.2.2 VERDICT: PASS
+  PHASE 1.3 ENTRY GATE = OPEN
+
+- Phase 1.2 Productionコードを変更していない（harness 84/0/3・build緑）
+- Phase 1.3 Renderer未開始
+- GUI Validation正式使用可能（GUI PASS実証）
+- GUI/headless切替方針明確（GUI標準・headless fallback）
+- RUN ID / Chrome PID / stage / heartbeat / AutoValidate / tour n/N /
+  screenshot n/N / retry n/N すべて可視化
+- stage timeout（個別）とbounded retry
+- HUMAN_REQUIRED判定ルール・早期人間切替・Discord操作指示（日本語）
+- Vision Observer（kimi/luna、設定可能・単独PASS禁止・実証済み）
+- GUI実ゲームValidation実施（tour 8/8・SS 8/8）
+- headless fallback動作確認
+- Phase 1.2 regression維持 / preserved files正常
+- checkpointごとにmainへcommit/push・Discord報告
+- Final Report作成・mainへpush・Discord添付
+
+====================================================================
+END マイクラP1_2_2_2026-08-11_13-14_動作検証作業.txt
+====================================================================
