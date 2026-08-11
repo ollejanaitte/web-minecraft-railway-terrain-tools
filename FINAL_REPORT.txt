@@ -1165,3 +1165,19 @@ RailLocalFrame up符号問題を実測で確定:
 - 契約文書 doc/content-system/RAILLOCALFRAME_CONTRACT.md 作成
 
 END CP-05
+
+STEP 1004 - CP-06/07/08 Rail Asset / Renderer Contract + Phase 1.3 scope Freeze
+-------------------------------------------------------------------------------
+- RAIL_ASSET_CONTRACT.md (CP-06): Railsys独自 RailAssetDefinition v1 JSON
+  スキーマ。RTM RailConfig/NR01 ModelRailを外部仕様として参考にしつつ、
+  独自の宣言的形式をFreeze（units=metres, gauge, forwardAxis, parts,
+  ballast, LOD, validation, fallback, .rv2m候補）。
+- RENDERER_CONTRACT.md (CP-07): Blocks.rail Production不使用を明文化。
+  RailPath=Single Source of Truth, 実距離s[m] sampling, LocalFrameから
+  transform生成, gauge±rightで左右レール, Web向けcache/LOD設計ポイント。
+  Segment方式(A)をPhase 1.3A基本方式に決定（RTM互換思想・拡張容易）。
+- PHASE_1_3_SCOPE.md (CP-08): Phase 1.3A(segment renderer) / 1.3B(curve・
+  gradient・boundary) / 1.3C(asset/modelpack) / 1.3D(opt) をFreeze。
+  Known/Unknown/Futureを整理。
+
+END CP-06/07/08
