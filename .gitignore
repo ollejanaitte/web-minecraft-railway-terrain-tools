@@ -69,5 +69,9 @@ doc/testing/phase1_2_2/profiles/
 doc/testing/phase1_2_2/logs/chrome_*.log
 doc/testing/phase1_2_2/scripts/validation_instrumented.html
 
+# Phase 1.2.3 validation runtime artifacts (profiles, chrome logs)
+doc/testing/phase1_2_3/profiles/
+doc/testing/phase1_2_3/logs/chrome_*.log
+
 # Local validation-artifact backups (Phase 1.2.1) - large, NOT pushed to GitHub
 /backup/
