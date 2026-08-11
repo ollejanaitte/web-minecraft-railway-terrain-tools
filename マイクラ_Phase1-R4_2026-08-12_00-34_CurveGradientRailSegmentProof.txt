@@ -1,0 +1,222 @@
+====================================================================
+FINAL REPORT — Phase 1-R4: Curve / Gradient Rail Segment Proof
+同一R3 Rail SegmentをCurve / Gradient / Curve+Gradientへ追従させる
+====================================================================
+
+1. Title
+   Phase 1-R4: Curve / Gradient Rail Segment Proof
+
+2. Phase
+   Phase 1-R4
+
+3. Status / Verdict
+   PHASE 1-R4 STATUS: COMPLETE
+   PHASE 1-R4 VERDICT: PASS (ユーザー確認済み 2026-08-12)
+   PHASE 2 ENTRY GATE: CLOSED (変更なし)
+
+4. Start time JST
+   2026-08-12 00:17 (STEP R4-01 Initial Git Audit)
+
+5. End time JST
+   2026-08-12 00:34
+
+6. Initial Git Audit
+   - 開始HEAD: 6aa8432f7bbb7f4da55965fe80fa8e039201d409
+   - local == origin/main == GitHub main == 6aa8432f (SYNC OK)
+   - 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty tracked (保全): RenderGlobal +2, CommandRailsysPlace +5,
+     phase0_1 screenshots 2枚 (既存未コミット差分、触らない)
+   - R3成果確認: bcb9c672 (R3実装), c2dd74a5 (R3 Final Report), 6aa8432f (同期)
+
+7. Final Git Audit
+   - 実装コミット: 5de759554ff80edf7beaa51ef18feffa09e3de0d (Commit A)
+   - 報告コミット: 本報告 (Commit C) を main へ統合・push
+   - 保全対象MD5不変: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty (RenderGlobal/CommandRailsysPlace/phase0_1) は未コミット維持
+
+8. Initial HEAD
+   6aa8432f7bbb7f4da55965fe80fa8e039201d409
+
+9. Final SHA
+   5de759554ff80edf7beaa51ef18feffa09e3de0d (Commit A: R4実装)
+
+10. local main SHA
+    5de759554ff80edf7beaa51ef18feffa09e3de0d (Commit A時点)
+
+11. origin/main SHA
+    5de759554ff80edf7beaa51ef18feffa09e3de0d (Commit A時点)
+
+12. GitHub main SHA
+    5de759554ff80edf7beaa51ef18feffa09e3de0d (Commit A時点)
+    ※Commit C (Final Report) 反映後は本報告がmain上で最新になる。
+
+13. 実装概要
+    - R3のRail Segment geometryを共有RailSegmentDrawerへ抽出し、
+      R3 StraightRailProofRendererとR4 CurveGradientProofRendererの
+      単一source of truthとした (segment geometry重複実装を排除)。
+    - R4 rendererはProduction Geometry coreのみで3 fixtureを構築し、
+      同一RailSegmentを3 pathへ適用:
+        1. CURVE        : HorizontalBezierGeometry (水平90°カーブ, y固定)
+        2. GRADIENT     : StraightGeometry (20mで3m上昇)
+        3. CURVE+GRADIENT: HorizontalBezierGeometry + LinearVerticalProfile
+      (Renderer内に独自Curve/Gradient数学を書いていない)
+    - 全fixtureをRailPath.resolve(s)で実距離sampling (spacing 1.0m) し、
+      PathSample.frame (RailLocalFrame) を唯一の姿勢基準として
+      RailSegmentDrawer.emit で配置。normalized progress不使用。
+
+14. Curve geometry
+    HorizontalBezierGeometry(300,5,300 / c1=(315,5,300) / c2=(310,5,315) /
+    p3=(310,5,320), FlatVerticalProfile(5.0), pieceId=7010)
+    - 水平90°緩カーブ、平坦 y=5.0
+    - totalLength: 26.8257 m
+    - segment count (1m spacing): 27
+
+15. Gradient geometry
+    StraightGeometry(340,5,300 → 360,8,300, pieceId=7020)
+    - 直線・上昇勾配 (3m rise / 20m horizontal, pitch ≈ 8.5°)
+    - totalLength: 20.2237 m
+    - segment count (1m spacing): 21
+
+16. Curve + Gradient geometry
+    HorizontalBezierGeometry(380,5,300 / c1=(395,5,300) / c2=(390,7.5,315) /
+    p3=(390,7.5,320), LinearVerticalProfile(5.0,7.5), pieceId=7030)
+    - カーブしながら上昇 (y 5.0 → 7.5)
+    - totalLength: 26.9466 m
+    - segment count (1m spacing): 27
+
+17. path totalLength (3本合計)
+    26.8257 + 20.2237 + 26.9466 = 73.9960 m
+
+18. Spacing
+    SPACING_M = 1.0 m (endpoint-inclusive sampling)
+
+19. Expected / Rendered segment count
+    expected: 27 (curve) + 21 (gradient) + 27 (cg) = 75
+    rendered: 75 (curve=27 gradient=21 cg=27, total=75)
+    GUIチャット確認:
+      "CURVEGRAD hook FIRED (gate=true) curveLen=26.8257 gradLen=20.2237
+       cgLen=26.9466 spacing=1.0 counts=27/21/27"
+      "render ... total=75 expected=75 curve=27 gradient=21 cg=27"
+
+20. RailLocalFrame結果
+    - RailLocalFrame {forward, right, up} を唯一の姿勢基準として使用。
+    - 連続sample間のframe consistency (min dot products):
+      minF (forward) = 0.9911 / minR (right) = 0.9911 / minU (up) = 0.9999
+      → 全3 fixtureで frame flip なし (dot ≫ 0, 1.0に近い)
+    - max yaw delta (連続1m sample間) = 7.6565° (Curve/CGの緩やかなカーブ)
+    - max pitch delta = 0.9374° (Gradient/CGの勾配追従、急激変化なし)
+
+21. yaw / pitch追従
+    - Curve: yawが sample ごとに緩やかに変化 (0→約90° turn),
+      segmentはpath tangent (forward) に沿って配置 → 左右レール連続・枕木も追従
+    - Gradient: pitchが勾配に追従 (≈8.5°), segmentは傾いたframeに沿って配置
+      → railが階段状にならず、水平固定にもならない
+    - Curve+Gradient: yaw + pitchが同時に変化、frame連続性維持
+
+22. Numerical結果 (harness: CurveGradientSegmentProofTest 8件)
+    - t01-03: 3 pathの長さ/有限性 valid
+    - t04: curve frame continuity (minF/R/U > 0.90), yaw変化0.5°超, <30°刻み
+    - t05: gradient Y単調増加, 終端pitch≈asin(3/L), yaw一定, frame連続
+    - t06: cg yaw+pitch同時変化, 緩やか (dYaw<30°, dPitch<15°)
+    - t07: gauge 1.0m連続 + right vector no-flip (左右レール入替なし)
+    - t08: 各pathの1m spacing count一致 (27/21/27)
+    - NaNなし (全てのsampleで finite 検証)
+
+23. GUI Validation結果
+    - Clean Scene (EaglerCleanFlat): CURVEGRAD gate=false → isolation OK
+    - Curve (SS-R4-01): 緩やかな平行カーブ、枕木追従、flip/gapなし
+    - Gradient (SS-R4-02): レールが坂に沿って上昇、階段状なし・埋没/浮遊なし
+    - Curve+Gradient (SS-R4-03): カーブしながら上昇、連続・twist/flipなし
+    - camera tour: stage=curve → gradient → cg (カメラ移動後も線路は世界位置固定)
+    - 旧RailV2Car・旧rail・marker・debug object・R1/R2/R3 validation object
+      は表示なし (世界名gateで分離)
+    - error chat / permission error / duplicate / crash / flicker なし
+    - ユーザー「私は問題ないと思います。作業は成功と思ってます」→ 視覚確認・承認
+
+24. Screenshot一覧
+    doc/testing/phase1_rebuild_02/screenshots/
+      SS-R4-01_CURVE.png                  (00:29 JST)
+      SS-R4-02_GRADIENT.png               (00:30 JST)
+      SS-R4-03_CURVE_GRADIENT_FINAL.png   (00:30 JST)
+      SS-R4-04_R3_REGRESSION_STRAIGHT.png (00:31 JST, R3回帰確認用)
+
+25. Vision model / tool (実利用)
+    codex CLI (codex exec) + GPT-5.6 Luna (gpt-5.6-luna), read-only sandbox
+    ※Visionは補助観測であり、単独でPASSを決定していない。
+
+26. Vision結果
+    SS-R4-01 CURVE:       status=PASS conf 0.94
+      curved_rail_visible=true, left_right_rail_visible=true,
+      sleepers_visible=true, obvious_gap=false, obvious_flip=false
+    SS-R4-02 GRADIENT:    status=PASS conf 0.96
+      gradient_visible=true, rail_pitch_follows_slope=true,
+      obvious_step=false, obvious_float_or_sink=false
+    SS-R4-03 CG FINAL:    status=PASS conf 0.99
+      curve_and_gradient_visible=true, continuous_rail=true,
+      obvious_twist=false, obvious_flip=false, old_debug_objects_visible=false
+    SS-R4-04 R3回帰:      status=PASS conf 0.96
+      (left/right rail + sleepers + continuous straight, old objectsなし)
+
+27. Discord画像送信結果
+    【Phase 1-R4 Visual Evidence】PNG本体3枚 (Curve/Gradient/CG) を
+    multipart/form-data で送信 OK (Discord image send OK: 3 file(s))。
+    送信失敗を成功と偽っていない。
+
+28. Harness結果
+    ./gradlew harnessTest: PASSED=107 FAILED=0 SKIPPED=3 SUCCESS
+    (R3: 99 → R4: 107。CurveGradientSegmentProofTest 8件追加)
+
+29. Build結果
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL
+    Offline HTML: target_teavm_javascript/javascript/EaglercraftX_1.8_Offline_International.html
+
+30. Regression結果
+    - R1 SingleBoxProof / R2 RepeatedBoxProof: 未変更のため影響なし
+    - R3 StraightRailProofRenderer: RailSegmentDrawerへrefactor済み。
+      GUI回帰 (EaglerStraightRail, SS-R4-04) で segments=21 expected=21 を再確認
+      → R3描画維持 (Vision conf 0.96)
+    - straightrail / curvegradient / cleanflat の世界名gate分離をGUIログで確認
+
+31. Validation isolation
+    - curvegradientワールド以外ではCurveGradientProofRenderer/Validationは発火しない
+    - Clean Scene (cleanflat) で gate=false をGUIログで確認
+    - straightrailワールドでは curvegradient gate=false (逆も同様)
+    - validation-only fixtureは通常Worldへ漏洩なし
+
+32. Preserved files
+    CommandRailSystem.java: md5 9afd512d414a3b67a15235c9290936cf (不変)
+    EntityRailVehicle.java: md5 77ce0d66d8fbe4e4c6e2594579d10c0c (不変)
+
+33. Secret leak確認
+    Webhook URL等のsecretはリポジトリ・doc・log・script・画像へ保存・
+    commitしていない。Webhookはruntime env (DISCORD_WEBHOOK_URL) のみで使用。
+
+34. Clean-room確認
+    RTM/NR01のコード・モデル・texture・script・assetをコピーしていない。
+    Curve/Gradientは既存Production Geometry core (HorizontalBezierGeometry,
+    StraightGeometry, VerticalProfile) を利用し、独自数学をRendererへ書いていない。
+
+35. Known Issues
+    - Curve最大yaw変化は1m sampleあたり約7.7° (緩カーブ)。segment境界で
+      わずかな角折れが生じうるが視覚的に許容 (SS-R4-01/03で確認)。
+    - Gradientはlinear (一定勾配)。vertical curve (緩和曲線) は後工程。
+    - Cantは未適用 (Phase 1.1 roll=0 のまま)。今回は意図的除外。
+    - segment境界のmesh weldはしない (prism突合)。R3同様許容。
+    - R3 StraightRailProofRendererの定数はRailSegmentDrawerへ移行したため、
+      同クラスの旧public定数 (GAUGE_M等) は廃止された (外部参照なし)。
+
+36. Final Verdict
+    PHASE 1-R4 VERDICT: PASS
+
+37. Next Phase候補
+    - R5: Cant本適用 (カーブ区間のbanking, RailLocalFrame.rollDeg活用)
+    - R6: Switch / 複数path分岐
+    - Marker Placement / Rail Asset / ModelPack
+    - Persistence (segment → world保存)
+    - Train走行 (EntityRailVehicle + PathSample)
+    いずれもPhase 2として独立ゲート管理。今回の実行中には開始しない。
+
+====================================================================
+END Phase 1-R4
+====================================================================

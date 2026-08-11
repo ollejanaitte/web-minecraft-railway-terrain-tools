@@ -1569,3 +1569,65 @@ STEP R3-05b - 同期確認 (push完了後)
 ====================================================================
 END Phase 1-R3 記録 (確定)
 ====================================================================
+
+====================================================================
+Phase 1-R4 開始記録 (Curve / Gradient Rail Segment Proof)
+====================================================================
+
+STEP R4-01 - Initial Git Audit (2026-08-12 00:17 JST)
+------------------------------------------------------
+- 開始HEAD: 6aa8432f7bbb7f4da55965fe80fa8e039201d409
+- local main == origin/main == GitHub main == 6aa8432f (SYNC OK)
+- 保全対象: CommandRailSystem (9afd512d) / EntityRailVehicle (77ce0d66) 不変
+- 既存dirty tracked (保全・不変更): RenderGlobal +2, CommandRailsysPlace +5,
+  phase0_1 screenshots 2枚
+- R3成果: bcb9c672 (実装), c2dd74a5 (R3 Final Report), 6aa8432f (同期記録)
+- R4方針: R3 Rail Segmentを共有RailSegmentDrawerへ抽出し、同一segmentを
+  Curve / Gradient / Curve+Gradient の3 pathへ適用。Geometry core
+  (HorizontalBezierGeometry + VerticalProfile, StraightGeometry) を利用し、
+  Renderer側で独自Curve/Gradient数学を作らない。RailLocalFrameを唯一の
+  姿勢基準とする。実距離s[m] sampling (spacing 1.0m) を維持。
+
+STEP R4-02 - Discord作業開始通知送信OK (HTTP 204)
+--------------------------------------------------
+
+====================================================================
+END Phase 1-R4 開始記録
+====================================================================
+
+====================================================================
+Phase 1-R4 完了記録 (Curve / Gradient Rail Segment Proof)
+====================================================================
+
+STEP R4-03 - 実装完了 (Commit A: 5de75955)
+--------------------------------------------------
+- RailSegmentDrawer (共有segment geometry) 新設。R3 StraightRailProofRenderer
+  を同Drawerへ委譲 (挙動不変)。
+- CurveGradientProofRenderer 新設: 同一RailSegmentを3 fixtureへ適用
+  (Curve: HorizontalBezierGeometry 26.8257m / Gradient: StraightGeometry
+  20.2237m / CG: Bezier+LinearVerticalProfile 26.9466m)。
+  RailLocalFrameのみで姿勢制御、Rendererに独自数学なし。
+- CurveGradientProofValidation: camera tour (curve→gradient→cg→release)。
+- Hook: EntityRenderer / MinecraftServer / GuiCreateWorld flat gate追加。
+- CurveGradientSegmentProofTest (harness 8件) 追加。
+- harness 107/0/3 / build SUCCESS / GUI+Vision PASS (0.94/0.96/0.99)
+  / R3回帰 (segments=21) 確認 / 保全対象MD5不変。
+
+STEP R4-04 - GUI検証 + Screenshot + Discord
+--------------------------------------------------
+- cleanflat: CURVEGRAD gate=false → isolation OK
+- curvegradient: hook FIRED counts=27/21/27 total=75 expected=75
+- SS-R4-01..04 取得 (Curve/Gradient/CG Final/R3回帰)
+- Vision (codex GPT-5.6 Luna): 0.94/0.96/0.99/0.96 全てPASS
+- DiscordへPNG本体3枚送信OK
+- ユーザー「作業は成功と思ってます」→ 承認
+
+STEP R4-05 - Commit C (Final Report) + push + 同期確認
+--------------------------------------------------
+- Commit A 5de75955 push済み (local==origin==GitHub==5de75955)
+- Commit C 本報告 + FINAL_REPORT.txt を main へ統合・push予定
+- push後: local == origin/main == GitHub main を確認予定
+
+====================================================================
+END Phase 1-R4 記録
+====================================================================
