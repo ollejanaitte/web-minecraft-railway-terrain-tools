@@ -45,4 +45,18 @@ doc/testing/phase1_1/logs/_*.log
 doc/testing/phase1_2/profiles/
 doc/testing/phase1_2/scripts/path_validate_instrumented.html
 doc/testing/phase1_2/screenshots/_*.png
-doc/testing/phase1_2/logs/_*.log
+doc/testing/phase1_2/logs/
+
+# Phase 0.1 runtime Chrome profiles / diagnostic logs / stdout captures
+doc/testing/phase0_1/chrome-profile-*/
+doc/testing/phase0_1/*.log
+doc/testing/phase0_1/*_stdout.txt
+doc/testing/phase0_1/screenshots/_*.png
+
+# Phase 0.5 / 1.1 diagnostic logs and runtime screenshots
+doc/testing/phase0_5/logs/
+doc/testing/phase1_1/logs/
+doc/testing/phase1_1/screenshots/_*.png
+
+# Stray nested doc dir (duplicate phase0_2 runtime artifacts)
+doc/doc/
