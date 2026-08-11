@@ -1,0 +1,5 @@
+2026/08/11-15:04:57.127 1e1d23 Creating DB /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2_3/profiles/run-13a/Default/IndexedDB/file__0.indexeddb.leveldb since it was missing.
+2026/08/11-15:04:57.261 1e1d23 Reusing MANIFEST /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/testing/phase1_2_3/profiles/run-13a/Default/IndexedDB/file__0.indexeddb.leveldb/MANIFEST-000001
+2026/08/11-15:06:15.330 1e1d23 Level-0 table #5: started
+2026/08/11-15:06:15.376 1e1d23 Level-0 table #5: 1330411 bytes OK
+2026/08/11-15:06:15.428 1e1d23 Delete type=0 #3

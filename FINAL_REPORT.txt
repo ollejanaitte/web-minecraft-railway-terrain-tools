@@ -1201,3 +1201,35 @@ Report commit d1bf9706、SHA記録 commit 6bf2e069。
 最終状態: local == origin/main == GitHub main == 6bf2e069。
 保全対象MD5変更なし。RailLocalFrameのみ意図的修正（ユーザー判断）。
 END Phase 1.2.3。
+
+====================================================================
+PHASE 1 COMPLETE WORK (1.3A → 1.3B → 1.3C → 1.3D → 1.4 → 1.5 → Gate)
+STATUS: IN PROGRESS
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 1101 - Phase 1 start audit + CP-A render foundation
+----------------------------------------------------------
+Start SHA 68c5d0e7. Local == origin/main == GitHub main (SYNC OK).
+preserved md5 OK (CommandRailSystem 9afd512d / EntityRailVehicle 77ce0d66).
+Eaglercraft render base surveyed: WorldRenderer.begin(mode,fmt) -> pos/color/
+normal -> endVertex -> Tessellator.draw(); GlStateManager push/translate/
+multMatrix; EntityRenderer.renderWorldPass hook after SOLID/CUTOUT.
+CP-A: RailRenderer/RailAsset/RailsysRenderManager + /railrender test command
+added; RenderGlobal.renderRailSystemProduction + EntityRenderer hook.
+
+STEP 1102 - Phase 1.3A 3D Rail Segment Renderer
+-------------------------------------------------
+Built-in test RailAsset (procedural left/right rails + base + sleepers,
+gauge 1.5m, spacing 0.5m, sub-block precision). RailRenderer samples RailPath
+at 0.5m, applies RailLocalFrame {right,up,forward} via multMatrix (column-
+major), draws short segments. Blocks.rail NOT used (independent of F3 debug).
+/railrender straight [len] registers a test path for rendering.
+GUI validation (RUN 20260811060442): title -> flat world -> /railrender
+straight 40 -> camera above -> SS-P1_3A-01..03.
+Vision: SS-01 PASS (L/R rail+sleepers, cmd output), SS-02 PASS (elevated
+continuous rail, conf 0.96), SS-03 SUSPECT (left rail+sleepers visible,
+right hidden by view; no gap/break). Build SUCCESS, harness 84/0/3.
+Commit d0d01854 (feat) pushed. Phase 1.3A PASS -> 1.3B OPEN.
+
+END Phase 1.3A
