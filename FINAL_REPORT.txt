@@ -1435,3 +1435,58 @@ STEP 3007 - ユーザー確認 + PASS確定
   src/game/java/net/minecraft/client/renderer/EntityRenderer.java
   src/game/java/net/minecraft/railsys/validation/SingleBoxProofRenderer.java
   src/game/java/net/minecraft/railsys/validation/SingleBoxProofValidation.java
+
+====================================================================
+PHASE 1-R2: Repeated Segment Proof (2026-08-11, JST)
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 4001 - CP-R2-01/02 Initial Audit + Core Contract Audit
+------------------------------------------------------------
+開始SHA e8f88b3e (SYNC OK)。保全対象MD5不変。
+Core Audit: RailPath.resolve(s)→PathSample, RailLocalFrame {f,r,u},
+StraightGeometry, RailPiece, RailPath.of を確認。既存Coreを利用。
+
+STEP 4002 - CP-R2-03/04/05 Clean Scene + 1m Cube + Straight RailPath
+----------------------------------------------------------------------
+EaglerRepeatedBox (repeatedbox marker) をGuiCreateWorldに追加、village-free
+flat preset適用。RepeatedBoxProofRenderer (validation-only):
+Straight 20m path (300,5,300)-(320,5,300), 1m cyan cube,
+path.resolve(s) で実距離sampling。BOX placement contract = PathSample.position
+= BOX center。RepeatedBoxProofValidation (camera tour: front/diagonal/side/
+overview/hold)。EntityRenderer/MinecraftServer hook追加。
+RepeatedSegmentProofTest (harness 7件) 追加。harness 84→91。
+
+STEP 4003 - CP-R2-06 2m-spacing Repeated Proof
+------------------------------------------------
+s=0..20, spacing=2.0 → 11 BOX。
+GUIチャット確認: "REPEATEDBOX hook FIRED pathLen=20.0 spacing=2.0 count=11"
+"render ... count=11 expected=11" → count照合一致。
+
+STEP 4004 - CP-R2-08/09 GUI + Screenshot + Vision
+---------------------------------------------------
+SS-R2-01..06 全6枚captured。
+Vision (codex-luna): SS-R2-02..06 PASS (複数cyan cube・直線・等間隔,
+conf 0.95-0.99)。SS-R2-01はcyan 0px (Clean Scene)。
+Discordへ画像本体6枚送信OK。
+harness 91/0/3 / build SUCCESS / 保全対象不変。
+commit d9b18468 push → local==origin==GitHub (SYNC OK)。
+
+STEP 4005 - CP-R2-07 Dense Proof SKIP判断
+--------------------------------------------
+1m spacing切り替えはサーバー側setSpacingがWeb Worker分離でクライアントに
+反映されないため、プロンプト13節「scope拡張しない」に従いSKIP。
+setSpacing/getSpacing APIは保持。SS-R2-07は不採用。
+
+STEP 4006 - CP-R2-10 Human Gate + Final Report
+-------------------------------------------------
+ユーザー「スクショ確認しました。ファイナルレポート送ってください」
+→ PHASE 1-R2 VERDICT: PASS
+→ PHASE 1-R3 ENTRY GATE: OPEN
+→ PHASE 2 ENTRY GATE: CLOSED (変更なし)
+Final Report「マイクラ_Phase1-R2_2026-08-11_23-27_RepeatedSegmentProof.txt」
+作成。
+
+====================================================================
+END Phase 1-R2 記録
+====================================================================

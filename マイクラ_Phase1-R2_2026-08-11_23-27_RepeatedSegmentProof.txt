@@ -1,0 +1,231 @@
+====================================================================
+FINAL REPORT — Phase 1-R2: Repeated Segment Proof
+1m x 1m x 1mの独立3D BOXをStraight RailPath上へ実距離で反復配置する
+====================================================================
+
+1. Title
+   Phase 1-R2: Repeated Segment Proof
+
+2. Phase
+   Phase 1-R2
+
+3. Status / Verdict
+   PHASE 1-R2 STATUS: COMPLETE
+   PHASE 1-R2 VERDICT: PASS (ユーザー承認済み 2026-08-11)
+   PHASE 1-R3 ENTRY GATE: OPEN
+   PHASE 2 ENTRY GATE: CLOSED
+
+4. Start time JST
+   2026-08-11 22:00 頃 (CP-R2-01 Initial Git Audit 開始)
+
+5. End time JST
+   2026-08-11 23:27
+
+6. Initial Git Audit
+   - 開始HEAD: e8f88b3e72733368c96eb64d8bff2423716b10c0
+   - local == origin/main == GitHub main == e8f88b3e (SYNC OK)
+   - 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty tracked (保全): RenderGlobal +2, CommandRailsysPlace +5,
+     phase0_1 screenshots 2枚 (既存未コミット差分、触らない)
+   - R1成果 commit済み (1db4f45f, 27628553, e8f88b3e)
+
+7. Final Git Audit
+   - 最終HEAD: d9b18468a2eb28490a347570c10af55565096b0b
+   - local == origin/main == GitHub main == d9b18468 (SYNC OK)
+   - 保全対象MD5不変: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+   - 既存dirty (RenderGlobal/CommandRailsysPlace/phase0_1) は未コミット維持
+
+8. Initial HEAD
+   e8f88b3e72733368c96eb64d8bff2423716b10c0
+
+9. Final SHA
+   d9b18468a2eb28490a347570c10af55565096b0b
+
+10. local main SHA
+    d9b18468a2eb28490a347570c10af55565096b0b
+
+11. origin/main SHA
+    d9b18468a2eb28490a347570c10af55565096b0b
+
+12. GitHub main SHA
+    d9b18468a2eb28490a347570c10af55565096b0b
+
+13. Checkpoint一覧
+    CP-R2-01 Initial Git Audit
+    CP-R2-02 R1成果 + Geometry/RailPath/RailLocalFrame Contract Audit
+    CP-R2-03 Clean R2 Scene (EaglerRepeatedBox / village-free flat)
+    CP-R2-04 1m x 1m x 1m Cube (RepeatedBoxProofRenderer)
+    CP-R2-05 Straight RailPath Fixture (20m)
+    CP-R2-06 2m-spacing Repeated Proof (11 boxes, count verified)
+    CP-R2-07 Optional 1m-spacing Dense Proof (SKIP - Web Worker制約)
+    CP-R2-08 GUI Validation + Screenshot (SS-R2-01..06)
+    CP-R2-09 Vision / Regression (PASS×5, harness 91/0/3)
+    CP-R2-10 Human Gate + Final Report
+
+14. Commit SHA一覧
+    d9b18468 feat: Phase 1-R2 Repeated Segment Proof - 1m cubes along
+    straight 20m RailPath via real-distance resolve(s) sampling, 2m spacing
+    (11 boxes, count verified), GUI+Vision PASS, harness 91/0/3
+    (7 files, +466)
+    ※R1: e8f88b3e (final verdict PASS), 27628553, 1db4f45f
+
+15. Project Background
+    Eaglercraft / Minecraft 1.8系ブラウザ環境へ独自鉄道システム「Railsys v2」を
+    実装するプロジェクト。RTMは研究資料としてのみ参照 (clean-room独自実装)。
+    長期ゴール: 独立3D線路モデルをRailPathに沿って連続配置
+    (直線/曲線/勾配/分岐/Marker/Asset/保存/列車走行)。
+
+16. R1引き継ぎ
+    - R1で「Clean Scene + 独立3D BOX 1個 + pass==2 render hook +
+      クライアント記録ワールド名gate + village-free flat preset」を確立。
+    - R2はその基礎をそのまま使い、BOXをRailPathの実距離samplingで反復配置。
+    - R1のrender hook (EntityRenderer pass==0||pass==2) はそのまま再利用。
+
+17. Core Audit (CP-R2-02)
+    - RailPath.resolve(double s): 実距離s → PathSample (clamp/NaN policy)。
+      PathSample.sample.x/y/z = ネイティブ位置, frame = RailLocalFrame。
+    - RailLocalFrame: {forward, right, up} orthonormal, right = forward × worldUp。
+    - StraightGeometry(sx,sy,sz, ex,ey,ez, pieceId): 直線, length/tangent/yaw。
+    - RailPiece(geometry): pieceId=geometry.pieceId, lengthM()。
+    - RailPath.of(pieces): 単一piece path, totalLength()。
+    - 既存CoreをSingle Source of Truthとして使用。独自の重複path mathを作らない。
+      Geometry/RailPath/RailLocalFrameは再設計していない。
+
+18. Clean R2 Validation Scene
+    - ワールド名 "EaglerRepeatedBox" (repeatedbox marker)
+    - GuiCreateWorld: repeatedboxもFLAT強制 + village-free preset
+      "2;7,3,3,2;1;" (bedrock+dirt+dirt+grass, plains, 構造物なし)
+    - 地面top y=4.0 / 旧RailV2Car・旧rail・marker・debug objectなし
+    - 通常Worldへのvalidation漏洩なし (world-name gate)
+
+19. 1m Cube仕様
+    - 寸法: 1m x 1m x 1m (CUBE_SIZE_M = 1.0)
+    - 色: bright cyan (80,220,255) — 旧RailV2Car(青赤)と明確に区別
+    - Minecraft Blockではない (setBlockしない / Entity不要 / texture不要)
+    - Tessellator/WorldRenderer POSITION_COLOR 6面 / camera-relative rendering
+
+20. BOX origin contract
+    PathSample.sample.x/y/z = BOX CENTER
+    (1m cubeをPathSample位置を中心に描画。PATH_SY=5.0で底面=4.5、地面top 4.0
+    より0.5m浮かせ、地面と重ならないようにした)
+
+21. RailPath start/end/length
+    start: (300.0, 5.0, 300.0)
+    end:   (320.0, 5.0, 300.0)
+    pieceId: 7001
+    length: 20.0 m (水平直線, +X方向)
+
+22. Sampling方式
+    RailPath.resolve(s) による実距離sampling (normalized progress不使用)
+    s = 0.0, 2.0, 4.0, ..., 20.0 (2m spacing, endpoint-inclusive)
+
+23. Spacing
+    SPACING_2M = 2.0 m (主Proof)
+    SPACING_1M = 1.0 m (DenseはSKIP - Web Worker制約、後述)
+
+24. Expected / Actual BOX count
+    totalLength = 20.0 m
+    spacing = 2.0 m
+    expected count = floor(20/2)+1 = 11
+    actual (rendered) count = 11
+    GUIチャット確認: "REPEATEDBOX hook FIRED pathLen=20.0 spacing=2.0 count=11"
+    "render ... count=11 expected=11"
+    harness: RepeatedSegmentProofTest t03 (2m=11) / t04 (1m=21) PASS
+
+25. Renderer設計 (RepeatedBoxProofRenderer)
+    - validation-only, 分離
+    - Straight RailPath 1本を内部生成 (StraightGeometry→RailPiece→RailPath)
+    - path.resolve(s) loop → PathSample → 各sampleに1m cube描画
+    - renderedCount / expectedCount 記録 (数値照合)
+    - gate: クライアント記録ワールド名に "repeatedbox"
+    - Production RailRendererは大改造していない
+    - RepeatedBoxProofValidation: サーバー側camera tour
+      (front → diagonal → side → overview → hold)
+
+26. GUI Validation結果
+    - Clean Scene (SS-R2-01): 平坦な草地面のみ、cyan 0px (BOXなし)
+    - Repeated Box (SS-R2-02..06): 複数cyan cube・直線・等間隔
+    - count=11 / expected=11 (GUIチャットで数値確認)
+    - 旧RailV2Car・旧rail・marker・debug objectなし
+    - error chat・permission errorなし / duplicate・flicker・crashなし
+    - camera移動後もワールド位置固定 (front/diagonal/side/overviewで確認)
+
+27. Screenshot一覧
+    doc/testing/phase1_rebuild_02/screenshots/
+      SS-R2-01_CLEAN_SCENE.png          (23:04 JST)
+      SS-R2-02_REPEATED_BOX_FRONT.png   (23:05 JST)
+      SS-R2-03_REPEATED_BOX_DIAGONAL.png(23:05 JST)
+      SS-R2-04_REPEATED_BOX_SIDE.png    (23:05 JST)
+      SS-R2-05_REPEATED_BOX_DISTANCE.png(23:05 JST)
+      SS-R2-06_REPEATED_BOX_OVERVIEW.png(23:05 JST)
+
+28. Discord画像送付結果
+    Discordへ PNG画像本体6枚を multipart/form-data で添付送信 OK
+    (Discord image send OK: 6 file(s))
+    【Phase 1-R2 Visual Evidence】送信済み
+
+29. Vision結果 (codex-luna, vision_r2.mjs)
+    SS-R2-02 Front: PASS (multiple_boxes:true, straight:true, equal_spacing:true,
+      conf 0.97)
+    SS-R2-03 Diag:  PASS (conf 0.98)
+    SS-R2-04 Side:  PASS (conf 0.95)
+    SS-R2-05 Dist:  PASS (conf 0.98)
+    SS-R2-06 Overview: PASS (conf 0.99)
+    SS-R2-01 Clean: PASS (BOXなし想定。cyan 0pxをピクセル解析で確認)
+    ※Vision単独ではPASS判定せず、補助観測として使用
+
+30. Harness結果
+    ./gradlew harnessTest: PASSED=91 FAILED=0 SKIPPED=3 SUCCESS
+    (RepeatedSegmentProofTest 7件: 20m長さ/resolve位置/2m=11/1m=21/
+      等間隔/straight contract/cube位置)
+
+31. Build結果
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+    ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL
+    Offline HTML: target_teavm_javascript/javascript/
+      EaglercraftX_1.8_Offline_International.html
+
+32. R1 Regression
+    - R1のSingleBoxProofRenderer / SingleBoxProofValidationは動作維持
+      (pass==2 hook, クライアント記録ワールド名gate)
+    - R2ワールド (repeatedbox) ではsinglebox gate=falseで非干渉
+    - Clean Scene分離維持
+
+33. Preserved files
+    CommandRailSystem.java: md5 9afd512d414a3b67a15235c9290936cf (不変)
+    EntityRailVehicle.java: md5 77ce0d66d8fbe4e4c6e2594579d10c0c (不変)
+
+34. Normal world非漏洩
+    repeatedbox/singlebox/cleanflat以外のワールドではRepeatedBoxProofRenderer/
+    SingleBoxProofRendererは描画しない (world-name gate)。
+
+35. Secret leak確認
+    Webhook URL等のsecretはリポジトリ・doc・log・script・画像へ
+    保存・commitしていない。Webhookはruntime envのみで使用。
+
+36. Clean-room確認
+    RTM/NR01のコード・モデル・texture・script・assetをコピーしていない。
+    1m cube + RailPath samplingはEaglercraft標準API + 既存Coreで実装。
+
+37. Known Issues
+    - Dense Proof (1m spacing) SKIP:
+      サーバー側(RepeatedBoxProofValidation)のsetSpacingはWeb Worker分離のため
+      クライアント側rendererのstaticに反映されない。1m spacing切り替えは
+      クライアント側から行う必要があるが、プロンプト13節「このためにscope
+      拡張しない」に従い今回スキップ。setSpacing/getSpacing APIは保持。
+    - SS-R2-07 (Dense) は2m spacingのまま撮影されたため不採用。
+
+38. Human Acceptance状態
+    ユーザー「スクショ確認しました。ファイナルレポート送ってください」
+    (2026-08-11 23:2x JST) → Repeated Segment Proofを視覚確認・承認。
+    PHASE 1-R2 VERDICT: PASS
+    PHASE 1-R3 ENTRY GATE: OPEN
+    (Phase 2 ENTRY GATE は CLOSED のまま)
+
+39. Phase 1-R3 Entry Gate
+    OPEN — 次Phase候補 (R3): 承認されたBOX描画+実距離sampling方式を基礎に、
+    短い3D線路モデルへ置換してStraight上へ連続配置する。
+
+====================================================================
+END Phase 1-R2
+====================================================================
