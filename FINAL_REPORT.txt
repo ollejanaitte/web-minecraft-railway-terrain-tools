@@ -1124,3 +1124,29 @@ Final Report「マイクラP1_2_2_2026-08-11_13-14_動作検証作業.txt」作�
 Report commit 8e4cadf2、SHA記録 commit 07bdfc4d。
 最終状態: local == origin/main == GitHub main == 07bdfc4d。
 保全対象MD5変更なし。Phase 1.2 Production無変更。END Phase 1.2.2。
+
+====================================================================
+PHASE 1.2.3: RTM Rail Rendering / ModelPack Design Freeze
+STATUS: IN PROGRESS
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 1001 - Phase 1.2.3 start + Initial Audit
+----------------------------------------------
+Start SHA 0072dc22. Local == origin/main == GitHub main (SYNC OK).
+preserved v1 md5 OK (CommandRailSystem 9afd512d, EntityRailVehicle 77ce0d66).
+解析対象: RTM1.7.10.46_Forge10.13.4.1558.jar + [unzip]NR01_v3.0.zip（repo root、
+untracked・Productionへは組込まない）。Phase 0.6/0.7/1.1/1.2資料確認。
+RTM JAR・NR01を /tmp に一時展開しclean-room解析。
+保全対象はProduction変更なし。ユーザーゲーム状態: 停止中（P1.2.2終了時確認）。
+
+STEP 1002 - CP-02/03/04 RTM + ModelPack解析・RTM↔Railsys対応
+----------------------------------------------------------------
+RTM rail描画: 短い3DモデルをRailMapの0.5mサンプルへ連続配置（renderRailMapStatic、
+max=floor(len*2)）。RailMap/RailPartsRenderer/ModelSetRail/RailConfigをjavapで確認。
+NR01 ModelPack: ModelRail JSON(mqo+texture+rendererPath)・.mqoパーツ
+(base/railL/sideL/railR/sideR/Zunge)・RenderRailNB.jsを解析。
+RailsysのGeometry/RailPathはSingle Source of Truth維持（再設計不要）。
+解析文書 doc/rtm-reference/RTM_RAIL_RENDERING_ANALYSIS.md 作成。
+
+END CP-01/02/03/04
