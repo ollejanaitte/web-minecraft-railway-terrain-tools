@@ -37,6 +37,14 @@ public final class RailRenderer {
 	 * @param spacing spacing override (<=0 -> DEFAULT_SPACING_M)
 	 */
 	public static void renderPath(RailPath path, double camX, double camY, double camZ, double spacing) {
+		renderPath(RailAssetDefinition.fallback(), path, camX, camY, camZ, spacing);
+	}
+
+	/**
+	 * Render a RailPath with an explicit asset definition.
+	 */
+	public static void renderPath(RailAssetDefinition def, RailPath path, double camX, double camY, double camZ,
+			double spacing) {
 		if (path == null || path.entryCount() == 0) {
 			return;
 		}
@@ -57,7 +65,7 @@ public final class RailRenderer {
 			RailLocalFrame f = ps.frame;
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(f.x - camX, f.y - camY, f.z - camZ);
-			RailAsset.drawSegment(f, step);
+			RailAsset.drawSegment(def, f, step);
 			GlStateManager.popMatrix();
 			d += step;
 		}

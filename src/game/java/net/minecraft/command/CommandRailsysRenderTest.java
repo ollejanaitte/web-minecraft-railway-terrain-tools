@@ -12,6 +12,7 @@ import net.minecraft.railsys.geometry.StraightGeometry;
 import net.minecraft.railsys.geometry.VerticalBezierGeometry;
 import net.minecraft.railsys.path.RailPiece;
 import net.minecraft.railsys.path.RailPath;
+import net.minecraft.railsys.render.RailAssetRegistry;
 import net.minecraft.railsys.render.RailsysRenderManager;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
@@ -47,7 +48,7 @@ public class CommandRailsysRenderTest extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/railrender <straight [len]|curve [len]|gradient [len]|curvegrad [len]|scurve [len]|multi [len]|reverse [len]|on|off|clear|status>";
+		return "/railrender <straight [len]|curve [len]|gradient [len]|curvegrad [len]|scurve [len]|multi [len]|reverse [len]|asset <id>|assets|assetfallback|on|off|clear|status>";
 	}
 
 	@Override
@@ -79,6 +80,25 @@ public class CommandRailsysRenderTest extends CommandBase {
 		} else if ("reverse".equals(action)) {
 			double len = args.length >= 2 ? parseDouble(args[1], 1.0D, 500.0D) : 40.0D;
 			this.registerReverse(player, len);
+		} else if ("asset".equals(action)) {
+			if (args.length < 2) {
+				player.addChatMessage(new ChatComponentText("usage: /railrender asset <id>"));
+				return;
+			}
+			RailsysRenderManager.setActiveAsset(args[1]);
+			player.addChatMessage(new ChatComponentText("railrender: asset set -> " + args[1]
+					+ " (gauge " + RailsysRenderManager.getActiveAsset().gaugeM + "m)"));
+		} else if ("assets".equals(action)) {
+			StringBuilder sb = new StringBuilder("railrender assets: ");
+			for (String id : RailAssetRegistry.ids()) {
+				sb.append(id).append(" ");
+			}
+			player.addChatMessage(new ChatComponentText(sb.toString()));
+		} else if ("assetfallback".equals(action)) {
+			// Force the fallback path (unknown id) to prove fallback works.
+			RailsysRenderManager.setActiveAsset("railsys.missing_asset_test");
+			player.addChatMessage(new ChatComponentText("railrender: asset fallback active (gauge "
+					+ RailsysRenderManager.getActiveAsset().gaugeM + "m)"));
 		} else if ("on".equals(action)) {
 			RailsysRenderManager.setProductionRenderEnabled(true);
 			player.addChatMessage(new ChatComponentText("railrender: production rendering ON"));
@@ -197,13 +217,19 @@ public class CommandRailsysRenderTest extends CommandBase {
 		sender.addChatMessage(new ChatComponentText("/railrender scurve [len]"));
 		sender.addChatMessage(new ChatComponentText("/railrender multi [len]"));
 		sender.addChatMessage(new ChatComponentText("/railrender reverse [len]"));
+		sender.addChatMessage(new ChatComponentText("/railrender asset <id> | assets | assetfallback"));
 		sender.addChatMessage(new ChatComponentText("/railrender on|off|clear|status"));
 	}
 
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
-		return args.length == 1 ? getListOfStringsMatchingLastWord(args,
-				new String[] { "straight", "curve", "gradient", "curvegrad", "scurve", "multi", "reverse", "on", "off",
-						"clear", "status" }) : null;
+		if (args.length == 1) {
+			return getListOfStringsMatchingLastWord(args, new String[] { "straight", "curve", "gradient", "curvegrad",
+					"scurve", "multi", "reverse", "asset", "assets", "assetfallback", "on", "off", "clear", "status" });
+		}
+		if (args.length == 2 && "asset".equals(args[0])) {
+			return getListOfStringsMatchingLastWord(args, RailAssetRegistry.ids().toArray(new String[0]));
+		}
+		return null;
 	}
 }

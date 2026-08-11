@@ -1250,3 +1250,20 @@ scurve/multi all PASS (L/R rails + sleepers, no gap/break); reverse PASS
 (mid view). harness 84/0/3, build SUCCESS.
 
 END Phase 1.3B
+
+STEP 1104 - Phase 1.3C Rail Asset / ModelPack System
+------------------------------------------------------
+RailAssetDefinition (v1 schema) + RailAssetRegistry (register/get/fallback,
+validation gauge[0.6,1.8], scale, renderer type) + built-in 3 assets:
+  railsys.straight_1435_wood / railsys.straight_1067_ballast /
+  railsys.straight_1435_concrete (gauge/base/sleeper/ballast differences).
+RailAsset.drawSegment(def,...) procedural render honours gauge/colours/base/
+sleeper/ballast. RailsysRenderManager.activeAsset + /railrender asset <id> /
+assets / assetfallback.
+GUI validation (RUN 20260811_13c): asset switch on same straight path.
+Vision: all assets rail_visible + L/R + sleepers; wood/ballast/concrete/
+fallback all render. Pixel analysis: colour distribution shifts between
+assets (ballast +, concrete +). Fallback for unknown id works (logs + renders
+fallback). harness 84/0/3, build SUCCESS.
+
+END Phase 1.3C

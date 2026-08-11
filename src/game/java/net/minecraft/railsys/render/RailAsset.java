@@ -59,35 +59,46 @@ public final class RailAsset {
 	}
 
 	/**
-	 * Draw one segment at the given frame. The current matrix must already be
-	 * translated to the sample world position (camera-relative). This draws in a
-	 * local space where local +Z = forward, +X = right, +Y = up, and the
-	 * local->world rotation is applied by the caller via the frame basis.
+	 * Draw one segment at the given frame using the asset definition.
+	 * The current matrix must already be translated to the sample world position
+	 * (camera-relative). Local space: +Z = forward, +X = right, +Y = up.
 	 */
-	public static void drawSegment(RailLocalFrame frame, double spacingM) {
-		// Compute a rotation matrix from the frame basis so model-local coords map to
-		// world (right, up, forward columns). Applied as a GL rotation.
+	public static void drawSegment(RailAssetDefinition def, RailLocalFrame frame, double spacingM) {
 		applyFrame(frame);
-
 		double halfLen = spacingM * 0.5D;
-		double gaugeHalf = GAUGE_M * 0.5D;
+		double gaugeHalf = def.gaugeM * 0.5D;
 
-		// Left rail (local +X = -gaugeHalf)
+		// Left rail
 		drawBox(-gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, -gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
-				RAIL_R, RAIL_G, RAIL_B);
-		// Right rail (local +X = +gaugeHalf)
+				def.railR, def.railG, def.railB);
+		// Right rail
 		drawBox(gaugeHalf - RAIL_HALF_WIDTH_M, 0.0D, -halfLen, gaugeHalf + RAIL_HALF_WIDTH_M, RAIL_TOP_Y_M, halfLen,
-				RAIL_R, RAIL_G, RAIL_B);
+				def.railR, def.railG, def.railB);
 
-		// Base slab under the rails
-		drawBox(-BASE_HALF_WIDTH_M, -BASE_DEPTH_M, -halfLen, BASE_HALF_WIDTH_M, 0.0D, halfLen, BASE_R, BASE_G, BASE_B);
-
-		// Sleepers: a few cross pieces along the segment
-		double sleeperStep = SLEEPER_SPACING_M;
-		for (double d = -halfLen + 0.05D; d <= halfLen; d += sleeperStep) {
-			drawBox(-SLEEPER_HALF_LENGTH_M, -BASE_DEPTH_M - 0.01D, d - SLEEPER_WIDTH_M * 0.5D, SLEEPER_HALF_LENGTH_M,
-					RAIL_HEAD_Y_M * 0.55D, d + SLEEPER_WIDTH_M * 0.5D, SLEEPER_R, SLEEPER_G, SLEEPER_B);
+		if (def.hasBase) {
+			drawBox(-BASE_HALF_WIDTH_M, -BASE_DEPTH_M, -halfLen, BASE_HALF_WIDTH_M, 0.0D, halfLen,
+					def.baseR, def.baseG, def.baseB);
 		}
+		if (def.hasBallast) {
+			// ballast: wider, slightly higher base colour
+			double bw = BASE_HALF_WIDTH_M * 1.4D;
+			drawBox(-bw, -BASE_DEPTH_M - 0.04D, -halfLen, bw, -BASE_DEPTH_M, halfLen,
+					(int) (def.baseR * 0.8D), (int) (def.baseG * 0.8D), (int) (def.baseB * 0.8D));
+		}
+
+		if (def.hasSleeper) {
+			double sleeperStep = def.sleeperSpacingM > 0.0D ? def.sleeperSpacingM : SLEEPER_SPACING_M;
+			double sw = def.sleeperWidthM > 0.0D ? def.sleeperWidthM : SLEEPER_WIDTH_M;
+			for (double d = -halfLen + 0.05D; d <= halfLen; d += sleeperStep) {
+				drawBox(-SLEEPER_HALF_LENGTH_M, -BASE_DEPTH_M - 0.01D, d - sw * 0.5D, SLEEPER_HALF_LENGTH_M,
+						RAIL_HEAD_Y_M * 0.55D, d + sw * 0.5D, def.sleeperR, def.sleeperG, def.sleeperB);
+			}
+		}
+	}
+
+	/** Compatibility: draw with the default/fallback asset. */
+	public static void drawSegment(RailLocalFrame frame, double spacingM) {
+		drawSegment(RailAssetDefinition.fallback(), frame, spacingM);
 	}
 
 	/**

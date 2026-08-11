@@ -22,8 +22,24 @@ public final class RailsysRenderManager {
 
 	private static volatile List<RailPath> renderPaths = Collections.emptyList();
 	private static volatile boolean productionRenderEnabled = true;
+	private static volatile String activeAssetId = "railsys.straight_1435_wood";
 
 	private RailsysRenderManager() {
+	}
+
+	/** Set the asset used for rendering (falls back if unknown). */
+	public static void setActiveAsset(String assetId) {
+		activeAssetId = assetId == null ? "railsys.straight_1435_wood" : assetId;
+		// Touch registry so missing ids log + fallback at draw time.
+		RailAssetRegistry.get(activeAssetId);
+	}
+
+	public static RailAssetDefinition getActiveAsset() {
+		return RailAssetRegistry.get(activeAssetId);
+	}
+
+	public static String getActiveAssetId() {
+		return activeAssetId;
 	}
 
 	/** Set the list of paths to render (replaces previous). */

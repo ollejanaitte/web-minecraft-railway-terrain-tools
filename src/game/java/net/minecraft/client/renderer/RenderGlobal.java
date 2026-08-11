@@ -1660,9 +1660,11 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		}
 		GlStateManager.disableTexture2D();
 		GlStateManager.disableLighting();
+		net.minecraft.railsys.render.RailAssetDefinition asset = net.minecraft.railsys.render.RailsysRenderManager
+				.getActiveAsset();
 		for (net.minecraft.railsys.path.RailPath p : paths) {
 			if (p != null) {
-				net.minecraft.railsys.render.RailRenderer.renderPath(p, camX, camY, camZ);
+				net.minecraft.railsys.render.RailRenderer.renderPath(asset, p, camX, camY, camZ, 0.0D);
 			}
 		}
 		GlStateManager.enableLighting();
