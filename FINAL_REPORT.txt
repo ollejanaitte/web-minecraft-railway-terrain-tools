@@ -1332,3 +1332,33 @@ STEP 1109 - Phase 1 close（Final SHA記録）
 Final Report commit 0aabdc07、SHA記録 commit 7aafaba2。
 最終状態: local == origin/main == GitHub main == 7aafaba2。
 保全対象MD5変更なし。END Phase 1。
+
+====================================================================
+PHASE 1 REBUILD: Clean Validation Scene / Single 3D Box Proof
+STEP 0〜2 (2026-08-11, JST)
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 2001 - CP-01 Initial Audit
+-------------------------------
+開始SHA: b531d6f5（local == origin/main == GitHub main、SYNC OK）。
+保全対象 md5: CommandRailSystem 9afd512d / EntityRailVehicle 77ce0d66（不変）。
+dirty tracked: RenderGlobal +2 (debug println, 触らない), CommandRailsysPlace +5
+(debug println, 触らない), phase0_1 screenshots 2枚 (触らない)。
+未追跡52件はcommit対象外。Build SUCCESS / harness 84/0/3。
+対象調査: Geometry/Path/render基盤, RailV2AutoValidate, RailsysGeom/PathDebugEvidence,
+EntityRailV2Car, RenderRailV2Car, CommandRailV2Validate, GuiCreateWorld flat hook,
+EntityRenderer.renderWorldPass hook, START_WEB_MINECRAFT.sh, runtime/profiles/game。
+Audit doc: doc/testing/phase1_rebuild_02/INITIAL_AUDIT.md
+
+STEP 2002 - CP-02 Phase 1 Reopen 分類 (KEEP / ISOLATE)
+------------------------------------------------------
+旧Phase 1 PASSを「最終完成」扱いせず再評価対象へ。
+KEEP: Geometry/RailPath/Renderer hook/RailsysRenderManager/RailRenderer/RailAsset/
+Placement/Persistence/GUI Validation基盤/Vision Observer/Human Assist/flat hook/launcher。
+ISOLATE (今回のClean Sceneへ出さない): RailV2AutoValidate (gateで除外),
+EntityRailV2Car/RenderRailV2Car, old camera tour, RailsysGeom/PathDebugEvidence,
+CommandRailV2Validate, old marker blocks / test formations。DELETEなし。
+Reopen doc: doc/testing/phase1_rebuild_02/PHASE1_REOPEN.md
+Plan doc: doc/testing/phase1_rebuild_02/IMPLEMENTATION_PLAN.md
+→ commit 9d4e5e59 / ... (CP-01/02)
