@@ -1,0 +1,317 @@
+====================================================================
+マイクラ_Phase1.2.3_2026-08-11_14-44_RTMレール描画・ModelPack設計Freeze.txt
+
+TITLE: マイクラ Phase1.2.3 RTMレール描画・ModelPack設計Freeze
+      (Railsys v2 Web Minecraft - RTM Rail Rendering Analysis /
+       ModelPack Design Freeze)
+
+PHASE: Phase1.2.3
+
+PHASE 1.2.3 VERDICT: PASS
+PHASE 1.3A ENTRY GATE: OPEN
+
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+1. Title
+  マイクラ Phase1.2.3 RTMレール描画・ModelPack設計Freeze
+
+2. Phase
+  Phase1.2.3（RTM / ModelPack解析と設計Freeze。Production Renderer実装は
+  Phase 1.3Aへ）
+
+3. PHASE 1.2.3 VERDICT
+  PASS
+
+4. Start time JST
+  2026-08-11 14:10 (Step 0 Initial Audit 開始)
+
+5. End time JST
+  2026-08-11 14:44 (Final Report 作成時点)
+
+====================================================================
+6. Initial Git Audit
+====================================================================
+branch       : main
+worktree     : main (repo root) only
+stash        : (empty)
+remote branch: origin/main only
+HEAD         : 0072dc22
+local main   : 0072dc22
+origin/main  : 0072dc22
+GitHub main  : 0072dc22 (ls-remote確認)
+SYNC         : LOCAL == origin/main == GitHub main (SYNC OK)
+Preserved    : CommandRailSystem.md5 9afd512d / EntityRailVehicle.md5 77ce0d66
+解析対象     : RTM1.7.10.46_Forge10.13.4.1558.jar + [unzip]NR01_v3.0.zip
+              （repo root、untracked・Productionへ組込まない）
+ユーザーゲーム: 停止中（P1.2.2終了時に確認）
+
+====================================================================
+7. Final Git Audit
+====================================================================
+branch       : main
+worktree     : main only
+stash        : (empty)
+remote branch: origin/main only
+HEAD / local / origin / GitHub main : (Final SHA 参照)
+SYNC         : LOCAL == origin/main == GitHub main
+Production変更: RailLocalFrame.javaのみ（ユーザー判断でup/roll修正、CP-05）
+保全対象     : 不変（MD5一致・diff空）
+
+8. Initial HEAD / 9. Final SHA
+  Initial HEAD : 0072dc22
+  Final SHA    : (Final Report commit 後の最終 SHA)
+
+10. local main SHA  : Final SHA（push後確認）
+11. origin/main SHA : Final SHA（push後確認）
+12. GitHub main SHA : Final SHA（ls-remote後確認）
+
+====================================================================
+13. checkpoint一覧 / 14. commit SHA一覧
+====================================================================
+CP-01 Initial Audit                             11b4f3ef
+CP-02 RTM Rail Rendering解析                     11b4f3ef
+CP-03 ModelPack / NR01解析                       11b4f3ef
+CP-04 RTM ↔ Railsys対応付け                      11b4f3ef
+CP-05 RailLocalFrame契約確定                     0fce18cc
+CP-06 Rail Asset Contract                        d97de2e1
+CP-07 Renderer Contract                          d97de2e1
+CP-08 Phase 1.3A〜D scope Freeze                 d97de2e1
+CP-09 Regression / Preservation確認              bf728ca1
+CP-10 Final Report                               (本Report commit)
+
+====================================================================
+15. 解析対象ファイル一覧
+====================================================================
+- RTM1.7.10.46_Forge10.13.4.1558.jar（公開RTM mod, /tmpへ一時展開）
+  rail/ BlockLargeRail* / TileEntityLargeRail* / RenderLargeRail /
+        RenderBlockLargeRail / ModelLargeRail
+  rail/util/ RailMap / RailMapSlope / RailMapSwitch / RailPosition /
+        Point / RailDir / RailProperty / SwitchType
+  render/ RailPartsRenderer / DynamicRailPartsRenderer / Parts /
+        ModelObject / TileEntityPartsRenderer
+  modelpack/modelset/ ModelSetRail / ModelSetRailClient
+  modelpack/cfg/ RailConfig / ModelConfig / ModelSource / BallastSet
+- [unzip]NR01_v3.0.zip -> NR01-NB-Rails.zip（ModelPack, /tmpへ一時展開）
+  mods/RTM/ModelRail_*.json（61+）, assets/minecraft/models/*.mqo（78）,
+  assets/minecraft/scripts/RenderRail*.js, textures/rail/*.png
+- Phase 0.6/0.7/1.1/1.2資料（doc/testing/phase0_6, doc/research/phase0_7,
+  doc/architecture/CONTENT_MODELPACK_DESIGN.md 等）
+- Railsys production source（RailLocalFrame / RailSample / RailPath /
+  PathSample / RailsysGeomDebugEvidence）
+
+====================================================================
+16. RTM Rail Rendering解析結果
+====================================================================
+- RTMは「短い3Dモデル（レール断面）をRailMapのサンプル位置に連続配置」
+  RenderRailNB.js: max=floor(railLength*2.0) → サンプル間隔0.5m
+  for i: pos=rms.getRailPos(max,i), yaw=rms.getRailRotation(max,i),
+    GL11.glRotatef(yaw,0,1,0) → leftParts/rightParts/base.render()
+- RailMap API: getRailPos/getRailHeight/getRailRotation/getRailPitch/
+  getLength/canConnect。RailMapSlope: 勾配(高さ+pitch)。RailMapSwitch:
+  MAX_COUNT=80（分岐サンプル）、shouldRenderRSide/LSide。
+- RenderLargeRail(TESR)がTEから描画、RenderBlockLargeRailがブロック枠。
+  RailPartsRenderer.renderRailMapStatic(te,railMap,max,start,end,Parts...)
+- モデルパーツ: base/railL/sideL/railR/sideR/ZungeL0/1/ZungeR0/1
+  （NR01 .mqo実測: base幅250mm, rail中心±74.9, トングz±100mm）
+- ModelSetRail / RailConfig: model(ModelSource:modelFile/textures/
+  rendererPath), ballastWidth, defaultBallast[], accuracy, tags等
+- モデル形式: .mqo（Metasequoia）/ .obj。テクスチャPNG。
+- 描画スクリプトはアセット毎（rendererPath）。分岐時トング可動部を
+  シグモイド+YAW_RATEで別途描画。
+
+====================================================================
+17. ModelPack / NR01解析結果
+====================================================================
+- パック構造: pack.json / mods/RTM/ModelRail_*.json / assets/.../
+  (models/*.mqo, scripts/RenderRail*.js, textures/rail/*.png)
+- ModelRail JSON: railName, model{modelFile,textures,rendererPath},
+  buttonTexture, defaultBallast[{blockName,blockMetadata,height}],
+  accuracy("LOW"), tags
+- .mqoパーツ: base, railL, sideL, railR, sideR, ZungeL0/1, ZungeR0/1
+- RenderRailNB.js: TONG_MOVE=0.35, HALF_GAUGE=0.7175, YAW_RATE=600
+  → 分岐トングの変位/回転を計算。ゲージ約1435mmに対応。
+- ユーザーがレール型を追加する条件: ModelRail JSON + .mqo + texture +
+  renderer script を揃えれば追加可能（RTMのModelPack機構）
+
+====================================================================
+18. RailMap / Renderer / ModelSet整理
+====================================================================
+- RailMap: レールの距離ベース幾何（位置/高さ/yaw/pitch/長さ/接続）
+- RailRenderer(RailPartsRenderer/DynamicRailPartsRenderer): モデルパーツ
+  をサンプル配置で描画。静的パーツ(base/railL/railR)と動的パーツ
+  (switchトング)に分離。
+- ModelSet(ModelSetRail/ModelSetRailClient): RailConfigから生成される
+  モデルセット。ModelObject(IModelNGT+TextureSet+PartsRenderer)保持。
+
+====================================================================
+19. RTM曲線/勾配/transform確認結果
+====================================================================
+- 曲線: サンプル毎のyaw回転で描画（getRailRotation）。距離ベース。
+- 勾配: RailMapSlopeで高さ(y)とpitchを加算。getRailHeight/getRailPitch。
+- transform: 基本スクリプトはY軸回転のみ（yaw）。勾配時は高さオフセット。
+  Railsysはより完全な3D frame（yaw/pitch/roll）を適用する設計とする。
+- サンプル間隔: 0.5m（railLength*2）。分岐: MAX_COUNT=80。
+
+====================================================================
+20. RTM ↔ Railsys対応表
+====================================================================
+RTM                        Railsys (Phase 1.1/1.2 core)
+RailMap                    RailPath (+ RailPiece)
+getRailPos(max,i)          PathSample.position (resolve(globalM))
+getRailHeight              PathSample.y (gradient)
+getRailRotation(yaw)       PathSample.yawDeg (atan2(tx,tz), NOT negated)
+getRailPitch               PathSample.pitchDeg
+0.5m sample spacing        0.5m render step (Phase 0.6 contract)
+short model placement      short 3D Rail Asset placement (1.3A)
+RailPartsRenderer          Railsys RailRenderer (to design)
+ModelSetRail / RailConfig  Railsys RailAssetDefinition (CP-06)
+Parts(base/railL/railR)    required parts (CP-06)
+
+結論:
+- Phase 1.1 Geometry + Phase 1.2 RailPathはSingle Source of Truthとして
+  維持（再設計不要）。
+- RTMの「短い3D segmentをpathへ連続配置」をPhase 1.3Aの基本方式に採用。
+- RailsysはRTMのJS-script-per-asset方式を取らず、宣言的な
+  RailAssetDefinition + 内蔵renderer typeを採用（Web向け・clean）。
+
+====================================================================
+21. RailLocalFrame問題の結論
+====================================================================
+実測: 現行コードは up=f×r=(0,-1,0)（下向き）。doc commentは up=r×f（上向き）。
+既存テスト(T14直交性/P21連続性)はup絶対方向に依存しないことを確認。
+ユーザー判断「今Phaseでコード修正」に基づき修正:
+- fromTangent: up = right × forward に変更（全方向で(0,+1,0)）
+- applyRoll: 正のroll=右レール下を維持するため回転方向を修正
+  （roll+5でright.y=-0.087=右が下）
+harnessTest: PASSED=84 FAILED=0（既存contract維持）
+
+====================================================================
+22. coordinate / orientation contract（CP-05 FROZEN）
+====================================================================
+- World: +X east, +Z south, +Y up。単位=metre。
+- forward = unit tangent。right = normalize(f×worldUp)。up = right×forward。
+- yaw = atan2(tx,tz)（Minecraft慣例, 0=+Z, 時計回り正, 未反転）
+- pitch = atan2(ty, hypot(tx,tz))（正=鼻上げ）
+- roll = 正=右レール下
+- local→world: world = O + right·px + up·py + forward·pz
+- 左右レール: 中心線±gauge/2 を right 方向にオフセット
+- reverse: 位置同一、travel tangentは利用側で反転
+
+====================================================================
+23. Rail Asset Contract（CP-06 FROZEN）
+====================================================================
+RailAssetDefinition v1 JSON: assetId, gaugeM, units=metres, scale,
+forwardAxis, upAxis, origin, segmentLengthM, spacingM, texture, model,
+renderer{type:"segment"}, parts{base,railLeft,railRight,side,sleeper,
+ballast,guardRail,thirdRail,switch*Tongue}, ballast, tags, lod,
+validation, version。
+- required: base/railLeft/railRight。optional: side/sleeper/ballast/他。
+- gauge/scale/orientation validation + 失敗時fallback（default asset）。
+- モデル形式候補: .rv2m（Railsys native）優先、OBJ import可。
+- 詳細は doc/content-system/RAIL_ASSET_CONTRACT.md
+
+====================================================================
+24. Renderer Contract（CP-07 FROZEN）
+====================================================================
+- Blocks.railをProduction visualに使わない（明文化）
+- RailPathがSingle Source of Truth。実距離s[m]でsampling
+- LocalFrame→transform生成、短い3D segmentを繰り返し配置
+- left/right rail: ±gauge/2 を right 方向、base/sleeperはframe追従
+- straight/curve/gradient/boundary/reverse対応（1.3A-D）
+- Web向け: cache/batch/VBO/LOD/frustum culling設計ポイント（1.3D）
+- 詳細は doc/content-system/RENDERER_CONTRACT.md
+
+====================================================================
+25. Segment vs Dynamic Mesh Decision
+====================================================================
+DECISION: Method A（Repeated 3D Segment Asset）をPhase 1.3A基本方式に採用。
+理由: RTM互換思想・アセット追加が宣言的・実装シンプル・ModelPack拡張に
+適合。Method C（Hybrid）は将来LOD要否に応じ予約。Method B（全動的mesh）は
+非推奨。
+
+====================================================================
+26. Phase 1.3A〜D scope（CP-08 FROZEN）
+====================================================================
+1.3A 3D Rail Segment Renderer: straight + built-in test asset + LocalFrame
+1.3B Curve/Gradient/Boundary: 曲線・勾配・境界・reverse・cant-ready
+1.3C Rail Asset/ModelPack: RailAssetDefinition + .rv2m + 複数asset + validation
+1.3D Optimization: cache/batch/VBO/LOD/culling
+非目標: switch描画・cant適用・marker UI・persistence・train rendering等は
+Phase 1.3外（railType=switch等はデータ予約のみ）。
+
+====================================================================
+27. Known
+====================================================================
+- RTMは0.5mサンプルで短い3Dモデルを連続配置（実JAR+renderer script確認）
+- RTMのクラス役割（rail/util/render/modelpack）、NR01構造・パーツ・JSON
+- Railsys Geometry/RailPathがSingle Source of Truth（再設計不要）
+- RailLocalFrame up=下向き（修正済み）、roll正=右レール下
+- Blocks.rail Production不使用（明文化）
+
+====================================================================
+28. Unknown
+====================================================================
+- ngtlib IModelNGTのロード詳細（別JARのため未調査）
+- ModelConfig.scale既定値 / 勾配rendererがpitch回転も行うか（Railsysは
+  設計により完全3D frameを適用するため影響なし）
+- RTM .mqoの正確なtop-of-rail原点（Railsys独自定義で解決）
+
+====================================================================
+29. Future
+====================================================================
+- .rv2m形式+ローダー（1.3C）
+- switch描画（later, データ予約済み）
+- cant物理+適用（later）
+- 最適化cache/batch/LOD（1.3D）
+- Marker UI（1.4）/ persistence（1.5）/ train（2）
+
+====================================================================
+30. Phase 1.2 regression
+====================================================================
+harnessTest: PASSED=84 FAILED=0 SKIPPED=3 SUCCESS（RailLocalFrame修正後）
+makeMainOfflineDownload: BUILD SUCCESSFUL
+
+31. preserved files
+  CommandRailSystem.md5 9afd512d / EntityRailVehicle.md5 77ce0d66 一致
+  diff不変（+111/-6, +13/-3）。Phase 1.2.3中は変更なし。
+
+32. secret leak確認
+  Discord webhook / API key はrepositoryに保存・commitしていない。
+  RTM JAR・NR01は解析用（/tmp展開、Productionへ組込まず）。
+
+33. copyright / clean-room確認
+  RTM/NR01のコード・assetsをRailsysへコピー・転載・組込みしていない。
+  解析は外部仕様の理解に限定。Railsys Contractは独自命名・独自形式。
+  RTM/NR01本体はrepo rootのuntracked解析対象として残置（Production非依存）。
+
+====================================================================
+34. Remaining Tasks
+====================================================================
+- Phase 1.3A: 3D Rail Segment Renderer実装（本Freezeに基づく）
+- .rv2m形式の具体策定（1.3C）
+- switch / cant / marker UI / persistence等は後続Phase
+
+35. Phase 1.3A Entry Gate
+====================================================================
+  PHASE 1.2.3 VERDICT: PASS
+  PHASE 1.3A ENTRY GATE = OPEN
+
+- RTM Rail Rendering構造を実ファイルから確認済み
+- NR01 ModelPack構造を実ファイルから確認済み
+- RTMコード/assetsをコピーしていない（clean-room）
+- RTM↔Railsys対応関係が明確（Geometry/RailPath維持）
+- RailLocalFrame up符号問題を解決（ユーザー判断でコード修正）
+- forward/right/up・yaw/pitch/roll契約FROZEN
+- Rail Asset Contract FROZEN / Renderer Contract FROZEN
+- Blocks.rail Production不使用を明文化
+- Segment方式（Method A）を決定
+- Phase 1.3A〜D scope確定 / Known/Unknown/Future整理
+- Phase 1.2 regression維持（harness 84/0/3）
+- preserved files正常
+- checkpointごとにmainへcommit/push・Discord日本語報告
+- Final Report作成・push・Discord添付
+
+====================================================================
+END マイクラ_Phase1.2.3_2026-08-11_14-44_RTMレール描画・ModelPack設計Freeze.txt
+====================================================================
