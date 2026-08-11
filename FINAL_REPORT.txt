@@ -924,3 +924,15 @@ Untracked ~514 validation artifacts inventoried (Chrome profiles/logs/
 screenshots). Audit doc doc/testing/phase1_2_1/INITIAL_AUDIT.md.
 
 END CP-01
+
+STEP 802 - CP-02 branch/worktree整理
+-------------------------------------
+origin/master (74b3a953) fully contained in main (0 unique commits);
+deleted remote branch via git push origin --delete master. GitHub now
+has only main (sole source of truth). worktree stays main-only.
+.gitignore updated to ignore phase0_1/0_5/1_1 runtime Chrome profiles,
+logs, stdout captures, stray doc/doc. Untracked visible count reduced
+~514 -> 19 (remaining are pre-existing phase0_2 evidence screenshots
+and FINAL_REPORT.md, intentionally left uncommitted).
+
+END CP-02
