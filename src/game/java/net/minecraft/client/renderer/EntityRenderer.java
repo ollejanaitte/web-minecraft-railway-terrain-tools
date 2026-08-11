@@ -1327,6 +1327,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			renderglobal.renderRailSystemDebug(entity, partialTicks);
 			renderglobal.renderRailSystemProduction(entity, partialTicks);
 			net.minecraft.railsys.validation.SingleBoxProofRenderer.render(entity, partialTicks, entity.worldObj);
+			net.minecraft.railsys.validation.RepeatedBoxProofRenderer.render(entity, partialTicks, entity.worldObj);
 		}
 		GlStateManager.disableBlend();
 		GlStateManager.enableCull();

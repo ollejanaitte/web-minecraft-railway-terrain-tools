@@ -15,6 +15,7 @@ import railv2test.tests.KnownFailureDocumentationTest;
 import railv2test.tests.PersistenceBaselineTest;
 import railv2test.tests.ProductionGeometryTest;
 import railv2test.tests.RailPathTest;
+import railv2test.tests.RepeatedSegmentProofTest;
 import railv2test.tests.StraightMathTest;
 import railv2test.tests.V1ReferenceRegressionTest;
 
@@ -38,6 +39,7 @@ public final class Runner {
             KnownFailureDocumentationTest.class,
             ProductionGeometryTest.class,
             RailPathTest.class,
+            RepeatedSegmentProofTest.class,
     };
 
     private static final class Case {
