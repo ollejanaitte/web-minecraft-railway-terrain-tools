@@ -456,6 +456,7 @@ public abstract class MinecraftServer implements Runnable, ICommandSender, IThre
 		net.minecraft.railsys.validation.SingleBoxProofValidation.onServerTick(this);
 		net.minecraft.railsys.validation.RepeatedBoxProofValidation.onServerTick(this);
 		net.minecraft.railsys.validation.StraightRailProofValidation.onServerTick(this);
+		net.minecraft.railsys.validation.CurveGradientProofValidation.onServerTick(this);
 		long i = EagRuntime.nanoTime();
 		++this.tickCounter;
 		if (this.startProfiling) {
