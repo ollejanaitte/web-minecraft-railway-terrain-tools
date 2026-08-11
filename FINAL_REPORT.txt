@@ -906,3 +906,21 @@ created and merged to GitHub main + attached to Discord.
 Phase 1.3 NOT started. END of Phase 1.2.
 
 Final SHA b1eff42e (Local==origin==GitHub main) verified after final push.
+
+====================================================================
+PHASE 1.2.1: Repository Consolidation / One-Click Launch / Backup Cleanup
+STATUS: IN PROGRESS
+Agent: OpenCode (DeepSeek系)
+====================================================================
+
+STEP 801 - Phase 1.2.1 start + Initial Audit
+---------------------------------------------
+Start SHA 9371f7a4. Local == origin/main == GitHub main (SYNC OK).
+Phase 1.2 PASS / 1.3 Gate OPEN confirmed. dirty v1 preserved
+(CommandRailSystem md5 9afd512d, EntityRailVehicle md5 77ce0d66).
+origin/master 74b3a953 fully contained in main (0 unique commits).
+no stash, 1 worktree (main), no extra local branches.
+Untracked ~514 validation artifacts inventoried (Chrome profiles/logs/
+screenshots). Audit doc doc/testing/phase1_2_1/INITIAL_AUDIT.md.
+
+END CP-01
