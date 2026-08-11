@@ -1089,3 +1089,21 @@ run-validation-workflow.sh をGUIモードでフル実行 → VALIDATION PASS。
   SS-08は俯瞰画面を「レールなし」と判定（観測の不確実性の事例。
   Vision単独判定はせず、console tour 8/8 + AutoValidateを主証拠とする）
 - 通常プレイ用runtime/profiles/game、ユーザーChromeは非干渉を確認
+
+STEP 906 - CP-08 headless fallback確認
+----------------------------------------
+headless（swiftshader）でも検証ワークフローを成功させた（RUN 20260811_125953）。
+- Emulation.setDeviceMetricsOverride(1208x505) でGUI/headlessのビューポートを
+  統一し、同一クリック座標を両モードで使用可能に
+- headless特有の問題を修正:
+  * GuiScreenEditProfile（新規profile初回）→ Doneクリックで通過
+  * screenshotタイムアウト → 60sに延長 + try/catchで保護
+  * gotoCreateForm: GuiScreenIntegratedServerStartup/Busyを許容し、既に
+    in-game(NULL)なら即リターン
+  * tour timeout: headlessはswiftshaderで遅いため300s→900sに延長
+- headless結果: IN_WORLD到達、AutoValidate発火、camera tour 8/8発火、
+  SS 7/8取得（SS-01は初回shotタイムアウト。tour tagは発火）
+- cleanup正常（検証profileのみkill）
+- ユーザーゲーム（runtime/profiles/game）は検証中も一時停止なく無事。
+  検証終了後に停止を確認（ユーザー操作によるものと判断）
+- GUIを標準、headlessをfallbackとして両方動作確認済み

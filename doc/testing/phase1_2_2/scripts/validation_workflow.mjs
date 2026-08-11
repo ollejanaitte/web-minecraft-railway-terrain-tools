@@ -61,6 +61,11 @@ const stage = (name, ms) => {
   const t = Math.round((ms || 60000) * SCALE);
   return { name, timeoutMs: t, start: Date.now(), lastProgress: Date.now() };
 };
+// headless (SwiftShader) is ~5-10x slower than HW-Vulkan GUI; extend tour.
+function tourTimeout() {
+  const ms = guiMode === 'headless' ? 900000 : 300000;
+  return Math.round(ms * SCALE);
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 let curStage = null;
@@ -209,7 +214,7 @@ class CDP {
     return this.eval('window.__eagScreen');
   }
   async shot(f) {
-    const res = await this.send('Page.captureScreenshot', { format: 'png' });
+    const res = await this.send('Page.captureScreenshot', { format: 'png' }, 60000);
     writeFileSync(f, Buffer.from(res.data, 'base64'));
     shotCount++;
     return f;
@@ -303,7 +308,8 @@ function cleanupChrome() {
   curStage = stage('cleanup', T.cleanup);
   log('cleanup chrome profile=' + PROFILE);
   try {
-    spawnSync('bash', ['-c', `pkill -TERM -f "user-data-dir=${PROFILE}" 2>/dev/null; sleep 2; pkill -9 -f "user-data-dir=${PROFILE}" 2>/dev/null || true`]);
+    const pat = 'user-data-dir=' + PROFILE;
+    spawnSync('bash', ['-c', `pkill -TERM -f "${pat.replace(/"/g, '')}" 2>/dev/null; sleep 2; pkill -9 -f "${pat.replace(/"/g, '')}" 2>/dev/null; true`], { timeout: 10000 });
   } catch (e) {
     log('cleanup err ' + e.message);
   }
@@ -393,6 +399,12 @@ async function waitTitle(cdp) {
       await sleep(1000);
       continue;
     }
+    if (n.includes('GuiScreenEditProfile')) {
+      log('edit-profile screen -> done');
+      await cdp.click(640, 420);
+      await sleep(1000);
+      continue;
+    }
     await sleep(2000);
   }
   throw new Error('title timeout, last screen=' + (await cdp.screen()));
@@ -401,21 +413,44 @@ async function waitTitle(cdp) {
 async function gotoCreateForm(cdp) {
   curStage = stage('create_form', T.create_form);
   await waitForScreen(cdp, (s) => String(s).includes('GuiMainMenu'), { timeout: 60000 });
-  await cdp.click(640, 258); // Singleplayer
-  // SP integrated server may show a startup screen before the world list.
-  await waitForScreen(
-    cdp,
-    (s) =>
-      String(s).includes('GuiSelectWorld') ||
-      String(s).includes('GuiScreenCreateWorldSelection') ||
-      String(s).includes('GuiScreenIntegratedServerStartup'),
-    { timeout: 60000 },
-  );
-  await waitForScreen(
-    cdp,
-    (s) => String(s).includes('GuiSelectWorld') || String(s).includes('GuiScreenCreateWorldSelection'),
-    { timeout: 60000 },
-  );
+  // Click Singleplayer and ride out startup/busy screens to the world list.
+  // Busy/Startup are transient (SP integrated server); wait, don't bail.
+  const wantWorldList = (s) =>
+    String(s).includes('GuiSelectWorld') || String(s).includes('GuiScreenCreateWorldSelection');
+  let clicked = false;
+  const deadline = Date.now() + 150000;
+  while (Date.now() < deadline) {
+    checkStage();
+    const s = await cdp.screen();
+    const n = String(s);
+    curStage.lastScreen = n;
+    // Already in-game (NULL screen): the previous create actually landed.
+    if (s === null) {
+      log('gotoCreateForm: already in-game, return');
+      return { alreadyInGame: true };
+    }
+    if (wantWorldList(s)) break;
+    if (String(s).includes('GuiMainMenu')) {
+      // bounced all the way back; click Singleplayer again
+      if (!clicked || clicked) {
+        log('on main menu in create-form -> Singleplayer');
+        await cdp.click(640, 258);
+        await sleep(1000);
+        continue;
+      }
+    }
+    if (!clicked) {
+      log('singleplayer click');
+      await cdp.click(640, 258);
+      clicked = true;
+      await sleep(2000);
+      continue;
+    }
+    await sleep(1500);
+  }
+  if (!wantWorldList(await cdp.screen())) {
+    throw new Error('gotoCreateForm: world list never reached (last=' + screenName(await cdp.screen()) + ')');
+  }
   let s = await cdp.screen();
   if (String(s).includes('GuiScreenCreateWorldSelection')) {
     log('on create-selection screen -> Create');
@@ -454,8 +489,12 @@ async function enterWorld(cdp) {
     await sleep(40);
   }
   await sleep(1000);
-  await cdp.shot(resolve(S, RUN_ID + '_named.png'));
-  log('world named');
+  try {
+    await cdp.shot(resolve(S, RUN_ID + '_named.png'));
+    log('world named');
+  } catch (e) {
+    log('named shot skipped: ' + e.message);
+  }
 }
 
 async function attemptCreate(cdp) {
@@ -528,7 +567,7 @@ async function waitAutoValidate(cdp) {
 }
 
 async function captureTour(cdp) {
-  curStage = stage('tour', T.tour);
+  curStage = stage('tour', tourTimeout());
   const map = [
     ['path_multi_straight', RUN_ID + '_SS-01_MULTI_STRAIGHT.png'],
     ['path_straight_curve_straight', RUN_ID + '_SS-02_STRAIGHT_CURVE_STRAIGHT.png'],
@@ -540,7 +579,7 @@ async function captureTour(cdp) {
     ['path_overview', RUN_ID + '_SS-08_OVERVIEW.png'],
   ];
   const taken = new Set();
-  const deadline = Date.now() + 300000;
+  const deadline = Date.now() + tourTimeout();
   while (Date.now() < deadline && taken.size < map.length) {
     checkStage();
     for (const [tag, file] of map) {
@@ -548,8 +587,12 @@ async function captureTour(cdp) {
       if (cdp.lines.some((t) => t.includes('camera tour=' + tag))) {
         await sleep(1500);
         tourCount++;
-        await cdp.shot(resolve(S, file));
-        log('tour shot ' + tourCount + '/8 ' + file);
+        try {
+          await cdp.shot(resolve(S, file));
+          log('tour shot ' + tourCount + '/8 ' + file);
+        } catch (e) {
+          log('tour shot failed ' + file + ': ' + e.message);
+        }
         taken.add(tag);
       }
     }
@@ -580,7 +623,16 @@ async function run(cdp) {
     log('=== create attempt ' + attempt + '/' + CREATE_RETRIES + ' ===');
     try {
       await waitTitle(cdp);
-      await gotoCreateForm(cdp);
+      const form = await gotoCreateForm(cdp);
+      if (form && form.alreadyInGame) {
+        // Previous create actually entered the world; skip straight to in-world.
+        const inw = await waitInWorld(cdp);
+        if (!inw.inworld) throw new Error('failed in-world (alreadyInGame)');
+        if (!inw.validated) await waitAutoValidate(cdp);
+        await captureTour(cdp);
+        log('SUCCESS tour=' + tourCount + ' shots=' + shotCount);
+        return true;
+      }
       await enterWorld(cdp);
       const res = await attemptCreate(cdp);
       if (res.ok) {
@@ -645,6 +697,20 @@ async function connectCdp() {
   await attachPage(cdp);
   await cdp.send('Runtime.enable');
   await cdp.send('Page.enable');
+  // Fix viewport so coordinates are stable across GUI (1208x505) and
+  // headless. Override to the GUI-measured logical size so the same
+  // click coordinates work in both modes.
+  try {
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: 1208,
+      height: 505,
+      deviceScaleFactor: 0,
+      mobile: false,
+    });
+    log('viewport overridden to 1208x505');
+  } catch (e) {
+    log('viewport override skipped: ' + e.message);
+  }
   return cdp;
 }
 
