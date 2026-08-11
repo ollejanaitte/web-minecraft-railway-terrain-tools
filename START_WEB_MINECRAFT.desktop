@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Web Minecraft (Railsys)
+Comment=Web Minecraft 起動 (Railsys / Terrain Editing Tools)
+Exec="/home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/START_WEB_MINECRAFT.sh"
+Icon=web-browser
+Terminal=true
+Categories=Game;
+StartupNotify=false

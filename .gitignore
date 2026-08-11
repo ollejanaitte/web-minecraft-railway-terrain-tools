@@ -60,3 +60,6 @@ doc/testing/phase1_1/screenshots/_*.png
 
 # Stray nested doc dir (duplicate phase0_2 runtime artifacts)
 doc/doc/
+
+# Normal-play runtime profile / logs (START_WEB_MINECRAFT.sh)
+/runtime/

@@ -936,3 +936,32 @@ logs, stdout captures, stray doc/doc. Untracked visible count reduced
 and FINAL_REPORT.md, intentionally left uncommitted).
 
 END CP-02
+
+STEP 803 - CP-03 One-Click Launcher作成
+----------------------------------------
+START_WEB_MINECRAFT.sh (repository root) = 正式な単一起動入口。
+- 実行権限付与、repo root自動取得、JAVA_HOME default設定
+- 成果物無し/古い場合は ./gradlew makeMainOfflineDownload 自動ビルド
+- 通常プレイ専用プロファイル runtime/profiles/game（検証profileと分離）
+- 既存インスタンス検知で二重起動回避、stopサブコマンド
+- DISPLAY有=GUIウィンドウモード（ChromeデフォルトGPU設定）/ 無=headless+CDP
+- port競合検出、起動失敗時は画面を閉じず原因表示
+- ローカルHTTPサーバー不要（file:// offline HTML）
+- .desktop launcher START_WEB_MINECRAFT.desktop 作成（アプリ一覧+デスクトップへ配置）
+- .gitignore に /runtime/ 追加
+
+STEP 804 - CP-04 Ubuntu実起動検証
+----------------------------------
+検証経緯: GUIモードで --use-gl=angle --use-angle=vulkan 指定だと
+EGL初期化失敗("No suitable EGL configs")でウィンドウがマップされない
+問題を実測。ランチャーを修正し、GUIモードではChromeデフォルトGPU設定
+を使用（headless/検証時のみGPUフラグ）へ変更。
+- headless+CDP+instrumented HTMLでタイトル画面到達を実証:
+  GuiMainMenu 到達、WebGL2.0/ANGLE NVIDIA Vulkan GTX 1050(HW)
+- GUIモード: ウィンドウ 1280x720 正常マップ、タイトル表示
+- ユーザー実操作確認: 通常プレイでフラットワールドに入場成功
+  (ESC一時停止まで確認) -> 通常プレイ可能を実証
+- 検証用AutoValidate/カメラツアーは通常ワールドに非発火（確認済み）
+- ユーザー通常Chromeは不干渉（専用profileのみ管理）
+
+END CP-03 / CP-04
