@@ -1181,3 +1181,13 @@ STEP 1004 - CP-06/07/08 Rail Asset / Renderer Contract + Phase 1.3 scope Freeze
   Known/Unknown/Futureを整理。
 
 END CP-06/07/08
+
+STEP 1005 - CP-09 Regression / Preservation確認
+-------------------------------------------------
+harnessTest: PASSED=84 FAILED=0 SKIPPED=3 SUCCESS（RailLocalFrame修正後も緑）
+makeMainOfflineDownload: BUILD SUCCESSFUL
+Production変更: RailLocalFrame.javaのみ（CP-05でユーザー判断によりup/roll修正）
+保全対象（CommandRailSystem/EntityRailVehicle）: 不変（MD5一致・diff空）
+意図しない変更なし。
+
+END CP-09
