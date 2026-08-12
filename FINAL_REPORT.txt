@@ -2517,3 +2517,29 @@ STEP R10-03d - CP-R10-03d Productionize R10 Wand Arrow Runtime
   - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
   - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
 - Publishing now (commit + push origin main).
+
+STEP R10-03e - CP-R10-03 SYNC + DISCORD RECORD (2026-08-12)
+-------------------------------------------------------------
+- Concurrency note: a separate CP-R10-03d "Productionize R10 Wand Arrow
+  Runtime" record (another run) was appended to this file DURING this CP's
+  FINAL_REPORT.txt edit window, so commit 7574a924 includes that concurrent
+  text inside the (intended) FINAL_REPORT.txt blob. It does not affect the
+  staged CP-R10-03 product file list, which was verified exact.
+- CP-R10-03 commit: 7574a924efc0fe57fbee4e2bf8612372eb63103a
+  "feat: CP-R10-03 move marker arrows + client runtime to production".
+- Push: origin/main b09af55f..7574a924. Sync verified:
+  local main == origin/main == git ls-remote GitHub main = 7574a924 (SYNC OK).
+- Staged file list (verified before commit, exact CP-R10-03 set):
+  FINAL_REPORT.txt, Minecraft.java, EntityRenderer.java,
+  RailsysClientCommands.java, RailsysClientRuntime.java (NEW),
+  render/MarkerArrowRenderer.java (NEW, via rename from validation),
+  validation/MarkerArrowRenderer.java (DELETED),
+  validation/MarkerArrowProofObserver.java (NEW), MarkerCantClientHook.java,
+  MarkerPlaceClientHook.java, R10SourceContractTest.java.
+  Protected files and unrelated dirty/untracked files were NOT staged.
+- Discord (Japanese, via DISCORD_WEBHOOK_URL; value never echoed/persisted):
+  - Wand/Arrow update          -> HTTP 204
+  - Auto Preview/Editing corr  -> HTTP 204
+  - CP-R10-03 checkpoint       -> HTTP 204
+  All 2xx = SUCCESS.
+- Verdict: CP-R10-03 fully published and synced.
