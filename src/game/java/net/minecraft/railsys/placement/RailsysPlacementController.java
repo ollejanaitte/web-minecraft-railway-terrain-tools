@@ -7,6 +7,7 @@ import net.minecraft.railsys.path.RailPath;
 import net.minecraft.railsys.render.RailsysRenderManager;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumFacing;
 
 /**
  * RailsysPlacementController — Phase 1-R7/R8 client-side placement workflow.
@@ -48,6 +49,26 @@ public final class RailsysPlacementController {
 		}
 		boolean ok = RailsysMarkerSelection.select(player, pos);
 		rebuildPreview(player);
+		return ok;
+	}
+
+	/**
+	 * Right-click a block FACE (marker wand path): the actual clicked block
+	 * surface, not a canonical coordinate. Delegates to
+	 * RailsysMarkerSelection.selectOnFace, which converts a top-face click to
+	 * the support surface (anchor y = clicked block y + 1) and REJECTS any
+	 * non-UP face with clear chat and no marker/preview state mutation
+	 * (Phase 1 horizontal rail placement contract). The preview is rebuilt
+	 * ONLY on a successful select so a rejected face never mutates state.
+	 */
+	public static boolean selectOnFace(EntityPlayer player, BlockPos pos, EnumFacing face) {
+		if (player == null || pos == null || face == null) {
+			return false;
+		}
+		boolean ok = RailsysMarkerSelection.selectOnFace(player, pos, face);
+		if (ok) {
+			rebuildPreview(player);
+		}
 		return ok;
 	}
 

@@ -69,8 +69,12 @@ import railv2test.harness.Test;
  *   - Confirm is an EXACT OBJECT PROMOTION (state assigns confirmedPath =
  *     previewPath; the controller never rebuilds a RailPath). The numerical
  *     test proves DETERMINISTIC PIPELINE EQUIVALENCE, not object identity.
- *   - /railsys3 wand is reliable with a full inventory: leftover is dropped at
- *     the player with no pickup delay instead of being silently lost.
+ *   - /railsys3 wand is SERVER-AUTHORITATIVE: the client wand branch never
+ *     mutates its own inventory (the integrated-server sync would discard a
+ *     client-only insert — POS1 works but POS2 sees an empty hand); it forwards
+ *     the exact /railsysplace wand command via EntityPlayerSP.sendChatMessage
+ *     (C01 packet, bypassing GuiChat), and CommandRailsysPlace performs the
+ *     authoritative give with full-inventory drop semantics.
  */
 public final class R10SourceContractTest {
 
@@ -196,9 +200,11 @@ public final class R10SourceContractTest {
 		// clear = transient session reset via controller.
 		Assert.assertTrue(src.contains("RailsysPlacementController.clear(player);"),
 				"clear maps to RailsysPlacementController.clear");
-		// wand branch gives the marker wand exactly once; no duplicate branch.
+		// wand branch forwards to the server; no duplicate branch and NO local
+		// item reference (server-authoritative inventory give).
 		Assert.assertEqualsInt(1, count(src, "\"wand\".equals(action)"), "single canonical wand branch");
-		Assert.assertEqualsInt(1, count(src, "Items.railsys_marker_wand"), "marker wand given exactly once");
+		Assert.assertEqualsInt(0, count(src, "Items.railsys_marker_wand"),
+				"client wand branch never references the item (server gives it)");
 		Assert.assertEqualsInt(1, count(src, "\"arrows\".equals(action)"), "single arrows on|off branch (no duplicate)");
 		// Case-insensitive action matching: the action token is normalized with
 		// Locale.ROOT so /railsys3 WAND and /railsys3 Wand both work.
@@ -390,27 +396,55 @@ public final class R10SourceContractTest {
 				"controller confirm never rebuilds a RailPath (exact object promotion only)");
 	}
 
-	// ===================== wand give with full inventory =====================
+	// ===================== wand give: server-authoritative =====================
 
 	@Test
-	public static void t12_wandGiveIsFullInventorySafe() {
-		String src = stripComments(
+	public static void t12_wandGiveIsServerAuthoritative() {
+		// R10 root-cause fix: a client-only inventory insert is discarded by the
+		// integrated-server inventory sync (POS1 works, POS2 sees an empty hand).
+		// The client wand branch MUST NOT mutate the local inventory; it forwards
+		// the exact server command /railsysplace wand via EntityPlayerSP
+		// (C01 packet, bypassing GuiChat), and CommandRailsysPlace performs the
+		// authoritative give with full-inventory drop semantics.
+		String client = stripComments(
 				readSource("src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java"));
-		int wandIdx = src.indexOf("\"wand\".equals(action)");
+		int wandIdx = client.indexOf("\"wand\".equals(action)");
 		Assert.assertTrue(wandIdx >= 0, "canonical wand branch present");
-		String wandTail = src.substring(wandIdx, Math.min(wandIdx + 1400, src.length()));
-		Assert.assertTrue(wandTail.contains("addItemStackToInventory(wand)"),
-				"wand branch adds the stack to the inventory");
+		String wandTail = client.substring(wandIdx, Math.min(wandIdx + 1200, client.length()));
+		// No local inventory mutation in the client wand branch.
+		Assert.assertFalse(wandTail.contains("addItemStackToInventory"),
+				"client wand branch never adds to the local inventory");
+		Assert.assertFalse(wandTail.contains("Items.railsys_marker_wand"),
+				"client wand branch never constructs the item (server gives it)");
+		Assert.assertFalse(wandTail.contains("dropPlayerItemWithRandomChoice"),
+				"client wand branch never drops locally");
+		// Forwarded exactly through the C01 chat packet with null safety.
+		Assert.assertTrue(wandTail.contains("sendChatMessage(\"/railsysplace wand\")"),
+				"client wand branch forwards the exact /railsysplace wand command");
+		Assert.assertTrue(wandTail.contains("mc != null && mc.thePlayer != null"),
+				"client forward is null-safe (mc and thePlayer both non-null)");
+
+		// Server-side authoritative give with full-inventory drop semantics.
+		String server = stripComments(
+				readSource("src/game/java/net/minecraft/command/CommandRailsysPlace.java"));
+		Assert.assertTrue(server.contains("\"wand\".equals(action)"), "server command has a wand action");
+		Assert.assertTrue(server.contains("addItemStackToInventory(wand)"),
+				"server command adds the stack to the inventory");
 		// 1.8 addItemStackToInventory leaves the REMAINDER in the passed stack;
 		// success is detected when the stack is fully consumed (no duplication).
-		Assert.assertTrue(wandTail.contains("wand.stackSize == 0"), "full-add detected via stackSize 0");
-		// Full/partial inventory: the leftover is dropped at the player with no
-		// pickup delay instead of being silently lost.
-		Assert.assertTrue(wandTail.contains("dropPlayerItemWithRandomChoice(wand"),
-				"leftover wand dropped at the player");
-		Assert.assertTrue(wandTail.contains("setNoPickupDelay()"), "dropped wand has no pickup delay");
-		Assert.assertTrue(wandTail.contains("inventory full"),
-				"explicit drop message tells the player the wand was dropped");
+		Assert.assertTrue(server.contains("wand.stackSize == 0"), "full-add detected via stackSize 0");
+		Assert.assertTrue(server.contains("dropPlayerItemWithRandomChoice(wand, false)"),
+				"server drops the leftover at the player");
+		Assert.assertTrue(server.contains("setNoPickupDelay()"), "server-dropped wand has no pickup delay");
+		Assert.assertTrue(server.contains("railsys: marker wand added to inventory (Shift+right-click confirms preview)"),
+				"server success text is the exact canonical message");
+		Assert.assertTrue(server.contains("inventory full"),
+				"server tells the player the wand was dropped when inventory is full");
+		// Permission level unchanged (2).
+		int permIdx = server.indexOf("public int getRequiredPermissionLevel()");
+		Assert.assertTrue(permIdx >= 0, "server command exposes required permission");
+		String permTail = server.substring(permIdx, Math.min(permIdx + 60, server.length()));
+		Assert.assertTrue(permTail.contains("return 2;"), "server required permission level remains 2");
 	}
 
 	// ===================== CP-R10-03: production/validation ownership split =====================
@@ -622,5 +656,239 @@ public final class R10SourceContractTest {
 				"phase 4 re-confirms the edited preview");
 		Assert.assertTrue(phase4.contains("fail("), "phase 4 checks the confirm result (no false success)");
 		Assert.assertTrue(src.contains("isFailed()"), "isFailed() accessor available to validators");
+	}
+
+	@Test
+	public static void t21_cameraResetRestoresPlayerRenderView() {
+		// R10-04: the camera branch was numeric-only, so after
+		// /railsys3 camera x y z yaw pitch there was no way back to the normal
+		// player view. /railsys3 camera reset (exactly 3 tokens, reset
+		// case-insensitive) now restores the render view via the null-safe
+		// RailsysCamera.reset; the exact numeric branch is retained.
+		String cam = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysCamera.java"));
+		Assert.assertTrue(cam.contains("public static void reset("),
+				"RailsysCamera exposes a static reset(Minecraft)");
+		Assert.assertTrue(cam.contains("mc != null && mc.thePlayer != null"),
+				"RailsysCamera.reset is null-safe (mc and thePlayer both non-null)");
+		Assert.assertTrue(cam.contains("mc.setRenderViewEntity(mc.thePlayer)"),
+				"RailsysCamera.reset restores the render view entity to the player");
+		String cmd = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java"));
+		Assert.assertTrue(cmd.contains("\"reset\".equalsIgnoreCase(args[2])"),
+				"/railsys3 camera reset matched case-insensitively");
+		Assert.assertTrue(cmd.contains("RailsysCamera.reset("),
+				"camera reset delegates to RailsysCamera.reset");
+		Assert.assertTrue(cmd.contains("railsys: camera reset to player"), "camera reset chat message present");
+		Assert.assertTrue(cmd.contains("args.length >= 7"), "numeric camera branch retained");
+		Assert.assertTrue(cmd.contains("Float.parseFloat(args[6])"), "numeric camera pitch parse retained");
+		Assert.assertTrue(cmd.contains("setRenderViewEntity(cam)"), "numeric camera still sets the camera entity");
+	}
+
+	// ===================== R10 clicked-surface anchor contract =====================
+
+	@Test
+	public static void t22_wandForwardsHitFaceToSelectOnFace() {
+		// Item.onItemUse reports the clicked BLOCK (bottom Y) plus the hit face;
+		// the wand must forward the EnumFacing so the support surface can be
+		// derived (see doc/architecture/phase1_r10_clicked_surface_anchor_contract.md).
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/item/ItemRailsysMarkerWand.java"));
+		Assert.assertTrue(src.contains("selectOnFace(entityplayer, blockpos, enumfacing)"),
+				"wand forwards the hit EnumFacing to RailsysPlacementController.selectOnFace");
+		Assert.assertFalse(src.contains("RailsysPlacementController.select(entityplayer"),
+				"wand no longer feeds the raw block coordinate to the canonical select");
+		Assert.assertTrue(src.contains("enumfacing"), "wand uses the hit face");
+	}
+
+	@Test
+	public static void t23_upFaceConvertsToSupportSurfaceYPlusOne() {
+		// The clicked-block Y (bottom) is converted to the support surface: the
+		// UP-face path must store anchor y = clicked y + 1 and reuse the SAME live
+		// player look direction contract as the canonical select.
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysMarkerSelection.java"));
+		int soF = src.indexOf("public static boolean selectOnFace(EntityPlayer player, BlockPos pos, EnumFacing face)");
+		Assert.assertTrue(soF >= 0, "RailsysMarkerSelection.selectOnFace present");
+		int soEnd = src.indexOf("public static boolean selectFromMcLook", soF);
+		String soBody = src.substring(soF, soEnd > soF ? soEnd : Math.min(soF + 1200, src.length()));
+		Assert.assertTrue(soBody.contains("if (face != EnumFacing.UP)"),
+				"selectOnFace branches on the hit face");
+		Assert.assertTrue(soBody.contains("pos.getY() + 1"),
+				"UP-face conversion adds +1 to the clicked block Y (support surface)");
+		Assert.assertTrue(soBody.contains("new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ())"),
+				"UP-face constructs the support-surface BlockPos");
+		Assert.assertTrue(soBody.contains("player.getLook(1.0F)"),
+				"UP-face uses the SAME live player look as the canonical select");
+		Assert.assertTrue(soBody.contains("selectFromLook(player, new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ())"),
+				"UP-face delegates to the same look conversion as select");
+	}
+
+	@Test
+	public static void t24_nonUpFaceRejectedBeforeMutation() {
+		// Any non-UP face is REJECTED with clear chat BEFORE any marker/preview
+		// state mutation; the controller rebuilds the preview only on success.
+		String sel = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysMarkerSelection.java"));
+		int soF = sel.indexOf("public static boolean selectOnFace(EntityPlayer player, BlockPos pos, EnumFacing face)");
+		Assert.assertTrue(soF >= 0, "RailsysMarkerSelection.selectOnFace present");
+		int soEnd = sel.indexOf("public static boolean selectFromMcLook", soF);
+		String soBody = sel.substring(soF, soEnd > soF ? soEnd : Math.min(soF + 1200, sel.length()));
+		int reject = soBody.indexOf("railsys: marker placement requires the TOP face (support surface); rejected");
+		Assert.assertTrue(reject >= 0, "non-UP rejection chat message present");
+		int ret = soBody.indexOf("return false;", reject);
+		Assert.assertTrue(ret > reject, "rejection returns immediately after the chat message");
+		Assert.assertFalse(soBody.contains("st.setMarkerA("),
+				"rejection path never mutates Marker A (no setMarkerA in selectOnFace)");
+		Assert.assertFalse(soBody.contains("st.setMarkerB("),
+				"rejection path never mutates Marker B (no setMarkerB in selectOnFace)");
+
+		String ctrl = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysPlacementController.java"));
+		int soC = ctrl.indexOf("public static boolean selectOnFace(EntityPlayer player, BlockPos pos, EnumFacing face)");
+		Assert.assertTrue(soC >= 0, "RailsysPlacementController.selectOnFace present");
+		int soCEnd = ctrl.indexOf("public static void rebuildPreview", soC);
+		String soCBody = ctrl.substring(soC, soCEnd > soC ? soCEnd : Math.min(soC + 900, ctrl.length()));
+		Assert.assertTrue(soCBody.contains("RailsysMarkerSelection.selectOnFace(player, pos, face)"),
+				"controller delegates to the marker-selection face entry");
+		int okIdx = soCBody.indexOf("if (ok)");
+		int rebuildIdx = soCBody.indexOf("rebuildPreview(player);");
+		Assert.assertTrue(okIdx >= 0 && rebuildIdx > okIdx,
+				"controller rebuilds the preview ONLY on a successful select (rejected face never mutates state)");
+	}
+
+	@Test
+	public static void t25_canonicalSelectPassesPosUnchanged() {
+		// The canonical entry points treat pos as the support-surface coordinate
+		// AS-IS: select and selectFromMcLook pass pos unchanged into the shared
+		// look conversion, and the anchor keeps y = pos.y (x+0.5, y, z+0.5).
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysMarkerSelection.java"));
+		int selF = src.indexOf("public static boolean select(EntityPlayer player, BlockPos pos)");
+		Assert.assertTrue(selF >= 0, "canonical select present");
+		int selEnd = src.indexOf("public static boolean selectOnFace", selF);
+		String selBody = src.substring(selF, selEnd > selF ? selEnd : Math.min(selF + 800, src.length()));
+		Assert.assertTrue(selBody.contains("selectFromLook(player, pos, look.xCoord"),
+				"select passes the canonical pos unchanged");
+		Assert.assertFalse(selBody.contains("pos.getY() + 1"),
+				"canonical select does not add +1 (pos is already the support surface)");
+		int sfF = src.indexOf("public static boolean selectFromMcLook");
+		Assert.assertTrue(sfF >= 0, "selectFromMcLook present");
+		int sfEnd = src.indexOf("private static boolean selectFromLook", sfF);
+		String sfBody = src.substring(sfF, sfEnd > sfF ? sfEnd : Math.min(sfF + 800, src.length()));
+		Assert.assertTrue(sfBody.contains("selectFromLook(player, pos, lx, ly, lz)"),
+				"selectFromMcLook passes the canonical pos unchanged");
+		Assert.assertTrue(src.contains("pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D"),
+				"canonical anchor keeps y = pos.y (support-surface datum)");
+	}
+
+	@Test
+	public static void t26_arrowRendererUsesAnchorSupportDatum() {
+		// The marker arrow must render on the anchor support datum directly
+		// (a.y + ARROW_UP) and must NOT floor the anchor y nor add an extra block.
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/render/MarkerArrowRenderer.java"));
+		Assert.assertTrue(src.contains("double by = a.y + ARROW_UP;"),
+				"arrow uses the anchor support datum directly (a.y + ARROW_UP)");
+		Assert.assertFalse(src.contains("Math.floor(a.y)"),
+				"arrow no longer floors the anchor y (no bottom-Y assumption)");
+		Assert.assertFalse(src.contains("floor(a.y) + 1.0D"),
+				"arrow no longer adds an extra block above the floored y");
+		Assert.assertTrue(src.contains("ARROW_UP"), "z-fighting offset constant retained");
+	}
+
+	@Test
+	public static void t27_temporaryRenderPrintRemovedFlowRetained() {
+		// The unconditional per-frame [RAILSYS_RENDER] diagnostic print is removed
+		// from renderRailSystemProduction; the render flow (preview gate, preview
+		// and production draw calls, GL enable/disable) is untouched.
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/client/renderer/RenderGlobal.java"));
+		Assert.assertFalse(src.contains("[RAILSYS_RENDER]"),
+				"temporary [RAILSYS_RENDER] diagnostic print removed");
+		int m = src.indexOf("public void renderRailSystemProduction(Entity viewEntity, float partialTicks)");
+		Assert.assertTrue(m >= 0, "renderRailSystemProduction present");
+		int nxt = src.indexOf("public void renderRailSystemDebug", m);
+		String body = src.substring(m, nxt > m ? nxt : Math.min(m + 2200, src.length()));
+		Assert.assertFalse(body.contains("System.out.println"),
+				"renderRailSystemProduction contains no println");
+		Assert.assertTrue(body.contains("hasPreview"), "preview gate retained");
+		Assert.assertTrue(body.contains("RailRenderer.renderPreview("),
+				"preview render call retained");
+		Assert.assertTrue(body.contains("RailsysProductionRenderer.renderPath("),
+				"production rail render call retained");
+		Assert.assertTrue(body.contains("enableTexture2D()") && body.contains("enableLighting()"),
+				"GL state restoration retained");
+	}
+
+	// ===================== final-UX: marker wand item model =====================
+
+	@Test
+	public static void t28_markerWandModelIsValidVanillaGenerated() {
+		// Sol final-UX root cause: Items.railsys_marker_wand is registered, but the
+		// bundled item model desktopRuntime/resources/assets/minecraft/models/item/
+		// railsys_marker_wand.json was ABSENT, so the runtime logged
+		// JavaError minecraft:models/item/railsys_marker_wand.json and the renderer
+		// fell back to the purple/black missing model in hand. This guards the model
+		// FILE itself (no renderer / Anchor change). The model must be a valid
+		// Minecraft 1.8 builtin/generated item model that reuses the already-bundled
+		// vanilla items/iron_axe texture and mirrors the wrench.json display
+		// transforms — and must never reference the missing-texture fallback or any
+		// external asset.
+		String rel = "desktopRuntime/resources/assets/minecraft/models/item/railsys_marker_wand.json";
+		File f = new File(repoRoot(), rel);
+		Assert.assertTrue(f.isFile(), "marker wand model file present: " + rel);
+		String json = readSource(rel);
+
+		// Minecraft 1.8 generated item model: parent builtin/generated (not a block
+		// parent, not builtin/entity).
+		Assert.assertTrue(json.contains("\"builtin/generated\""), "model parent is builtin/generated");
+		Assert.assertFalse(json.contains("\"builtin/entity\""), "model is NOT builtin/entity");
+
+		// Uses the ALREADY-BUNDLED vanilla iron_axe texture, no new/external asset.
+		Assert.assertTrue(json.contains("\"items/iron_axe\""), "model layer0 texture is items/iron_axe");
+		Assert.assertEqualsInt(1, count(json, "\"layer0\""), "model declares exactly one layer0 texture");
+		File tex = new File(repoRoot(),
+				"desktopRuntime/resources/assets/minecraft/textures/items/iron_axe.png");
+		Assert.assertTrue(tex.isFile(), "bundled vanilla texture items/iron_axe.png exists (no new asset)");
+
+		// Display transforms present (thirdperson + firstperson) consistent with the
+		// repository's wrench.json, so the wand looks right in hand.
+		Assert.assertTrue(json.contains("\"thirdperson\""), "model has a thirdperson transform");
+		Assert.assertTrue(json.contains("\"firstperson\""), "model has a firstperson transform");
+
+		// NO purple/black missing-texture fallback and NO external asset reference.
+		Assert.assertFalse(json.contains("missingno"), "model does not reference the missingno fallback texture");
+		Assert.assertFalse(json.contains("http://"), "model has no external http URL");
+		Assert.assertFalse(json.contains("https://"), "model has no external https URL");
+	}
+
+	@Test
+	public static void t29_renderItemMesherMapsMarkerWandToInventoryModel() {
+		// Sol root cause (corrected): ModelBakery loads/bakes the packaged
+		// railsys_marker_wand JSON, but RenderItem.registerItems() registered only
+		// wrench and rail_wand — Items.railsys_marker_wand was absent from the
+		// ItemModelMesher, so the held-item lookup fell back to the missing model.
+		// The mesher must now register Items.railsys_marker_wand to the EXACT
+		// "railsys_marker_wand" inventory model, once and canonically, placed
+		// after/alongside the wrench and rail_wand registrations.
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/client/renderer/entity/RenderItem.java"));
+		// Canonical registration: the exact item -> model mapping, exactly once.
+		Assert.assertEqualsInt(1, count(src, "this.registerItem(Items.railsys_marker_wand, \"railsys_marker_wand\");"),
+				"single canonical railsys_marker_wand mesher registration");
+		// Ordering: wrench, then rail_wand, then railsys_marker_wand.
+		int wrench = src.indexOf("this.registerItem(Items.wrench, \"wrench\");");
+		int railWand = src.indexOf("this.registerItem(Items.rail_wand, \"rail_wand\");");
+		int markerWand = src.indexOf("this.registerItem(Items.railsys_marker_wand, \"railsys_marker_wand\");");
+		Assert.assertTrue(wrench >= 0 && railWand > wrench && markerWand > railWand,
+				"mesher registrations ordered wrench < rail_wand < railsys_marker_wand");
+		// The model resource maps to the packaged railsys_marker_wand inventory model.
+		Assert.assertTrue(src.contains("Items.railsys_marker_wand, \"railsys_marker_wand\""),
+				"mesher maps the item to the railsys_marker_wand inventory model");
+		// The JSON file / model contract is unchanged and still guarded by t28.
+		File model = new File(repoRoot(),
+				"desktopRuntime/resources/assets/minecraft/models/item/railsys_marker_wand.json");
+		Assert.assertTrue(model.isFile(), "railsys_marker_wand.json model file still present (t28 contract intact)");
 	}
 }

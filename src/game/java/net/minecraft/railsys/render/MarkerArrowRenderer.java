@@ -99,7 +99,7 @@ public final class MarkerArrowRenderer {
 	/** Draw a flat arrow on the block top surface, oriented by the stored yaw. */
 	private static void drawArrow(WorldRenderer wr, AnchorDefinition a, int r, int g, int b) {
 		double bx = a.x;
-		double by = Math.floor(a.y) + 1.0D + ARROW_UP;
+		double by = a.y + ARROW_UP;
 		double bz = a.z;
 		double yaw = Math.toRadians(a.yawDeg);
 		// forward = (sin yaw, 0, cos yaw) in the Railsys convention (0 = +Z).

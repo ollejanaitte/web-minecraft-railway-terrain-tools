@@ -49,22 +49,17 @@ public final class RailsysClientCommands {
 		String action = args[1].toLowerCase(java.util.Locale.ROOT);
 		try {
 			if ("wand".equals(action) || "give".equals(action)) {
-				// Canonical /railsys3 wand gives the marker wand; "give" is a
-				// compatibility alias for the same action. addItemStackToInventory
-				// consumes the stack it stores and leaves the REMAINDER in wand; a
-				// full inventory is never silently lost — the leftover is dropped
-				// at the player with no pickup delay (matching CommandWorldEdit).
-				net.minecraft.item.ItemStack wand = new net.minecraft.item.ItemStack(
-						net.minecraft.init.Items.railsys_marker_wand);
-				player.inventory.addItemStackToInventory(wand);
-				if (wand.stackSize == 0) {
-					msg(player, "railsys: marker wand added to inventory (Shift+right-click confirms preview)");
-				} else {
-					net.minecraft.entity.item.EntityItem dropped = player.dropPlayerItemWithRandomChoice(wand, false);
-					if (dropped != null) {
-						dropped.setNoPickupDelay();
-					}
-					msg(player, "railsys: inventory full — marker wand dropped at your feet");
+				// Server-authoritative wand give (R10 root-cause fix): the client
+				// MUST NOT mutate its own inventory here — the integrated server is
+				// authoritative and its next sync discards a client-only insert
+				// (POS1 worked but POS2 saw an empty hand). Forward the exact server
+				// command through EntityPlayerSP.sendChatMessage, which queues a C01
+				// packet straight to the server and never re-enters GuiChat's local
+				// client-command interception. CommandRailsysPlace then performs the
+				// authoritative give with full-inventory drop semantics.
+				net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
+				if (mc != null && mc.thePlayer != null) {
+					mc.thePlayer.sendChatMessage("/railsysplace wand");
 				}
 			} else if ("pos1".equals(action)) {
 				if (args.length >= 5) {
@@ -132,8 +127,13 @@ public final class RailsysClientCommands {
 					msg(player, "railsys: arrows on|off");
 				}
 			} else if ("camera".equals(action)) {
-				// /railsys3 camera x y z yaw pitch -> exactly 5 values after root+action.
-				if (args.length >= 7) {
+				// /railsys3 camera reset -> back to player view (exact, pre-arity).
+				if (args.length == 3 && "reset".equalsIgnoreCase(args[2])) {
+					net.minecraft.railsys.placement.RailsysCamera.reset(
+							net.minecraft.client.Minecraft.getMinecraft());
+					msg(player, "railsys: camera reset to player");
+				} else if (args.length >= 7) {
+					// /railsys3 camera x y z yaw pitch -> exactly 5 values after root+action.
 					double cx = Double.parseDouble(args[2]);
 					double cy = Double.parseDouble(args[3]);
 					double cz = Double.parseDouble(args[4]);
@@ -207,6 +207,7 @@ public final class RailsysClientCommands {
 		msg(player, "/railsys3 rot1|rot2 <deg> | handle <m> | pitch <deg> | cant <deg>");
 		msg(player, "/railsys3 preview | confirm | cancel (discard preview only)");
 		msg(player, "/railsys3 clear (reset session, keeps confirmed rail) | asset <id> | assets");
+		msg(player, "/railsys3 camera x y z yaw pitch | camera reset (back to player)");
 		msg(player, "/railsys3 status | help");
 	}
 

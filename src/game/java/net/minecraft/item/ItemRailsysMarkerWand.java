@@ -23,6 +23,12 @@ import net.minecraft.world.World;
  * RailsysPlacementState/RailsysRenderManager statics used by the renderer) and
  * the server (mirror). Client-side chat is used for feedback so the message
  * appears even in single-player Web Worker setups.
+ *
+ * Phase 1-R10 clicked-surface contract: Minecraft reports the clicked BLOCK
+ * (bottom Y) plus the hit face, while the production RailPath treats the anchor
+ * Y as the SUPPORT surface. The wand therefore forwards the hit EnumFacing to
+ * RailsysPlacementController.selectOnFace, which converts a top-face click to
+ * the support surface (Y+1) and rejects any non-UP face.
  */
 public class ItemRailsysMarkerWand extends Item {
 
@@ -44,7 +50,7 @@ public class ItemRailsysMarkerWand extends Item {
 			return true;
 		}
 		if (world.isRemote) {
-			RailsysPlacementController.select(entityplayer, blockpos);
+			RailsysPlacementController.selectOnFace(entityplayer, blockpos, enumfacing);
 		}
 		return true;
 	}

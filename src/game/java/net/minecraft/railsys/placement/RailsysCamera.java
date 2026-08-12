@@ -31,6 +31,15 @@ public final class RailsysCamera extends Entity {
 		this.noClip = true;
 	}
 
+	/**
+	 * Reset the render view back to the local player (default camera).
+	 * Safe no-op when mc is null or the player is unavailable.
+	 */
+	public static void reset(net.minecraft.client.Minecraft mc) {
+		if (mc != null && mc.thePlayer != null) {
+			mc.setRenderViewEntity(mc.thePlayer);
+		}
+	}
 	public void place(double x, double y, double z, float yaw, float pitch) {
 		this.setLocationAndAngles(x, y, z, yaw, pitch);
 		this.prevPosX = this.lastTickPosX = x;

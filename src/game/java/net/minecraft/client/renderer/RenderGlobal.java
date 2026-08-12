@@ -1661,8 +1661,6 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		net.minecraft.railsys.placement.RailsysPlacementState st = net.minecraft.railsys.placement.RailsysPlacementState
 				.getInstance();
 		boolean hasPreview = st != null && st.hasPreview();
-		System.out.println("[RAILSYS_RENDER] productionPathCount=" + paths.size() + " hasPreview=" + hasPreview
-				+ " previewPath=" + (st != null && st.getPreviewPath() != null ? st.getPreviewPath().totalLength() : "null"));
 		if (paths.isEmpty() && !hasPreview) {
 			return;
 		}

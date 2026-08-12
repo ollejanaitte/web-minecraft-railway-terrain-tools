@@ -1067,6 +1067,7 @@ public class RenderItem implements IResourceManagerReloadListener {
 		this.registerItem(Items.name_tag, "name_tag");
 		this.registerItem(Items.wrench, "wrench");
 		this.registerItem(Items.rail_wand, "rail_wand");
+		this.registerItem(Items.railsys_marker_wand, "railsys_marker_wand");
 		this.itemModelMesher.register(Items.banner, new ItemMeshDefinition() {
 			public ModelResourceLocation getModelLocation(ItemStack var1) {
 				return new ModelResourceLocation("banner", "inventory");

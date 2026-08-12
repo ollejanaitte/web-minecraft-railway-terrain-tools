@@ -5,6 +5,7 @@ import net.minecraft.railsys.geometry.AnchorDefinition;
 import net.minecraft.railsys.geometry.RailMath;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 
 /**
@@ -16,6 +17,16 @@ import net.minecraft.util.Vec3;
  *   - marker position = clicked block position (block centre on X/Z, block Y)
  *   - marker direction = the PLAYER'S forward look vector at click time,
  *     converted to the Railsys yaw/pitch convention (yaw 0 = +Z)
+ *
+ * Phase 1-R10 clicked-surface contract (see
+ * doc/architecture/phase1_r10_clicked_surface_anchor_contract.md):
+ *   - {@link #select(EntityPlayer, BlockPos)} / selectFromMcLook treat pos as
+ *     the CANONICAL support-surface coordinate (anchor y = pos.y), unchanged
+ *     for validation and backward compatibility.
+ *   - {@link #selectOnFace(EntityPlayer, BlockPos, EnumFacing)} is the wand's
+ *     actual-clicked-block-surface entry: a top-face click is converted to the
+ *     support surface (anchor y = pos.y + 1); any non-UP face is REJECTED with
+ *     clear chat and no marker/preview mutation.
  *
  * Semantics (RTM-style Marker Direction Contract):
  *   POS1 (Marker A): player faces the direction the rail leaves the START
@@ -35,6 +46,30 @@ public final class RailsysMarkerSelection {
 		}
 		Vec3 look = player.getLook(1.0F);
 		return selectFromLook(player, pos, look.xCoord, look.yCoord, look.zCoord);
+	}
+
+	/**
+	 * Select the next marker from an ACTUAL clicked block FACE (wand right-click).
+	 * Minecraft reports the clicked BLOCK (bottom Y) plus the hit face, while the
+	 * production RailPath contract treats the anchor Y as the SUPPORT surface.
+	 * For the UP (top) face the support surface is the block top: anchor
+	 * (x+0.5, y+1.0, z+0.5), using the SAME live player look conversion as
+	 * {@link #select(EntityPlayer, BlockPos)}. Any non-UP face is REJECTED with
+	 * clear chat and NO marker/preview state mutation (Phase 1 horizontal rail
+	 * placement contract).
+	 */
+	public static boolean selectOnFace(EntityPlayer player, BlockPos pos, EnumFacing face) {
+		if (player == null || pos == null || face == null) {
+			return false;
+		}
+		if (face != EnumFacing.UP) {
+			player.addChatMessage(new ChatComponentText(
+					"railsys: marker placement requires the TOP face (support surface); rejected"));
+			return false;
+		}
+		Vec3 look = player.getLook(1.0F);
+		return selectFromLook(player, new BlockPos(pos.getX(), pos.getY() + 1, pos.getZ()),
+				look.xCoord, look.yCoord, look.zCoord);
 	}
 
 	/**

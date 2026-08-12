@@ -2543,3 +2543,120 @@ STEP R10-03e - CP-R10-03 SYNC + DISCORD RECORD (2026-08-12)
   - CP-R10-03 checkpoint       -> HTTP 204
   All 2xx = SUCCESS.
 - Verdict: CP-R10-03 fully published and synced.
+
+
+STEP R10-04 - CP-R10-04 Minimal Camera Reset Fix (Sol root cause) (2026-08-12)
+------------------------------------------------------------------------------
+- Sol root cause: the client RENDER CAMERA entity (RailsysCamera) differs from
+  the player entity. Wand use and marker direction use the PLAYER, but a
+  previously-held RailsysCamera keeps the render view on the detached camera
+  entity, so player-based actions and the render camera disagree. Reset is the
+  MINIMAL fix: set the render view back to the player.
+- Dedicated Superflat vanilla tp plan: separate follow-up, NOT this step. Prior
+  automation failures were harness/driver issues, NOT product failures.
+- Flash stalled twice after source/runtime reads; Sol performed the root-cause
+  review and delegated the mechanical fallback to Luna/Flash. The fallback
+  added the minimal reset contract and the GUI workflow now uses vanilla
+  Superflat /tp for player-controlled wand rays and direction capture.
+- Scope confirmed: product code edit permitted (fix phase). Protected files
+  (CommandRailSystem.java / EntityRailVehicle.java) untouched; unrelated
+  dirty/untracked files untouched and not staged; no /tmp.
+- Git state: branch main, local HEAD = fb626e33 (unchanged); origin/main ==
+  GitHub main == fb626e33 (SYNC OK). Nothing staged.
+- Changes (uncommitted, this CP):
+  - src/game/java/net/minecraft/railsys/placement/RailsysCamera.java
+    -> + public static reset(net.minecraft.client.Minecraft mc): safely calls
+       mc.setRenderViewEntity(mc.thePlayer) ONLY when mc and mc.thePlayer are
+       non-null. place(...) untouched.
+  - src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java
+    -> camera branch now handles the EXACT /railsys3 camera reset command BEFORE
+       the numeric arity parse; calls RailsysCamera.reset and messages the player
+       "railsys: camera reset to player". Numeric /railsys3 camera x y z yaw
+       pitch unchanged. Help updated to document camera reset.
+  - src/harness/java/railv2test/tests/R10SourceContractTest.java -> t21 guards
+       the reset command, the reset implementation (non-null safety), and that
+       the numeric camera contract remains.
+  - FINAL_REPORT.txt (this step)
+- Test/build results:
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew harnessTest
+    -> PASSED=169 FAILED=0 SKIPPED=3 RESULT SUCCESS (baseline 168 + t21).
+       R10SourceContractTest t01..t21 all PASS.
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew compileJava
+    -> BUILD SUCCESSFUL (all targets incl. TeaVM javascript/wasm compile).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :target_teavm_javascript:makeMainOfflineDownload
+    -> BUILD SUCCESSFUL (offline HTML regenerated).
+- Protected file hashes re-verified (byte-identical to RR-01 / R10-01 records):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- Secret scan: no webhook/token/credential/api-key/password introduced. Clean.
+- Nothing staged; no commit/push; no Discord.
+- Verdict: minimal camera reset implemented + tested; build green.
+
+====================================================================
+R10 FINAL REPORT APPEND CORRECTION #1 (2026-08-12)
+Authoritative factual record appended by agent per scoped instruction.
+Only root FINAL_REPORT.txt edited (append-only to EOF). No git, no
+grep/find/ls, no tests, no /tmp inspection performed by this agent.
+====================================================================
+
+STEP R10-05 - clicked-surface Anchor normalization
+--------------------------------------------------
+- Known root cause: clicked block bottom Y=3 versus support-surface
+  Anchor Y=4 (support surface at the TOP of the block below the
+  cursor); +1 only at selectOnFace UP input boundary.
+- Canonical Anchor / Geometry / RailPath / production renderer
+  unchanged; non-UP select is rejected before any mutation.
+- MarkerArrow uses a.y+ARROW_UP; per-frame RAILSYS_RENDER println
+  removed.
+- Docs + source-contract tests t22-t27 recorded.
+
+STEP R10-06 - held wand visual recovery
+----------------------------------------
+- Packaged JSON was present and the EPK was byte-identical, but the
+  first post-JSON screenshots were still purple/black.
+- Sol confirmed root cause: missing Items.railsys_marker_wand
+  registration in RenderItem ItemModelMesher while ModelBakery JSON
+  load/bake had succeeded.
+- Fix: minimal one-line mapping plus JSON, guarded by t28/t29.
+- Flash correction #1 removed the 299-line overengineered parser;
+  correction #2 applied the mapping; final axe visual PASS.
+
+STEP R10-07 - final tests/build
+--------------------------------
+- Harness: 177 PASS / 0 FAIL / 3 SKIP.
+- makeMainOfflineDownload --rerun-tasks: 8 executed, BUILD SUCCESSFUL
+  (57s); node check PASS.
+- Protected SHA256 verified byte-identical:
+  CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+
+STEP R10-08 - normal-world GUI/vision/launcher
+-----------------------------------------------
+- Only dedicated run-r10final2 used; exit 0.
+- POS1 (0,4,0), POS2 (12,4,0); auto preview 12.05m; edited preview
+  12.08m cant6 asset narrow_1000.
+- Shift-right Confirm 12.08m, 13 samples, same path identity;
+  reconfirm rejected; cancel/clear confirmed=yes; current-run JS
+  errors 0.
+- Screenshots (names + SHA256):
+  SS-R10-01_WAND_POS1_POS2.png
+    d85ef8e610c3e31fe3f1e67f9484b5d907cd51eef3064bc0c98c2bfc01a570b1
+  SS-R10-02_AUTO_PREVIEW_EDIT.png
+    7ef45d9b9323422bb5883afc56d55ab1d7ed8b8d0b4e67182e8bdc82ce1dcd06
+  SS-R10-03_CONFIRMED_RAIL_FINAL.png
+    6d83e6b0a31256acf39b42ef601b1c5c81693b1f2bbc32f6678a9adb8507ab0e
+- Sol visual PASS. Luna final PASS, confidence .98: axe wand, arrows,
+  above-ground same-shape continuous preview/confirmed, no
+  debug/corruption/error.
+- START launcher smoke: DISPLAY unset, dedicated launcher-smoke-final,
+  CDP 9523 showed repo Offline International EaglercraftX 1.8, exact
+  stop, HTTP000. Known launcher quirk: the script overwrites the
+  HEADLESS env; unset DISPLAY was used.
+- Process note: Flash violated the repo-only work-product rule by
+  writing build_r10final2.log, r10final2_startline.txt, and
+  launcher_stdout.log under /tmp/opencode; Sol removed these exact
+  files; no repository impact.
+- Current technical Sol Final Gate GO, pending scoped
+  checkpoint/Discord/final report.
+- HEAD still fb626e33; nothing staged/pushed at this record.
+- No R11 started. Do not claim Git/Discord completion.

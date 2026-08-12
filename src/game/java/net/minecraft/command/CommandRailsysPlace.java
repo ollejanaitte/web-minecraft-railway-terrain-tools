@@ -5,7 +5,10 @@ import java.util.List;
 import net.lax1dude.eaglercraft.v1_8.log4j.LogManager;
 import net.lax1dude.eaglercraft.v1_8.log4j.Logger;
 
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.railsys.geometry.AnchorDefinition;
 import net.minecraft.railsys.geometry.HorizontalBezierGeometry;
 import net.minecraft.railsys.geometry.StraightGeometry;
@@ -25,6 +28,7 @@ import net.minecraft.world.World;
  * /railsysplace pos2             set Marker B at player position, facing yaw
  * /railsysplace pos1 <x y z> [handle]   explicit A (handle default 1.0)
  * /railsysplace pos2 <x y z> [handle]   explicit B
+ * /railsysplace wand             give the marker wand (server-authoritative)
  * /railsysplace pitch <deg>      set pitch for the NEXT marker
  * /railsysplace preview          build preview path from A+B anchors
  * /railsysplace asset <id>       pick asset for placement
@@ -52,7 +56,7 @@ public class CommandRailsysPlace extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/railsysplace <pos1|pos2 [x y z] [handle]|pitch <deg>|preview|asset <id>|confirm|save|load|cancel|status>";
+		return "/railsysplace <wand|pos1|pos2 [x y z] [handle]|pitch <deg>|preview|asset <id>|confirm|save|load|cancel|status>";
 	}
 
 	@Override
@@ -64,7 +68,26 @@ public class CommandRailsysPlace extends CommandBase {
 		String action = args[0];
 		EntityPlayerMP player = getCommandSenderAsPlayer(sender);
 		RailsysPlacementState st = RailsysPlacementState.getInstance();
-		if ("pos1".equals(action)) {
+		if ("wand".equals(action)) {
+			// Server-authoritative wand give (R10 root-cause fix): the client only
+			// forwards /railsysplace wand; the SERVER inserts the stack so the
+			// integrated-server inventory sync keeps the wand (client-only inserts
+			// are discarded by the next authoritative sync, which is why POS1
+			// worked but POS2 saw an empty hand).
+			ItemStack wand = new ItemStack(Items.railsys_marker_wand);
+			player.inventory.addItemStackToInventory(wand);
+			if (wand.stackSize == 0) {
+				player.addChatMessage(new ChatComponentText(
+						"railsys: marker wand added to inventory (Shift+right-click confirms preview)"));
+			} else {
+				EntityItem dropped = player.dropPlayerItemWithRandomChoice(wand, false);
+				if (dropped != null) {
+					dropped.setNoPickupDelay();
+				}
+				player.addChatMessage(new ChatComponentText("railsys: inventory full — marker wand dropped at your feet"));
+			}
+			player.inventoryContainer.detectAndSendChanges();
+		} else if ("pos1".equals(action)) {
 			AnchorDefinition a = this.buildAnchor(player, args, true);
 			st.setMarkerA(a);
 			player.addChatMessage(new ChatComponentText("railsysplace: Marker A at ("
@@ -199,6 +222,7 @@ public class CommandRailsysPlace extends CommandBase {
 
 	private void showHelp(ICommandSender sender) {
 		sender.addChatMessage(new ChatComponentText("railsysplace commands:"));
+		sender.addChatMessage(new ChatComponentText("/railsysplace wand  (server-authoritative marker wand)"));
 		sender.addChatMessage(new ChatComponentText("/railsysplace pos1 [handle]  (Marker A at player)"));
 		sender.addChatMessage(new ChatComponentText("/railsysplace pos2 [handle]  (Marker B at player)"));
 		sender.addChatMessage(new ChatComponentText("/railsysplace pitch <deg>"));
@@ -210,7 +234,7 @@ public class CommandRailsysPlace extends CommandBase {
 	@Override
 	public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
 		return args.length == 1 ? getListOfStringsMatchingLastWord(args,
-				new String[] { "pos1", "pos2", "pitch", "preview", "asset", "confirm", "save", "load", "cancel",
+				new String[] { "wand", "pos1", "pos2", "pitch", "preview", "asset", "confirm", "save", "load", "cancel",
 						"status" }) : null;
 	}
 }
