@@ -2027,3 +2027,21 @@ STEP RR-03 - Real 3D Rail Model Transition Decision Freeze
 - R5 Continuous Rail / R6 Cant / RailPath SSOTを維持。assetはappearanceのみ。
 - 旧RAIL_ASSET_CONTRACT / RENDERER_CONTRACTへADR-012 superseded notice追加。
 - Real 3D Transition DESIGN GATE: GO。R11 implementationは未着手。
+
+STEP RR-04 - Remaining Roadmap / GO-NOGO Freeze
+--------------------------------------------------
+- Flash Roadmap草案をSolレビュー。/railsys3をR15へ先送りする誤りを修正し、R10必須へ固定。
+- Roadmap:
+  doc/roadmaps/PHASE1_REMAINING_ROADMAP_R10_R16.md
+- R10-R16の7段階を維持。各Phaseに
+  DESIGN→IMPLEMENT→NUMERICAL→BUILD→GUI→SCREENSHOT→VISION→REGRESSION→GO/NOGO
+  を具体化。
+- R10: Final UX / /railsys3 / safe state transitions。
+- R11: Asset Contract Freeze + Real 3D Hybrid。
+- R12: multi-rail persistence + Worker authority。
+- R13: connected network production統合。
+- R14: single turnout。
+- R15: UX cleanup / migration（R10必須機能の先送り先ではない）。
+- R16: feature freeze / full validation。
+- Flash stallまたは同一問題2回修正未解決時はSolがroot cause調査後、mechanical修正をFlashへ再委任。
+- Remaining Roadmap DESIGN GATE: GO。
