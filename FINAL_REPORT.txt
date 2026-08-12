@@ -2009,7 +2009,8 @@ STEP RR-02 - Final UX / Command / Wand Contract Freeze
 - Cancel: previewのみ破棄、markers/edit値保持。
 - Clear: transient placement sessionのみ破棄、confirmed rail保持。
 - confirmed rail削除: persistent ID成立後の別明示操作。R10対象外。
-- /railsysplace: Phase 1中deprecated aliasとして保持、give分岐typoはR10修正対象。
+- /railsysplace: Phase 1中deprecated aliasとして保持、duplicated `arrows`
+  branchによるmissing wand-giveはR10修正対象。
 - normal UXが参照するarrow責務をvalidation packageからproduction ownershipへ移す。
 - Final UX DESIGN GATE: GO。R10 implementation gateは未実施。
 
@@ -2080,3 +2081,16 @@ STEP RR-06 - Current GUI Evidence / Luna / Harness / Build
 - launcher script code audit: normal profile / stale build / validation分離確認。
   fresh launcher GUI walkthroughはR10 implementation gateへ明示的に残す。
 - Evidence Gate: PASS（current roadmap supportのみ。R10-R16 GOではない）。
+
+STEP RR-07 - Flash Cross-document Review / Sol Integration
+--------------------------------------------------
+- Flashが8成果文書と現行コードをREAD ONLY突合。総評PASS。
+- Solが1 MEDIUM + 4 LOW指摘を採用し文書最小修正:
+  - R10 confirm時assetVersion先取りを削除（versionはR11後）。
+  - R12はtopology-compatible IDsまで、connectionsはR13、turnout stateはR14。
+  - dependency persistence欄はR12-R14累積契約と明記。
+  - R10はsingle confirmed slotを許容、multi-railはR12と明記。
+  - give typoをduplicated `arrows` branchによるmissing wand-giveと正確化。
+- 未追跡RTM/NR01 archiveと旧FINAL_REPORT.mdはunrelated/proprietary riskとして
+  stage/commit禁止を継続。削除・変更も行わない。
+- Cross-document Final Review: PASS after corrections。

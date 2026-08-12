@@ -21,8 +21,9 @@ production code, without starting Real 3D, Persistence, Network, or Switch work.
 6. Clear transient marker/preview/edit visuals after confirm while leaving the
    production rail and next-session readiness.
 7. Route R8 editing and asset commands through the canonical namespace.
-8. Keep `/railsysplace` as a deprecated alias, fix its current give typo, and do
-   not delete server/debug commands.
+8. Keep `/railsysplace` as a deprecated alias, replace its duplicated
+   `"arrows"` branch with the missing wand-give branch, and do not delete
+   server/debug commands.
 9. Move reusable marker-arrow and normal placement hook ownership out of
    `validation`; retain validation observers and world gates.
 10. Add deterministic state-transition, preview/confirm identity, destructive
@@ -50,6 +51,8 @@ production code, without starting Real 3D, Persistence, Network, or Switch work.
 - command confirm is identical; cancel/clear cannot delete confirmed rail;
 - preview and confirmed numerical line/cant are identical;
 - post-confirm the production rail remains and a new session can start;
+- R10 may retain the current single confirmed-rail slot; confirming another
+  rail may replace that slot until R12 introduces durable multi-rail storage;
 - desktop and touch/command fallback are demonstrated;
 - no validation-only object appears in an unrelated normal World;
 - target tests, full harness, production build, GUI/screenshots/Vision, and

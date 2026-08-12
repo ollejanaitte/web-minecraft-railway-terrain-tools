@@ -65,6 +65,10 @@ inputs: the immutable line and appearance data.
 
 ## Persistence ownership
 
+This is the cumulative final Phase 1 persistence contract across R12-R14. R12
+establishes multi-rail records and compatible identities; R13 adds connections;
+R14 adds turnout topology and active route state.
+
 Persistence saves authoritative authoring and identity data:
 
 ```text

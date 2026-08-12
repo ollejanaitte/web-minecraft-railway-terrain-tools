@@ -63,7 +63,8 @@ Turn the proven R7-R9 parts into the frozen normal-world authoring entrance.
 - Shift + right-click confirm with no dual meaning;
 - command fallback confirm, cancel, clear, status, and help;
 - non-destructive transient-session reset and post-confirm readiness;
-- deprecated `/railsysplace` alias, including correction of its give typo;
+- deprecated `/railsysplace` alias, including replacement of the duplicated
+  `"arrows"` branch with the missing wand-give branch;
 - state-specific error and recovery messages;
 - validation isolation and desktop/touch input evidence.
 

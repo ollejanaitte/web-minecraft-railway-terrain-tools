@@ -192,7 +192,8 @@ After R11, R12 persists:
 - authoring anchors and geometry parameters;
 - cant profile inputs;
 - `assetId` and `assetVersion`;
-- topology and user metadata;
+- topology-compatible reserved identity fields and user metadata; full
+  connection topology and turnout route state are added by R13 and R14;
 - schema/renderer contract versions needed to regenerate safely.
 
 R12 does not persist `RailPath` samples, generated vertices, GPU buffers,

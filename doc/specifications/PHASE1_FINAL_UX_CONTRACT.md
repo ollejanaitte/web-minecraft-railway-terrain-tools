@@ -42,7 +42,8 @@ The canonical acquisition command is:
 
 It adds exactly one wand when inventory permits and gives a clear error when it
 does not. Creative-tab acquisition remains supported. `/railsysplace give` is a
-deprecated compatibility alias after its current branch typo is corrected.
+deprecated compatibility alias after its duplicated `"arrows"` branch is
+corrected into the missing wand-give branch.
 
 ## 3. Marker and direction contract
 
@@ -122,7 +123,8 @@ the identical controller action.
 After confirm:
 
 1. the preview is promoted without rebuilding a different line;
-2. asset ID and asset version are snapped to the confirmed rail definition;
+2. the asset ID is snapped to the confirmed rail definition; `assetVersion` is
+   added only after the R11 production asset contract is implemented;
 3. marker arrows, edit handles, and preview overlay are removed;
 4. the confirmed production rail remains visible;
 5. the transient placement session becomes ready for the next POS1;
