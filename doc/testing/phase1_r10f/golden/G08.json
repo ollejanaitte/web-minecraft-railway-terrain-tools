@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "fixtureId": "G08",
+  "description": "Short Segment",
+  "anchorA": {"x": 100.000000, "y": 4.000000, "z": 100.000000, "yawDeg": 90.000000, "pitchDeg": 0.0, "lengthH_m": 1.000000, "lengthV_m": 0.0},
+  "anchorB": {"x": 101.000000, "y": 4.000000, "z": 100.000000, "yawDeg": 270.000000, "pitchDeg": 0.0, "lengthH_m": 1.000000, "lengthV_m": 0.0},
+  "cantDeg": 0.0,
+  "pieceId": 8001,
+  "assetId": "railsys.straight_1435_wood",
+  "expected": {
+    "pathLengthM": 1.000000,
+    "sampleCount": 2,
+    "startTangent": [1.000000, 0.0, 0.0],
+    "endTangent": [1.000000, 0.0, 0.0]
+  },
+  "samples": [
+    {"s": 0.0, "pos": [100.000000, 4.000000, 100.000000], "tangent": [1.000000, 0.0, 0.0], "yawDeg": 90.000000, "pitchDeg": 0.0, "rollDeg": 0.0},
+    {"s": 1.000000, "pos": [101.000000, 4.000000, 100.000000], "tangent": [1.000000, 0.0, 0.0], "yawDeg": 90.000000, "pitchDeg": 0.0, "rollDeg": 0.0}
+  ],
+  "frames": [
+    {"forward": [1.000000, 0.0, 0.0], "right": [0.0, 0.0, 1.000000], "up": [0.0, 1.000000, 0.0]},
+    {"forward": [1.000000, 0.0, 0.0], "right": [0.0, 0.0, 1.000000], "up": [0.0, 1.000000, 0.0]}
+  ]
+}

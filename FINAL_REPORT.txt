@@ -2689,3 +2689,74 @@ STEP R10-09 - R10 FINAL COMPLETION SYNC (2026-08-12)
 - Commit: "docs: record R10 final completion sync"; push origin main.
 - Final sync verified: local HEAD == main == origin/main ==
   git ls-remote GitHub main (4-way match); staged empty.
+
+====================================================================
+PHASE 1-R10F - Foundation Contract Freeze & Hardening
+Authoritative running log (appended at EOF as work progresses)
+====================================================================
+
+STEP R10F-00 - Initial Baseline Audit
+--------------------------------------
+- Head: 9142383f13bc5d3890103c0a8cb85e361f366f72 (docs: record R10 final
+  completion sync). local main == origin/main == GitHub main (4-way match).
+- git status: 107 short lines; dirty tracked = protected files (CommandRailSystem
+  / EntityRailVehicle) + phase0_1 screenshots + R4 report; MANY untracked
+  (validation logs/screenshots/scripts/profiles, FINAL_REPORT.md, RTM jar zip,
+  R10 rebuild evidence). All preserved verbatim, none staged.
+- Protected SHA256 recomputed = byte-identical to known records:
+  CommandRailSystem.java = 1037f467...e832
+  EntityRailVehicle.java = b2fb0ea3...acff
+- Harness baseline: PASSED=177 FAILED=0 SKIPPED=3 SUCCESS.
+- R10 runtime evidence re-confirmed from FINAL_REPORT.txt + run logs:
+  POS1(0,4,0) POS2(12,4,0), auto preview 12.05m, edits handle10/rot1+20/
+  pitch4/cant6, asset railsys.prototype_narrow_1000, confirm 12.08m /
+  13 samples / same path identity (promoted), clear keeps confirmed.
+- Discord: R10F start + baseline audit notifications sent (HTTP 204).
+
+STEP R10F-01 - Contract Inventory
+----------------------------------
+- Read: AGENTS.md, FINAL_REPORT.txt (R10 evidence), R10 final report,
+  phase1_r10_clicked_surface_anchor_contract.md,
+  phase1_r10_server_authoritative_wand.md, r9_visual_gate_root_cause_recovery.md,
+  PHASE1_FINAL_UX_CONTRACT.md, RAIL_GEOMETRY_DESIGN.md,
+  CONTENT_MODELPACK_DESIGN.md, R6 report; audited production source
+  (AnchorDefinition, RailPath, RailsysMarkerSelection, RailsysPlacementController,
+  RailsysPlacementState, RailsysClientCommands, RailsysRenderManager,
+  RailAsset/Definition/Registry, RailModelPackLoader, RailsysProductionRenderer,
+  RailsysClientRuntime) and existing harness tests.
+- Produced: doc/testing/phase1_r10f/CONTRACT_INVENTORY.md (classification:
+  DOCUMENTED/IMPLEMENTED/TESTED/RUNTIME-PROVEN/AMBIGUOUS/MISSING).
+- Outcome: no AMBIGUOUS/MISSING blocker for R10F; AMBIGUOUS items
+  (authority wording, cant influence) resolved by F3/F6 below.
+- Discord: Contract Inventory notification sent.
+
+STEP R10F-02 - Foundation Contract docs (F1-F6 + classification + policy)
+--------------------------------------------------------------------------
+- doc/architecture/phase1_r10f_foundation_contract.md (F1..F6 frozen text).
+- doc/architecture/phase1_r10f_foundation_classification.md
+  (FROZEN / EXTENSIBLE / REPLACEABLE).
+- doc/architecture/phase1_r10f_contract_change_policy.md (CCP template).
+- doc/testing/phase1_r10f/FOUNDATION_TEST_MATRIX.md.
+
+STEP R10F-03 - Foundation Contract Test Suite + Golden Data
+------------------------------------------------------------
+- New harness class: src/harness/java/railv2test/tests/
+  RailsysFoundationContractSuite.java (30 tests, F1-F6 + golden).
+  Registered in railv2test.Runner.
+- New tool: src/harness/java/railv2test/tools/GoldenDataGenerator.java
+  + build.gradle.kts task `goldenGenerate`.
+- Golden dataset: doc/testing/phase1_r10f/golden/G01..G10 + G-R10 (11 files),
+  validated by generator against contract (anchor SSoT, direction dots,
+  exact straight length, cant presence). G-R10 reproduces the R10 evidence
+  12.077656 m -> 12.08 m / 13 samples.
+- Harness result: PASSED=207 FAILED=0 SKIPPED=3 SUCCESS
+  (baseline 177 + 30 new Foundation tests).
+
+STEP R10F-04 - Negative / Mutation Guards
+------------------------------------------
+- 8 deliberate contract violations applied to clean sources, each verified to
+  make the matching Foundation test FAIL, then restored byte-for-byte
+  (git diff clean). Results: doc/testing/phase1_r10f/MUTATION_GUARD_RESULTS.md.
+- Covered: renderer datum +1, asset-switch rebuild, confirm rebuild, cancel
+  clears markers, clear erases confirmed, client wand self-grant, command
+  fallback alternate pipeline, non-UP mutation.

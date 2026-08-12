@@ -60,6 +60,17 @@ tasks.named("check") {
 	dependsOn(harnessTest)
 }
 
+// R10F: regenerate the Numerical Golden Dataset (doc/testing/phase1_r10f/golden).
+// Run explicitly: ./gradlew goldenGenerate
+val goldenGenerate = tasks.register<JavaExec>("goldenGenerate") {
+	group = "verification"
+	description = "Regenerate Railsys Foundation golden data fixtures (production RailPath pipeline)."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.tools.GoldenDataGenerator")
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
 dependencies {
 	implementation(libs.bundles.common)
 }
