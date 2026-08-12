@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.railsys.geometry.AnchorDefinition;
+import net.minecraft.railsys.geometry.ConstantCantProfile;
 import net.minecraft.railsys.geometry.HorizontalBezierGeometry;
 import net.minecraft.railsys.geometry.RailLocalFrame;
 import net.minecraft.railsys.geometry.RailMath;
@@ -114,7 +115,7 @@ public final class RailPath {
 	}
 
 	/**
-	 * Phase 1-R6 Marker Direction Contract factory.
+	 * Phase 1-R6 Marker Direction Contract factory (cant = 0).
 	 *
 	 * Builds a path from two marker anchors with the RTM-style direction
 	 * contract:
@@ -128,17 +129,35 @@ public final class RailPath {
 	 * the reversed end anchor so the endpoint tangent contract holds exactly.
 	 */
 	public static RailPath fromMarkers(AnchorDefinition a, AnchorDefinition b, int pieceId) {
+		return fromMarkers(a, b, 0.0D, pieceId);
+	}
+
+	/**
+	 * Phase 1-R6/R7 Marker Direction Contract factory with cant.
+	 * Same as {@link #fromMarkers(AnchorDefinition, AnchorDefinition, int)} but
+	 * applies a constant roll (degrees) to the produced geometry via
+	 * ConstantCantProfile (positive = right rail lower). Used by the placement
+	 * preview/confirm and Anchor Editing (R8) so the preview and confirmed
+	 * rail share the same geometry including cant.
+	 */
+	public static RailPath fromMarkers(AnchorDefinition a, AnchorDefinition b, double cantDeg, int pieceId) {
 		if (a == null || b == null) {
 			throw new IllegalArgumentException("fromMarkers requires both anchors");
 		}
 		AnchorDefinition bEnd = b.reversed();
 		double da = RailMath.wrapYaw(a.yawDeg - bEnd.yawDeg);
 		boolean curve = Math.abs(da) > 1.0D || Math.abs(a.pitchDeg - bEnd.pitchDeg) > 1.0D;
+		net.minecraft.railsys.geometry.CantProfile cant = Math.abs(cantDeg) <= 1.0E-9D
+				? net.minecraft.railsys.geometry.ZeroCantProfile.INSTANCE
+				: ConstantCantProfile.of(cantDeg);
 		if (curve) {
 			HorizontalBezierGeometry g = HorizontalBezierGeometry.fromAnchors(a, bEnd, pieceId);
+			if (Math.abs(cantDeg) > 1.0E-9D) {
+				g = g.withCant(cant);
+			}
 			return of(new RailPiece(g));
 		}
-		StraightGeometry g = new StraightGeometry(a.x, a.y, a.z, b.x, b.y, b.z, pieceId);
+		StraightGeometry g = new StraightGeometry(a.x, a.y, a.z, b.x, b.y, b.z, pieceId, cant);
 		return of(new RailPiece(g));
 	}
 

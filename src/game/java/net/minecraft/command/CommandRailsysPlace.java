@@ -85,16 +85,21 @@ public class CommandRailsysPlace extends CommandBase {
 		} else if ("preview".equals(action)) {
 			if (!st.hasMarkerA() || !st.hasMarkerB()) {
 				player.addChatMessage(new ChatComponentText("railsysplace: need pos1 and pos2 first"));
+				System.out.println("[RAILSYS_PLACE] preview: need pos1 and pos2");
 				return;
 			}
 			RailPath path = this.buildPath(st.getMarkerA(), st.getMarkerB());
 			if (path == null) {
 				player.addChatMessage(new ChatComponentText("railsysplace: cannot build path (bad anchors)"));
+				System.out.println("[RAILSYS_PLACE] preview: buildPath failed");
 				return;
 			}
 			st.setPreviewPath(path);
 			player.addChatMessage(new ChatComponentText("railsysplace: preview ready (length "
 					+ fmt(path.totalLength()) + "m)"));
+			System.out.println("[RAILSYS_PLACE] preview ready length=" + path.totalLength()
+					+ " markerA=" + (st.getMarkerA() != null) + " markerB=" + (st.getMarkerB() != null)
+					+ " hasPreview=" + st.hasPreview());
 			logger.info("[RAILSYS_PLACE] preview length=" + path.totalLength());
 		} else if ("asset".equals(action)) {
 			if (args.length < 2) {

@@ -153,6 +153,13 @@ public class GuiChat extends GuiScreenVisualViewport {
 						this.mc.displayGuiScreen(new GuiWorldEdit());
 						return;
 					}
+					if (s.startsWith("/railsysplace")) {
+						System.out.println("RAILSYS: client placement command: " + s);
+						this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
+						net.minecraft.railsys.placement.RailsysClientCommands.run(this.mc.thePlayer, s);
+						this.mc.displayGuiScreen((GuiScreen) null);
+						return;
+					}
 					this.sendChatMessage(s);
 				}
 

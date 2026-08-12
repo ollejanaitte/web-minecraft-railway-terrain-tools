@@ -56,6 +56,9 @@ public final class RailsysRenderManager {
 		activeAssetId = assetId == null ? "railsys.straight_1435_wood" : assetId;
 		// Touch registry so missing ids log + fallback at draw time.
 		RailAssetRegistry.get(activeAssetId);
+		System.out.println("railsys: activeAsset=" + activeAssetId
+				+ " resolved=" + getActiveAsset().assetId + " gauge=" + getActiveAsset().gaugeM
+				+ " registered=" + RailAssetRegistry.ids().toString());
 	}
 
 	public static RailAssetDefinition getActiveAsset() {

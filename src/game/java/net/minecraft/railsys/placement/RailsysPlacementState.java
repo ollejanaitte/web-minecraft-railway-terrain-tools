@@ -25,12 +25,35 @@ public final class RailsysPlacementState {
 	private AnchorDefinition confirmedAnchorA;
 	private AnchorDefinition confirmedAnchorB;
 	private String confirmedAssetId = "railsys.straight_1435_wood";
+	private double cantDeg = 0.0D;
 
 	private RailsysPlacementState() {
 	}
 
 	public static RailsysPlacementState getInstance() {
 		return INSTANCE;
+	}
+
+	public void setCantDeg(double cant) {
+		this.cantDeg = cant;
+	}
+
+	public double getCantDeg() {
+		return this.cantDeg;
+	}
+
+	/** Rebuild the preview path from current markers + cant (client-side). */
+	public void rebuildPreview() {
+		if (hasMarkerA() && hasMarkerB()) {
+			try {
+				this.previewPath = net.minecraft.railsys.path.RailPath.fromMarkers(markerA, markerB,
+						this.cantDeg, 8001);
+			} catch (RuntimeException e) {
+				this.previewPath = null;
+			}
+		} else {
+			this.previewPath = null;
+		}
 	}
 
 	public void setMarkerA(AnchorDefinition a) {

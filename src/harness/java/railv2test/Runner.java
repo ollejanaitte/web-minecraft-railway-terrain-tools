@@ -16,8 +16,10 @@ import railv2test.tests.CurveGradientSegmentProofTest;
 import railv2test.tests.FormationScaffoldTest;
 import railv2test.tests.KnownFailureDocumentationTest;
 import railv2test.tests.MarkerDirectionContractTest;
+import railv2test.tests.MarkerPlacementEditingTest;
 import railv2test.tests.PersistenceBaselineTest;
 import railv2test.tests.ProductionGeometryTest;
+import railv2test.tests.RailModelPackTest;
 import railv2test.tests.RailPathTest;
 import railv2test.tests.RepeatedSegmentProofTest;
 import railv2test.tests.StraightMathTest;
@@ -50,6 +52,8 @@ public final class Runner {
             ContinuousRailProofTest.class,
             MarkerDirectionContractTest.class,
             CantProofTest.class,
+            MarkerPlacementEditingTest.class,
+            RailModelPackTest.class,
     };
 
     private static final class Case {

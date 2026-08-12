@@ -77,6 +77,21 @@ public final class RailAssetRegistry {
 		return assets.keySet();
 	}
 
+	/** Loaded-once flag for the prototype ModelPack. */
+	private static boolean prototypeLoaded = false;
+
+	/**
+	 * Load the embedded Railsys prototype ModelPack exactly once (idempotent).
+	 * Adds the R9 proof assets to the registry without removing built-ins.
+	 */
+	public static synchronized void ensurePrototypePackLoaded() {
+		if (prototypeLoaded) {
+			return;
+		}
+		prototypeLoaded = true;
+		net.minecraft.railsys.render.RailModelPackLoader.loadPrototypePack();
+	}
+
 	static {
 		// Built-in Railsys assets (original procedural, different gauge/sleepers).
 		register(new RailAssetDefinition(1, "railsys.straight_1435_wood", "Straight 1435 Wood", "normal",

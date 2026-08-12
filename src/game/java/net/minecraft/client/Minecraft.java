@@ -1197,6 +1197,7 @@ public class Minecraft implements IThreadListener {
 		WebViewOverlayController.runTick();
 		SingleplayerServerController.runTick();
 		net.minecraft.railsys.validation.MarkerCantClientHook.onClientTick(this);
+		net.minecraft.railsys.validation.MarkerPlaceClientHook.onClientTick(this);
 		RelayUpdateChecker.runTick();
 
 		UpdateResultObj update = UpdateService.getUpdateResult();

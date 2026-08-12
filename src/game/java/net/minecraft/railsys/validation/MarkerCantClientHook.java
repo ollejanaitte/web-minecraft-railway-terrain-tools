@@ -23,6 +23,8 @@ public final class MarkerCantClientHook {
 	}
 
 	public static void onClientTick(Minecraft mc) {
+		// Phase 1-R9: load the embedded prototype ModelPack once (client thread).
+		net.minecraft.railsys.render.RailAssetRegistry.ensurePrototypePackLoaded();
 		if (done || mc == null) {
 			return;
 		}

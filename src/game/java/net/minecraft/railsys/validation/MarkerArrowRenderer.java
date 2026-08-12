@@ -41,21 +41,36 @@ public final class MarkerArrowRenderer {
 	}
 
 	/** Render marker arrows if this is the "markercant" validation world. */
+	/** Marker arrows are a production placement feature; toggle to hide them. */
+	private static boolean arrowsVisible = true;
+
+	public static void setArrowsVisible(boolean visible) {
+		arrowsVisible = visible;
+	}
+
+	public static boolean areArrowsVisible() {
+		return arrowsVisible;
+	}
+
 	public static void render(Entity viewEntity, float partialTicks, net.minecraft.world.World world) {
 		if (viewEntity == null || world == null) {
 			return;
 		}
 		String cw = SingleBoxProofValidation.getClientWorldName();
-		boolean gate = cw != null && cw.toLowerCase().contains("markercant");
+		boolean probe = cw != null && cw.toLowerCase().contains("markercant");
 		String name = world.getWorldInfo().getWorldName();
 		RailsysPlacementState st = RailsysPlacementState.getInstance();
 		boolean hasA = st.hasMarkerA();
 		boolean hasB = st.hasMarkerB();
+		// Phase 1-R7: marker arrows are a PRODUCTION placement feature — render
+		// whenever markers are set (any world). Only the one-shot chat probe is
+		// gated to the markercant validation world.
+		boolean gate = (hasA || hasB) && arrowsVisible;
 		if ((++dbgCounter % 200) == 0) {
 			System.out.println("[MARKERARROW] render name=" + name + " gate=" + gate
-					+ " A=" + hasA + " B=" + hasB);
+					+ " A=" + hasA + " B=" + hasB + " probe=" + probe);
 		}
-		if (gate && !chatProbeDone) {
+		if (probe && !chatProbeDone) {
 			chatProbeDone = true;
 			net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
 			if (mc != null && mc.thePlayer != null) {

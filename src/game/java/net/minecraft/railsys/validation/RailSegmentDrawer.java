@@ -93,6 +93,11 @@ public final class RailSegmentDrawer {
 	 * independent geometry; only the rails become continuous spans).
 	 */
 	public static void emitSleeper(WorldRenderer wr, PathSample ps) {
+		emitSleeper(wr, ps, SLEEPER_R, SLEEPER_G, SLEEPER_B);
+	}
+
+	/** Asset-aware sleeper (Phase 1-R9): colour from the asset profile. */
+	public static void emitSleeper(WorldRenderer wr, PathSample ps, int r, int g, int bl) {
 		double fx = ps.frame.fx, fy = ps.frame.fy, fz = ps.frame.fz;
 		double rx = ps.frame.rx, ry = ps.frame.ry, rz = ps.frame.rz;
 		double ux = ps.frame.ux, uy = ps.frame.uy, uz = ps.frame.uz;
@@ -100,7 +105,24 @@ public final class RailSegmentDrawer {
 		prism(wr, ox, oy, oz, fx, fy, fz, rx, ry, rz, ux, uy, uz,
 				0.0D, 0.0D, SLEEPER_CENTER_UP_M,
 				SLEEPER_WIDTH_M * 0.5D, SLEEPER_LENGTH_M * 0.5D, SLEEPER_HEIGHT_M * 0.5D,
-				SLEEPER_R, SLEEPER_G, SLEEPER_B);
+				r, g, bl);
+	}
+
+	/**
+	 * Production sleeper whose RailPath sample is the rail-bed surface. Unlike the
+	 * legacy validation method above, this contains no fixture-Y assumption.
+	 */
+	public static void emitProductionSleeper(WorldRenderer wr, PathSample ps,
+			double width, double length, double height, int r, int g, int bl) {
+		double fx = ps.frame.fx, fy = ps.frame.fy, fz = ps.frame.fz;
+		double rx = ps.frame.rx, ry = ps.frame.ry, rz = ps.frame.rz;
+		double ux = ps.frame.ux, uy = ps.frame.uy, uz = ps.frame.uz;
+		double ox = ps.sample.x, oy = ps.sample.y, oz = ps.sample.z;
+		double h = Math.max(0.01D, height);
+		prism(wr, ox, oy, oz, fx, fy, fz, rx, ry, rz, ux, uy, uz,
+				0.0D, 0.0D, 0.02D + h * 0.5D,
+				Math.max(0.01D, width) * 0.5D, Math.max(0.1D, length) * 0.5D, h * 0.5D,
+				r, g, bl);
 	}
 
 	/**
@@ -112,26 +134,67 @@ public final class RailSegmentDrawer {
 	 * coincide exactly (no gap, no overlap) — the key Continuous Rail contract.
 	 */
 	public static void emitRailSpan(WorldRenderer wr, PathSample a, PathSample b) {
-		double[] la = railPoint(a, -1.0D);
-		double[] lb = railPoint(b, -1.0D);
-		emitSpanBox(wr, a, b, la, lb, RAIL_R, RAIL_G, RAIL_B);
-		double[] ra = railPoint(a, +1.0D);
-		double[] rb = railPoint(b, +1.0D);
-		emitSpanBox(wr, a, b, ra, rb, RAIL_R, RAIL_G, RAIL_B);
+		emitRailSpan(wr, a, b, GAUGE_M, RAIL_R, RAIL_G, RAIL_B);
+	}
+
+	/**
+	 * Asset-aware continuous left+right rail spans (Phase 1-R9). Same pipeline
+	 * as {@link #emitRailSpan(WorldRenderer, PathSample, PathSample)} but the
+	 * gauge and rail colour come from the RailAssetDefinition profile, so
+	 * switching the active asset changes ONLY the appearance — the RailPath
+	 * geometry and the shared-endpoint continuity contract are unchanged.
+	 */
+	public static void emitRailSpan(WorldRenderer wr, PathSample a, PathSample b,
+			double gauge, int r, int g, int bl) {
+		double[] la = railPoint(a, -1.0D, gauge);
+		double[] lb = railPoint(b, -1.0D, gauge);
+		emitSpanBox(wr, a, b, la, lb, r, g, bl);
+		double[] ra = railPoint(a, +1.0D, gauge);
+		double[] rb = railPoint(b, +1.0D, gauge);
+		emitSpanBox(wr, a, b, ra, rb, r, g, bl);
+	}
+
+	/**
+	 * Production continuous rails. The path sample is the rail-bed surface; rail
+	 * base sits on the asset sleeper top. Gauge/profile affect look only.
+	 */
+	public static void emitProductionRailSpan(WorldRenderer wr, PathSample a, PathSample b,
+			double gauge, double railWidth, double railHeight, double sleeperHeight,
+			int r, int g, int bl) {
+		double upOffset = 0.02D + Math.max(0.01D, sleeperHeight) + Math.max(0.01D, railHeight) * 0.5D;
+		double[] la = railPoint(a, -1.0D, gauge, upOffset);
+		double[] lb = railPoint(b, -1.0D, gauge, upOffset);
+		emitSpanBox(wr, a, b, la, lb, Math.max(0.01D, railWidth), Math.max(0.01D, railHeight), r, g, bl);
+		double[] ra = railPoint(a, +1.0D, gauge, upOffset);
+		double[] rb = railPoint(b, +1.0D, gauge, upOffset);
+		emitSpanBox(wr, a, b, ra, rb, Math.max(0.01D, railWidth), Math.max(0.01D, railHeight), r, g, bl);
 	}
 
 	/** World-space rail-centre point at a sample: pos + right*(side*gauge/2) + up*offset. */
 	private static double[] railPoint(PathSample ps, double side) {
-		double g = GAUGE_M * 0.5D * side;
+		return railPoint(ps, side, GAUGE_M);
+	}
+
+	private static double[] railPoint(PathSample ps, double side, double gauge) {
+		return railPoint(ps, side, gauge, RAIL_CENTER_UP_M);
+	}
+
+	private static double[] railPoint(PathSample ps, double side, double gauge, double upOffset) {
+		double g = gauge * 0.5D * side;
 		return new double[] {
-				ps.sample.x + ps.frame.rx * g + ps.frame.ux * RAIL_CENTER_UP_M,
-				ps.sample.y + ps.frame.ry * g + ps.frame.uy * RAIL_CENTER_UP_M,
-				ps.sample.z + ps.frame.rz * g + ps.frame.uz * RAIL_CENTER_UP_M };
+				ps.sample.x + ps.frame.rx * g + ps.frame.ux * upOffset,
+				ps.sample.y + ps.frame.ry * g + ps.frame.uy * upOffset,
+				ps.sample.z + ps.frame.rz * g + ps.frame.uz * upOffset };
 	}
 
 	/** Oriented rail-span prism from world point p1 to p2, using the averaged frame up. */
 	private static void emitSpanBox(WorldRenderer wr, PathSample a, PathSample b,
 			double[] p1, double[] p2, int r, int g, int bl) {
+		emitSpanBox(wr, a, b, p1, p2, RAIL_WIDTH_M, RAIL_HEIGHT_M, r, g, bl);
+	}
+
+	private static void emitSpanBox(WorldRenderer wr, PathSample a, PathSample b,
+			double[] p1, double[] p2, double railWidth, double railHeight, int r, int g, int bl) {
 		double dx = p2[0] - p1[0];
 		double dy = p2[1] - p1[1];
 		double dz = p2[2] - p1[2];
@@ -181,7 +244,7 @@ public final class RailSegmentDrawer {
 		double cz = (p1[2] + p2[2]) * 0.5D;
 		prism(wr, cx, cy, cz, fx, fy, fz, rx, ry, rz, nux, nuy, nuz,
 				0.0D, 0.0D, 0.0D,
-				len * 0.5D, RAIL_WIDTH_M * 0.5D, RAIL_HEIGHT_M * 0.5D,
+				len * 0.5D, railWidth * 0.5D, railHeight * 0.5D,
 				r, g, bl);
 	}
 

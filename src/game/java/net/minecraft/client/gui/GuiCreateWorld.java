@@ -235,7 +235,8 @@ public class GuiCreateWorld extends GuiScreen {
 				String wname = this.field_146333_g.getText().trim().toLowerCase();
 				if (wname.contains("eaglerflat") || wname.contains("cleanflat") || wname.contains("singlebox")
 						|| wname.contains("repeatedbox") || wname.contains("straightrail") || wname.contains("curvegradient")
-						|| wname.contains("continuousrail") || wname.contains("markercant")) {
+						|| wname.contains("continuousrail") || wname.contains("markercant")
+						|| wname.contains("markerplace")) {
 					for (int k = 0; k < WorldType.worldTypes.length; k++) {
 						if (WorldType.worldTypes[k] == WorldType.FLAT) {
 							this.selectedIndex = k;

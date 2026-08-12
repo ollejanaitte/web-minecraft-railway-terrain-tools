@@ -1661,6 +1661,8 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		net.minecraft.railsys.placement.RailsysPlacementState st = net.minecraft.railsys.placement.RailsysPlacementState
 				.getInstance();
 		boolean hasPreview = st != null && st.hasPreview();
+		System.out.println("[RAILSYS_RENDER] productionPathCount=" + paths.size() + " hasPreview=" + hasPreview
+				+ " previewPath=" + (st != null && st.getPreviewPath() != null ? st.getPreviewPath().totalLength() : "null"));
 		if (paths.isEmpty() && !hasPreview) {
 			return;
 		}
@@ -1678,7 +1680,9 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 					.getActiveAsset();
 			for (net.minecraft.railsys.path.RailPath p : paths) {
 				if (p != null) {
-					net.minecraft.railsys.render.RailRenderer.renderPath(asset, p, camX, camY, camZ, 0.0D);
+					// Phase 1-R9: confirmed rails render via the continuous-span pipeline
+					// with the active RailAsset profile (same path geometry for any asset).
+					net.minecraft.railsys.render.RailsysProductionRenderer.renderPath(asset, p, camX, camY, camZ, 0.0D);
 				}
 			}
 		}
