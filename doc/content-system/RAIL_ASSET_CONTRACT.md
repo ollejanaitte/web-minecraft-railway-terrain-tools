@@ -4,6 +4,16 @@ Date (JST): 2026-08-11
 Status: FROZEN for Phase 1.3A
 ====================================================================
 
+SUPERSEDED NOTICE (2026-08-12)
+------------------------------
+This Phase 1.2.3 draft remains as historical design input. For R11 and later,
+ADR-012 (`doc/decisions/ADR-012-REAL_3D_RAIL_MODEL_TRANSITION.md`) is
+authoritative where the contracts differ. In particular, production rendering
+is Hybrid (`hybrid-continuous-v1`), the canonical datum is the support surface,
+running rails use a deformable profile, sleepers/accessories are rigid meshes
+placed by s[m], and assetVersion/material/texture/UV rules are frozen before
+Persistence.
+
 Purpose
 -------
 Define Railsys' OWN rail asset definition contract for Phase 1.3A+,

@@ -4,6 +4,14 @@ Date (JST): 2026-08-11
 Status: FROZEN for Phase 1.3A
 ====================================================================
 
+SUPERSEDED NOTICE (2026-08-12)
+------------------------------
+This Phase 1.2.3 contract is retained as history. ADR-012
+(`doc/decisions/ADR-012-REAL_3D_RAIL_MODEL_TRANSITION.md`) supersedes section 7
+for R11 and later: the production baseline is Hybrid continuous profile
+extrusion plus s[m]-placed rigid sleepers/accessories. The repeated rigid whole
+track segment method must not replace the R5 Continuous Rail contract.
+
 Purpose
 -------
 Define the production Rail Renderer contract that Phase 1.3A-D implement.

@@ -2012,3 +2012,18 @@ STEP RR-02 - Final UX / Command / Wand Contract Freeze
 - /railsysplace: Phase 1中deprecated aliasとして保持、give分岐typoはR10修正対象。
 - normal UXが参照するarrow責務をvalidation packageからproduction ownershipへ移す。
 - Final UX DESIGN GATE: GO。R10 implementation gateは未実施。
+
+STEP RR-03 - Real 3D Rail Model Transition Decision Freeze
+--------------------------------------------------
+- DeepSeek V4 Flash比較草案をSolが現行R9 rendererと既存Phase 1.2.3契約へ突合。
+- ADR-012:
+  doc/decisions/ADR-012-REAL_3D_RAIL_MODEL_TRANSITION.md
+- Transition: OPTION C GO。R10完了後、R11冒頭でAsset Contract Freezeし、
+  同じR11内でReal 3Dを完成、R12 Persistenceより前にGateを閉じる。
+- Method: Hybrid FREEZE。
+  - rail head/web/foot = deformable continuous profile extrusion
+  - sleepers/fasteners/accessories = rigid original 3D meshをs[m]配置
+  - original material/PNG texture/UVをR11必須とする
+- R5 Continuous Rail / R6 Cant / RailPath SSOTを維持。assetはappearanceのみ。
+- 旧RAIL_ASSET_CONTRACT / RENDERER_CONTRACTへADR-012 superseded notice追加。
+- Real 3D Transition DESIGN GATE: GO。R11 implementationは未着手。
