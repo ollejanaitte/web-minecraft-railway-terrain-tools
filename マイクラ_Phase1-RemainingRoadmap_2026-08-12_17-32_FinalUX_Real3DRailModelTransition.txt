@@ -1,0 +1,461 @@
+====================================================================
+Title
+====================================================================
+Railsys Phase 1 — Remaining Roadmap / Final UX / Real 3D Rail Model Transition
+
+Status / Verdict:
+  COMPLETE
+  PHASE 1 REMAINING ROADMAP VERDICT: GO
+
+Start JST: 2026-08-12 16:48 JST
+End JST:   2026-08-12 17:32 JST
+
+Initial HEAD:
+  45ea1c41df463f7fe96328a8bbf931c7e4477390
+
+Final Validation SHA before this immutable Final Report commit:
+  8e1c75d60b180148dae7bb5f07393ee56e5b430a
+
+Final Report integration SHA:
+  CP-08 commit that contains this file. Because Git assigns a commit SHA only
+  after this immutable file content is created, the exact final SHA is recorded
+  in GitHub history, root FINAL_REPORT.txt completion sync, Discord completion,
+  and the user handoff after CP-08 push.
+
+At Final Validation:
+  local main  = 8e1c75d60b180148dae7bb5f07393ee56e5b430a
+  origin/main = 8e1c75d60b180148dae7bb5f07393ee56e5b430a
+  GitHub main = 8e1c75d60b180148dae7bb5f07393ee56e5b430a
+  CP-08 performs the final report commit/push and rechecks equality.
+
+====================================================================
+1. Current State Audit
+====================================================================
+
+GATE 0: GO.
+
+- Repository, AGENTS.md, branch/worktree/stash, staged/modified/untracked,
+  current/local/origin/GitHub main, recent commits, launcher, reports, R1-R9
+  code, commands, wand, placement/editing, renderer, asset, persistence,
+  network, switch placeholders, validation, Vision workflow were audited.
+- One worktree, no stash.
+- Existing dirty/untracked artifacts were preserved and isolated by path-only
+  staging. No product code was changed in this design task.
+- Preserved SHA-256 remained:
+  CommandRailSystem.java
+    1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  EntityRailVehicle.java
+    b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- R7/R8/R9 Recovery commits and current product code agree. The root running
+  report had stopped at the earlier interrupted record; this task corrected the
+  running-log consistency without rebuilding R7-R9.
+
+Current audit document:
+  doc/research/PHASE1_CURRENT_STATE_AUDIT_2026-08-12.md
+
+====================================================================
+2. R1-R9 Current State
+====================================================================
+
+R1 Clean 3D Primitive: retained.
+R2 Repeated Segment: retained.
+R3 Straight Rail: retained.
+R4 Curve / Gradient: retained.
+R5 Continuous Rail: GO retained; shared-endpoint distance-based spans.
+R6 Marker Direction + Cant: GO retained.
+R7 Actual Marker Placement: GO retained; final acquisition/state UX is R10.
+R8 Marker / Anchor Editing: GO retained; final command integration is R10.
+R9 Rail Asset / ModelPack Prototype: GO retained; production Real 3D is R11.
+
+Current harness:
+  discovered 151 / PASS 148 / FAIL 0 / SKIP 3 / RESULT SUCCESS
+
+Production Build:
+  makeMainOfflineDownload BUILD SUCCESSFUL
+
+====================================================================
+3. Phase 1 Remaining Items
+====================================================================
+
+R10 Final Marker Placement UX Integration
+R11 Production Asset Contract + Real 3D Hybrid Rail Model
+R12 Multi-Rail Persistence
+R13 Connected Rail Network
+R14 Single Turnout
+R15 UX Cleanup / Migration
+R16 Feature Freeze / Final Validation
+
+Train, signals, stations, catenary, advanced junctions and interlocking are
+Phase 2 or later.
+
+====================================================================
+4. Final UX Contract
+====================================================================
+
+START_WEB_MINECRAFT.sh flow:
+  normal runtime/profiles/game -> World -> /railsys3 wand -> two-click placement.
+
+Wand item:
+  reuse the existing Railsys Marker Wand in the tools category. No second item.
+
+POS1:
+  ordinary right click, store block-centred position + player direction.
+
+POS2:
+  ordinary right click while normally facing POS1. Preserve:
+  start tangent ~= POS1 forward
+  end tangent   ~= -POS2 forward
+
+Arrow:
+  world-anchored POS1/POS2 arrows are product UX. Production ownership moves
+  out of validation package in R10.
+
+Auto Preview:
+  immediately after POS2. Uses the production Anchor/Geometry/RailPath pipeline.
+  No renderer-only fake preview and no immediate confirm.
+
+Editing:
+  POS1/POS2 direction, curve handle, gradient/pitch, cant, active asset. Every
+  line edit rebuilds the same production preview. Asset does not alter line.
+
+Confirm candidate comparison:
+  A Shift+right-click: chosen; deliberate, existing hook, touch fallback.
+  B third right-click: rejected; accidental confirmation risk.
+  C long hold: rejected; browser/touch timing ambiguity.
+  D dedicated key: deferred; needs binding/touch UI.
+  E /railsys3 confirm: required fallback, not the primary gesture.
+
+Confirm final recommendation:
+  Shift + right click is confirm-only. No preview means error/no state change.
+
+Cancel/Clear comparison and recommendation:
+  Shift+left-click rejected due block-break/touch conflict.
+  Dedicated key deferred.
+  /railsys3 cancel: selected; discard preview only, keep markers/edit values.
+  /railsys3 clear: selected; clear transient placement session only, keep
+  confirmed rail(s) and active asset.
+  Confirmed rail deletion is a separate ID-targeted future operation after
+  persistent IDs exist; never overloaded onto confirm/cancel/clear.
+
+After Confirm:
+  preview-identical production line remains; transient arrows/preview/edit
+  visuals clear; current R10 single confirmed slot may be replaced by another
+  confirmation until R12 supplies durable multi-rail storage.
+
+Final UX document:
+  doc/specifications/PHASE1_FINAL_UX_CONTRACT.md
+
+====================================================================
+5. /railsys3 Command Design
+====================================================================
+
+Canonical minimum:
+  /railsys3 wand
+  /railsys3 clear
+  /railsys3 cancel
+  /railsys3 confirm
+  /railsys3 asset <id>
+  /railsys3 assets
+  /railsys3 help
+
+R8 migration commands:
+  rot1 / rot2 / handle / pitch / cant / preview / status
+
+Commands drive the same controller as the wand and serve acquisition,
+accessibility, recovery, and debug fallback.
+
+Legacy:
+  /railsysplace is retained as deprecated alias. Its duplicated "arrows"
+  branch is corrected into the missing wand-give branch in R10. Server/debug
+  Railsys commands remain and are not abruptly deleted.
+
+====================================================================
+6. Real 3D Model Transition
+====================================================================
+
+OPTION A — immediately after R10 without a prior contract freeze:
+  NOGO. Early appearance is useful, but contract churn can parallel UX.
+
+OPTION B — after Persistence / Network:
+  NOGO. Unstable asset identity/version/origin enters saves and causes migration.
+
+OPTION C — immediately after Asset Contract Freeze and before Persistence:
+  GO / FREEZE.
+
+Operational order:
+  R10 GO -> R11-A Contract Freeze -> R11-B Real 3D implementation/validation
+  -> R12 Persistence.
+
+Technical methods:
+  A repeated rigid whole-track segment: rejected as production baseline.
+  B full dynamic extrusion for every part: rejected for discrete sleepers.
+  C Hybrid: GO / FREEZE.
+
+Hybrid definition:
+  - running rail head/web/foot: deformable continuous profile extrusion;
+  - sleeper/fastener/accessory: original rigid 3D meshes placed by s[m];
+  - original material, PNG texture, UV required;
+  - same RailPath supplies straight/curve/gradient/cant;
+  - R5 Continuous Rail and R6 Cant remain intact.
+
+Decision document:
+  doc/decisions/ADR-012-REAL_3D_RAIL_MODEL_TRANSITION.md
+
+====================================================================
+7. Rail Asset Production Freeze
+====================================================================
+
+Frozen categories:
+  assetId, displayName, schemaVersion, assetVersion, compatibility,
+  unit=metre, scale, canonical support-surface origin, +X right/+Y up/+Z
+  forward, gauge, head/web/foot profile, continuous rail mesh, sleeper mesh,
+  material, texture, UV, span deformation, curve/gradient/cant, fallback,
+  missing-model behavior, LOD, performance, spatial sections, rebuild/cache,
+  TeaVM/WebGL, pack validation and clean-room provenance.
+
+Asset is appearance only. RailPath/PathSample/RailLocalFrame/Cant remain SSOT.
+Renderer/Asset -> Geometry reverse dependency is forbidden.
+
+R11 reference performance:
+  500m mixed fixture, >=250m visible, >=30 FPS, rail render p95 <=5ms in the
+  recorded reference environment, no unbounded per-frame allocation.
+
+====================================================================
+8. Remaining Roadmap and GO/NOGO
+====================================================================
+
+Roadmap document:
+  doc/roadmaps/PHASE1_REMAINING_ROADMAP_R10_R16.md
+
+Every stage:
+  DESIGN -> IMPLEMENT -> NUMERICAL -> BUILD -> GUI -> SCREENSHOT -> VISION
+  -> REGRESSION -> GO/NOGO.
+
+R10 GO:
+  canonical normal-world /railsys3/wand/two-click/preview/edit/safe confirm,
+  non-destructive cancel/clear, launcher GUI, touch fallback, R1-R9 regression.
+
+R11 GO:
+  contract/code agreement, real profile/mesh/material/texture, same-path cases,
+  safe fallback, performance, build, GUI, vision, R5-R10 regression.
+
+R12 GO:
+  multi-rail save/exit/launcher restart/reload preserves authoring/cant/assets.
+
+R13 GO:
+  connected normal-world path survives edit and restart with valid topology.
+
+R14 GO:
+  one route-aware turnout has two visual/numerical/persistent states.
+
+R15 GO:
+  normal UX/recovery/migration/legacy aliases work without proof commands.
+
+R16 GO:
+  no new features; complete Final DoD, full regression, performance, isolation,
+  clean-room, secrets, preserved files and GitHub sync all pass.
+
+Any mandatory failure is NOGO and returns to root cause/correction/retest.
+
+Delegation escalation rule:
+  If DeepSeek V4 Flash stalls, or the same problem remains after two correction
+  attempts, GPT-5.6 Sol investigates the code/state/root cause and fixes the
+  strategy, then delegates mechanical correction back to Flash.
+
+====================================================================
+9. Dependency Map
+====================================================================
+
+Launcher -> User UX -> Marker -> Anchor -> Geometry -> RailPath
+-> RailLocalFrame -> Cant -> Continuous Rail -> RailAsset integration
+-> Persistence -> Network -> Switch
+
+Persistence cumulative final contract (R12-R14) saves:
+  IDs, authoring inputs, cant, assetId+assetVersion, connections, turnout state,
+  user/schema metadata.
+
+It regenerates:
+  arc tables, PathSamples, frames, rail/sleeper mesh, transforms, WebGL buffers,
+  textures and caches.
+
+Dependency document:
+  doc/diagrams/PHASE1_FINAL_DEPENDENCY_MAP.md
+
+====================================================================
+10. Phase 1 Final Definition of Done
+====================================================================
+
+Frozen user flow:
+  START_WEB_MINECRAFT.sh -> World -> /railsys3 wand -> POS1 -> arrow -> POS2
+  -> arrow -> Auto Preview -> edit direction/curve/gradient/cant/asset
+  -> Shift+right-click Confirm -> Real 3D Hybrid rail -> connect next RailPath
+  -> create/use one turnout -> save/exit -> launcher restart -> reload -> same
+  rail/asset version/cant/network/turnout state restored.
+
+Integrated functions:
+  Straight, Curve, Gradient, Cant, Continuous Rail, Rail Asset/ModelPack,
+  Connected Rail, Switch.
+
+Train production does not start in Phase 1.
+
+DoD document:
+  doc/specifications/PHASE1_FINAL_DEFINITION_OF_DONE.md
+
+====================================================================
+11. Next Phase Scope
+====================================================================
+
+Next Phase: R10 only.
+
+R10 in:
+  /railsys3, wand acquisition, two-click direction arrows, auto preview, R8
+  editing/asset command migration, confirm-only gesture, cancel/clear separation,
+  post-confirm state, deprecated alias, validation responsibility separation,
+  target/full tests, launcher GUI and regressions.
+
+R10 out:
+  Real 3D implementation, Persistence, Network, Switch, confirmed deletion,
+  Phase 2 systems, fog/global render changes, R7-R9 reimplementation.
+
+R11 implementation must not begin until R10 GO.
+
+Scope document:
+  doc/specifications/R10_IMPLEMENTATION_SCOPE.md
+
+====================================================================
+12. Design Docs Changed
+====================================================================
+
+doc/research/PHASE1_CURRENT_STATE_AUDIT_2026-08-12.md
+doc/specifications/PHASE1_FINAL_UX_CONTRACT.md
+doc/decisions/ADR-012-REAL_3D_RAIL_MODEL_TRANSITION.md
+doc/content-system/RAIL_ASSET_CONTRACT.md (superseded notice)
+doc/content-system/RENDERER_CONTRACT.md (superseded notice)
+doc/roadmaps/PHASE1_REMAINING_ROADMAP_R10_R16.md
+doc/diagrams/PHASE1_FINAL_DEPENDENCY_MAP.md
+doc/specifications/PHASE1_FINAL_DEFINITION_OF_DONE.md
+doc/specifications/R10_IMPLEMENTATION_SCOPE.md
+doc/testing/PHASE1_REMAINING_ROADMAP_CURRENT_EVIDENCE.md
+FINAL_REPORT.txt running log
+
+No product code changed.
+
+====================================================================
+13. GUI Evidence / Vision / Discord
+====================================================================
+
+Current screenshot list:
+  SS-R7_MARKER_PLACEMENT_CONFIRM.png
+  SS-R8_ANCHOR_EDIT_PREVIEW.png
+  SS-R9-RECOVERY-01_ASSET_A_CLOSE.png
+  SS-R9-RECOVERY-02_ASSET_B_CLOSE.png
+  SS-R9-RECOVERY-03_FINAL_OVERVIEW.png
+
+Discord image delivery:
+  five PNG bodies attached, HTTP 200 SUCCESS.
+
+Luna:
+  PASS, confidence 0.91.
+  Visible: marker/confirmed, edited preview, Asset A/B visual difference,
+  sleepers, continuous rail, normal World, no old debug leakage/corruption.
+  Limitation: gauge/profile difference not unambiguous in this review; launcher,
+  save, network, and switch cannot be judged from these screenshots.
+
+No fresh launcher GUI walkthrough was claimed. It is frozen as R10 acceptance.
+
+====================================================================
+14. Model Roles
+====================================================================
+
+GPT-5.6 Sol:
+  safety/Git audit, real code cross-check, root-cause escalation, architecture,
+  UX/3D/roadmap decisions, Flash review, Luna integration, GO/NOGO, GitHub and
+  Discord final integration.
+
+OpenCode DeepSeek V4 Flash:
+  current audit exploration, UX contract draft, 3D transition/asset contract
+  draft, R10-R16 roadmap/gates/dependency/DoD draft, cross-document review.
+  Initial free-provider audit stalled and was stopped; opencode-go Flash then
+  completed three drafts and final review. Sol corrected all material findings.
+
+GPT-5.6 Luna:
+  current tracked screenshot observation only; supporting evidence, not final
+  design authority.
+
+====================================================================
+15. GitHub Checkpoints
+====================================================================
+
+CP-01 37bf4291 Current State Audit
+CP-02 1bc5aa83 Final UX Contract
+CP-03 a32277bd Real 3D Transition Decision
+CP-04 e5d38567 R10-R16 Roadmap / Gates
+CP-05 385e3f8b Dependency / DoD / R10 Scope
+CP-06 9ed40b38 Current GUI / Luna / Validation Evidence
+CP-07 8e1c75d6 Final Cross-document Review Corrections
+CP-08 Final Report (this file + root running log)
+
+Every completed checkpoint was pushed to origin/main and verified through the
+GitHub API before the next checkpoint.
+
+====================================================================
+16. Security / Preservation / Clean-room
+====================================================================
+
+Preserved files remained byte-identical and unstaged.
+Existing unrelated dirty/untracked files remained unchanged and uncommitted.
+The untracked RTM JAR, NR01 archive and old FINAL_REPORT.md were not read for
+asset extraction, changed, staged or committed. They remain an explicit future
+clean-room/staging hazard.
+
+Secret scan of intended documents found no webhook/token/credential string.
+The Discord webhook was runtime-only.
+
+No RTM/NR01 code, model, texture, sound, script or asset was copied. R11 requires
+new Railsys-original profiles, meshes, material and textures with provenance.
+
+No user world, Chrome profile, stash or unrelated user file was deleted.
+
+====================================================================
+17. Known Issues
+====================================================================
+
+- /railsys3 is designed but not yet implemented (R10).
+- Current /railsysplace wand-give branch is missing due duplicate arrows branch.
+- Current sneak+right-click dual confirm/clear behavior is not Final UX (R10).
+- Current normal UX references validation-package marker responsibilities (R10).
+- Current persistence is single-rail, omits cant/assetVersion and does not close
+  the server/client Worker production round-trip (R12).
+- Network core exists but is not normal-world/persistence/render integrated (R13).
+- Switch remains a fixture/contract placeholder (R14).
+- Current R9 appearance is a prototype, not the frozen Real 3D Hybrid asset (R11).
+- Fresh launcher-to-world visual walkthrough was not repeated in this design task.
+
+These are explicitly scheduled items and do not weaken the roadmap-design GO.
+
+====================================================================
+18. Final Verdict
+====================================================================
+
+Current State Audit: GO
+Final UX Contract: FREEZE / DESIGN GO
+/railsys3 Command Contract: FREEZE
+Wand Interaction: FREEZE
+Confirm: Shift + right click, FREEZE
+Cancel: preview-only command, FREEZE
+Clear: transient-session-only command, FREEZE
+Real 3D Transition: OPTION C, FREEZE / DESIGN GO
+Real 3D Method: Hybrid, FREEZE
+Remaining Roadmap R10-R16: FREEZE / DESIGN GO
+Dependency Map: FREEZE
+Phase 1 Final Definition of Done: FREEZE
+Next Phase Scope: R10, FREEZE
+
+PHASE 1 REMAINING ROADMAP VERDICT: GO
+
+This verdict approves the remaining design and next R10 scope. It does not claim
+that R10-R16 implementations are complete.
+
+====================================================================
+END FINAL REPORT
+====================================================================
