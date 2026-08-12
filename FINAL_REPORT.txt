@@ -2115,3 +2115,25 @@ STEP RR-09 - Completion Sync (2026-08-12 17:36 JST)
 - Final Report txt Discord添付: HTTP 200 SUCCESS。
 - 実際の最終同期時刻17:36 JSTへFinal Report End JSTを訂正。
 - CP-09でこのcompletion syncをcommit/push後、訂正版reportをDiscord再添付する。
+
+====================================================================
+Railsys Phase 1-R10 開始記録 (Final UX / /railsys3 / Safe State)
+====================================================================
+
+STEP R10-01 - R10 開始 / Scope / Initial Audit (2026-08-12 18:08 JST)
+--------------------------------------------------
+- 本タスクは R10 実装 CP-R10-01: まず Initial Audit / GATE 0 のみ実施。
+  product code 変更は本CPでは行わない (GATE 0 後、実装 Phase で実施)。
+- Initial HEAD: 48a5dc149f8b8774546780b8b53c32cdc2593ad9
+- local main == origin/main == GitHub main == 48a5dc14 (SYNC OK)
+- worktree: 1、stash: 0。既存dirty/untrackedは保全し、対象文書のみpath指定stageする。
+- preserved SHA-256 (RR-01記録と一致):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- Initial Audit:
+  doc/testing/phase1_r10/INITIAL_AUDIT.md
+- 既知5欠陥 (R10入力): /railsys3欠如 / giveのduplicated arrows branch /
+  confirmOrClear意味二重化 / クライアントstatic vs サーバーWorker分離 / validationパッケージ責任漏れ。
+- GATE 0: GO。R10 scope (R10_IMPLEMENTATION_SCOPE.md) と整合し、保全対象不変のまま
+  実装 Phase へ進める。
+- CP-R10-01では本 running log と INITIAL_AUDIT.md のみ commit/pushする。
