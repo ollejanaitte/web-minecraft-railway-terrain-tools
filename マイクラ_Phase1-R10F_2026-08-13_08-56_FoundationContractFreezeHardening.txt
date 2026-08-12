@@ -188,7 +188,7 @@ Foundation Contract Freeze & Hardening
       + Foundation Suite + Golden Data + mutation guard results + build task)
     - a9c3885a  feat: R10F normal-world foundation acceptance + screenshots
       (acceptance course + screenshots + NORMAL_WORLD_ACCEPTANCE + gitignore)
-    - <FinalReportSHA> Final Report commit (recorded in FINAL_REPORT.txt R10F-07)
+    - 33d81706d088932ec276f30088927438ba5f00af Final Report commit (recorded in FINAL_REPORT.txt R10F-07)
 
 32. Affected files (tracked changes)
     - build.gradle.kts (goldenGenerate task)
