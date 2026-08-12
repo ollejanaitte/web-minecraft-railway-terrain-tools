@@ -18,10 +18,16 @@ import net.minecraft.util.ChatComponentText;
  * client edit commands, so every UX action updates the production geometry:
  *
  *   select block            -> POS1 (then POS2) marker + auto preview
- *   confirm                 -> promote preview to confirmed + production render
- *   clear / cancel          -> reset markers / preview
+ *   confirm                 -> promote preview to confirmed + production render,
+ *                              then tidy the transient markers/preview
+ *   clear                   -> reset transient session (markers/preview/cant);
+ *                              the confirmed rail and active asset are preserved
+ *   cancel (preview)        -> discard preview ONLY; markers/edit/cant kept
  *   edit (R8)               -> rotate POS1/POS2 yaw, handle, pitch, cant
  *                              -> rebuild preview geometry via RailPath.fromMarkers
+ *
+ * Sneak+right-click with the wand confirms ONLY (never clears); if there is no
+ * preview, confirm is an error and the state does not change.
  *
  * Preview and confirmed rail are built through the SAME
  * AnchorDefinition -> RailPath.fromMarkers -> RailPath pipeline; no
@@ -69,7 +75,12 @@ public final class RailsysPlacementController {
 		}
 	}
 
-	/** Confirm: promote the current preview to a production rail (same RailPath). */
+	/**
+	 * Confirm: promote the exact preview RailPath to confirmed, set the
+	 * production render path, then clear the transient markers/preview so the
+	 * arrow overlays and edit handles are tidied. Confirmed anchors + asset
+	 * metadata are preserved by RailsysPlacementState.
+	 */
 	public static boolean confirm(EntityPlayer player) {
 		RailsysPlacementState st = RailsysPlacementState.getInstance();
 		if (!st.hasPreview()) {
@@ -79,10 +90,9 @@ public final class RailsysPlacementController {
 			return false;
 		}
 		st.confirm();
-		// After confirm, the preview is promoted to the production rail — clear
-		// the preview overlay so only the confirmed continuous rail (in the active
-		// asset appearance) is rendered.
-		st.clearPreview();
+		// Tidy the transient placement visuals; the confirmed rail (the SAME
+		// RailPath object) is preserved and re-set on the production renderer.
+		st.clearTransientSession();
 		RailsysRenderManager.setRenderPath(st.getConfirmedPath());
 		if (player != null) {
 			player.addChatMessage(new ChatComponentText("railsys: confirmed (length "
@@ -91,21 +101,23 @@ public final class RailsysPlacementController {
 		return true;
 	}
 
-	/** Clear markers, preview and confirmed rail. */
+	/**
+	 * Clear the current transient placement session (markers, preview, transient
+	 * cant/edit). A CONFIRMED rail is never destroyed: when one exists the
+	 * production render path is preserved/re-asserted. When there is NO confirmed
+	 * rail the render manager is left UNTOUCHED — it may hold unrelated restored
+	 * or validation render paths that clear must not erase.
+	 */
 	public static void clear(EntityPlayer player) {
-		RailsysPlacementState.getInstance().cancel();
-		RailsysRenderManager.clear();
-		if (player != null) {
-			player.addChatMessage(new ChatComponentText("railsys: cleared"));
+		RailsysPlacementState st = RailsysPlacementState.getInstance();
+		st.clearTransientSession();
+		if (st.hasConfirmed()) {
+			RailsysRenderManager.setRenderPath(st.getConfirmedPath());
 		}
-	}
-
-	/** Sneak+right-click block: confirm if a preview exists, otherwise clear. */
-	public static void confirmOrClear(EntityPlayer player) {
-		if (RailsysPlacementState.getInstance().hasPreview()) {
-			confirm(player);
-		} else {
-			clear(player);
+		if (player != null) {
+			player.addChatMessage(new ChatComponentText(st.hasConfirmed()
+					? "railsys: session cleared; confirmed rail kept"
+					: "railsys: session cleared"));
 		}
 	}
 

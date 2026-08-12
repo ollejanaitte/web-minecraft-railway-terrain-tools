@@ -2137,3 +2137,127 @@ STEP R10-01 - R10 開始 / Scope / Initial Audit (2026-08-12 18:08 JST)
 - GATE 0: GO。R10 scope (R10_IMPLEMENTATION_SCOPE.md) と整合し、保全対象不変のまま
   実装 Phase へ進める。
 - CP-R10-01では本 running log と INITIAL_AUDIT.md のみ commit/pushする。
+
+STEP R10-02 - CP-R10-02 Implementation + Sol Review Corrections (2026-08-12)
+--------------------------------------------------
+- Task: canonical /railsys3 command + safe placement state transitions +
+  wand confirm-only. Implemented, Sol-reviewed, corrections applied and
+  re-tested. SOL SECOND REVIEW = GO (approved CP-R10-02 publication).
+- Current actual time: 2026-08-12 18:31 JST (Wed, Asia/Tokyo) at review
+  record time; commit/push occurs after this line is written.
+- Scope confirmed: only the R10 slices from R10_IMPLEMENTATION_SCOPE.md;
+  R11 not started. Preserved files untouched; unrelated dirty/untracked
+  untouched; no /tmp usage; no confirmed-rail deletion API.
+- Intended commit scope (EXACT paths, staged one by one):
+  FINAL_REPORT.txt | GuiChat.java | ItemRailsysMarkerWand.java |
+  RailsysClientCommands.java | RailsysMarkerSelection.java |
+  RailsysPlacementController.java | RailsysPlacementState.java |
+  Runner.java | NEW R10SourceContractTest.java
+  Excluded on purpose: CommandRailSystem.java + EntityRailVehicle.java
+  (pre-existing dirty, preserved verbatim), screenshot binaries,
+  マイクラ_Phase1-*.txt transcripts, FINAL_REPORT.md, jars/zips, other
+  untracked test artifacts.
+- Git state:
+  - branch main, local HEAD = 58fa06dd2f784c260aadc0db727f7af84a1594a8
+  - origin/main = 58fa06dd (no push performed; GitHub main unchanged)
+  - nothing staged. Staged: none. Commit/push: NOT DONE.
+- Files changed (product + test):
+  - src/game/java/net/minecraft/client/gui/GuiChat.java
+    -> exact-root dispatch helper isRailsysClientCommand + isRailsysRoot: matches
+       /railsys3 and /railsysplace ONLY as exact root OR root followed by ANY
+       whitespace via Character.isWhitespace (space AND tab); case-insensitive
+       via regionMatches(true,...) with NO locale-dependent lowercasing;
+       /railsys3foo is NOT swallowed. Routes to RailsysClientCommands.run.
+  - src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java
+    -> canonical /railsys3 + deprecated /railsysplace share run().
+       Actions: wand (=give alias), confirm, cancel (preview-only via
+       cancelPreview), clear (transient session via controller), asset <id>,
+       assets, help, status (A/B/preview/confirmed/asset/cant), preview,
+       rot1/rot2/handle/pitch/cant, pos1/pos2 debug fallback, arrows on|off
+       (single branch). Numeric arity guarded (requireNum / args.length>=5 /
+       camera args.length>=7 fixing the OOB camera bug). Duplicate "arrows"
+       wand-give branch replaced by canonical "wand".
+  - src/game/java/net/minecraft/item/ItemRailsysMarkerWand.java
+    -> sneak+right-click = confirm ONLY (no confirmOrClear, never clears).
+  - src/game/java/net/minecraft/railsys/placement/RailsysPlacementController.java
+    -> confirm: promote preview, clearTransientSession, re-assert production
+       render path. clear: transient session only; re-asserts the confirmed
+       render path ONLY when hasConfirmed() — NEVER calls
+       RailsysRenderManager.clear() (unrelated restored/validation render
+       paths survive a clear with no confirmed rail). confirmOrClear removed.
+  - src/game/java/net/minecraft/railsys/placement/RailsysPlacementState.java
+    -> new clearTransientSession() clears markers/preview/cant, PRESERVES
+       confirmed path+anchors+asset. cancel() is now non-destructive
+       (delegates to transient clearing). confirm() assigns the EXACT
+       previewPath object to confirmedPath (object promotion, no rebuild).
+  - src/game/java/net/minecraft/railsys/placement/RailsysMarkerSelection.java
+    -> POS1/POS2-already-set message now instructs Shift+right-click Confirm
+       or /railsys3 clear (no longer says sneak clears); clear() is
+       non-destructive via clearTransientSession.
+  - src/harness/java/railv2test/Runner.java -> registered R10SourceContractTest.
+  - NEW src/harness/java/railv2test/tests/R10SourceContractTest.java
+    -> reads the ACTUAL touched game sources + production geometry
+       (RailPath.fromMarkers). Guards (12 tests): command roots with
+       whitespace/case semantics, actions incl. Locale.ROOT case-insensitive
+       matching, wand confirm-only, no confirmOrClear from wand, non-destructive
+       cancel/clear (renderer never cleared), confirmed survival, accurate
+       clear message, exact object promotion (state assigns previewPath; controller
+       never rebuilds), wand full-inventory drop, numeric arity (camera OOB
+       fix), server /railsysplace retained.
+- SOL REVIEW (1st pass) corrections — ALL applied:
+  1) GuiChat root boundary: replaced ASCII-space-only startsWith with an exact
+     matcher (exact root OR next char Character.isWhitespace) for /railsys3 and
+     /railsysplace, case-insensitive via regionMatches(true,...); /railsys3foo
+     still rejected; no locale-dependent toLowerCase(). Tests updated to check
+     tab/whitespace semantics meaningfully (t01).
+  2) RailsysPlacementController.clear: destructive else RailsysRenderManager.clear()
+     REMOVED entirely. clear() now re-asserts st.getConfirmedPath() only when
+     st.hasConfirmed(); otherwise render manager untouched. Chat message is
+     accurate: "railsys: session cleared; confirmed rail kept" ONLY when
+     confirmed exists, else "railsys: session cleared" (t06 updated).
+  3) Preview/confirm identity: added t11 source guard that state.confirm()
+     assigns confirmedPath = previewPath (exact object promotion) and controller
+     confirm never calls RailPath.fromMarkers. Numerical t09/t10 relabelled as
+     DETERMINISTIC PIPELINE EQUIVALENCE (two separately-built objects are no
+     longer called "the same object").
+  4) Polish: action matching is case-insensitive via args[1].toLowerCase(
+     java.util.Locale.ROOT) so /railsys3 WAND works; root matching is also
+     case-insensitive (regionMatches). TeaVM-compatibility confirmed by
+     makeMainOfflineDownload compiling successfully (t02 asserts the
+     Locale.ROOT normalization).
+  5) Polish: /railsys3 wand is reliable with a full inventory — the 1.8
+     addItemStackToInventory remainder (wand.stackSize) is checked; on success
+     (stackSize==0) no duplicate; otherwise the leftover is dropped at the
+     player via dropPlayerItemWithRandomChoice + setNoPickupDelay (same idiom
+     as CommandWorldEdit.giveWand) with an explicit "inventory full — marker
+     wand dropped at your feet" message (t12).
+- Protected hashes re-verified (byte-identical to RR-01 / R10-01 records):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+  Numstat unchanged (111/6 and 13/3) = PRESERVED.
+- Test/build outputs after corrections (exact):
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew harnessTest
+    -> PASSED=160 FAILED=0 SKIPPED=3 RESULT SUCCESS (baseline 148/0/3 + 12 R10)
+       R10SourceContractTest t01..t12 all PASS.
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew compileJava -> BUILD SUCCESSFUL
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :target_teavm_javascript:makeMainOfflineDownload
+    -> BUILD SUCCESSFUL (offline HTML regenerated; TeaVM accepts Locale.ROOT)
+- git diff --stat (intended scope, excluding pre-existing dirty files):
+    GuiChat.java 23 +/-, ItemRailsysMarkerWand.java 11 +/-, RailsysClientCommands.java
+    191 +/-, RailsysMarkerSelection.java 12 +/-, RailsysPlacementController.java 52 +/-, RailsysPlacementState.java 21 +/-, Runner.java 2 +; new R10SourceContractTest.java (~388 lines).
+- Secret scan: no webhook/token/credential/api-key in the intended diff or new
+  test file. Clean. Nothing staged; no commit/push.
+- Known limitations (still honest):
+  - GUI/wand live walkthrough NOT run (screenshots/vision deferred to the R10
+    implementation gate after Sol second review, per R10_IMPLEMENTATION_SCOPE
+    slice 11).
+  - MarkerArrowRenderer ownership move to validation->production is CP-R10-03,
+    intentionally NOT done here (arrow toggle still references it temporarily).
+  - Server-side /railsysplace commands untouched (kept, not deleted).
+  - R10SourceContractTest is a source-text + numerical contract test; the
+    harness does not compile game sources (Worker/TeaVM separation), so GUI
+    behaviour needs the later runtime walkthrough.
+- Verdict: SOL SECOND REVIEW GO — CP-R10-02 publication APPROVED. Commit
+  + push to origin/main + Discord notification about to occur. No pre-claimed
+  push SHA; recorded after the fact in the R10-02b sync note (separate tiny
+  docs commit) only if the sync record is needed.

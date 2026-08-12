@@ -153,7 +153,7 @@ public class GuiChat extends GuiScreenVisualViewport {
 						this.mc.displayGuiScreen(new GuiWorldEdit());
 						return;
 					}
-					if (s.startsWith("/railsysplace")) {
+					if (isRailsysClientCommand(s)) {
 						System.out.println("RAILSYS: client placement command: " + s);
 						this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
 						net.minecraft.railsys.placement.RailsysClientCommands.run(this.mc.thePlayer, s);
@@ -215,6 +215,27 @@ public class GuiChat extends GuiScreenVisualViewport {
 		} else if (par1GuiButton.id == 70) {
 			this.mc.displayGuiScreen(new GuiScreenNotifications(this));
 		}
+	}
+
+	/**
+	 * True when the chat line is a locally-dispatched Railsys client command:
+	 * the canonical /railsys3 root or the deprecated /railsysplace alias.
+	 * Only an EXACT root match or root followed by whitespace (space, tab, ...)
+	 * is caught, so a command like /railsys3foo is NOT swallowed here. Root
+	 * comparison is case-insensitive via regionMatches(true, ...), which avoids
+	 * locale-dependent lowercasing.
+	 */
+	private static boolean isRailsysClientCommand(String s) {
+		String t = s.trim();
+		return isRailsysRoot(t, "/railsys3") || isRailsysRoot(t, "/railsysplace");
+	}
+
+	/** True when line is exactly root or root followed by whitespace. */
+	private static boolean isRailsysRoot(String line, String root) {
+		if (line.length() < root.length() || !line.regionMatches(true, 0, root, 0, root.length())) {
+			return false;
+		}
+		return line.length() == root.length() || Character.isWhitespace(line.charAt(root.length()));
 	}
 
 	/**+

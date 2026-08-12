@@ -8,15 +8,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 /**
- * ItemRailsysMarkerWand — Phase 1-R6/R7 right-click marker placement UX.
+ * ItemRailsysMarkerWand — Phase 1-R6/R7/R10 right-click marker placement UX.
  *
- * In a NORMAL world (R7):
+ * In a NORMAL world:
  *   - Right-click a block: select POS1 (Marker A) then POS2 (Marker B).
  *     Once both markers are set, the preview path is auto-built from the
  *     production AnchorDefinition -> RailPath.fromMarkers pipeline (client
  *     side, so arrows + preview render immediately).
- *   - Sneak + right-click a block: if a preview exists -> CONFIRM (promote to
- *     production rail); otherwise -> CLEAR markers.
+ *   - Sneak + right-click: CONFIRM ONLY via RailsysPlacementController.confirm.
+ *     If there is no valid preview this is an error and the state does not
+ *     change. Sneak + right-click NEVER clears markers or a confirmed rail.
  *
  * The item runs on BOTH the client (prediction path that drives the client-side
  * RailsysPlacementState/RailsysRenderManager statics used by the renderer) and
@@ -38,7 +39,7 @@ public class ItemRailsysMarkerWand extends Item {
 		}
 		if (entityplayer.isSneaking()) {
 			if (world.isRemote) {
-				RailsysPlacementController.confirmOrClear(entityplayer);
+				RailsysPlacementController.confirm(entityplayer);
 			}
 			return true;
 		}

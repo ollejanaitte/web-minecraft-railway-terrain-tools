@@ -80,15 +80,19 @@ public final class RailsysMarkerSelection {
 					+ " pitch=" + fmt(pitch)));
 			return true;
 		}
-		player.addChatMessage(new ChatComponentText("railsys: POS1/POS2 already set — sneak+right-click to clear"));
+		player.addChatMessage(new ChatComponentText(
+				"railsys: POS1/POS2 already set — Shift+right-click Confirm, or /railsys3 clear to reset"));
 		return false;
 	}
 
-	/** Clear both markers (sneak + right-click). */
+	/**
+	 * Clear both markers (non-destructive: a confirmed rail is preserved).
+	 * Sneak+right-click no longer clears — this is only the /railsys3 clear path.
+	 */
 	public static boolean clear(EntityPlayer player) {
-		RailsysPlacementState.getInstance().cancel();
+		RailsysPlacementState.getInstance().clearTransientSession();
 		if (player != null) {
-			player.addChatMessage(new ChatComponentText("railsys: markers cleared"));
+			player.addChatMessage(new ChatComponentText("railsys: markers cleared (confirmed rail kept)"));
 		}
 		return true;
 	}

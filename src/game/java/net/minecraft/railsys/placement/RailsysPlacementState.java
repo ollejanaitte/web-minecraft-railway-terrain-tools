@@ -130,13 +130,26 @@ public final class RailsysPlacementState {
 		return this.confirmedPath != null && this.confirmedPath.entryCount() > 0;
 	}
 
-	public void cancel() {
+	/**
+	 * Clear the CURRENT TRANSIENT placement session: markers, preview and the
+	 * transient cant value. The confirmed rail (path + anchors + asset id) is
+	 * PRESERVED so a post-clear session can resume or re-render the production
+	 * rail. R10 has no confirmed-rail deletion API.
+	 */
+	public void clearTransientSession() {
 		this.markerA = null;
 		this.markerB = null;
 		this.previewPath = null;
-		this.confirmedPath = null;
-		this.confirmedAnchorA = null;
-		this.confirmedAnchorB = null;
+		this.cantDeg = 0.0D;
+	}
+
+	/**
+	 * Deprecated compatibility alias. Previously destructive (also dropped the
+	 * confirmed rail); R10 makes it NON-destructive by delegating to transient
+	 * clearing only.
+	 */
+	public void cancel() {
+		clearTransientSession();
 	}
 
 	public void clearPreview() {
