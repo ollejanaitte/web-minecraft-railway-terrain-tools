@@ -1970,3 +1970,29 @@ Phase 1 R7-R9 作業中止記録 (STOP, 2026-08-12 15:33 JST)
 ====================================================================
 END Phase 1 R7-R9 作業中止記録
 ====================================================================
+
+====================================================================
+Railsys Phase 1 Remaining Roadmap 開始記録
+====================================================================
+
+STEP RR-01 - Scope / Initial Audit (2026-08-12 17:08 JST)
+--------------------------------------------------
+- 本タスクは設計・ロードマップ再整理。R10以降のproduct code実装は行わない。
+- Initial HEAD: 45ea1c41df463f7fe96328a8bbf931c7e4477390
+- local main == origin/main == GitHub main == 45ea1c41 (SYNC OK)
+- worktree: 1、stash: 0。既存dirty/untrackedは保全し、対象文書のみpath指定stageする。
+- preserved SHA-256:
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- R7/R8/R9 Recovery成果はHEADのコード・commit・reportで確認。root FINAL_REPORT.txtが
+  途中中止記録で止まっていた文書整合不備を本running logで補正開始。
+- DeepSeek V4 Flash: opencode-go/deepseek-v4-flashで現行UX・3D移行・Roadmap草案を委任。
+  初回free provider監査は長時間無応答のため中断したが、後続3件は成果受領済み。
+- Current State Audit:
+  doc/research/PHASE1_CURRENT_STATE_AUDIT_2026-08-12.md
+- GATE 0: GO。R1-R9を保持したまま残Phase設計が可能。
+- Discord作業開始通知: HTTP 204。
+
+====================================================================
+END Railsys Phase 1 Remaining Roadmap 開始記録
+====================================================================
