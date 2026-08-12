@@ -1,0 +1,251 @@
+====================================================================
+Phase 1-R10F Final Report
+Foundation Contract Freeze & Hardening
+====================================================================
+
+1. Title
+   Phase 1-R10F: Foundation Contract Freeze & Hardening
+
+2. Phase
+   Phase 1-R10F
+
+3. Status / Verdict
+   PHASE 1-R10F STATUS: COMPLETE
+   PHASE 1-R10F VERDICT: PASS
+   PHASE 1-R11 ENTRY GATE: OPEN
+
+4. Start JST
+   2026-08-13 06:17 (R10F initial audit + Discord start notice)
+
+5. End JST
+   2026-08-13 08:56 (Final Gate completed)
+
+6. Initial HEAD
+   9142383f13bc5d3890103c0a8cb85e361f366f72 (docs: record R10 final completion
+   sync). local main == origin/main == GitHub main == 9142383f (4-way match).
+
+7. Final implementation / report SHA
+   - CP-R10F-01..04: 54db9cd2  feat: R10F freeze Foundation Contract + suite
+     + golden data
+   - CP-R10F-05/06:  a9c3885a  feat: R10F normal-world foundation acceptance
+     + screenshots
+   - Final Report commit (this document): recorded in FINAL_REPORT.txt
+     STEP R10F-07 after push (self-reference is recorded post-commit).
+
+8. local / origin / GitHub final sync
+   At report creation: local HEAD == origin/main == git ls-remote GitHub main
+   == a9c3885a (3-way match). Final Report commit pushed afterwards and
+   re-verified (4-way match).
+
+9. Initial Audit (GATE0)
+   - Baseline git state audited read-only before any change; branch main.
+   - Existing dirty tracked (protected CommandRailSystem.java /
+     EntityRailVehicle.java, phase0_1 screenshots, R4 report) preserved
+     verbatim and never staged.
+   - Many pre-existing untracked validation artifacts preserved verbatim.
+   - Protected SHA-256 recomputed byte-identical to records.
+   - Harness baseline: PASSED=177 FAILED=0 SKIPPED=3.
+
+10. Existing Contract Inventory
+    - Completed doc/testing/phase1_r10f/CONTRACT_INVENTORY.md classifying
+      DOCUMENTED / IMPLEMENTED / TESTED / RUNTIME-PROVEN / AMBIGUOUS / MISSING
+      across datum, geometry/RailPath, editing, asset isolation, lifecycle,
+      and authority.
+    - R10 runtime evidence re-confirmed from FINAL_REPORT.txt + run logs:
+      12.08 m / 13 samples / path identity preserved; clear keeps confirmed.
+    - No MISSING blocker for R10F; AMBIGUOUS items (authority wording, cant
+      influence) resolved in F3/F6.
+
+11. F1 Coordinate / Support-Surface Anchor Contract
+    - AnchorDefinition is the SSoT; anchor y = support surface.
+    - +1 conversion ONLY at selectOnFace UP input boundary; non-UP rejected
+      before mutation; canonical select/selectFromMcLook pass pos as-is;
+      Geometry/RailPath/Asset/Renderer never compensate; arrow shares datum.
+    - FROZEN. Source-guarded + numerically proven (f1_* tests + golden).
+
+12. F2 Production Geometry / RailPath Contract
+    - fromMarkers straight vs Hermite->Bezier; direction contract
+      (start=+POS1 forward, end=-POS2 forward); arc length; sampling; frame;
+      cant rolls frame not centerline; boundary ownership; continuity.
+    - FROZEN. Numerically proven (f2_* tests) + golden fixtures G01-G10.
+
+13. F3 Editing Semantics Contract
+    - rot1/rot2/handle/pitch/cant/asset influence matrix frozen; anchor
+      position invariance; ranges [0.1,20] / [-45,45]; every line-shape edit
+      rebuilds the preview through the SAME fromMarkers pipeline.
+    - Documented + source-guarded + numerically tested (f3_*).
+
+14. F4 Rail Asset / Geometry Isolation Contract
+    - RailPath = geometry, Asset = look; asset switch never rebuilds the
+      path / changes centerline; loader internals REPLACEABLE; boundary frozen.
+    - Numerically + source-guarded (f4_*) + runtime R9RENDER pathIdentity/len
+      invariance during asset switch.
+
+15. F5 Placement Lifecycle Contract
+    - Auto preview after POS2 (no immediate confirm); confirm promotes the
+      exact preview path; preview-less confirm = error + no mutation; third
+      click no silent replace; cancel discards preview only; clear resets
+      transient session keeping confirmed rail; delete is separate; command
+      fallback == wand gesture via the same controller.
+    - FROZEN. Source-guarded (f5_*) + normal-world 18-item course PASS.
+
+16. F6 Client / Server Authority Contract
+    - Inventory = SERVER-AUTHORITATIVE (wand give via server command with
+      drop semantics; client never self-grants). Placement state =
+      CLIENT-LOCAL + VALIDATION-ONLY (documented precisely; not mis-labelled
+      server-authoritative). Validation hooks never mutate placement.
+    - Documented + source-guarded (f6_*).
+
+17. FROZEN / EXTENSIBLE / REPLACEABLE classification
+    - doc/architecture/phase1_r10f_foundation_classification.md: A1-A9 FROZEN,
+      B1-B6 EXTENSIBLE, C1-C6 REPLACEABLE IMPLEMENTATION, each with evidence.
+    - doc/architecture/phase1_r10f_contract_change_policy.md: CCP template and
+      golden-change rule (golden values are never a "test fix").
+
+18. Foundation Contract Suite results
+    - New class: railv2test.tests.RailsysFoundationContractSuite (30 tests,
+      F1-F6 + golden), registered in railv2test.Runner.
+    - Suite 30/30 PASS; full harness PASSED=207 FAILED=0 SKIPPED=3 SUCCESS.
+    - Gate rule: any FAILED Foundation test = NOGO for R11+.
+
+19. Existing Harness regression results
+    - Baseline 177 tests all PASS (regression retained; suite is additive).
+
+20. Numerical Golden Dataset summary
+    - doc/testing/phase1_r10f/golden/G01..G10 + G-R10 (11 JSON fixtures),
+      generated by src/harness/java/railv2test/tools/GoldenDataGenerator.java
+      via ./gradlew goldenGenerate; generator validates each fixture against
+      the frozen contract before writing.
+    - Representative regression G-R10: R10 inputs -> 12.077656 m (-> 12.08 m
+      2-dec) / 13 samples, matching the R10 normal-world runtime evidence.
+    - Committed JSON re-verified by golden_allFixturesMatchCommittedJson on
+      every harness run.
+
+21. Negative / Mutation Guard results
+    - 8 deliberate violations applied to clean sources; each made the matching
+      Foundation test FAIL; all reverted byte-for-byte (git diff clean).
+    - Results: doc/testing/phase1_r10f/MUTATION_GUARD_RESULTS.md.
+
+22. Normal World Foundation Acceptance
+    - Instrumented normal-world course (dedicated Superflat NORMAL world
+      "RailsysR10F", production /railsys3 + vanilla /tp + real clicks).
+    - All 18 course items PASS (console-asserted); F4 asset-switch pathIdentity/
+      len invariance proven at runtime; preview/confirm length identity holds;
+      exit code 0.
+    - Details: doc/testing/phase1_r10f/NORMAL_WORLD_ACCEPTANCE.md.
+
+23. Screenshot list (5) + SHA-256
+    - SS-R10F-01_FOUNDATION_DATUM.png
+      8938dfe5904917aa1c2433e50862cd7d9b4dd572fd825967b5ef2e94b96e81fb
+    - SS-R10F-02_CURVE_GRADIENT_CANT.png
+      bb1aef66bdb3a96d97ef37b9cbe3a5abe9ca211b5673347793a3b7b3f51a1776
+    - SS-R10F-03_EDITING_ASSET_ISOLATION.png
+      f2496c66592b8c2a6e364568488990a9d4c8bbdd676252d7e7b7d2ea5b31fc22
+    - SS-R10F-04_ACCEPTANCE_FINAL.png
+      c7a8ccd2ad542b832fec330b086476dc36d4ecf850097d2d3426691c87fbbb56
+    - SS-R10F-05_PREVIEW_CONFIRM.png
+      b5804250575aab909c5c88d2995e77d1176a6ff61997d3668c88f712e4069b93
+
+24. Luna Vision result
+    - gpt-5.6-luna (read-only sandbox): COMBINED PASS (high confidence);
+      per-image PASS 01..05 (rail on terrain surface, no purple/black missing
+      textures). Vision is supplementary evidence; numeric/test evidence is
+      the primary gate.
+
+25. Sol root-cause delegation
+    - None required in R10F (no unresolved blocker; the one root-cause-style
+      issue — sneak+right-click timing in the headless GUI — was a test-driver
+      timing matter resolved by holding the sneak modifier longer, not a
+      product defect).
+
+26. Production Build
+    - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+      ./gradlew makeMainOfflineDownload --rerun-tasks
+      -> BUILD SUCCESSFUL (8 tasks executed).
+
+27. Launcher smoke
+    - HEADLESS=1 ./START_WEB_MINECRAFT.sh --skip-build -> CDP responded,
+      clean stop. Known launcher quirk (overwrites HEADLESS) handled by unset
+      DISPLAY as in R10.
+
+28. Protected file hashes
+    - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+    - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+    - Byte-identical at start and end of R10F; never staged.
+
+29. Clean-room
+    - No RTM/NR01 source, model, texture, asset copied or committed. RTM jar/
+      zip remain untracked read-only references. Railsys code is original
+      (AnchorDefinition/RailPath/ModelPackParser are clean-room).
+
+30. Secret scan
+    - Discord webhook URL never written to any repo file, doc, script, log, or
+      commit. Staged diff and working tree scanned at each checkpoint. Clean.
+
+31. Git checkpoint list
+    - 54db9cd2  feat: R10F freeze Foundation Contract + suite + golden data
+      (Contract Inventory + F1-F6 docs + classification + policy + test matrix
+      + Foundation Suite + Golden Data + mutation guard results + build task)
+    - a9c3885a  feat: R10F normal-world foundation acceptance + screenshots
+      (acceptance course + screenshots + NORMAL_WORLD_ACCEPTANCE + gitignore)
+    - <FinalReportSHA> Final Report commit (recorded in FINAL_REPORT.txt R10F-07)
+
+32. Affected files (tracked changes)
+    - build.gradle.kts (goldenGenerate task)
+    - src/harness/java/railv2test/Runner.java (register suite)
+    - src/harness/java/railv2test/tests/RailsysFoundationContractSuite.java (new)
+    - src/harness/java/railv2test/tools/GoldenDataGenerator.java (new)
+    - doc/architecture/phase1_r10f_foundation_contract.md (new)
+    - doc/architecture/phase1_r10f_foundation_classification.md (new)
+    - doc/architecture/phase1_r10f_contract_change_policy.md (new)
+    - doc/testing/phase1_r10f/CONTRACT_INVENTORY.md (new)
+    - doc/testing/phase1_r10f/FOUNDATION_TEST_MATRIX.md (new)
+    - doc/testing/phase1_r10f/MUTATION_GUARD_RESULTS.md (new)
+    - doc/testing/phase1_r10f/NORMAL_WORLD_ACCEPTANCE.md (new)
+    - doc/testing/phase1_r10f/golden/*.json (11 files, new)
+    - doc/testing/phase1_r10f/scripts/r10f_foundation_acceptance.mjs (new)
+    - doc/testing/phase1_r10f/scripts/r10f_screenshots.mjs (new)
+    - doc/testing/phase1_r10f/screenshots/*.png (5 files, new)
+    - .gitignore (ignore R10/R10F runtime profiles/logs/instrumented html)
+    - FINAL_REPORT.txt (running log)
+
+33. Known Issues
+    - Confirmed-rail persistence is not restored on re-enter in R10 (only the
+      transient session persists in-session); re-enter screenshot pass shows no
+      rail, so acceptance screenshots are taken in-session. Persistence is a
+      later-phase (R11+) concern and out of R10F scope.
+    - The headless GUI reports 1 browser-level "Pointer Lock user gesture"
+      warning (present in R10 evidence too); not a Railsys code error.
+    - The launcher overwrites the HEADLESS env var; R10F used unset DISPLAY for
+      the smoke test (same workaround as R10).
+
+34. Remaining Risks
+    - Production 3D meshes / real ModelPack file loading are REPLACEABLE
+      internals not yet built (R11+). The frozen geometry/look boundary holds.
+    - Switch/turnout geometry and confirmed-rail IDs/delete are out of R10F
+      (documented as MISSING by design).
+
+35. R11 Entry Gate
+    - Foundation Contract Suite 100% PASS; existing harness 207/0/3 PASS;
+      golden data verified; mutation guards proven; normal world acceptance
+      PASS; production build + launcher smoke PASS; protected files intact;
+      secret scan + clean-room PASS.
+    - PHASE 1-R11 ENTRY GATE: OPEN
+
+36. Final Verdict
+    PHASE 1-R10F VERDICT: PASS
+
+    A later developer can now read:
+      - Foundation Contract (F1-F6) to know what must not break;
+      - Classification (FROZEN/EXTENSIBLE/REPLACEABLE) to know what may grow
+        or be swapped;
+      - Contract Change Policy to know how to change a frozen item;
+      - Foundation Contract Suite + Golden Data to know which test detects a
+        violation (mutation guards prove detection);
+      - Normal World Acceptance to confirm the user journey still works.
+
+====================================================================
+PHASE 1-R10F STATUS: COMPLETE
+PHASE 1-R10F VERDICT: PASS
+PHASE 1-R11 ENTRY GATE: OPEN
+====================================================================
