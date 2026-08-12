@@ -2660,3 +2660,32 @@ STEP R10-08 - normal-world GUI/vision/launcher
   checkpoint/Discord/final report.
 - HEAD still fb626e33; nothing staged/pushed at this record.
 - No R11 started. Do not claim Git/Discord completion.
+
+
+STEP R10-09 - R10 FINAL COMPLETION SYNC (2026-08-12)
+----------------------------------------------------
+- Actual JST (TZ=Asia/Tokyo date): 2026-08-12 22:58 JST.
+- Scope: final completion sync log ONLY. Edit target: this
+  FINAL_REPORT.txt (append at EOF). No other file edited/staged/committed.
+- Final Report filename:
+  統合設計_Phase1-R10_2026-08-12_22-43_FinalMarkerPlacementUXIntegration.txt
+- Report commit: 66217b29fd3ff0755b7d3f3aa6114d9836d2a34f
+  "docs: publish R10 final report".
+- Product commit: 28c026c79dbe356831d19ddc39a49725cf58dcbe
+  "feat: complete R10 normal-world placement UX".
+- Discord (Japanese) completion notification + txt body attachment:
+  HTTP 200 = SUCCESS. R10 PNG 3 bodies sent first:
+  HTTP 200 / 200 / 200.
+- Harness: 177 PASS / 0 FAIL / 3 SKIP.
+- Production Build: SUCCESS.
+- Luna: PASS, confidence 0.98. Sol Final Gate: GO.
+- Verdict: PHASE 1-R10 VERDICT PASS. R11 ENTRY GATE OPEN.
+- Protected hashes verified byte-identical / unchanged:
+  CommandRailSystem.java = 1037f467...e832
+  EntityRailVehicle.java = b2fb0ea3...acff
+- Existing dirty/untracked files preserved verbatim (not staged/committed).
+- Secret scan: no secrets in staged content (webhook URL never persisted).
+- R11 not started.
+- Commit: "docs: record R10 final completion sync"; push origin main.
+- Final sync verified: local HEAD == main == origin/main ==
+  git ls-remote GitHub main (4-way match); staged empty.
