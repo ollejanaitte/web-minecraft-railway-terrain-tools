@@ -2045,3 +2045,21 @@ STEP RR-04 - Remaining Roadmap / GO-NOGO Freeze
 - R16: feature freeze / full validation。
 - Flash stallまたは同一問題2回修正未解決時はSolがroot cause調査後、mechanical修正をFlashへ再委任。
 - Remaining Roadmap DESIGN GATE: GO。
+
+STEP RR-05 - Dependency Map / Final DoD / Next Phase Scope Freeze
+--------------------------------------------------
+- Dependency Map:
+  doc/diagrams/PHASE1_FINAL_DEPENDENCY_MAP.md
+- Final Definition of Done:
+  doc/specifications/PHASE1_FINAL_DEFINITION_OF_DONE.md
+- Next Phase Scope:
+  doc/specifications/R10_IMPLEMENTATION_SCOPE.md
+- Launcher→UX→Marker→Anchor→Geometry→RailPath→RailLocalFrame→Cant→
+  Continuous Rail→RailAsset integration→Persistence→Network→SwitchをFreeze。
+- Renderer/AssetからGeometryへの逆依存禁止。
+- Persistenceはauthoring/topology/assetId+version/cant/metadataを保存し、
+  RailPath samples/mesh/GPU/cacheはload時再生成。
+- Phase 1 Final DoD: normal launcherからwand/two-click/preview/edit/confirm/
+  Real3D/connect/turnout/save/restart/restoreの一本のuser journey。
+- Next PhaseはR10のみ。R11 implementationはR10 GOまで開始禁止。
+- Final Definition DESIGN GATE: GO。
