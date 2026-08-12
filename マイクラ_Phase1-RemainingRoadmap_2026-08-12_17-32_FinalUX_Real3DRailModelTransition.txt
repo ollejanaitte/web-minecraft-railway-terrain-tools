@@ -8,7 +8,7 @@ Status / Verdict:
   PHASE 1 REMAINING ROADMAP VERDICT: GO
 
 Start JST: 2026-08-12 16:48 JST
-End JST:   2026-08-12 17:32 JST
+End JST:   2026-08-12 17:36 JST
 
 Initial HEAD:
   45ea1c41df463f7fe96328a8bbf931c7e4477390
@@ -17,10 +17,12 @@ Final Validation SHA before this immutable Final Report commit:
   8e1c75d60b180148dae7bb5f07393ee56e5b430a
 
 Final Report integration SHA:
-  CP-08 commit that contains this file. Because Git assigns a commit SHA only
-  after this immutable file content is created, the exact final SHA is recorded
-  in GitHub history, root FINAL_REPORT.txt completion sync, Discord completion,
-  and the user handoff after CP-08 push.
+  c6563f91828b6fc52f858309f754cc498e0b13fe (CP-08)
+
+Final repository completion SHA:
+  CP-09 completion-sync commit containing the End JST correction. Git assigns
+  that commit SHA after this file is fixed; its exact value is recorded by
+  GitHub main, the corrected Discord completion, and the user handoff.
 
 At Final Validation:
   local main  = 8e1c75d60b180148dae7bb5f07393ee56e5b430a
@@ -394,6 +396,7 @@ CP-05 385e3f8b Dependency / DoD / R10 Scope
 CP-06 9ed40b38 Current GUI / Luna / Validation Evidence
 CP-07 8e1c75d6 Final Cross-document Review Corrections
 CP-08 Final Report (this file + root running log)
+CP-09 Completion Sync (actual End JST + corrected report delivery)
 
 Every completed checkpoint was pushed to origin/main and verified through the
 GitHub API before the next checkpoint.
