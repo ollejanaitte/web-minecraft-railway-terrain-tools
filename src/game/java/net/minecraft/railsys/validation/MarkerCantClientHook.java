@@ -23,8 +23,9 @@ public final class MarkerCantClientHook {
 	}
 
 	public static void onClientTick(Minecraft mc) {
-		// Phase 1-R9: load the embedded prototype ModelPack once (client thread).
-		net.minecraft.railsys.render.RailAssetRegistry.ensurePrototypePackLoaded();
+		// CP-R10-03: prototype ModelPack loading is owned by the normal client
+		// runtime (RailsysClientRuntime.onClientTick). This hook remains a
+		// validation-only proof driver gated on the "markercant" world.
 		if (done || mc == null) {
 			return;
 		}

@@ -12,7 +12,8 @@ import railv2test.harness.Assert;
 import railv2test.harness.Test;
 
 /**
- * Phase 1-R10 (CP-R10-02): canonical /railsys3 + safe state transitions —
+ * Phase 1-R10 (CP-R10-02 + CP-R10-03): canonical /railsys3 + safe state
+ * transitions + production/validation ownership split —
  * SOURCE-CONTRACT + NUMERICAL acceptance.
  *
  * The normal harness does not compile the game sources (Web Worker / TeaVM
@@ -22,7 +23,33 @@ import railv2test.harness.Test;
  * client placement pipeline uses. No fake renderer and no duplicate state
  * model is created.
  *
- * Guarded contracts:
+ * CP-R10-03 guarded contracts (t13..t19):
+ *   - The marker-arrow DRAW implementation lives in the production renderer
+ *     net.minecraft.railsys.render.MarkerArrowRenderer: no validation package,
+ *     no SingleBoxProofValidation, no validation world-name gate, no chat
+ *     probes, no periodic debug logging; gate = placement state (POS1/POS2) +
+ *     arrowsVisible; world anchoring / stored yaw / z-fighting offset / GL
+ *     state restoration retained.
+ *   - EntityRenderer invokes the product arrow renderer FIRST and the
+ *     validation-only MarkerArrowProofObserver AFTER it; the old
+ *     validation.MarkerArrowRenderer is gone.
+ *   - /railsys3 arrows toggles the product renderer, never the validation one.
+ *   - Minecraft.runTick calls RailsysClientRuntime.onClientTick BEFORE the
+ *     validation hooks.
+ *   - Prototype ModelPack init lives in RailsysClientRuntime and is ABSENT from
+ *     the validation proof drivers (MarkerCantClientHook / MarkerPlaceClientHook).
+ *   - MarkerArrowProofObserver is world-gated (markercant), fires once, draws
+ *     nothing, and never mutates normal placement. It sets done / emits the
+ *     MARKERARROW message ONLY once BOTH marker A and marker B exist
+ *     (both-marker robustness gate, CP-R10-03c), so a premature markercant
+ *     frame with missing markers never latches the one-shot proof.
+ *   - MarkerPlaceClientHook (t20): the R10 confirm() clears the transient
+ *     markers by contract, so the R8 edit phase re-selects the SAME POS1/POS2
+ *     via selectFromMcLook BEFORE rotatePos1/setCant; every select/edit/confirm
+ *     result and hasPreview() are checked via a deterministic validation-only
+ *     fail() (no false success print).
+ *
+ * Guarded contracts (base):
  *   - GuiChat dispatches the EXACT /railsys3 and /railsysplace roots locally:
  *     exact root OR root followed by ANY whitespace (Character.isWhitespace,
  *     so tab works), case-insensitive via regionMatches(true,...) with NO
@@ -384,5 +411,216 @@ public final class R10SourceContractTest {
 		Assert.assertTrue(wandTail.contains("setNoPickupDelay()"), "dropped wand has no pickup delay");
 		Assert.assertTrue(wandTail.contains("inventory full"),
 				"explicit drop message tells the player the wand was dropped");
+	}
+
+	// ===================== CP-R10-03: production/validation ownership split =====================
+
+	@Test
+	public static void t13_productArrowRendererIsProductionAndClean() {
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/render/MarkerArrowRenderer.java"));
+		Assert.assertTrue(src.contains("package net.minecraft.railsys.render;"),
+				"product arrow renderer lives in railsys.render");
+		// No validation package / SingleBoxProofValidation references at all.
+		Assert.assertFalse(src.contains("net.minecraft.railsys.validation"),
+				"product renderer has no validation package reference");
+		Assert.assertFalse(src.contains("SingleBoxProofValidation"),
+				"product renderer has no SingleBoxProofValidation reference");
+		// No validation world-name gate.
+		Assert.assertFalse(src.contains("getClientWorldName"), "no validation world-name gate");
+		Assert.assertFalse(src.contains("WORLD_MARKER"), "no WORLD_MARKER gate");
+		Assert.assertFalse(src.contains("\"markercant\""), "no markercant gate");
+		Assert.assertFalse(src.contains("\"singlebox\""), "no singlebox gate");
+		Assert.assertFalse(src.contains("\"markerplace\""), "no markerplace gate");
+		// No chat/validation probes.
+		Assert.assertFalse(src.contains("addChatMessage"), "no chat probes");
+		Assert.assertFalse(src.contains("ChatComponentText"), "no chat component text");
+		Assert.assertFalse(src.contains("railsysv2"), "no railsysv2 proof strings");
+		// No noisy periodic debug logging.
+		Assert.assertFalse(src.contains("dbgCounter"), "no periodic debug counter");
+		Assert.assertFalse(src.contains("System.out.println"), "no System.out debug logging");
+		// Gate uses placement state + arrowsVisible only.
+		Assert.assertTrue(src.contains("hasMarkerA()"), "gate reads placement state Marker A");
+		Assert.assertTrue(src.contains("hasMarkerB()"), "gate reads placement state Marker B");
+		Assert.assertTrue(src.contains("arrowsVisible"), "gate honours the arrows toggle");
+		// Retained production behaviour: world anchoring, stored yaw, z-fighting
+		// offset, GL state restoration.
+		Assert.assertTrue(src.contains("pushMatrix()"), "world-anchored camera matrix retained");
+		Assert.assertTrue(src.contains("popMatrix()"), "matrix popped after draw");
+		Assert.assertTrue(src.contains("a.yawDeg"), "stored yaw orientation retained");
+		Assert.assertTrue(src.contains("ARROW_UP"), "z-fighting offset retained");
+		Assert.assertTrue(src.contains("enableTexture2D()"), "GL state restored after draw");
+	}
+
+	@Test
+	public static void t14_entityRendererProductArrowThenObserver() {
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/client/renderer/EntityRenderer.java"));
+		String productCall = "net.minecraft.railsys.render.MarkerArrowRenderer.render(entity, partialTicks, entity.worldObj);";
+		String observerCall = "net.minecraft.railsys.validation.MarkerArrowProofObserver.onRender(entity, partialTicks, entity.worldObj);";
+		int productIdx = src.indexOf(productCall);
+		int observerIdx = src.indexOf(observerCall);
+		Assert.assertTrue(productIdx >= 0, "EntityRenderer calls the PRODUCT arrow renderer");
+		Assert.assertTrue(observerIdx >= 0, "EntityRenderer invokes the validation observer");
+		Assert.assertTrue(productIdx < observerIdx, "product arrow renderer runs BEFORE the observer");
+		Assert.assertFalse(src.contains("net.minecraft.railsys.validation.MarkerArrowRenderer"),
+				"old validation MarkerArrowRenderer reference removed");
+	}
+
+	@Test
+	public static void t15_commandToggleUsesProductArrowRenderer() {
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java"));
+		Assert.assertTrue(src.contains("net.minecraft.railsys.render.MarkerArrowRenderer.setArrowsVisible(on);"),
+				"/railsys3 arrows toggles the PRODUCT arrow renderer");
+		Assert.assertFalse(src.contains("net.minecraft.railsys.validation.MarkerArrowRenderer.setArrowsVisible"),
+				"arrow toggle no longer touches the validation renderer");
+	}
+
+	@Test
+	public static void t16_productRuntimeCalledFromMinecraft() {
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/client/Minecraft.java"));
+		String runtimeCall = "net.minecraft.railsys.placement.RailsysClientRuntime.onClientTick(this);";
+		int runtimeIdx = src.indexOf(runtimeCall);
+		int cantIdx = src.indexOf("net.minecraft.railsys.validation.MarkerCantClientHook.onClientTick(this);");
+		int placeIdx = src.indexOf("net.minecraft.railsys.validation.MarkerPlaceClientHook.onClientTick(this);");
+		Assert.assertTrue(runtimeIdx >= 0, "Minecraft.runTick calls RailsysClientRuntime.onClientTick");
+		Assert.assertTrue(cantIdx >= 0 && placeIdx >= 0, "validation hooks still invoked from runTick");
+		Assert.assertTrue(runtimeIdx < cantIdx && runtimeIdx < placeIdx,
+				"product runtime runs BEFORE the validation hooks");
+	}
+
+	@Test
+	public static void t17_packInitMovedToRuntimeAbsentFromValidationHooks() {
+		String runtime = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysClientRuntime.java"));
+		Assert.assertTrue(runtime.contains("RailAssetRegistry.ensurePrototypePackLoaded();"),
+				"prototype ModelPack init lives in the normal client runtime");
+		String cantHook = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/validation/MarkerCantClientHook.java"));
+		Assert.assertFalse(cantHook.contains("ensurePrototypePackLoaded"),
+				"MarkerCantClientHook no longer loads the pack");
+		String placeHook = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/validation/MarkerPlaceClientHook.java"));
+		Assert.assertFalse(placeHook.contains("ensurePrototypePackLoaded"),
+				"MarkerPlaceClientHook no longer loads the pack");
+	}
+
+	@Test
+	public static void t18_observerWorldGatedAndDrawFree() {
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/validation/MarkerArrowProofObserver.java"));
+		Assert.assertTrue(src.contains("package net.minecraft.railsys.validation;"),
+				"observer stays in the validation package");
+		// World-gated on the SingleBoxProofValidation client world marker.
+		Assert.assertTrue(src.contains("getClientWorldName"), "observer gates on client world name");
+		Assert.assertTrue(src.contains("\"markercant\""), "observer only fires in markercant world");
+		// One-shot message preserved verbatim.
+		Assert.assertTrue(src.contains("railsysv2: MARKERARROW hook FIRED (gate=true) A="),
+				"one-shot railsysv2 MARKERARROW message preserved");
+		Assert.assertTrue(src.contains("done"), "observer fires exactly once");
+		// Draw-free: no GL / tessellator / vertex API usage.
+		Assert.assertFalse(src.contains("GlStateManager"), "observer makes no GL state calls");
+		Assert.assertFalse(src.contains("Tessellator"), "observer uses no tessellator");
+		Assert.assertFalse(src.contains("WorldRenderer"), "observer uses no world renderer");
+		Assert.assertFalse(src.contains("tessellator.draw()"), "observer draws nothing");
+		// Never mutates normal placement state: reads A/B flags only.
+		Assert.assertTrue(src.contains("hasMarkerA()"), "observer reads Marker A flag for the message");
+		Assert.assertTrue(src.contains("hasMarkerB()"), "observer reads Marker B flag for the message");
+		Assert.assertFalse(src.contains("setMarkerA"), "observer never mutates placement state");
+		Assert.assertFalse(src.contains("setMarkerB"), "observer never mutates placement state");
+		// Both-marker robustness gate (CP-R10-03c): the observer must NOT set done
+		// nor emit the proof message until BOTH marker A and marker B exist, so a
+		// premature markercant frame (A=false B=false) never latches the one-shot.
+		// ORDER (matches actual source): read hasA/hasB into locals, then the
+		// both-marker guard (early return), THEN done=true, THEN the proof message.
+		int readA = src.indexOf("boolean hasA = st.hasMarkerA();");
+		int readB = src.indexOf("boolean hasB = st.hasMarkerB();");
+		int bothGuard = src.indexOf("if (!hasA || !hasB)");
+		int retIdx = bothGuard >= 0 ? src.indexOf("return;", bothGuard) : -1;
+		int doneIdx = src.indexOf("done = true;");
+		int msgIdx = src.indexOf("addChatMessage");
+		Assert.assertTrue(readA >= 0, "Marker A flag read into a local before the latch");
+		Assert.assertTrue(readB >= 0, "Marker B flag read into a local before the latch");
+		Assert.assertTrue(bothGuard >= 0, "both-marker guard (if (!hasA || !hasB)) present");
+		Assert.assertTrue(retIdx >= 0, "both-marker guard has an early return");
+		Assert.assertTrue(doneIdx >= 0 && msgIdx >= 0, "done latch and message emission present");
+		Assert.assertTrue(readA < readB, "Marker A flag read before Marker B flag");
+		Assert.assertTrue(readB < bothGuard, "both flag reads precede the both-marker guard");
+		Assert.assertTrue(bothGuard < retIdx, "guard return follows the guard condition");
+		Assert.assertTrue(retIdx < doneIdx, "guard returns BEFORE done=true (no premature latch)");
+		Assert.assertTrue(doneIdx < msgIdx, "done=true precedes the message emission");
+		// The proof message interpolates the read locals (not re-reading the state).
+		int msgStart = src.indexOf("railsysv2: MARKERARROW hook FIRED");
+		Assert.assertTrue(msgStart >= 0, "railsysv2 MARKERARROW proof message present");
+		String msgTail = src.substring(msgStart, Math.min(msgStart + 120, src.length()));
+		Assert.assertTrue(msgTail.contains("+ hasA +"), "proof message interpolates the hasA local");
+		Assert.assertTrue(msgTail.contains("+ hasB"), "proof message interpolates the hasB local");
+	}
+
+	@Test
+	public static void t19_oldValidationArrowRendererRemoved() {
+		File old = new File(repoRoot(),
+				"src/game/java/net/minecraft/railsys/validation/MarkerArrowRenderer.java");
+		Assert.assertFalse(old.isFile(), "old validation MarkerArrowRenderer removed (moved to product renderer)");
+		File observer = new File(repoRoot(),
+				"src/game/java/net/minecraft/railsys/validation/MarkerArrowProofObserver.java");
+		Assert.assertTrue(observer.isFile(), "validation MarkerArrowProofObserver exists");
+		File product = new File(repoRoot(),
+				"src/game/java/net/minecraft/railsys/render/MarkerArrowRenderer.java");
+		Assert.assertTrue(product.isFile(), "product MarkerArrowRenderer exists");
+		File runtime = new File(repoRoot(),
+				"src/game/java/net/minecraft/railsys/placement/RailsysClientRuntime.java");
+		Assert.assertTrue(runtime.isFile(), "product RailsysClientRuntime exists");
+	}
+
+	@Test
+	public static void t20_markerPlaceR8ReselectsAfterConfirmClear() {
+		// Sol root-cause regression guard (CP-R10-03): the now-correct R10
+		// confirm() clears the transient markerA/markerB by contract, so the
+		// markerplace proof driver must RE-SELECT the same POS1/POS2 before
+		// the R8 rotatePos1/setCant edits and must CHECK every result (and the
+		// phase-4 confirm boolean) instead of printing false success.
+		String src = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/validation/MarkerPlaceClientHook.java"));
+		Assert.assertTrue(src.contains("private static void fail("), "private fail(String) helper exists");
+		Assert.assertTrue(src.contains("failed"), "validation-only failure flag tracked");
+		int p2 = src.indexOf("case 2:");
+		int p3 = src.indexOf("case 3:");
+		int p4 = src.indexOf("case 4:");
+		Assert.assertTrue(p2 >= 0 && p3 >= 0 && p4 >= 0, "proof driver phases 2/3/4 present");
+		String phase2 = src.substring(p2, p3);
+		String phase3 = src.substring(p3, p4);
+		String phase4 = src.substring(p4, Math.min(p4 + 400, src.length()));
+		// Phase 2 KEEPS the R7 confirmation (contract unchanged).
+		Assert.assertTrue(phase2.contains("RailsysPlacementController.confirm(mc.thePlayer)"),
+				"phase 2 keeps the R7 confirmation");
+		// Phase 3 re-selects BOTH markers via selectFromMcLook BEFORE any edit,
+		// then applies rotatePos1 +25 and setCant +6 in that order.
+		Assert.assertTrue(count(phase3, "RailsysMarkerSelection.selectFromMcLook(") >= 2,
+				"phase 3 re-selects POS1 and POS2 via selectFromMcLook");
+		int firstSel = phase3.indexOf("RailsysMarkerSelection.selectFromMcLook(");
+		int secondSel = phase3.indexOf("RailsysMarkerSelection.selectFromMcLook(", firstSel + 1);
+		int rotIdx = phase3.indexOf("RailsysPlacementController.rotatePos1(mc.thePlayer, 25.0D)");
+		int cantIdx = phase3.indexOf("RailsysPlacementController.setCant(mc.thePlayer, 6.0D)");
+		Assert.assertTrue(firstSel >= 0 && secondSel > firstSel, "two selectFromMcLook calls present in phase 3");
+		Assert.assertTrue(rotIdx >= 0 && cantIdx > rotIdx, "rotatePos1 +25 then setCant +6 present");
+		Assert.assertTrue(rotIdx > secondSel, "selectFromMcLook calls come BEFORE rotatePos1/setCant");
+		// Operations/results are CHECKED: the success print may only appear
+		// AFTER the hasPreview() guard, and a deterministic failure sink exists
+		// for the whole edit sequence (no false success print).
+		int previewCheck = phase3.indexOf("hasPreview()");
+		int successPrint = phase3.indexOf("preview rebuilt");
+		Assert.assertTrue(previewCheck >= 0 && successPrint > previewCheck,
+				"phase 3 prints success only after the hasPreview()/fail guard");
+		Assert.assertTrue(phase3.contains("fail("), "phase 3 checks select/edit results via fail()");
+		Assert.assertTrue(phase3.contains("hasPreview()"), "phase 3 verifies the edited preview exists");
+		// Phase 4 confirms the edited preview and CHECKS the boolean result
+		// before claiming the R8 re-confirm.
+		Assert.assertTrue(phase4.contains("RailsysPlacementController.confirm(mc.thePlayer)"),
+				"phase 4 re-confirms the edited preview");
+		Assert.assertTrue(phase4.contains("fail("), "phase 4 checks the confirm result (no false success)");
+		Assert.assertTrue(src.contains("isFailed()"), "isFailed() accessor available to validators");
 	}
 }

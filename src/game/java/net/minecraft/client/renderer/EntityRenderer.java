@@ -1331,7 +1331,11 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 			net.minecraft.railsys.validation.StraightRailProofRenderer.render(entity, partialTicks, entity.worldObj);
 			net.minecraft.railsys.validation.CurveGradientProofRenderer.render(entity, partialTicks, entity.worldObj);
 			net.minecraft.railsys.validation.ContinuousRailProofRenderer.render(entity, partialTicks, entity.worldObj);
-			net.minecraft.railsys.validation.MarkerArrowRenderer.render(entity, partialTicks, entity.worldObj);
+			// CP-R10-03: production marker arrow renderer (any normal world, driven
+			// by RailsysPlacementState), then the validation-only one-shot chat proof
+			// observer (draws nothing, markercant world only).
+			net.minecraft.railsys.render.MarkerArrowRenderer.render(entity, partialTicks, entity.worldObj);
+			net.minecraft.railsys.validation.MarkerArrowProofObserver.onRender(entity, partialTicks, entity.worldObj);
 			net.minecraft.railsys.validation.CantProofRenderer.render(entity, partialTicks, entity.worldObj);
 		}
 		GlStateManager.disableBlend();

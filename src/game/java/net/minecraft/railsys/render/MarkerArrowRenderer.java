@@ -1,4 +1,4 @@
-package net.minecraft.railsys.validation;
+package net.minecraft.railsys.render;
 
 import net.lax1dude.eaglercraft.v1_8.opengl.GlStateManager;
 import net.lax1dude.eaglercraft.v1_8.opengl.WorldRenderer;
@@ -9,7 +9,7 @@ import net.minecraft.railsys.geometry.AnchorDefinition;
 import net.minecraft.railsys.placement.RailsysPlacementState;
 
 /**
- * MarkerArrowRenderer — Phase 1-R6 validation-only arrow overlay.
+ * MarkerArrowRenderer — Phase 1-R10 production marker arrow overlay.
  *
  * Draws a 3D direction arrow on the surface of the POS1 / POS2 marker blocks
  * (Marker A / Marker B). The arrow is world-anchored (camera-relative render,
@@ -20,7 +20,9 @@ import net.minecraft.railsys.placement.RailsysPlacementState;
  *
  * The arrow is drawn just above the block top face (+0.06) to avoid z-fighting
  * with the block surface, and is a simple flat triangle+shaft mesh. It is NOT
- * a Minecraft block change. Gates itself to the "markercant" validation world.
+ * a Minecraft block change. It renders in ANY normal world whenever
+ * RailsysPlacementState has POS1/POS2 markers and arrows are visible; it does
+ * NOT gate on validation world names and owns no chat/validation probes.
  */
 public final class MarkerArrowRenderer {
 
@@ -34,15 +36,11 @@ public final class MarkerArrowRenderer {
 	private static final double ARROW_HEAD = 0.30D;
 	private static final double ARROW_UP = 0.06D;
 
-	private static long dbgCounter = 0L;
-	private static boolean chatProbeDone = false;
+	/** Marker arrows are a production placement feature; toggle to hide them. */
+	private static boolean arrowsVisible = true;
 
 	private MarkerArrowRenderer() {
 	}
-
-	/** Render marker arrows if this is the "markercant" validation world. */
-	/** Marker arrows are a production placement feature; toggle to hide them. */
-	private static boolean arrowsVisible = true;
 
 	public static void setArrowsVisible(boolean visible) {
 		arrowsVisible = visible;
@@ -56,28 +54,12 @@ public final class MarkerArrowRenderer {
 		if (viewEntity == null || world == null) {
 			return;
 		}
-		String cw = SingleBoxProofValidation.getClientWorldName();
-		boolean probe = cw != null && cw.toLowerCase().contains("markercant");
-		String name = world.getWorldInfo().getWorldName();
 		RailsysPlacementState st = RailsysPlacementState.getInstance();
 		boolean hasA = st.hasMarkerA();
 		boolean hasB = st.hasMarkerB();
-		// Phase 1-R7: marker arrows are a PRODUCTION placement feature — render
-		// whenever markers are set (any world). Only the one-shot chat probe is
-		// gated to the markercant validation world.
+		// Production gate: render whenever markers are set (any world) and the
+		// arrows toggle is on. No validation world-name gate here.
 		boolean gate = (hasA || hasB) && arrowsVisible;
-		if ((++dbgCounter % 200) == 0) {
-			System.out.println("[MARKERARROW] render name=" + name + " gate=" + gate
-					+ " A=" + hasA + " B=" + hasB + " probe=" + probe);
-		}
-		if (probe && !chatProbeDone) {
-			chatProbeDone = true;
-			net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getMinecraft();
-			if (mc != null && mc.thePlayer != null) {
-				mc.thePlayer.addChatMessage(new net.minecraft.util.ChatComponentText(
-						"railsysv2: MARKERARROW hook FIRED (gate=true) A=" + hasA + " B=" + hasB));
-			}
-		}
 		if (!gate) {
 			return;
 		}

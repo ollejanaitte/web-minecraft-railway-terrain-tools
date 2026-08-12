@@ -2263,3 +2263,257 @@ STEP R10-02 - CP-R10-02 Implementation + Sol Review Corrections (2026-08-12)
   to origin/main. Verified: local main == origin/main == git ls-remote
   GitHub main = 7eb13356. Discord webhook returned HTTP 204. Protected
   files unchanged; unrelated dirty/untracked files untouched.
+
+STEP R10-03 - CP-R10-03 Implementation (pre-review) (2026-08-12)
+--------------------------------------------------
+- Task: move reusable marker-arrow rendering + normal client runtime out of
+  validation while retaining validation observers/proof drivers and world
+  gates (Sol architecture decision, executed exactly). No GUI. No R11.
+  Implemented + tested only; NOT staged, committed, pushed, or Discord'd.
+- Scope confirmed: only the CP-R10-03 slices above; R11 not started.
+  Preserved files untouched; unrelated dirty/untracked untouched; no /tmp
+  usage; user worlds/profiles, proof scripts, screenshots untouched.
+- Git state:
+  - branch main, local HEAD = b09af55f5bb15032da54f182853db8915b890ebd
+  - origin/main == HEAD == git ls-remote GitHub main = b09af55f (SYNC OK)
+  - nothing staged. Commit/push: NOT DONE (awaiting Sol review).
+- A) Production arrow renderer (SOL step A):
+  - NEW src/game/java/net/minecraft/railsys/render/MarkerArrowRenderer.java
+    -> actual draw implementation MOVED here from
+       net.minecraft.railsys.validation.MarkerArrowRenderer. Depends only on
+       product state/render/game APIs (RailsysPlacementState, AnchorDefinition,
+       Eaglercraft GL/Tessellator/WorldRenderer, Entity, World). NO reference
+       to SingleBoxProofValidation, validation world names, or chat probes;
+       NO periodic debug logging (dbgCounter/System.out removed). Gate:
+       RailsysPlacementState hasMarkerA()/hasMarkerB() AND arrowsVisible — any
+       normal world. Retained: world anchoring (camera-relative matrix), stored
+       yaw (AnchorDefinition.yawDeg), z-fighting offset (+0.06 ARROW_UP), GL
+       state restoration (cull/lighting/texture re-enabled after draw).
+  - src/game/java/net/minecraft/client/renderer/EntityRenderer.java
+    -> render pass now calls product
+       net.minecraft.railsys.render.MarkerArrowRenderer.render(...) and then
+       the validation observer (order guarded by test). Old
+       validation.MarkerArrowRenderer reference removed.
+  - src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java
+    -> /railsys3 arrows toggles the PRODUCT renderer
+       (net.minecraft.railsys.render.MarkerArrowRenderer.setArrowsVisible);
+       comment updated.
+- B) Validation observer (SOL step B):
+  - NEW src/game/java/net/minecraft/railsys/validation/MarkerArrowProofObserver.java
+    -> validation-only one-shot chat proof: once, gated on
+       SingleBoxProofValidation client world marker ("markercant"), emits
+       "railsysv2: MARKERARROW hook FIRED (gate=true) A=... B=..." reading
+       RailsysPlacementState A/B flags ONLY. Draws nothing (no GlStateManager/
+       Tessellator/WorldRenderer) and never mutates normal placement
+       (no setMarkerA/setMarkerB). Invoked in EntityRenderer AFTER the product
+       arrow renderer. Normal worlds never reach it (world-name gate).
+  - Deleted src/game/java/net/minecraft/railsys/validation/MarkerArrowRenderer.java
+    (draw moved to product; proof responsibility replaced by the observer).
+- C) Normal client runtime ownership (SOL step C):
+  - NEW src/game/java/net/minecraft/railsys/placement/RailsysClientRuntime.java
+    -> onClientTick(Minecraft) owns ONLY safe idempotent normal-world R10
+       initialization: RailAssetRegistry.ensurePrototypePackLoaded(). No
+       world-name gate, no placement mutation.
+  - src/game/java/net/minecraft/client/Minecraft.java runTick
+    -> calls RailsysClientRuntime.onClientTick(this) BEFORE the validation
+       hooks (order guarded by test).
+  - src/game/java/net/minecraft/railsys/validation/MarkerCantClientHook.java +
+    src/game/java/net/minecraft/railsys/validation/MarkerPlaceClientHook.java
+    -> asset-pack init lines REMOVED; proof drivers unchanged otherwise
+       (explicit world gates retained); comments updated to CP-R10-03.
+- D) Tests (SOL step D):
+  - src/harness/java/railv2test/tests/R10SourceContractTest.java extended
+    t13..t19 (+7): product renderer package/no-validation/no-world-gate/no
+    chat-probe/no periodic-log guard + placement-state gate + anchoring/yaw/
+    z-fighting/GL-restore retained; EntityRenderer product-arrow-before-observer
+    ordering + old validation reference gone; command toggle product arrow;
+    product runtime called from Minecraft before validation hooks; pack init in
+    runtime and ABSENT from both validation hooks; observer world-gated,
+    draw-free, one-shot, non-mutating; old validation MarkerArrowRenderer file
+    removed + new files exist. Baseline 160 passes retained; count rose to 167.
+- F) Build/test/hash results (exact):
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew harnessTest
+    -> PASSED=167 FAILED=0 SKIPPED=3 RESULT SUCCESS (baseline 160/0/3 + 7 new)
+       R10SourceContractTest t01..t19 all PASS.
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew compileJava
+    -> BUILD SUCCESSFUL (all targets incl. TeaVM javascript/wasm compile).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :target_teavm_javascript:makeMainOfflineDownload
+    -> BUILD SUCCESSFUL (offline HTML regenerated).
+- Protected file hashes re-verified (byte-identical to RR-01 / R10-01 records):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- git diff --stat (CP-R10-03 intended files only):
+  Minecraft.java 3 +/-, EntityRenderer.java 6 +/-, RailsysClientCommands.java
+  6 +/-, MarkerCantClientHook.java 5 +/-, MarkerPlaceClientHook.java 5 +/-
+  validation/MarkerArrowRenderer.java DELETED (-162), R10SourceContractTest.java
+  158 +/-, plus 3 NEW files: render/MarkerArrowRenderer.java, validation/
+  MarkerArrowProofObserver.java, placement/RailsysClientRuntime.java.
+  Pre-existing dirty/untracked files (protected Java files, screenshots,
+  transcripts, jars/zips, FINAL_REPORT.md, proof scripts/logs/profiles)
+  untouched and not staged.
+- Secret scan: no webhook/token/credential/api-key/password in the intended
+  diff or new files. Clean. Nothing staged; no commit/push; no Discord.
+- Known limitations (still honest):
+  - Pre-review record: no commit/push/sync and no Discord notification yet
+    (per task, awaiting Sol review).
+  - GUI walkthrough / screenshots / vision NOT run (no GUI in this CP).
+  - RailsysProductionRenderer still references validation.RailSegmentDrawer
+    (pre-existing, out of CP-R10-03 scope; product MarkerArrowRenderer itself
+    has zero validation references per test t13).
+  - R10SourceContractTest is a source-text + numerical contract test; the
+    harness does not compile game sources (Worker/TeaVM separation), so
+    runtime behaviour is guarded by compileJava + makeMainOfflineDownload
+    plus the source contracts.
+- Verdict: IMPLEMENTED + TESTED, awaiting SOL REVIEW (CP-R10-03 pre-review).
+
+STEP R10-03b - Sol Root Cause Review + R8/R9 Proof Regression Fix
+------------------------------------------------------------------
+- Sol review of CP-R10-03 found a concrete R7-R9 regression introduced by the
+  now-correct R10 confirm cleanup:
+  - Root cause: MarkerPlaceClientHook phase 2 calls
+    RailsysPlacementController.confirm(), which now clears the transient
+    markerA/markerB by R10 contract (clearTransientSession). The existing
+    phase 3 then immediately called rotatePos1/setCant, so rotatePos1 failed
+    ("set POS1 first"), cant could not rebuild any preview (no markers), and
+    phase 4 confirm had no preview. The R8/R9 validation proof sequence was
+    therefore broken.
+  - Production confirm semantics NOT altered. Only the validation driver and
+    its source-contract test were corrected.
+- Fix (validation-only):
+  1) R7 confirmation KEPT at phase 2 (unchanged).
+  2) Phase 3 now RE-SELECTS the SAME POS1/POS2 via
+     RailsysMarkerSelection.selectFromMcLook with the identical block
+     positions (300,4,300) / (320,4,300) and MC yaw/pitch (270 / 90, pitch 0)
+     as phases 0/1, BEFORE rotatePos1 +25 and setCant +6. The edited preview
+     is rebuilt through the production path while the confirmed R7 rail stays
+     rendered until the phase-4 re-confirm.
+  3) Every select/edit boolean result and RailsysPlacementState.hasPreview()
+     are CHECKED. A deterministic validation-only private fail(String) sets a
+     failed flag and stops the driver; isDone stays phase>=7; isFailed()
+     added. Normal-world gate retained (phase/wait/failed reset outside the
+     markerplace world).
+  4) Phase 4 confirms the edited preview and CHECKS the boolean result before
+     claiming the R8 re-confirm.
+  5) Class workflow comments updated to explain that R10 confirm clears the
+     transients by contract and that the R8 proof explicitly reselects.
+- Tests (R10SourceContractTest):
+  - NEW t20_markerPlaceR8ReselectsAfterConfirmClear guards the corrected
+    order: phase 2 keeps the R7 confirmation; phase 3 contains TWO
+    selectFromMcLook calls BEFORE rotatePos1 +25 / setCant +6; results and
+    hasPreview() are checked via fail(); success print only after the
+    hasPreview() guard; phase 4 checks the confirm boolean; isFailed()
+    exposed. Baseline 167 -> 168 tests.
+- Exact results after correction:
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew harnessTest
+    -> PASSED=168 FAILED=0 SKIPPED=3 RESULT SUCCESS (baseline 167/0/3 + t20).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew compileJava
+    -> BUILD SUCCESSFUL (all targets incl. TeaVM javascript/wasm compile).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :target_teavm_javascript:makeMainOfflineDownload
+    -> BUILD SUCCESSFUL (offline HTML regenerated).
+- Protected file hashes re-verified (byte-identical to RR-01 / R10-01 records):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- Files changed (this correction, uncommitted):
+  - src/game/java/net/minecraft/railsys/validation/MarkerPlaceClientHook.java
+    (phase-3 reselect + result checks + fail()/isFailed() + comments)
+  - src/harness/java/railv2test/tests/R10SourceContractTest.java (+t20 + javadoc)
+- Secret scan: no webhook/token/credential/api-key/password introduced. Clean.
+- Nothing staged; no commit/push; no Discord. STOPPED for Sol review.
+- Verdict: awaiting SOL REVIEW of the regression fix (CP-R10-03 pre-review).
+
+STEP R10-03c - CP-R10-03c Proof-Observer Both-Marker Robustness Fix
+-------------------------------------------------------------------
+- Sol review found one small proof-observer robustness issue: the validation
+  observer set done=true and emitted the MARKERARROW message on the FIRST
+  markercant frame even when marker A/B did not exist yet, so a premature
+  frame (A=false B=false) latched the one-shot and the real proof message
+  with the flags set never fired.
+- Scope confirmed: validation-only. No product rendering semantics touched.
+  Protected files untouched; unrelated dirty/untracked untouched; no /tmp.
+- Git state: branch main, local HEAD = b09af55f5bb15032da54f182853db8915b890ebd
+  (unchanged); origin/main == HEAD == GitHub main (SYNC OK). Nothing staged.
+  No commit/push/Discord.
+- Fix:
+  - src/game/java/net/minecraft/railsys/validation/MarkerArrowProofObserver.java
+    -> now reads hasMarkerA()/hasMarkerB() and returns WITHOUT setting done or
+    emitting the message unless BOTH markers exist (if (!hasA || !hasB) return;).
+    markercant-only world gate and draw-free observer role preserved verbatim;
+    javadoc updated to CP-R10-03c.
+  - src/harness/java/railv2test/tests/R10SourceContractTest.java -> t18 extended
+    with the both-marker ordering guard: hasMarkerA()/hasMarkerB() read BEFORE
+    done=true; the !hasA || !hasB guard precedes done=true and returns without
+    emitting; done=true precedes addChatMessage. Class javadoc updated.
+- Exact results:
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew harnessTest
+    -> PASSED=168 FAILED=0 SKIPPED=3 RESULT SUCCESS (baseline 168/0/3 retained).
+       R10SourceContractTest t01..t20 all PASS (t18 includes new assertions).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew compileJava
+    -> BUILD SUCCESSFUL (all targets incl. TeaVM javascript/wasm compile).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :target_teavm_javascript:makeMainOfflineDownload
+    -> BUILD SUCCESSFUL (offline HTML regenerated).
+- Protected file hashes re-verified (byte-identical to RR-01 / R10-01 records):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- Files changed (this CP, uncommitted):
+  - src/game/java/net/minecraft/railsys/validation/MarkerArrowProofObserver.java
+    (both-marker gate + javadoc; file itself still untracked from CP-R10-03)
+  - src/harness/java/railv2test/tests/R10SourceContractTest.java (t18 + javadoc)
+  - FINAL_REPORT.txt (this step)
+- Secret scan: no webhook/token/credential/api-key/password introduced. Clean.
+- Nothing staged; no commit/push; no Discord. STOPPED for Sol review.
+- Verdict: implemented + tested; product rendering semantics unchanged.
+
+STEP R10-03d - CP-R10-03 Sol Review GO + Checkpoint Publication (2026-08-12)
+---------------------------------------------------------------------------
+- Sol review: the CP-R10-03c proof-observer both-marker robustness correction
+  is APPROVED. Sol verified the corrected order (hasA/hasB -> missing-marker
+  return -> done=true -> message) and confirmed production rendering semantics
+  are unchanged. Verdict: GO — CP-R10-03 publication APPROVED.
+- Runner note (no code impact): the OpenCode paid endpoint call failed on
+  balance, so the run fell back to the free Flash endpoint which succeeded.
+  No repository or product code was changed by this; recorded for the log.
+- Scope confirmed: exactly the CP-R10-03 slices (A-D); R11 not started.
+  Preserved files (CommandRailSystem.java / EntityRailVehicle.java) untouched;
+  unrelated dirty/untracked (screenshots, transcripts, jars/zips, FINAL_REPORT.md,
+  proof scripts/logs/profiles, phase0_1 pngs) untouched and not staged; no /tmp.
+- Test/build results (exact, re-confirmed at this checkpoint):
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew harnessTest
+    -> PASSED=168 FAILED=0 SKIPPED=3 RESULT SUCCESS. R10SourceContractTest
+       t01..t20 all PASS (t18 both-marker guard; t20 R8 reselect guard).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew compileJava
+    -> BUILD SUCCESSFUL (all targets incl. TeaVM javascript/wasm compile).
+  - JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 ./gradlew :target_teavm_javascript:makeMainOfflineDownload
+    -> BUILD SUCCESSFUL (offline HTML regenerated).
+- Protected file hashes verified byte-identical (record-unchanged, NOT staged):
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- Diff reviewed + secret scan clean (webhook/token/credential/api-key/password
+  absent from intended diff and new files). No secrets in this repo.
+- Committed exactly the CP-R10-03 intended file list:
+  - FINAL_REPORT.txt (this record)
+  - src/game/java/net/minecraft/client/Minecraft.java
+  - src/game/java/net/minecraft/client/renderer/EntityRenderer.java
+  - src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java
+  - src/game/java/net/minecraft/railsys/placement/RailsysClientRuntime.java (NEW)
+  - src/game/java/net/minecraft/railsys/render/MarkerArrowRenderer.java (NEW)
+  - src/game/java/net/minecraft/railsys/validation/MarkerArrowRenderer.java (DELETED)
+  - src/game/java/net/minecraft/railsys/validation/MarkerArrowProofObserver.java (NEW)
+  - src/game/java/net/minecraft/railsys/validation/MarkerCantClientHook.java
+  - src/game/java/net/minecraft/railsys/validation/MarkerPlaceClientHook.java
+  - src/harness/java/railv2test/tests/R10SourceContractTest.java
+  Protected and unrelated dirty/untracked files were NOT staged.
+- Sync: local main == origin/main == GitHub main (verified after push).
+- Discord (Japanese): Wand/Arrow, Auto Preview/Editing correction, and
+  CP-R10-03 checkpoint updates sent via DISCORD_WEBHOOK_URL (value never
+  echoed/persisted). HTTP status recorded in the sync commit below.
+- Verdict: CP-R10-03 PUBLISHED (commit + push + sync + Discord).
+
+
+STEP R10-03d - CP-R10-03d Productionize R10 Wand Arrow Runtime
+---------------------------------------------------------------
+- Sol final review: GO.
+- Harness: 168/0/3; compile + build success.
+- Protected hashes unchanged:
+  - CommandRailSystem.java = 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  - EntityRailVehicle.java = b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+- Publishing now (commit + push origin main).

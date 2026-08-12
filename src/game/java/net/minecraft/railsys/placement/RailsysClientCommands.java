@@ -122,11 +122,11 @@ public final class RailsysClientCommands {
 					RailsysPlacementController.setCant(player, Double.parseDouble(args[2]));
 				}
 			} else if ("arrows".equals(action)) {
-				// Temporary toggle for the marker arrow overlay; ownership move to
-				// CP-R10-03. No duplicate wand-give branch here (see "wand").
+				// CP-R10-03: toggle the PRODUCTION marker arrow overlay
+				// (net.minecraft.railsys.render.MarkerArrowRenderer).
 				if (args.length >= 3) {
 					boolean on = "on".equalsIgnoreCase(args[2]) || "1".equals(args[2]);
-					net.minecraft.railsys.validation.MarkerArrowRenderer.setArrowsVisible(on);
+					net.minecraft.railsys.render.MarkerArrowRenderer.setArrowsVisible(on);
 					msg(player, "railsys: arrows " + (on ? "ON" : "OFF"));
 				} else {
 					msg(player, "railsys: arrows on|off");

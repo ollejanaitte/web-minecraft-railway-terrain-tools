@@ -1196,6 +1196,9 @@ public class Minecraft implements IThreadListener {
 		PlatformWebRTC.runScheduledTasks();
 		WebViewOverlayController.runTick();
 		SingleplayerServerController.runTick();
+		// CP-R10-03: normal client runtime ownership runs BEFORE validation hooks;
+		// it owns safe idempotent normal-world R10 initialization (prototype pack).
+		net.minecraft.railsys.placement.RailsysClientRuntime.onClientTick(this);
 		net.minecraft.railsys.validation.MarkerCantClientHook.onClientTick(this);
 		net.minecraft.railsys.validation.MarkerPlaceClientHook.onClientTick(this);
 		RelayUpdateChecker.runTick();
