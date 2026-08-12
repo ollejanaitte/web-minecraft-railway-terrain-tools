@@ -1,0 +1,235 @@
+====================================================================
+Phase 1-R10 Final Report — Railsys Marker Placement UX Integration
+====================================================================
+
+Status / Verdict
+----------------
+PHASE 1-R10 VERDICT: PASS
+PHASE 1-R11 ENTRY GATE: OPEN
+
+Time / Git
+----------
+Start JST: 2026-08-12 18:08
+End JST: 2026-08-12 22:43
+Initial HEAD: 48a5dc149f8b8774546780b8b53c32cdc2593ad9
+Product / implementation final SHA:
+  28c026c79dbe356831d19ddc39a49725cf58dcbe
+Report 作成時点の local / origin/main / GitHub remote main:
+  すべて 28c026c7 (一致)
+
+Initial Audit / GATE0
+---------------------
+開始時に R10 実施前の初期監査を実施し、GATE0 を判定。残存ギャップを確認した上で
+R10 スコープ(通常ワールドでの配置 UX 統合)を確定し、実装に着手した。
+
+Sol supervision
+---------------
+Sol が R10 の root cause 調査・戦略・レビュー・GO/NOGO 判定を担当。各 checkpoint
+の数値・画像・JSON を Sol 自身が検証し、最終判定(GO)を下した。
+
+Flash work and stalls/corrections
+---------------------------------
+Flash(DeepSeek V4)が実装を担当したが、途中で複数回のストールと誤りが発生し、
+Sol が root cause 調査・修正方針の指示・レビューを行った。最終的に Flash の
+作業結果は Sol のレビューと GO 判定を経て本報告の検証済み状態に収束した。
+
+Luna vision
+-----------
+GPT-5.6 Luna が最終画像をレビュー。最終 JSON サマリ: PASS、信頼度 0.98。
+(最初のレビューは SUSPECT 判定だったが、これは ItemModelMesher 登録前の
+スクリーンショットを対象としたものであり、修正後の最終レビューで PASS となった。)
+
+/railsys3 command contract
+-------------------------
+通常ワールドで `/railsys3 wand` を実行してマーカーワンドを入手し、Railsys
+配置モードを開始する契約を実装。チャットコマンド入力 → ワンド付与 →
+配置状態/判定(server-authoritative) → クライアント model / renderer による
+表示 → 配置操作へとつなぐ一連のフローをサーバー側契約として定義し、実装した。
+
+Server-authoritative wand
+-------------------------
+ワンドの付与・配置状態/判定(ItemRailsysMarkerWand)はサーバー権威
+(server-authoritative)で管理。クライアントの model / renderer はその
+サーバー権威の状態を表示する設計とした。
+
+POS1 / POS2 and marker direction
+--------------------------------
+配置の始点 POS1・終点 POS2 をクリックで取得し、マーカー矢印で向きを表示。
+矢印は POS1/POS2 の両者で「同一データム」(same datum)上に描画され、方向の
+視覚的整合性を確保した。
+
+Support-surface Anchor root cause and input-boundary fix
+---------------------------------------------------------
+Minecraft はクリックしたブロックの bottom Y と当たった面を返す一方、生産
+RailPath 契約ではアンカー Y が support surface(床の上面)を指す。この乖離が
+根本原因(bottom Y=3 と support-surface Y=4 の差)で、UP 面クリックのブロック
+bottom Y を入力境界(RailsysMarkerSelection.selectOnFace)でのみ
+support-surface Y(block Y + 1)へ正規化して修正した。正規化は入力境界のみで
+実施し、Anchor / Geometry / RailPath / production renderer への +1 workaround
+は行っていない。非 UP 面は状態変更前に拒否される。
+
+Arrows / Preview / Confirmed same datum
+----------------------------------------
+POS1・POS2 のマーカー矢印は同じ support-surface アンカー Y 上に描画される。
+プレビューと確定レールは同一の RailPath オブジェクトを promote したもの
+(RailsysPlacementController.confirm)で、矢印・プレビュー・確定のいずれも
+同一データムに載り、両者で浮き沈みの差が生じず向き・位置が視覚的に一貫した。
+
+Auto Preview
+------------
+POS2 クリック後、即座にプレビューを自動生成(auto preview)。レールの
+経路・距離・向きを確定前に表示し、編集と再確認を可能にした。
+
+R8 edits
+--------
+R8 で導入された編集操作(handle / rot1(yaw) / pitch / cant)が本フローの
+プレビュー再構築に統合されていることを確認。実測した編集値は handle 10 /
+rot1(yaw) 20 / pitch 4 / cant 6 で、各編集後にプレビューが再構築され、
+asset railsys.prototype_narrow_1000(narrow_1000)への切り替え後も編集後
+プレビュー(12.08 m)が正しく再表示された。
+
+Asset narrow_1000
+-----------------
+asset「railsys.prototype_narrow_1000」を配置フローで利用し、通常ワールド上で
+ゲージ 1.000 m のナローレールが正しく表示されることを確認した。
+
+Confirm / Cancel / Clear
+-----------------------
+Confirm: ワンドの Shift+右クリック(Sneak+right-click)で確定。チャットフォール
+バック `/railsys3 confirm` も同一経路(RailsysPlacementController.confirm)で動作
+し、プレビューが無ければエラーで状態は変化しない。
+Cancel: `/railsys3 cancel` はプレビューのみ破棄し、マーカー・編集・cant・確定済
+レールを保持する。
+Clear: `/railsys3 clear` は一時セッション(マーカー/プレビュー)をリセットし、
+確定済みレールとアクティブアセットを保持する。
+プレビュー → Confirm の一連の操作が正常に動作した。
+
+Exact preview/confirm numerical identity
+----------------------------------------
+プレビュー表示と Confirm 後の数値が完全に一致:
+  距離 12.08 m / サンプル数 13 (同一)
+プレビューと確定の数値同一性(preview/confirm numerical identity)を確認した。
+
+Normal world via run-r10final2 and START launcher smoke
+-------------------------------------------------------
+通常ワールドでの配置検証は専用の run-r10final2 実行と、START ランチャー経由の
+スモークテストで実施。通常ワールド(EaglerMarkerPlace)上で POS1 → POS2 →
+Auto Preview → Confirm のフローを確認した。
+
+Wand visual root causes
+-----------------------
+ワンド視覚表示の根本原因は 2 つ特定した。
+(第 1 根本原因) railsys_marker_wand の item model JSON が欠落していた。
+(第 2 根本原因) packaged JSON が存在するにもかかわらず RenderItem の
+ItemModelMesher にアイテムが登録されていないこと。1 行の修正
+(ItemModelMesher への登録)により視覚表示が復旧した。
+
+Screenshots (exact names / SHA-256)
+-----------------------------------
+  SS-R10-01_WAND_POS1_POS2.png
+    d85ef8e610c3e31fe3f1e67f9484b5d907cd51eef3064bc0c98c2bfc01a570b1
+  SS-R10-02_AUTO_PREVIEW_EDIT.png
+    7ef45d9b9323422bb5883afc56d55ab1d7ed8b8d0b4e67182e8bdc82ce1dcd06
+  SS-R10-03_CONFIRMED_RAIL_FINAL.png
+    6d83e6b0a31256acf39b42ef601b1c5c81693b1f2bbc32f6678a9adb8507ab0e
+
+Discord checkpoint / image codes
+--------------------------------
+Checkpoint Discord通知: HTTP 204
+画像 3 枚の Discord アップロード結果: HTTP 200 / 200 / 200
+
+Harness / build / node
+----------------------
+Harness: PASSED=177 FAILED=0 SKIPPED=3, SUCCESS
+フル再実行 build #8: 実行時間 57 秒, PASS
+node check(.mjs スクリプトの構文検査): PASS
+
+Regression / validation isolation
+---------------------------------
+R1-R9 の回帰は Harness と現在の GUI で代表確認(regression represented by
+harness and current GUI)。検証は分離(isolated)された環境で実施。通常の
+fog / Geometry / RailPath は不変(unmodified)であることを確認した。
+
+Protected files
+---------------
+CommandRailSystem.java SHA-256:
+  1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+EntityRailVehicle.java SHA-256:
+  b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+両ファイルとも逐語(verbatim)のまま保持され、staging / commit は行われていない。
+無関係の dirty/untracked 成果物もステージ・コミットされず意図的に保持された。
+
+Clean-room / security
+---------------------
+Clean-room: PASS。RTM の独自アセット・ソース・テクスチャ等はコピー・コミット
+していない。秘密スキャン: PASS、webhook 値はリポジトリ・コミットに存在しない
+(実行時のみ)。
+
+Git checkpoint
+--------------
+28c026c7  feat: complete R10 normal-world placement UX
+force push / 破壊的な reset・restore・rebase・merge / clean / stash は不使用。
+
+Affected files
+--------------
+  FINAL_REPORT.txt
+  desktopRuntime/resources/assets/minecraft/models/item/railsys_marker_wand.json
+  doc/architecture/phase1_r10_clicked_surface_anchor_contract.md
+  doc/architecture/phase1_r10_server_authoritative_wand.md
+  doc/testing/phase1_r10/screenshots/SS-R10-01_WAND_POS1_POS2.png
+  doc/testing/phase1_r10/screenshots/SS-R10-02_AUTO_PREVIEW_EDIT.png
+  doc/testing/phase1_r10/screenshots/SS-R10-03_CONFIRMED_RAIL_FINAL.png
+  doc/testing/phase1_r10/scripts/r10_normalworld_gui.mjs
+  src/game/java/net/minecraft/client/renderer/RenderGlobal.java
+  src/game/java/net/minecraft/client/renderer/entity/RenderItem.java
+  src/game/java/net/minecraft/command/CommandRailsysPlace.java
+  src/game/java/net/minecraft/item/ItemRailsysMarkerWand.java
+  src/game/java/net/minecraft/railsys/placement/RailsysCamera.java
+  src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java
+  src/game/java/net/minecraft/railsys/placement/RailsysMarkerSelection.java
+  src/game/java/net/minecraft/railsys/placement/RailsysPlacementController.java
+  src/game/java/net/minecraft/railsys/render/MarkerArrowRenderer.java
+  src/harness/java/railv2test/tests/R10SourceContractTest.java
+
+User play flow
+--------------
+1. START ランチャーで通常ワールド(EaglerMarkerPlace)を起動する。
+2. チャットで `/railsys3 wand` を入力し、マーカーワンドを入手して
+   Railsys 配置モードを開始する。
+3. ワンドを選択すると、サーバー権威で管理されるワンド付与・配置状態/判定を
+   クライアントの model / renderer が表示する(ワンド・モデル)。
+4. 床面(support-surface)で POS1 をクリック → マーカー矢印が表示される。
+5. 床面で POS2 をクリック → 同一データム上に矢印が表示され、Auto Preview が
+   即座にレールプレビュー(距離 12.08 m / サンプル数 13)を描画する。
+6. 必要に応じて R8 編集(handle 10 / rot1(yaw) 20 / pitch 4 / cant 6)で微調整し、
+   プレビューを再構築する(asset railsys.prototype_narrow_1000 / narrow_1000)。
+7. ワンドの Shift+右クリックで Confirm(フォールバック `/railsys3 confirm`)し、
+   プレビューと同一の数値 12.08 m / 13 samples のまま確定する。
+8. `/railsys3 cancel` でプレビューのみ破棄(マーカー保持)、`/railsys3 clear` で
+   一時セッションをリセット(確定済みレール保持)する。
+9. 配置結果をスクリーンショットで確認する(SS-R10-01/02/03)。
+
+Known Issues
+------------
+- ランチャーが HEADLESS 環境変数を上書きするため、ヘッドレススモークでは
+  DISPLAY を unset にして実施した。
+- 証明用の配置ジオメトリは R11 まで残置される。
+- 無関係の dirty/untracked 成果物は意図的に保持され、コミット対象外。
+- Flash の一時作業が /tmp に作成される規約違反が発生したが、Sol が安全上のため
+  正確な 3 ファイル(build_r10final2.log / r10final2_startline.txt /
+  launcher_stdout.log)を削除して対処済み。
+- 初期 Luna レビューは ItemModelMesher 登録前のスクリーンショットが対象のため
+  SUSPECT だったが、修正後の最終レビューで PASS。
+
+Final Report Discord 添付 / final-report の GitHub コミット結果は、
+本イミュータブルレポートの送信・公開後に権威ルート FINAL_REPORT.txt へ
+記録される。本レポート時点では未確定のため、コード(CP 等)を主張しない。
+
+Next Phase
+----------
+次フェーズは R11 のみをスコープとする。未開始。
+
+====================================================================
+PHASE 1-R10 VERDICT: PASS
+PHASE 1-R11 ENTRY GATE: OPEN
+====================================================================
