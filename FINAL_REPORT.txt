@@ -1996,3 +1996,19 @@ STEP RR-01 - Scope / Initial Audit (2026-08-12 17:08 JST)
 ====================================================================
 END Railsys Phase 1 Remaining Roadmap 開始記録
 ====================================================================
+
+STEP RR-02 - Final UX / Command / Wand Contract Freeze
+--------------------------------------------------
+- DeepSeek V4 Flash草案をSolレビューし、ユーザー指定と現コードへ整合。
+- Final UX document:
+  doc/specifications/PHASE1_FINAL_UX_CONTRACT.md
+- Canonical entry: /railsys3 wand（R10で実装）。
+- POS1/POS2: 通常右クリック。R6 direction contract維持。
+- Auto Preview: POS2直後。同じproduction RailPathをConfirmへ昇格。
+- Confirm: Shift+右クリック専用。preview無しはerror/no-op。
+- Cancel: previewのみ破棄、markers/edit値保持。
+- Clear: transient placement sessionのみ破棄、confirmed rail保持。
+- confirmed rail削除: persistent ID成立後の別明示操作。R10対象外。
+- /railsysplace: Phase 1中deprecated aliasとして保持、give分岐typoはR10修正対象。
+- normal UXが参照するarrow責務をvalidation packageからproduction ownershipへ移す。
+- Final UX DESIGN GATE: GO。R10 implementation gateは未実施。
