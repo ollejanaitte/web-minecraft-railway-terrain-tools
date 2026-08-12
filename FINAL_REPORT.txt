@@ -2760,3 +2760,33 @@ STEP R10F-04 - Negative / Mutation Guards
 - Covered: renderer datum +1, asset-switch rebuild, confirm rebuild, cancel
   clears markers, clear erases confirmed, client wand self-grant, command
   fallback alternate pipeline, non-UP mutation.
+
+STEP R10F-05 - Production Build + launcher smoke
+--------------------------------------------------
+- Production Build: JAVA_HOME=java-17-openjdk-amd64
+  ./gradlew makeMainOfflineDownload --rerun-tasks -> BUILD SUCCESSFUL
+  (8 tasks executed, 1m27s).
+- START launcher smoke: HEADLESS=1 PORT=9522 GAME_PROFILE=runtime/profiles/
+  launcher-smoke-r10f ./START_WEB_MINECRAFT.sh --skip-build
+  -> CDP 9522 responded (Chrome 151), clean stop via "./START_WEB_MINECRAFT.sh stop".
+  Known launcher quirk (R10): script overwrites HEADLESS; unset DISPLAY used.
+
+STEP R10F-06 - Normal World Foundation Acceptance
+--------------------------------------------------
+- Script: doc/testing/phase1_r10f/scripts/r10f_foundation_acceptance.mjs
+  (instrumented GUI course in dedicated normal Superflat world "RailsysR10F",
+  production /railsys3 surface + vanilla /tp + real right-click).
+- All 18 course items PASS (console-asserted): straight, curve, gradient,
+  curve+gradient, cant, curve+gradient+cant, handle, rot1, rot2, pitch, cant,
+  asset switch, cancel, preview rebuild, clear, re-placement, confirm,
+  next session.
+- F4 asset-switch centerline invariance: R9RENDER pathIdentity + len IDENTICAL
+  before/after switching to railsys.prototype_standard_1435.
+- Preview/Confirm identity: confirmed length == preview length (12.05 m
+  straight; 16.11 m edited curve); golden regression 12.08 m/13 samples holds.
+- JS errors: 1 (known headless Pointer Lock "user gesture" browser warning,
+  present in R10 evidence; not a Railsys code error).
+- Screenshots (5) acquired under doc/testing/phase1_r10f/screenshots/.
+- Luna vision (gpt-5.6-luna): COMBINED PASS (high confidence) — rails on
+  surface, no purple/black, per-image PASS 01..05.
+- Normal World Acceptance: PASS (exit code 0).
