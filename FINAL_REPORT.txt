@@ -2257,7 +2257,9 @@ STEP R10-02 - CP-R10-02 Implementation + Sol Review Corrections (2026-08-12)
   - R10SourceContractTest is a source-text + numerical contract test; the
     harness does not compile game sources (Worker/TeaVM separation), so GUI
     behaviour needs the later runtime walkthrough.
-- Verdict: SOL SECOND REVIEW GO — CP-R10-02 publication APPROVED. Commit
-  + push to origin/main + Discord notification about to occur. No pre-claimed
-  push SHA; recorded after the fact in the R10-02b sync note (separate tiny
-  docs commit) only if the sync record is needed.
+- Verdict: SOL SECOND REVIEW GO — CP-R10-02 publication APPROVED.
+- R10-02b SYNC: committed 7eb1335650aa2be518631f7f8b68106d3719835a
+  ("feat: integrate Railsys R10 command and safe placement state"), pushed
+  to origin/main. Verified: local main == origin/main == git ls-remote
+  GitHub main = 7eb13356. Discord webhook returned HTTP 204. Protected
+  files unchanged; unrelated dirty/untracked files untouched.
