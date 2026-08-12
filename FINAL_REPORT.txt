@@ -132,6 +132,77 @@ STEP 013+ - Existing launch reproduction begins after this audit block.
 No product code changed during STEPs 001-012.
 
 ====================================================================
+PHASE 1 R7-R9 RECOVERY (2026-08-12, GPT-5.6 Sol lead)
+====================================================================
+
+STEP 101 - Recovery scope and repository rules confirmed
+---------------------------------------------------------
+Goal: preserve the existing uncommitted R7/R8/R9 implementation and recover
+only the R9 Rail Asset / ModelPack visual gate. R7-R9 must not be rebuilt.
+Read the repository AGENTS.md in full. Work is restricted to this repository
+and ollejanaitte/web-minecraft-railway-terrain-tools main. Destructive git,
+unrelated formatting, user-world deletion, secret persistence, and fog-based
+evidence hacks are prohibited.
+
+STEP 102 - Initial safety audit
+-------------------------------
+Audit time: 2026-08-12 JST.
+Branch/HEAD : main @ 10449ae2899985ed06dd0bd1913867578263ec33
+local main  : 10449ae2899985ed06dd0bd1913867578263ec33
+origin/main : 10449ae2899985ed06dd0bd1913867578263ec33
+GitHub main : 10449ae2899985ed06dd0bd1913867578263ec33
+Staged      : none
+Worktrees   : one (repository root)
+Stashes     : none
+Dirty state : existing R7/R8/R9 tracked and untracked implementation plus
+              older unrelated artifacts; all retained in place.
+Protected pre-existing files (must remain verbatim):
+  CommandRailSystem.java SHA-256 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+  EntityRailVehicle.java SHA-256 b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+The Phase 1 R7-R9 interruption report was read. It records R7/R8 GUI success,
+R9 loader/registry/fallback/two-asset switching complete, harness 148/0/3,
+production build success, R4/R5/R6 regression OK, and only the R9 visual gate
+unresolved. No file was reverted, staged, committed, or discarded in audit.
+
+STEP 103 - Model availability and role split
+--------------------------------------------
+OpenCode reports deepseek-v4-flash, gpt-5.6-sol, and gpt-5.6-luna available.
+Sol retains root-cause, renderer/GL analysis, architecture, fixes, reviews,
+GO/NOGO and final gate. Flash is limited to read-only search/mechanical work.
+Luna will be used only as a vision observer after deterministic A/B captures.
+
+STEP 104 - Flash attempt and fallback
+-------------------------------------
+OpenCode listed deepseek-v4-flash, but its read-only call-site audit failed
+before producing findings: insufficient account balance (and an inotify watch
+limit warning). Flash output was not used and is not represented as success.
+Sol performed the renderer and call-site audit directly.
+
+STEP 105 - Root-cause hypotheses and renderer trace
+---------------------------------------------------
+The H1-H10 evidence matrix, renderer flow, hook order, confirmed cause and
+minimal recovery design are recorded before product changes in:
+  doc/architecture/r9_visual_gate_root_cause_recovery.md
+Trace confirms JSON/profile/registry values reach RailsysProductionRenderer
+and gauge/color reach final POSITION_COLOR vertices. In markerplace, R3-R6
+validation rail renderers are world-name gated false; MarkerArrowRenderer runs
+after production but draws only marker arrows. Existing A/B and top-view PNGs
+show no rail pixels, only terrain/arrow, excluding a mere color-comparison issue.
+
+STEP 106 - Confirmed root cause / Root Cause Gate
+-------------------------------------------------
+CONFIRMED: RailSegmentDrawer embeds R3 fixture-specific absolute placement
+offsets based on a Y=5 path and Y=4 ground. R7 marker anchors/path are at the
+clicked surface Y=4, so production sleepers emit at about Y=3.07 and rails at
+Y=3.21, inside the grass block and correctly hidden by depth testing. The
+separate arrow offset remains above ground, matching screenshots exactly.
+Secondary gate weakness: the R9 profile carries no rail width/height or sleeper
+length/height, and its sleeperWidthM is ignored, so consumed A/B shape differs
+only by gauge and color.
+ROOT CAUSE GATE: GO. Add a production-relative look emission path while keeping
+legacy R3-R6 validation emission behavior, Geometry/RailPath and normal fog.
+
+====================================================================
 PRIOR AGENT INTERMEDIATE HANDOFF (preserved verbatim below)
 ====================================================================
 
@@ -1792,4 +1863,56 @@ STEP R6-05b - 同期確認 (push完了後)
 
 ====================================================================
 END Phase 1-R6 記録 (確定)
+====================================================================
+
+====================================================================
+Phase 1 R7-R9 開始記録 (Marker Placement / Anchor Editing / Rail Asset)
+====================================================================
+
+STEP 00 - Initial Audit (2026-08-12 09:44 JST)
+--------------------------------------------------
+- 開始HEAD: 10449ae2899985ed06dd0bd1913867578263ec33
+- local == origin/main == GitHub main == 10449ae2 (SYNC OK)
+- 保全対象MD5: CommandRailSystem 9afd512d... / EntityRailVehicle 77ce0d66...
+- 既存dirty tracked (保全・不変更): RenderGlobal +2, CommandRailsysPlace +5,
+  phase0_1 screenshots 2枚, R4 Final Report txt残骸
+- R6成果確認: bb224d33 (R6実装), 9fab53cf (R6 Final Report), 10449ae2 (同期)
+- 既存production基盤確認:
+  - RailsysPlacementState (client static): markerA/B + preview + confirmed
+  - CommandRailsysPlace: pos1/pos2/preview/confirm/save/load (server側, client到達不可)
+  - RailsysRenderManager (client static): renderPaths + activeAsset + preview
+  - RailAssetDefinition / RailAssetRegistry (3 assets + fallback) / RailRenderer
+  - RailsysWorldRailData (NBT persistence, server側)
+  - RailPath.fromMarkers (R6 Marker Direction Contract, cant未対応)
+- 重要設計判断: RailsysPlacementState / RailsysRenderManager はクライアント側
+  static。サーバー側Command/ValidationからはWeb Worker分離のため到達しない。
+  R7/R8/R9のPlacement UXはクライアント駆動 (wand onItemUseのclient側prediction
+  path + クライアントコマンド + クライアントhook) で成立させる。
+
+STEP 00b - Discord作業開始通知送信OK
+--------------------------------------------------
+
+====================================================================
+END Phase 1 R7-R9 開始記録
+====================================================================
+
+====================================================================
+Phase 1 R7-R9 作業中止記録 (STOP, 2026-08-12 15:33 JST)
+====================================================================
+
+- ユーザー指示により作業中止。
+- HEAD: 10449ae2 (R6時点のまま)。R7-R9変更は未commit (25ファイル)。
+- local == origin/main == GitHub main == 10449ae2 (SYNC OK 維持)。
+- R7: 実装・動作確認完了 (通常フラットワールドで
+  give→POS1→POS2→preview→confirm→asset切替を実証)
+- R8: 実装・動作確認完了 (rot1/rot2/handle/pitch/cant編集→再Confirm一致)
+- R9: 実装完了 (ModelPack/loader/registry/2アセット/連続span+asset統合)。
+  Visual Gate未確定のため R9 GO/FINAL PASS 未到達。
+- Harness 148/0/3 / Build SUCCESS。
+- 途中Final Report作成:
+  マイクラ_Phase1-R7-R9_2026-08-12_15-33_MarkerPlacement_AnchorEditing_RailAssetModelPack_途中中止.txt
+- 壊れた状態はmainへpushしていない。保全対象MD5不変。
+
+====================================================================
+END Phase 1 R7-R9 作業中止記録
 ====================================================================
