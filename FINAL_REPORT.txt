@@ -2063,3 +2063,20 @@ STEP RR-05 - Dependency Map / Final DoD / Next Phase Scope Freeze
   Real3D/connect/turnout/save/restart/restoreの一本のuser journey。
 - Next PhaseはR10のみ。R11 implementationはR10 GOまで開始禁止。
 - Final Definition DESIGN GATE: GO。
+
+STEP RR-06 - Current GUI Evidence / Luna / Harness / Build
+--------------------------------------------------
+- Evidence record:
+  doc/testing/PHASE1_REMAINING_ROADMAP_CURRENT_EVIDENCE.md
+- existing tracked PNG 5枚をCurrent State裏付けとして再監査:
+  R7 placement / R8 edited preview / R9 Asset A / Asset B / final overview。
+- Luna (Codex CLI GPT-5.6 Luna): PASS, confidence 0.91。
+  marker/confirmed, edited preview, A/B visual difference, sleepers, continuous,
+  normal World contextを確認。corruption/debug leakageなし。
+  gauge/profile差の明瞭判定とlauncher/save/network/switchは画像単独判定不可と留保。
+- Discord PNG本体5枚送信: HTTP 200 SUCCESS。
+- Harness: discovered 151 / PASS 148 / FAIL 0 / SKIP 3 / SUCCESS。
+- Production Build: makeMainOfflineDownload BUILD SUCCESSFUL。
+- launcher script code audit: normal profile / stale build / validation分離確認。
+  fresh launcher GUI walkthroughはR10 implementation gateへ明示的に残す。
+- Evidence Gate: PASS（current roadmap supportのみ。R10-R16 GOではない）。
