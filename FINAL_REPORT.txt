@@ -202,6 +202,60 @@ only by gauge and color.
 ROOT CAUSE GATE: GO. Add a production-relative look emission path while keeping
 legacy R3-R6 validation emission behavior, Geometry/RailPath and normal fog.
 
+STEP 107 - Minimal fix and numeric/build gates
+----------------------------------------------
+Implemented a production-only RailPath-relative sleeper/rail emission path.
+The legacy R3-R6 fixture methods retain their original behavior. Extended the
+look-only R9 profile with rail width/height and sleeper length/width/height.
+Asset A: gauge 1.435, rail 0.16 x 0.20, sleeper 2.40 x 0.18 x 0.12, bright.
+Asset B: gauge 1.000, rail 0.08 x 0.12, sleeper 1.60 x 0.10 x 0.08, dark.
+Harness: PASSED=148 FAILED=0 SKIPPED=3. Production Build: SUCCESS.
+Normal fog, Geometry, RailPath centerline, curve, gradient and cant unchanged.
+
+STEP 108 - Runtime, GUI and screenshot gate
+-------------------------------------------
+World: EaglerMarkerPlace (validation profile; user worlds not deleted).
+Same confirmed RailPath: length 20.00 m, 21 samples for both A/B.
+Same camera: XYZ 310.5, 6.0, 305.0; yaw/pitch 180/38; same game FOV.
+Renderer trace A/B confirms the dimensions above and same path/sample/length.
+R3/R4/R5/R6 rail renderer gates were false in markerplace; no double render.
+Screenshots:
+  doc/testing/phase1_rebuild_02/screenshots/SS-R9-RECOVERY-01_ASSET_A_CLOSE.png
+  doc/testing/phase1_rebuild_02/screenshots/SS-R9-RECOVERY-02_ASSET_B_CLOSE.png
+  doc/testing/phase1_rebuild_02/screenshots/SS-R9-RECOVERY-03_FINAL_OVERVIEW.png
+Sol visual review: same path/camera; gauge, rail profile and sleeper differences
+are obvious; both continuous; no rendering corruption. Discord PNG upload HTTP
+200 (three image bodies attached, not paths only).
+
+STEP 109 - Luna vision and regressions
+--------------------------------------
+GPT-5.6 Luna JSON: PASS, confidence 0.98; same_camera_view, same_path_shape,
+visual_difference, gauge_difference_visible, rail_profile_difference_visible,
+sleeper_difference_visible, continuous_A and continuous_B all true;
+rendering_corruption false. Sol independently reviewed and integrated it.
+R7: POS1/POS2 -> preview 20.00 m -> confirm 20.00 m -> continuous rail: GO.
+R8: yaw/cant edit -> preview rebuild -> re-confirm, curved/canted rail: GO.
+R6 dedicated rerun: marker arrows, positive/negative/final cant, spans 130/130,
+zero endpoint/gauge/frame errors: OK. R5 spans 113/113: OK. R4 samples
+75/75: OK. Clean-world isolation: OK.
+
+STEP 110 - GitHub checkpoints
+-----------------------------
+CP-01/02 root-cause docs + safety log: 16506bbd (push/sync success).
+CP-03 implementation/fix/tests: b5f283e0 (push/sync success).
+CP-04 visual evidence: f260d22e (push/sync success).
+Before each commit: cached scope, protected-file exclusion and secret scan PASS.
+At f260d22e local main == origin/main == GitHub main.
+
+STEP 111 - Final gate pre-report
+--------------------------------
+R7: GO. R8: GO. R9 Numerical: GO. R9 Visual: GO.
+Harness 148/0/3 and production build SUCCESS on final code.
+Protected SHA-256 values remain exactly those recorded in STEP 102 and neither
+file was staged or committed. No webhook/token/credential in committed diff.
+Clean-room implementation preserved; no proprietary RTM assets/source copied.
+PHASE 1 R7-R9 VERDICT: PASS.
+
 ====================================================================
 PRIOR AGENT INTERMEDIATE HANDOFF (preserved verbatim below)
 ====================================================================

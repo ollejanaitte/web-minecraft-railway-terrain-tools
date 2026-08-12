@@ -1,0 +1,131 @@
+====================================================================
+Phase 1 R7-R9 Recovery — R9 Visual Gate Root Cause Recovery
+====================================================================
+
+Status / Verdict
+----------------
+R7: GO
+R8: GO
+R9: GO
+PHASE 1 R7-R9 VERDICT: PASS
+
+Time / Git
+----------
+Start JST: 2026-08-12 15:48
+End JST: 2026-08-12 16:21
+Initial SHA: 10449ae2899985ed06dd0bd1913867578263ec33
+Pre-report SHA: f260d22e89d8b33b027759fd7f553e2ff81ec7f2
+Initial local/origin/GitHub main: 10449ae2899985ed06dd0bd1913867578263ec33
+Pre-report local/origin/GitHub main: f260d22e89d8b33b027759fd7f553e2ff81ec7f2
+
+Initial dirty R7-R9 state
+-------------------------
+The interrupted R7/R8/R9 implementation was present as extensive tracked and
+untracked changes. It was retained and recovered, not discarded or rebuilt.
+Staged files: none; one worktree; no stash. Existing unrelated dirty/untracked
+artifacts were excluded from commits.
+
+Root-cause hypotheses / evidence
+--------------------------------
+H1-H10 with supporting/contradicting evidence and minimum verification are in
+doc/architecture/r9_visual_gate_root_cause_recovery.md. The complete trace was:
+JSON -> parser -> RailAssetProfile -> loader -> definition -> registry active
+asset -> RenderGlobal -> RailsysProductionRenderer -> RailSegmentDrawer ->
+WorldRenderer POSITION_COLOR -> Tessellator -> framebuffer/screenshot.
+
+Confirmed root cause
+--------------------
+RailSegmentDrawer's R3 validation geometry encoded offsets for path Y=5 and
+ground top Y=4. R7 marker paths use clicked-surface Y=4. Production therefore
+emitted sleepers near Y=3.07 and rails near Y=3.21, inside the grass block,
+where normal depth testing hid them. Existing screenshots showed only the
+separately elevated marker arrow, exactly matching this failure. This was not
+a fog, lighting, texture, blend or framebuffer defect.
+
+Secondary weakness: the R9 contract lacked rail width/height and sleeper
+length/height, while sleeperWidthM was not consumed, leaving visible shape
+difference dependent on gauge/color alone.
+
+Fix / affected behavior
+-----------------------
+Added production-only RailPath-relative surface emission and consumed the
+look-only profile dimensions. Preserved the legacy R3-R6 drawing methods,
+R7/R8 workflow, ModelPack loader/registry/fallback, continuous-span contract,
+Geometry/RailPath, curve, gradient, cant and normal Minecraft fog.
+
+Asset definitions
+-----------------
+Asset A railsys.prototype_standard_1435:
+  gauge 1.435 m; rail width/height 0.16/0.20 m;
+  sleeper length/width/height 2.40/0.18/0.12 m; bright colors.
+Asset B railsys.prototype_narrow_1000:
+  gauge 1.000 m; rail width/height 0.08/0.12 m;
+  sleeper length/width/height 1.60/0.10/0.08 m; dark colors.
+The exact same RailPath object, centerline, 20.00 m length and 21 samples were
+used for A and B.
+
+Deterministic camera / screenshots
+----------------------------------
+World: EaglerMarkerPlace
+Camera XYZ: 310.5, 6.0, 305.0
+Yaw/Pitch: 180/38
+FOV: unchanged game setting
+Screenshots:
+  SS-R9-RECOVERY-01_ASSET_A_CLOSE.png
+  SS-R9-RECOVERY-02_ASSET_B_CLOSE.png
+  SS-R9-RECOVERY-03_FINAL_OVERVIEW.png
+Discord image-body upload: SUCCESS (HTTP 200).
+
+Vision / Sol review
+-------------------
+GPT-5.6 Luna: PASS, confidence 0.98. same_camera_view=true,
+same_path_shape=true, visual_difference=true, gauge/profile/sleeper differences
+visible=true, continuous_A/B=true, rendering_corruption=false.
+Sol independently inspected both full-resolution images and confirmed the same
+camera/path, obvious non-color-only differences, continuity and no corruption.
+DeepSeek V4 Flash was listed but unavailable at execution because of insufficient
+balance; it produced no findings. Sol performed and reviewed all analysis/code.
+
+Numerical / regression / build gates
+------------------------------------
+R9: two assets loaded, registry switch, fallback/malformed/missing safety,
+same RailPath, A/B gauge/profile dimensions, continuous rail and cant compatible.
+R7: POS1 -> POS2 -> Preview 20.00 m -> Confirm 20.00 m -> continuous rail: GO.
+R8: yaw/cant edit -> preview rebuild -> re-confirm: GO.
+R6: arrows, positive/negative/final cant, 130/130 spans, zero errors: OK.
+R5: 113/113 spans: OK. R4: 75/75 samples: OK.
+Harness: PASSED=148 FAILED=0 SKIPPED=3, SUCCESS.
+Production Build: ./gradlew makeMainOfflineDownload, BUILD SUCCESSFUL.
+
+GitHub checkpoints
+------------------
+16506bbd docs: root cause and safety audit
+b5f283e0 feat: preserved R7-R9 implementation plus minimal R9 fix
+f260d22e test: deterministic visual evidence
+Final report checkpoint follows this report's commit. No force push, rewrite,
+reset, restore, checkout-all, clean or stash was used.
+
+Preservation / security / licensing
+-----------------------------------
+CommandRailSystem.java SHA-256:
+1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+EntityRailVehicle.java SHA-256:
+b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+Both remained verbatim and were never staged/committed. Secret scan: PASS;
+webhook stayed runtime-only. Clean-room: PASS; no RTM proprietary asset/source
+was copied or committed.
+
+Known Issues
+------------
+One combined-run R6 navigation attempt timed out in GuiSelectWorld; the dedicated
+R6 rerun then passed fully. Numerous pre-existing unrelated artifacts remain
+dirty/untracked by design and were not committed. No product gate remains open.
+
+Final Verdict / Next Phase
+--------------------------
+R7: GO
+R8: GO
+R9: GO
+PHASE 1 R7-R9 VERDICT: PASS
+Next Phase: begin only under a new explicitly authorized phase scope.
+====================================================================
