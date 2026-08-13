@@ -93,3 +93,10 @@ doc/testing/phase1_2_3/logs/chrome_*.log
 doc/implementation/phase1_r14/profiles/
 doc/implementation/phase1_r14/logs/
 doc/implementation/phase1_r14/instrumented.html
+
+# Phase 1-R15 ModelPack runtime artifacts (browser profiles, logs, instrumented)
+doc/implementation/phase1_r15/profiles/
+doc/implementation/phase1_r15/logs/
+doc/implementation/phase1_r15/instrumented.html
+# Reference ModelPack material (NEVER committed - clean-room / license)
+/rtm_reference/
