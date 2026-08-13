@@ -301,10 +301,16 @@ public final class RailsysR13ProductionDataSuite {
 		AnchorDefinition pb = a(0.05D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
 		RailWorldData world = world();
 		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
-		world.register(seg);
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D too short rejected");
 		Assert.assertTrue(v.reason.contains("too short"), "R13D too-short reason");
+		boolean registerRejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			registerRejected = true;
+		}
+		Assert.assertTrue(registerRejected, "R13D too-short rejected at register too");
 	}
 
 	@Test
@@ -313,10 +319,16 @@ public final class RailsysR13ProductionDataSuite {
 		AnchorDefinition pb = a(RailLimits.MAX_RAIL_LENGTH_M + 100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
 		RailWorldData world = world();
 		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
-		world.register(seg);
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D too long rejected");
 		Assert.assertTrue(v.reason.contains("too long"), "R13D too-long reason");
+		boolean registerRejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			registerRejected = true;
+		}
+		Assert.assertTrue(registerRejected, "R13D too-long rejected at register too");
 	}
 
 	@Test
@@ -354,10 +366,16 @@ public final class RailsysR13ProductionDataSuite {
 		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, -80.0D, 1.0D);
 		RailWorldData world = world();
 		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
-		world.register(seg);
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D gradient beyond 45 rejected");
 		Assert.assertTrue(v.reason.contains("gradient"), "R13D gradient reason");
+		boolean registerRejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			registerRejected = true;
+		}
+		Assert.assertTrue(registerRejected, "R13D gradient rejected at register too");
 	}
 
 	@Test
@@ -366,10 +384,16 @@ public final class RailsysR13ProductionDataSuite {
 		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
 		RailWorldData world = world();
 		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 90.0D, 1.435D, "asset", 1, null, 0, false);
-		world.register(seg);
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D cant beyond 45 rejected");
 		Assert.assertTrue(v.reason.contains("cant"), "R13D cant reason");
+		boolean registerRejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			registerRejected = true;
+		}
+		Assert.assertTrue(registerRejected, "R13D cant rejected at register too");
 	}
 
 	@Test
@@ -378,10 +402,16 @@ public final class RailsysR13ProductionDataSuite {
 		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
 		RailWorldData world = world();
 		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 5.0D, "asset", 1, null, 0, false);
-		world.register(seg);
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D gauge out of range rejected");
 		Assert.assertTrue(v.reason.contains("gauge"), "R13D gauge reason");
+		boolean registerRejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			registerRejected = true;
+		}
+		Assert.assertTrue(registerRejected, "R13D gauge rejected at register too");
 	}
 
 	@Test
@@ -390,10 +420,16 @@ public final class RailsysR13ProductionDataSuite {
 		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
 		RailWorldData world = world();
 		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "", 1, null, 0, false);
-		world.register(seg);
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D missing asset rejected");
 		Assert.assertTrue(v.reason.contains("asset"), "R13D asset reason");
+		boolean registerRejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			registerRejected = true;
+		}
+		Assert.assertTrue(registerRejected, "R13D asset rejected at register too");
 	}
 
 	@Test
@@ -406,6 +442,88 @@ public final class RailsysR13ProductionDataSuite {
 		world.delete(seg.railId());
 		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
 		Assert.assertFalse(v.valid(), "R13D retired segment rejected");
+	}
+
+	@Test
+	public static void d11_nanCantRejected() {
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailWorldData world = world();
+		boolean rejected = false;
+		try {
+			RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, Double.NaN, 1.435D,
+					"asset", 1, null, 0, false);
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			rejected = true;
+		}
+		Assert.assertTrue(rejected, "R13D NaN cant rejected");
+	}
+
+	@Test
+	public static void d12_registerValidatesEveryWritePoint() {
+		// R12-J §2.3: registration itself validates — an invalid segment cannot
+		// become authoritative even if the caller skipped pre-validation.
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(RailLimits.MAX_RAIL_LENGTH_M + 100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailWorldData world = world();
+		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
+		boolean rejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			rejected = true;
+		}
+		Assert.assertTrue(rejected, "R13D register rejects over-long segment");
+		Assert.assertEqualsInt(0, world.size(), "R13D nothing stored");
+	}
+
+	@Test
+	public static void d13_promotedVsDerivedMismatchRejected() {
+		// A promoted preview describing a DIFFERENT line than the authoritative
+		// endpoints must be rejected (phantom path guard).
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		AnchorDefinition pbFar = a(200.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailPath wrongPreview = RailPath.fromMarkers(pa, pbFar, 0.0D, 8001);
+		RailWorldData world = world();
+		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1,
+				wrongPreview, 0, false);
+		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, world);
+		Assert.assertFalse(v.valid(), "R13D promoted/derived mismatch rejected");
+		Assert.assertTrue(v.reason.contains("promoted"), "R13D mismatch reason");
+	}
+
+	@Test
+	public static void d14_pathGradientLimitRejected() {
+		// Even if endpoint pitches are within range, an internal path gradient
+		// beyond 45 deg must be rejected.
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 40.0D, 1.0D);
+		AnchorDefinition pb = a(200.0D, 4.0D + 200.0D * Math.tan(Math.toRadians(50.0D)), 0.0D,
+				270.0D, -40.0D, 1.0D);
+		RailWorldData world = world();
+		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
+		boolean rejected = false;
+		try {
+			world.register(seg);
+		} catch (IllegalArgumentException ex) {
+			rejected = true;
+		}
+		// The path gradient (50 deg) exceeds the limit; register must reject.
+		Assert.assertTrue(rejected, "R13D path gradient beyond 45 rejected at register");
+	}
+
+	@Test
+	public static void d15_gaugeSnapshotRefreshPreservesIdentity() {
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailWorldData world = world();
+		RailSegment seg = RailSegment.confirm(world.nextRailId(), pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
+		world.register(seg);
+		RailSegment refreshed = seg.withGaugeSnapshot(1.0D);
+		Assert.assertTrue(refreshed.railId().equals(seg.railId()), "R13D refresh keeps railId");
+		Assert.assertEquals(1.0D, refreshed.gaugeM(), 0.0, "R13D refresh updates gauge snapshot");
+		Assert.assertEquals(100.0D, refreshed.lengthM(), 1e-9, "R13D refresh keeps geometry");
 	}
 
 	// ===================== R13-E Numeric Limits =====================

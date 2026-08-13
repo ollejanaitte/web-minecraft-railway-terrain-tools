@@ -55,7 +55,9 @@ public final class RailWorldData {
 
 	/**
 	 * Register a confirmed production segment. Duplicate id is rejected.
-	 * Returns the registered segment.
+	 * Register VALIDATES the segment (R12-J §2.3: validation at every write
+	 * point) — an invalid or retired segment is rejected before it becomes
+	 * authoritative. Returns the registered segment.
 	 */
 	public RailSegment register(RailSegment seg) {
 		if (seg == null) {
@@ -71,6 +73,12 @@ public final class RailWorldData {
 		if (this.issuer.isRetired(id)) {
 			throw new IllegalArgumentException("retired RailId rejected: " + id);
 		}
+		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, this);
+		if (!v.valid()) {
+			seg.recordValidationResult(v.toString());
+			throw new IllegalArgumentException("invalid RailSegment rejected at register: " + v);
+		}
+		seg.recordValidationResult("VALID");
 		this.byId.put(id.value(), seg);
 		this.rails.add(seg);
 		return seg;

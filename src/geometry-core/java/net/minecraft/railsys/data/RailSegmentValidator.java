@@ -82,15 +82,34 @@ public final class RailSegmentValidator {
 			return RailValidation.invalid("too long: " + len + " > " + RailLimits.MAX_RAIL_LENGTH_M);
 		}
 
-		// gradient / pitch limit
+		// gradient / pitch limit — check endpoint pitches AND the internal
+		// path maximum gradient (rail-level: a single segment must not exceed
+		// the gradient limit anywhere along it).
 		if (Math.abs(a.anchor().pitchDeg) > RailLimits.MAX_GRADIENT_DEG
 				|| Math.abs(b.anchor().pitchDeg) > RailLimits.MAX_GRADIENT_DEG) {
 			return RailValidation.invalid("gradient exceeds " + RailLimits.MAX_GRADIENT_DEG + " deg");
 		}
+		RailPath derived = seg.derivedPath();
+		double step = Math.max(0.5D, len / 64.0D);
+		double maxPitch = 0.0D;
+		for (double s = 0.0D; s <= len + 1.0E-9D; s += step) {
+			double p = Math.abs(derived.resolve(Math.min(s, len)).sample.pitchDeg);
+			if (p > maxPitch) {
+				maxPitch = p;
+			}
+			if (s >= len) {
+				break;
+			}
+		}
+		if (maxPitch > RailLimits.MAX_GRADIENT_DEG) {
+			return RailValidation.invalid("path gradient exceeds " + RailLimits.MAX_GRADIENT_DEG
+					+ " deg (max " + maxPitch + ")");
+		}
 
-		// cant limit
-		if (Math.abs(seg.cantDeg()) > RailLimits.MAX_CANT_DEG) {
-			return RailValidation.invalid("cant exceeds " + RailLimits.MAX_CANT_DEG + " deg");
+		// cant limit — must also reject NaN/Inf (Math.abs(NaN)>x is false).
+		double cant = seg.cantDeg();
+		if (!RailMath.isFinite(cant) || Math.abs(cant) > RailLimits.MAX_CANT_DEG) {
+			return RailValidation.invalid("cant exceeds " + RailLimits.MAX_CANT_DEG + " deg or is non-finite");
 		}
 
 		// gauge range
@@ -102,6 +121,20 @@ public final class RailSegmentValidator {
 		// asset reference
 		if (seg.assetId() == null || seg.assetId().isEmpty()) {
 			return RailValidation.invalid("missing asset id");
+		}
+
+		// promoted-preview vs authoritative-endpoint consistency: if a promoted
+		// preview exists it MUST describe the same line as the endpoints (a
+		// phantom/mismatched path is rejected, not silently accepted).
+		RailPath promoted = seg.promotedPreview();
+		if (promoted != null) {
+			double derivedLen = derived.totalLength();
+			double promotedLen = promoted.totalLength();
+			if (!RailMath.isFinite(promotedLen)
+					|| Math.abs(promotedLen - derivedLen) > 1.0E-6D) {
+				return RailValidation.invalid("promoted preview length " + promotedLen
+						+ " != derived length " + derivedLen);
+			}
 		}
 
 		return RailValidation.ok();

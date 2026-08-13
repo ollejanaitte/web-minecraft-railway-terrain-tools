@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.minecraft.railsys.geometry.AnchorDefinition;
 import net.minecraft.railsys.geometry.ConstantCantProfile;
+import net.minecraft.railsys.geometry.RailMath;
 import net.minecraft.railsys.path.RailPath;
 
 /**
@@ -90,6 +91,7 @@ public final class RailSegment {
 	public static RailSegment confirm(RailId id, AnchorDefinition a, AnchorDefinition b,
 			double cantDeg, double gaugeM, String assetId, int assetVersion,
 			RailPath previewPath, int signalState, boolean occupied) {
+		RailMath.requireFinite(cantDeg, "cantDeg");
 		Kind kind = classify(a, b, cantDeg);
 		RailSegment seg = new RailSegment(id, kind,
 				new RailEndpointData(a, RailEndpointData.MarkerType.NORMAL,
@@ -160,6 +162,31 @@ public final class RailSegment {
 	/** DERIVED gauge snapshot (asset is authoritative). */
 	public double gaugeM() {
 		return this.gaugeM;
+	}
+
+	/**
+	 * DERIVED gauge refresh API (R12-A §2): returns a copy with the gauge
+	 * snapshot refreshed from the (authoritative) asset at save/render. The
+	 * rail id, endpoints, asset ref, cant and lifecycle are preserved.
+	 */
+	public RailSegment withGaugeSnapshot(double newGaugeM) {
+		RailSegment copy = new RailSegment(this.railId, this.kind, this.endpointA, this.endpointB,
+				this.assetId, this.assetVersion, this.cantDeg, newGaugeM,
+				this.signalState, this.occupied);
+		copy.promotedPreview = this.promotedPreview;
+		copy.metadata.putAll(this.metadata);
+		copy.lifecycle = this.lifecycle;
+		return copy;
+	}
+
+	/** Record the derived validation result as persisted metadata (R12 §7). */
+	public void recordValidationResult(String result) {
+		this.metadata.put("validationResult", result == null ? "" : result);
+	}
+
+	/** Read the recorded validation result metadata (may be null). */
+	public String validationResult() {
+		return this.metadata.get("validationResult");
 	}
 
 	/** Schema-reserved signal state (R-P1; no writer in Phase 1). */
