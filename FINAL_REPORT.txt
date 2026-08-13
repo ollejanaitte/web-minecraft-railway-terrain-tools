@@ -3771,3 +3771,13 @@ STEP R17-12 - Sol review round 2 fixes
   frames per segment unchanged after junction registration.
 - Docs updated: matrix 21 tests (j06/j07/j08 + strengthened l02), mutation doc
   note. Harness 368/0/3.
+
+STEP R17-13 - Final Gate + Sol GO + Final Report
+------------------------------------------------
+- Sol final VERDICT: GO for R17 (99%). 2ラウンドのNOGO指摘を解決。
+- Final Gate green: harness 368/0/3, mutation 11/11, r17Measure,
+  makeMainOfflineDownload green, protected SHA-256一致, secret/cleanroom/
+  large-file scan OK, 3-way sync 265083a1。
+- Final Report: マイクラ鉄道_Phase1-R17_2026-08-14_08-37_SwitchJunction.txt
+  Discordへ送信 + 完了通知。
+- VERDICT: GO (PASS). R18 entry gate OPEN.

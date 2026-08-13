@@ -1,0 +1,127 @@
+================================================================================
+ マイクラ鉄道 Railing System v2 — Phase 1-R17 完了報告
+ Switch / Junction (Basic)
+================================================================================
+
+日時 (JST): 開始 2026-08-14 08:10 / 終了 2026-08-14 08:37 JST
+Initial HEAD: d52de9a3
+Final SHA:   265083a1
+local == origin/main == GitHub main: 265083a1 (3-way sync確認済)
+リポジトリ: https://github.com/ollejanaitte/web-minecraft-railway-terrain-tools.git
+================================================================================
+
+1. 判定: GO (PASS)
+   - R17契約スイート 21/21 PASS
+   - 全ハーネス 368 PASS / 0 FAIL / 3 SKIP (347 baseline + 21 R17)
+   - ミューテーションガード 11/11 検出+復元
+   - 通常World受入: 閉ループ上にスイッチ分岐ジャンクション作成・ルート切替
+   - Sol: GO (99%) / Luna: SWITCH_VISIBLE PASS
+   - プロテクト対象 SHA-256 一致 / シークレット・クリーンルーム・大容量OK
+
+2. Initial Audit (R17-00)
+   - 3-way sync d52de9a3 / プロテクト対象 byte-identical
+   - ベースライン: harness 347/0/3, production build green
+   - 既存dirty/untrackedは保護
+
+3. R17 scope (R12 roadmap)
+   - ジャンクションデータ, 分岐endpoint, route input (server value),
+     derived committedRoute, vehicle resolveRoute, ターナウト作成,
+     セッション内ルート切替。アニメーション(R18)・リロード復元(R23)は対象外。
+
+4. Switch Geometry (R17-01/02)
+   - 発散角 [2,30]度, gauge互換0.01m で検証
+   - 分岐リードパス: F2 (RailPath.fromMarkers -> HorizontalBezierGeometry)
+     のみを使用 (新パイプライン新設なし)
+   - 非有限入力 (NaN/Inf) は拒否 (wrapYawハング防止)
+
+5. SwitchJunctionId / SwitchRoute
+   - SwitchJunctionId: 安定正ID, retire-never-reused (sw-1...)
+   - SwitchRoute: THROUGH / BRANCH / UNKNOWN
+
+6. SwitchJunction / SwitchNetwork
+   - SwitchJunction: mainIn/mainOut/branches, routeInput -> committedRoute,
+     resolveRoute (mainIn -> committed next, branch -> mainOut)
+   - SwitchNetwork: registerJunction で共有ノード検証 (mainIn.END /
+     mainOut.START / branch.START が同一位置), 発散角+gauge検証,
+     不正は拒否。ID発行はmonotonic
+
+7. Divergence validation result
+   - 5/10/20度 全て registered=true, divergence 5.00/10.00/20.00, valid=true
+   - 1度以下は拒否 (g03), 30度超は拒否 (g04), gauge不一致拒否 (g05)
+
+8. Diverging lead path
+   - F2で生成, finite, start/end tangentがmain/branch方向に連続
+     (5度: 90->95, 10度: 90->100, 20度: 90->110)
+
+9. Route switching (in-session)
+   - THROUGH: resolve rail-8 -> rail-1 (ループ維持)
+   - BRANCH: resolve rail-8 -> rail-9 (分岐へ)
+   - セッション内で THROUGH <-> BRANCH 切替可能 (r04)
+
+10. Normal World Acceptance (R17-07)
+    - /railsys16 build: 8 segments, 222.84m
+    - /railsys17 spur 10: junction sw-1 (mainIn=rail-8, mainOut=rail-1, branches=1)
+    - route THROUGH/BRANCH + resolve確認
+    - prod=9 (ループ8 + 分岐1), ループジオメトリ不変 (222.84m)
+
+11. R15 ModelPack regression
+    - ModelPack外観のままスイッチ分岐も描画 (SS-R17-05)
+    - ジャンクション登録でループジオメトリは一切変化しない (l02: 長さ+全
+      endpointA/B値+派生パスサンプル11点/segment が不変)
+
+12. R17 Contract Suite (R17-05): 21 tests
+    g01..g08 (geometry), j01..j08 (junction), r01..r04 (route), l01/l02 (loop)
+
+13. Mutation Guard (R17-08): 11/11
+    (min/max発散角, gauge許容, 発散wrap, リードパス, 発散検証無効化,
+     重複ジャンクションID, 不正branch index, resolveRoute無視, branch入力無視,
+     ループジオメトリ変更)
+
+14. Full regression (R17-09): harness 368/0/3, mutation 11/11,
+    r17Measure green, makeMainOfflineDownload green
+
+15. Screenshot list + SHA-256 (git history内に全量)
+    - SS-R17-01_SWITCH_OVERVIEW.png       9d69d72e...
+    - SS-R17-02_SWITCH_PERSPECTIVE.png    b4830cb6...
+    - SS-R17-03_SWITCH_SPUR_NEAR.png      4670d92c...
+    - SS-R17-04_LOOP_CURVE.png            e63e1c8a...
+    - SS-R17-05_MODELPACK_LOOP.png        d06f4092...
+
+16. Discord Screenshot Upload: 5枚 HTTP 200
+17. Luna result: PASS (SWITCH_VISIBLE — 角丸長方形 + 分岐スパー, 欠け無し)
+18. Sol result: GO (99%) — 2ラウンドのNOGO指摘 (非有限入力, 共有ノード検証,
+    l02強化, doc数) をすべて解決
+
+19. Git checkpoints
+    e3d3acd9 (design) df8227cd (junction core) 32565f0d (game+acceptance)
+    5808d041 (mutation 11/11) 104116f0 (docs) 263a4bde (Sol r1)
+    265083a1 (Sol r2)
+
+20. Affected files
+    - geometry-core junction/ (new): SwitchJunctionId, SwitchRoute,
+      SwitchGeometry, SwitchJunction, SwitchNetwork
+    - game: RailsysSwitchStore, RailsysJunctionCommands, GuiChat /railsys17,
+      RailsysRenderManager (switch reset)
+    - harness: RailsysR17SwitchSuite (21), R17SwitchMeasurement (r17Measure)
+
+21. Protected file hashes (byte-identical)
+    - CommandRailSystem.java: 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+    - EntityRailVehicle.java:  b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+
+22. Clean-room result: PASS / Secret scan: PASS / Large-file scan: PASS /
+    ModelPack contamination: なし
+
+23. Known Issues
+    - スイッチアニメーション (トング/可動部) はR18で実装 (R17はジオメトリ/ルート)
+    - リロード時のルート復元はR23 (R17はin-memory in-sessionのみ)
+    - スイッチの分岐リードパスはR18車両/アニメ用に提供済み (現状は検証のみ)
+
+24. Remaining Risks
+    - スイッチ可動部のレンダリングはR18
+    - シグナル/踏切連動はR20+
+
+25. R18 Entry Gate: OPEN
+    - R17全終了条件を満たし、R18 (Switch Animation) へ進む資格あり
+
+Final Verdict: GO (PASS)
+================================================================================
