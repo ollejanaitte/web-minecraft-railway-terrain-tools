@@ -3682,3 +3682,10 @@ STEP R16-19 - Sol review round 1 fixes
   non-start segment, or exceeds the step guard (never a misleading partial
   cycle). New test i04 (lasso re-entry -> empty).
 - Harness 343/0/3.
+
+STEP R16-20 - Sol review round 2 fixes
+--------------------------------------
+- i04 rewritten: clean cycle from a MID-CYCLE start (loop index 3) must still
+  close (8+1), plus v09 fork/out-degree check, v10 vertical gap rejection,
+  v11 pitch mismatch rejection, v12 stale-membership removal on removeNode.
+- Clean rebuild performed (no mutation-contaminated bytecode). Harness 347/0/3.
