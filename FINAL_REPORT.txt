@@ -3289,3 +3289,22 @@ STEP R13-07b - Sol review hardening + re-run mutation guards
   11/11 detected and reverted byte-for-byte.
 - Docs updated: R13_MUTATION_GUARD_RESULTS (11/11), R13_R12_CONFORMANCE.
 - Discord: mutation guard + hardening notifications sent.
+
+STEP R13-08b - Sol review fixes + re-verification
+---------------------------------------------------
+- Sol review #2 raised: (1) phantom-path guard length-only, (2) controller
+  promotes client-confirm before production validation, (3) rejected confirm
+  consumes an id, (4) store process-global. All fixed:
+  - Validator now compares promoted vs derived length AND start/end positions
+    + tangents.
+  - Controller confirm: production registration FIRST; invalid confirm is
+    REJECTED (no promotion/clear/id); markers/preview retained for recovery.
+  - Store: validate-before-issue (probe segment, no id consumed on rejection).
+  - RailWorldData.clearAll + issuer.retireAll + store.resetForNewWorld for
+    explicit world-session reset (R23 owns per-world persistence).
+- Harness after fixes: 245 PASS / 0 FAIL / 3 SKIP. Mutation guards 11/11.
+- Normal world re-run: over-length now REJECTED before any id; recovery -> rail-3
+  (monotonic). Acceptance PASS.
+- Docs updated (R13_NORMAL_WORLD_ACCEPTANCE, R13_MUTATION_GUARD_RESULTS,
+  R13_R12_CONFORMANCE).
+- Discord: notifications sent.

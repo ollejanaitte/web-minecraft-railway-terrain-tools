@@ -406,7 +406,8 @@ async function main() {
     if (!id2 || id2 === id1) throw new Error('second confirm must have a different stable id: ' + c2);
     log('RAIL2 stable id = ' + id2 + ' (different)');
 
-    // Invalid placement: over-long (>=257) must be rejected.
+    // Invalid placement: over-long (>=257) must be REJECTED by the controller
+    // (no client confirm, no production id).
     await placePair(c, 'OVERSIZE', 80, 340);
     await chat(c, 'railsys3 pitch 0');
     await sleep(800);
@@ -414,23 +415,29 @@ async function main() {
     await chat(c, 'railsys3 preview');
     const preLine = await waitConsoleAfter(c, /railsys: preview|railsys: preview failed/, oIdx, 30000);
     log('oversize preview line: ' + preLine);
-    const c3 = await confirmPair(c, 'OVERSIZE', 340);
-    const id3 = c3.match(/rail-\d+/)?.[0];
-    if (id3) {
-      // If a production id was issued for the over-long rail, that violates
-      // the max-length validation. We allow the preview geometry to be built
-      // (it may exceed) but the PRODUCTION registration must reject it.
-      log('NOTE: oversize got an id ' + id3 + ' — check max-length registration');
-    } else {
-      log('OVERSIZE confirm produced NO stable id (rejected at registration) as expected');
+    const oIdx2 = c.lines.length;
+    await chat(c, 'railsys3 confirm');
+    const rejLine = await waitConsoleAfter(c, /railsys: confirm rejected|railsys: no preview/, oIdx2, 30000);
+    if (!rejLine.includes('confirm rejected') && !rejLine.includes('no preview')) {
+      throw new Error('oversize confirm must be rejected: ' + rejLine);
     }
-    // The production store size must not include an over-long segment.
+    log('OVERSIZE confirm rejected: ' + rejLine);
+    // The production store must not include an over-length segment.
     const stIdx2 = c.lines.length;
     await chat(c, 'railsys3 status');
     const status2 = await waitConsoleAfter(c, /railsys: A=/, stIdx2, 30000);
     log('status after oversize: ' + status2);
+    if (status2.includes('prod=3')) {
+      throw new Error('over-length rail must not be registered: ' + status2);
+    }
 
-    // Recovery: a short valid placement works again (valid placement returns).
+    // Recovery: after the rejected over-length confirm the markers/preview are
+    // RETAINED (user can fix). Clear the session, then a short valid placement
+    // works again.
+    const clIdx = c.lines.length;
+    await chat(c, 'railsys3 clear');
+    await waitConsoleAfter(c, /railsys: session cleared/, clIdx, 30000);
+    log('cleared after oversize rejection');
     await placePair(c, 'RECOVERY', 100, 110);
     await chat(c, 'railsys3 pitch 0');
     await sleep(800);
@@ -449,7 +456,7 @@ async function main() {
     log('=== SUMMARY ===');
     log('RAIL1 id: ' + id1);
     log('RAIL2 id: ' + id2 + ' (must differ from ' + id1 + ')');
-    log('oversize confirm: ' + (id3 ? 'ISSUED ' + id3 : 'REJECTED (no id)'));
+    log('oversize confirm: REJECTED (no client confirm, no production id)');
     log('recovery id: ' + id4);
     log('status2: ' + status2);
     log('JS_ERROR_COUNT=' + c.jsErrors);

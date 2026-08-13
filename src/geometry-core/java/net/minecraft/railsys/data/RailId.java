@@ -30,6 +30,15 @@ public final class RailId {
 		return new RailId(value);
 	}
 
+	/**
+	 * Probe factory for VALIDATION ONLY (e.g. pre-issuance geometry checks).
+	 * The returned id is a placeholder and MUST NOT be registered or persisted
+	 * as a production id. Production ids come only from a world issuer.
+	 */
+	public static RailId probe(long value) {
+		return new RailId(value <= 0L ? 1L : value);
+	}
+
 	public long value() {
 		return this.value;
 	}

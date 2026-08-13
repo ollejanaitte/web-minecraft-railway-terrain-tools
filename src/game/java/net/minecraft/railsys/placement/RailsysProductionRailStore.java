@@ -62,7 +62,7 @@ public final class RailsysProductionRailStore {
 		}
 		// Validate the request BEFORE issuing an id: build a probe segment with
 		// a placeholder id only for validator purposes, then discard it.
-		RailSegment probe = RailSegment.confirm(RailId.of(1L) /* placeholder, discarded */,
+		RailSegment probe = RailSegment.confirm(RailId.probe(1L) /* placeholder, discarded */,
 				a, b, cantDeg, gaugeM, assetId, assetVersion, previewPath, 0, false);
 		RailSegmentValidator.RailValidation pre = RailSegmentValidator.validate(probe, null);
 		if (!pre.valid()) {
