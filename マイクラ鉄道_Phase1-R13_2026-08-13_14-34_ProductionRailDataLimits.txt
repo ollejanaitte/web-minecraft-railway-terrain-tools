@@ -1,0 +1,236 @@
+====================================================================
+Phase 1-R13 Final Report
+Production Rail Data + Stable ID + Validation Limits
+====================================================================
+
+1. Title
+   Phase 1-R13: Production Rail Data + Stable ID + Validation Limits
+
+2. Phase
+   Phase 1-R13
+
+3. Status / Verdict
+   PHASE 1-R13 STATUS: COMPLETE
+   PHASE 1-R13 VERDICT: PASS
+   PHASE 1-R14 ENTRY GATE: OPEN
+
+4. Start JST
+   2026-08-13 11:2x (R13 initial audit + Discord start notice)
+
+5. End JST
+   2026-08-13 14:34 (Final Gate completed)
+
+6. Initial HEAD
+   b9fcec7ace119cb8ea25c2a7e700af0209cad593 (R12 final)
+   local main == origin/main == GitHub main (3-way match).
+
+7. Final SHA
+   - f5c01e1c  feat: R13 production rail data + stable ID + validation limits
+   - 16cdb198  docs: R13 mutation guard results
+   - e8c5fb3b  feat: R13 hardening (register validates, NaN cant, path
+     gradient, gauge refresh, promoted/derived consistency)
+   - 84f26510  feat: R13 Sol review fixes (validate-before-issue,
+     reject-invalid-confirm, phantom path guard, world reset)
+   - a4127b41  feat: R13 normal world acceptance + production data proof
+   - dd309e5b  docs: R13 hardening + mutation guard v2 + conformance
+   - 7707a9b8  feat: R13 normal world re-verified with validate-before-issue
+   - 2d31e56b  feat: R13 world-scoping fix (reset fires on client world)
+   - f1e286e0  feat: R13 store onWorldEnter hook
+   - <FINAL_SHA> Final Report commit (recorded post-commit)
+
+8. local / origin / GitHub final sync
+   At report creation: local HEAD == origin/main == GitHub main == f1e286e0
+   (3-way match). Final Report commit pushed and re-verified.
+
+9. Initial Audit
+   - Branch main; HEAD b9fcec7a; protected files byte-identical
+     (CommandRailSystem 1037f467..., EntityRailVehicle b2fb0ea3...).
+   - Existing dirty/untracked preserved verbatim; none staged.
+   - R12 data model + validation docs reviewed as implementation input.
+
+10. R13-A Production Data Model result
+    - New geometry-core package net.minecraft.railsys.data:
+      RailId, RailIdIssuer, RailEndpointData, RailSegment, RailFingerprint,
+      RailWorldData, RailLimits, RailSegmentValidator.
+    - RailSegment record: id/kind/endpoints/asset/cant/gauge snapshot/signal+
+      occupied (schema-reserved)/metadata/lifecycle; promotedPreview transient;
+      derivedPath via F2 fromMarkers.
+
+11. Authoritative/Derived/Cache/Transient result
+    - AUTHORITATIVE: railId, endpoint anchors, asset ref, cant, kind,
+      lifecycle, world store, limits.
+    - DERIVED: RailPath (F2 fromMarkers), gauge snapshot, blockPos, fingerprint,
+      validation result.
+    - CACHE: none in R13 (mesh/frames/index are later phases).
+    - TRANSIENT: promoted preview; placement markers/preview state (R10F F5).
+
+12. R13-B Stable ID result
+    - RailId: positive long + "rail-" prefix; parse/isValid; rejects zero/
+      negative/malformed.
+    - RailIdIssuer: issues at confirm, retire set, never reuses.
+    - RailWorldData: register rejects duplicate + retired + invalid ids;
+      delete retires.
+    - Lifecycle: preview (no id) -> confirm (issue) -> active -> edit (same id)
+      -> delete (retire, never reused).
+
+13. Stable ID lifecycle (normal world evidence)
+    - RAIL1 -> rail-1; RAIL2 -> rail-2 (distinct); over-length reject consumes
+      no id (validate-before-issue); recovery -> rail-3 (monotonic, no reuse).
+
+14. R13-C Preview→Confirm handoff result
+    - RailFingerprint: endpoints + asset + cant + path length/positions/
+      tangents/sample count.
+    - Controller confirm: production registration FIRST (validate + issue id);
+      invalid confirm REJECTED with no promotion/no id/no clear; valid confirm
+      promotes the EXACT preview RailPath object (F2.4).
+
+15. Fingerprint identity result
+    - previewFingerprint stable; confirmFingerprint == previewFingerprint;
+      preview length/samples/cant/endpoints == confirmed; promotedPreview is
+      the exact object; no second geometry pipeline (source-guarded).
+
+16. R13-D Validation result
+    - RailSegmentValidator (rail-level, pure): null/id/lifecycle, finite
+      anchors, zero/min/max length, path-sampled max gradient, endpoint pitch,
+      cant (incl. NaN/Inf), gauge range, asset non-empty, duplicate/retired id
+      (world), promoted-vs-derived consistency (length + start/end pos +
+      tangents).
+    - register() validates at every write point (R12-J §2.3) and records the
+      result as derived metadata.
+
+17. R13-E Numeric Limits measurement result
+    - limitMeasure tool: straight exact to 2000m; pitch finite to 80; cant
+      orthonormal to 89; endpoints exact at 1,000,000 coords; preview/confirm
+      rebuild diff 0.
+    - Frozen: MIN 0.25m, MAX 256m, gradient 45, cant 45, gauge [0.6,1.8].
+
+18. Frozen Limits
+    - MIN_RAIL_LENGTH_M = 0.25, MAX_RAIL_LENGTH_M = 256,
+      MAX_GRADIENT_DEG = 45, MAX_CANT_DEG = 45,
+      MIN_GAUGE_M = 0.6, MAX_GAUGE_M = 1.8.
+
+19. Deferred Numeric Owners
+    - spacing (R14), ModelPack import (R15), snap (R16), switch animation
+      (R18), connector tolerance (R19), LOD/culling (R24), large-network (R24).
+
+20. R13 Contract Test result
+    - RailsysR13ProductionDataSuite: 41 tests (a..f) all PASS.
+    - Full harness: PASSED=248 FAILED=0 SKIPPED=3 (207 baseline + 41 R13).
+
+21. Mutation Guard result
+    - 11/11 deliberate violations detected by the matching R13 test and
+      reverted byte-for-byte (git diff clean).
+    - Covered: zero id, id collision, duplicate id, retired id reuse,
+      too-short, too-long, cant limit, fingerprint asset, exact promotion,
+      promoted/derived mismatch, NaN cant.
+
+22. Foundation Suite result
+    - RailsysFoundationContractSuite 30/30 PASS (F1-F6 source+golden intact).
+    - R10SourceContractTest 29/29 PASS (exact-promotion source guards).
+
+23. Existing Harness result
+    - 207-test baseline all PASS (regression retained; suite additive).
+
+24. Production Build result
+    - ./gradlew makeMainOfflineDownload BUILD SUCCESSFUL (rebuilt with R13
+      wiring + Sol fixes).
+
+25. Launcher smoke
+    - HEADLESS START launcher CDP responded, clean stop.
+
+26. Normal World Acceptance
+    - Instrumented course (world "RailsysR13"): RAIL1 -> rail-1, RAIL2 ->
+      rail-2 (distinct); status prod=1(rail-1); over-length 260m confirm ->
+      "railsys: confirm rejected — rail fails production validation" (no id,
+      prod stays rail-1,rail-2, markers retained); clear -> recovery -> rail-3.
+    - Exit code 0; screenshot SS-R13-PRODUCTION_DATA.png.
+
+27. R10F Regression
+    - F1 support-surface datum, F2 RailPath/direction, F3 editing invariance,
+      F4 asset=look, F5 placement lifecycle, F6 authority: all Foundation
+      guards PASS. No frozen contract broken (additions only).
+
+28. R12 Conformance
+    - doc/implementation/phase1_r13/R13_R12_CONFORMANCE.md: data model, stable
+      id timing, authoritative/derived/cache/transient, handoff/exact
+      promotion, validation scope, numeric limits measured, future
+      Node/Connection boundary preserved, no premature Network/Switch/
+      ModelPack/Persistence.
+
+29. Luna delegation
+    - Not required for R13 (no vision-critical step; screenshot is
+      supplementary).
+
+30. Sol delegation result
+    - gpt-5.6-sol independent review: 3 rounds, NOGO -> GO (confidence 0.97).
+      Blockers resolved: (1) phantom-path guard (now length+pos+tan), (2)
+      production validation before client promotion (reject invalid confirm),
+      (3) rejected confirm consumes no id (validate-before-issue), (4) world
+      isolation (reset fires on client world before isRemote gate; counter
+      monotonic).
+
+31. Git checkpoints
+    - f5c01e1c, 16cdb198, e8c5fb3b, 84f26510, a4127b41, dd309e5b, 7707a9b8,
+      2d31e56b, f1e286e0 (all pushed).
+    - <FINAL_SHA> Final Report commit.
+
+32. Affected files
+    - src/geometry-core/java/net/minecraft/railsys/data/* (8 new classes)
+    - src/game/java/net/minecraft/railsys/placement/RailsysProductionRailStore.java (new)
+    - src/game/java/net/minecraft/railsys/placement/RailsysPlacementController.java (confirm)
+    - src/game/java/net/minecraft/railsys/placement/RailsysClientCommands.java (status)
+    - src/game/java/net/minecraft/railsys/render/RailsysRenderManager.java (world-scoping)
+    - src/harness/java/railv2test/tools/R13LimitMeasurement.java (new)
+    - src/harness/java/railv2test/tests/RailsysR13ProductionDataSuite.java (new)
+    - src/harness/java/railv2test/Runner.java
+    - build.gradle.kts (limitMeasure task)
+    - doc/implementation/phase1_r13/* (9 docs + script + screenshot)
+    - .gitignore
+
+33. Protected file hashes
+    - CommandRailSystem.java = 1037f467...e832 (byte-identical)
+    - EntityRailVehicle.java = b2fb0ea3...acff (byte-identical)
+
+34. Clean-room
+    - PASS. No RTM source/model/texture/script copied. R13 is pure Railsys
+      implementation.
+
+35. Secret scan
+    - PASS. Webhook URL never written to repo/docs/logs/commits.
+
+36. Known Issues
+    - R13 world store is in-memory (persistence + per-world binding are R23).
+      resetForNewWorld/onWorldEnter provide the explicit world-session reset.
+    - Rejected confirms leave markers/preview for correction (by design).
+
+37. Remaining Risks
+    - R14 renderer depends on the RailSegment geometry (phantom-path guard
+      mitigates mismatch).
+    - R16 server/network fingerprint + atomic id issuance (R13 ids monotonic
+      per process; R23 persists high-water mark).
+    - R15 asset updates refresh the gauge snapshot via withGaugeSnapshot.
+
+38. R14 Entry Gate
+    - Production data implementation complete; stable id lifecycle complete;
+      preview→confirm exact handoff complete; validation complete; limits
+      frozen + owners assigned; R13 contract tests 41/41; mutation guards
+      11/11; Foundation suite 30/30; existing harness 248/0/3; production
+      build + launcher smoke PASS; normal world PASS; R12 conformance PASS;
+      protected intact; secret scan PASS; sync verified.
+    - PHASE 1-R14 ENTRY GATE: OPEN
+
+39. Final Verdict
+    PHASE 1-R13 VERDICT: PASS
+
+    An R14 engineer can now: hold a Confirmed Rail as production data with a
+    stable id (preview no id / confirm issues / retire never reused); promote a
+    preview exactly (fingerprint + exact object); reject invalid rail-level
+    data (NaN/zero/limits/gauge/asset/lifecycle/phantom-path); rely on
+    authoritative/derived/cache/transient separation; use evidence-frozen
+    numeric limits; and know R10F/R12 are unbroken.
+
+====================================================================
+PHASE 1-R13 STATUS: COMPLETE
+PHASE 1-R13 VERDICT: PASS
+PHASE 1-R14 ENTRY GATE: OPEN
+====================================================================
