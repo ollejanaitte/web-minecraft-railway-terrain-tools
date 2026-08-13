@@ -28,7 +28,7 @@ RTM Behavioural Reverse Engineering
    - Research commit: 7719d6c7  docs: R11 RTM behavioural reverse engineering
      research (14 deliverables)
    - Evidence commit: c1423d69  docs: R11 visual evidence diagrams
-   - Final Report commit: <FINAL_SHA> (recorded post-commit in FINAL_REPORT.txt)
+   - Final Report commit: d71e5fa51710ea5709b73b288c3e256dbcee0449 (recorded post-commit in FINAL_REPORT.txt)
 
 8. local / origin / GitHub final sync
    At report creation: local HEAD == origin/main == GitHub main == c1423d69
@@ -185,7 +185,7 @@ RTM Behavioural Reverse Engineering
 29. Git checkpoints
     - 7719d6c7  docs: R11 RTM behavioural reverse engineering research
     - c1423d69  docs: R11 visual evidence diagrams
-    - <FINAL_SHA> Final Report commit
+    - d71e5fa51710ea5709b73b288c3e256dbcee0449 Final Report commit
 
 30. Affected files
     - doc/research/phase1_r11/*.md (14 deliverables) + screenshots/ (3 PNG)
