@@ -100,3 +100,8 @@ doc/implementation/phase1_r15/logs/
 doc/implementation/phase1_r15/instrumented.html
 # Reference ModelPack material (NEVER committed - clean-room / license)
 /rtm_reference/
+
+# Phase 1-R16 runtime artifacts (profiles, logs, instrumented)
+doc/implementation/phase1_r16/profiles/
+doc/implementation/phase1_r16/logs/
+doc/implementation/phase1_r16/instrumented.html
