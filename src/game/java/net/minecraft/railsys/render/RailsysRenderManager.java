@@ -114,14 +114,33 @@ public final class RailsysRenderManager {
 
 	// One-shot world restore guard (Phase 1.5). HashSet is TeaVM-safe.
 	private static final java.util.HashSet<net.minecraft.world.World> restoredWorlds = new java.util.HashSet<net.minecraft.world.World>();
+	// R13: tracks the currently restored world so a NEW world session resets the
+	// in-memory production rail store (rails/retired ids do not leak across
+	// world sessions; the monotonic id counter is preserved).
+	private static net.minecraft.world.World currentRestoreWorld;
 
 	/**
 	 * If this world hasn't had its saved rail restored yet, do so. Called by the
-	 * renderer each frame (cheap after first restore). Integrated/server only.
+	 * renderer each frame (cheap after first restore).
+	 *
+	 * World-transition reset runs for ANY world change (client or server): the
+	 * in-memory PRODUCTION rail store is client-side (R10F F6 CLIENT-LOCAL), so
+	 * it must be cleared when the client enters a different world. The
+	 * server-side PERSISTENCE restore (R23 backend; R10F WorldRailData v2) is
+	 * gated to non-remote worlds only.
 	 */
 	public static void ensureRestored(net.minecraft.world.World world) {
-		if (world == null || world.isRemote) {
+		if (world == null) {
 			return;
+		}
+		if (currentRestoreWorld != world) {
+			// A different world is being entered: reset the transient production
+			// rail store (R13 world-scoping; per-world persistence is R23).
+			currentRestoreWorld = world;
+			net.minecraft.railsys.placement.RailsysProductionRailStore.onWorldEnter();
+		}
+		if (world.isRemote) {
+			return; // server-side persistence restore only
 		}
 		if (restoredWorlds.contains(world)) {
 			return;

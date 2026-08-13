@@ -3308,3 +3308,18 @@ STEP R13-08b - Sol review fixes + re-verification
 - Docs updated (R13_NORMAL_WORLD_ACCEPTANCE, R13_MUTATION_GUARD_RESULTS,
   R13_R12_CONFORMANCE).
 - Discord: notifications sent.
+
+STEP R13-08c - Sol review round 3 (world isolation) + GO
+-----------------------------------------------------------
+- Sol review found blocker #4 persisted: onWorldEnter was behind the isRemote
+  gate so it never fired on the client world. Fixed:
+  - ensureRestored now runs the world-transition RESET before the isRemote
+    early-return (fires on the client world where the production store lives);
+    server-side persistence restore stays gated by isRemote.
+  - a07 source guard now asserts reset-before-isRemote order; a06 covers core
+    reset semantics; a08 covers store API.
+- Harness 248 PASS / 0 FAIL / 3 SKIP (R13 suite 41 tests). Production build
+  regenerated.
+- Sol final: GO (confidence 0.97) — all 4 blockers resolved, no new R13-scope
+  contradiction.
+- Discord: notifications sent.

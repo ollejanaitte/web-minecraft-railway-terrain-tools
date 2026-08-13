@@ -105,6 +105,57 @@ public final class RailsysR13ProductionDataSuite {
 	// ===================== R13-B Stable Rail ID =====================
 
 	@Test
+	public static void a06_worldResetClearsRailsPreservesMonotonicId() {
+		// R13 world-scoping: a world reset clears rails + retired set; the id
+		// counter is NOT reset (monotonic across worlds prevents reuse/collision).
+		RailWorldData world = world();
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(10.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailId id1 = world.nextRailId();
+		RailSegment s1 = RailSegment.confirm(id1, pa, pb, 0.0D, 1.435D, "asset", 1, null, 0, false);
+		world.register(s1);
+		world.delete(id1);
+		Assert.assertEqualsInt(1, (int) world.issuer().retiredCount(), "R13A retired tracked");
+		world.clearAll();
+		Assert.assertEqualsInt(0, world.size(), "R13A clear removes rails");
+		Assert.assertEqualsInt(0, (int) world.issuer().retiredCount(), "R13A clear clears retired set");
+		RailId id2 = world.nextRailId();
+		Assert.assertTrue(id2.value() > id1.value(), "R13A monotonic id preserved (no reuse)");
+		Assert.assertTrue(!world.issuer().isRetired(id2), "R13A fresh id not retired");
+	}
+
+	@Test
+	public static void a07_worldEnterHookWiredInRenderManager() {
+		// R13 source guard: the render-manager world-restore hook resets the
+		// production store when a NEW world enters. The reset must run BEFORE
+		// the isRemote early-return so it fires on the client world where the
+		// production store lives (Sol review: world isolation).
+		String mgr = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/render/RailsysRenderManager.java"));
+		Assert.assertTrue(mgr.contains("currentRestoreWorld != world"),
+				"R13A render manager tracks world transitions");
+		Assert.assertTrue(mgr.contains("RailsysProductionRailStore.onWorldEnter()"),
+				"R13A render manager resets production store on new world");
+		// Order: world-transition reset happens BEFORE the isRemote gate.
+		int resetIdx = mgr.indexOf("RailsysProductionRailStore.onWorldEnter()");
+		int remoteIdx = mgr.indexOf("if (world.isRemote)");
+		Assert.assertTrue(resetIdx >= 0 && remoteIdx > resetIdx,
+				"R13A world reset runs before the isRemote early-return");
+	}
+
+	@Test
+	public static void a08_storeResetAndProbeArePublicForIntegration() {
+		// R13 source guard: the store exposes world-reset + validation-probe
+		// integration points for the game layer.
+		String store = stripComments(
+				readSource("src/game/java/net/minecraft/railsys/placement/RailsysProductionRailStore.java"));
+		Assert.assertTrue(store.contains("public synchronized void resetForNewWorld()"),
+				"R13A store exposes world reset");
+		Assert.assertTrue(store.contains("public static void onWorldEnter()"),
+				"R13A store exposes world-enter hook");
+	}
+
+	@Test
 	public static void b01_previewHasNoStableId() {
 		// The placement/preview layer has no RailId concept (source contract is
 		// enforced by the game layer source guards); here we assert the data
