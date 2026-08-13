@@ -3500,3 +3500,11 @@ STEP R15-10/11/12 - game layer: selector, preview switching, asset apply
   the segment references one (F4: geometry unchanged).
 - /railsys15 root added to GuiChat local dispatch.
 - Harness still 292/0/3; production build green.
+
+STEP R15-11/13/14/18 - preview switching, missing/broken handling, invariance
+-----------------------------------------------------------------------------
+- New tests: m03 (missing MQO -> MISSING compat, no crash), m04 (malformed
+  json -> 0 assets), g01 (asset switch geometry invariance: same section/
+  sample/sleeper counts and identical sample frames for default vs ModelPack
+  profile). R15 suite now 23 tests.
+- Harness 295/0/3.

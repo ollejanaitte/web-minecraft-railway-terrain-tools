@@ -375,4 +375,118 @@ public final class RailsysR15ModelPackSuite {
 		Assert.assertEquals(RailsysInternalAsset.Compatibility.PARTIAL, concrete.compatibility,
 				"R15B compatibility preserved");
 	}
+
+	// ---- R15-13 Missing / broken pack handling ----
+
+	@Test
+	public static void m03_missingMqoFallsBack() {
+		// A ModelRail config whose MQO is absent -> asset still created with
+		// MISSING compatibility (never a crash).
+		String railJson = "{\"railName\":\"x_rail\",\"model\":{\"modelFile\":\"NoSuchFile.mqo\","
+				+ "\"textures\":[[\"default\",\"textures/rail/missing.png\",\"\"]],"
+				+ "\"rendererPath\":\"scripts/RenderRailNB.js\"},"
+				+ "\"buttonTexture\":\"textures/rail/button.png\","
+				+ "\"defaultBallast\":[{\"blockName\":\"gravel\",\"height\":0.0625}]}";
+		// Build a tiny zip with just the json
+		byte[] zip = zipWith("mods/RTM/ModelRail_x_rail.json", railJson);
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		ModelPackImporter.ImportResult res = ModelPackImporter.importZip(zip, "test.zip", d);
+		Assert.assertEquals(1, res.assets.size(), "R15M missing-mqo asset still created");
+		Assert.assertEquals(Compatibility.MISSING, res.assets.get(0).compatibility, "R15M compat=MISSING");
+	}
+
+	@Test
+	public static void m04_malformedPackNoCrash() {
+		byte[] zip = zipWith("mods/RTM/ModelRail_bad.json", "{ not json");
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		ModelPackImporter.ImportResult res = ModelPackImporter.importZip(zip, "test.zip", d);
+		Assert.assertEquals(0, res.assets.size(), "R15M broken json -> 0 assets, no crash");
+	}
+
+	private static byte[] zipWith(String name, String content) {
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		try {
+			java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(bos);
+			zos.putNextEntry(new java.util.zip.ZipEntry(name));
+			zos.write(content.getBytes("UTF-8"));
+			zos.closeEntry();
+			zos.close();
+			return bos.toByteArray();
+		} catch (java.io.IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	// ---- R15-11 Preview asset switching + R15-18 Geometry invariance ----
+
+	@Test
+	public static void g01_assetSwitchGeometryInvariant() {
+		// Asset switch must never change the RailPath (F4). Build a path once
+		// and confirm both the DEFAULT profile and a ModelPack asset profile
+		// derive an identical mesh geometry for that path.
+		byte[] inner = referencePackBytes();
+		if (inner == null) {
+			System.out.println("R15G: reference pack not present — skip");
+			return;
+		}
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		ModelPackImporter.ImportResult res = ModelPackImporter.importZip(inner, "NR01-NB-Rails.zip", d);
+		RailsysInternalAsset concrete = null;
+		for (RailsysInternalAsset a : res.assets) {
+			if (a.railId.toLowerCase().equals("1435mm_nb_concrete")) {
+				concrete = a;
+			}
+		}
+		Assert.assertEquals(true, concrete != null, "R15G concrete asset present");
+
+		// Build a RailPath (50m straight) via production geometry.
+		net.minecraft.railsys.geometry.AnchorDefinition pa =
+				new net.minecraft.railsys.geometry.AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
+		net.minecraft.railsys.geometry.AnchorDefinition pb =
+				new net.minecraft.railsys.geometry.AnchorDefinition(50, 4, 0, 270, 0, 1.0, 0);
+		net.minecraft.railsys.path.RailPath path =
+				net.minecraft.railsys.path.RailPath.fromMarkers(pa, pb, 0.0D, 8001);
+		Assert.assertEquals(50.0D, path.totalLength(), 1e-6, "R15G path length");
+
+		// Default 1435 profile mesh
+		net.minecraft.railsys.render.RailProfile defProfile = net.minecraft.railsys.render.RailProfile.default1435();
+		net.minecraft.railsys.render.ProductionRailMesh m1 =
+				net.minecraft.railsys.render.ProductionRailMeshBuilder.build(path, defProfile, 0.25D, 32.0D);
+
+		// ModelPack asset profile (concrete). The appearance profile maps gauge
+		// from the asset and NEVER touches the path (F4). We build a
+		// geometry-core-only profile that mimics the game bridge: same
+		// cross-section dims, gauge from the asset (1.435), ballast on, and a
+		// rail colour derived from the rail id.
+		net.minecraft.railsys.render.RailProfile def = net.minecraft.railsys.render.RailProfile.default1435();
+		double g = concrete.gaugeM != null ? concrete.gaugeM : 1.435D;
+		boolean ballast = concrete.ballastBlock != null && !concrete.ballastBlock.isEmpty()
+				&& !concrete.ballastBlock.equalsIgnoreCase("air");
+		net.minecraft.railsys.render.RailProfile mp = new net.minecraft.railsys.render.RailProfile(
+				def.headWidthM, def.headHeightM, def.webWidthM, def.webHeightM,
+				def.footWidthM, def.footHeightM, g,
+				150, 152, 158,  // concrete-derived rail colour
+				def.hasSleeper, def.sleeperSpacingM, def.sleeperLengthM, def.sleeperWidthM,
+				def.sleeperHeightM, def.sleeperTopM, def.sleeperR, def.sleeperG, def.sleeperB,
+				def.hasFastener, def.fastenerSpacingM,
+				ballast, ballast ? 2.6D : 0.0D, ballast ? 0.22D : 0.0D, 90, 78, 62,
+				concrete.materialId);
+		net.minecraft.railsys.render.ProductionRailMesh m2 =
+				net.minecraft.railsys.render.ProductionRailMeshBuilder.build(path, mp, 0.25D, 32.0D);
+
+		// Geometry must be IDENTICAL: same section/sample/sleeper counts and
+		// same sample positions along the path.
+		Assert.assertEqualsInt(m1.sectionCount(), m2.sectionCount(), "R15G section count same");
+		Assert.assertEqualsInt(m1.totalSampleCount(), m2.totalSampleCount(), "R15G sample count same");
+		Assert.assertEqualsInt(m1.totalSleeperCount(), m2.totalSleeperCount(), "R15G sleeper count same");
+		net.minecraft.railsys.render.RailMeshSection s1 = m1.section(0);
+		net.minecraft.railsys.render.RailMeshSection s2 = m2.section(0);
+		Assert.assertEquals(s1.samples.size(), s2.samples.size(), "R15G section sample count same");
+		for (int i = 0; i < s1.samples.size() && i < s2.samples.size(); i++) {
+			double d1 = Math.abs(s1.samples.get(i).frame.x - s2.samples.get(i).frame.x)
+					+ Math.abs(s1.samples.get(i).frame.y - s2.samples.get(i).frame.y)
+					+ Math.abs(s1.samples.get(i).frame.z - s2.samples.get(i).frame.z);
+			Assert.assertEquals(0.0D, d1, 1e-9, "R15G sample frame identical across asset switch");
+		}
+	}
 }
