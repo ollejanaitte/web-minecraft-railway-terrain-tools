@@ -3434,3 +3434,14 @@ STEP R14-17 - Sol review round 1 + fixes
 - Harness 273 PASS / 0 FAIL / 3 SKIP. Normal world closed loop re-verified
   with the fixed renderer (screenshots regenerated, rail/brown pixels present).
 - Discord: Sol-review + fixes notification.
+
+STEP R14-18 - Sleeper exact-position fix + Sol GO
+-------------------------------------------------
+- Sol round-2: finding #4 (sleepers not at exact positions) not yet resolved:
+  emitSleeper centred on nearest frame origin, ignoring stored sleeper coords.
+- Fixed: emitSleeper now takes exactX/Y/Z (sleeper[0..2]) and draws the box at
+  that exact world position via boxAtShifted (orientation from nearest frame).
+  Dead boxAt() removed.
+- Closed loop re-verified with exact-position sleepers (screenshots regenerated,
+  rail/brown pixels solid).
+- Sol round-3 VERDICT: GO for R14 (99% confidence), no new contradictions.

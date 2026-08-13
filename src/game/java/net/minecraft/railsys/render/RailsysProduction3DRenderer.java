@@ -98,7 +98,7 @@ public final class RailsysProduction3DRenderer {
 			for (double[] s : section.sleepers) {
 				RailLocalFrame f = nearestFrame(section, s[0], s[1], s[2]);
 				if (f != null) {
-					emitSleeper(wr, f, profile);
+					emitSleeper(wr, f, s[0], s[1], s[2], profile);
 				}
 			}
 		}
@@ -139,17 +139,47 @@ public final class RailsysProduction3DRenderer {
 				up0 + headTop, p.railR, p.railG, p.railB);
 	}
 
-	private static void emitSleeper(WorldRenderer wr, RailLocalFrame f, RailProfile p) {
-		// Sleeper box centred on the frame origin (path centreline), spanning
-		// +-sleeperLength/2 along right and small depth/height, sitting on the
-		// support surface (R10F F1): bottom = 0 (surface), top = sleeperHeight.
+	private static void emitSleeper(WorldRenderer wr, RailLocalFrame f, double exactX, double exactY,
+			double exactZ, RailProfile p) {
+		// Sleeper box centred on the EXACT distance-based world position
+		// (exactX,exactY,exactZ) with the frame orientation (right/forward/up).
+		// The frame origin is the path centreline near this sleeper; we keep the
+		// sleeper's exact world centre and only use the frame's axes.
 		double halfLen = p.sleeperLengthM * 0.5D;
 		double halfW = p.sleeperWidthM * 0.5D;
 		double up0 = 0.01D; // tiny lift above the bed to avoid z-fighting
 		double bottom = up0;
 		double top = up0 + p.sleeperHeightM;
-		boxAt(wr, f, -halfLen, -halfW, bottom, halfLen, halfW, top,
+		// Box centred at the exact sleeper centre, oriented by the frame:
+		// local (right=x, forward=z, up=y) with origin shifted to (exactX,..).
+		boxAtShifted(wr, f, exactX, exactY, exactZ, -halfLen, -halfW, bottom, halfLen, halfW, top,
 				p.sleeperR, p.sleeperG, p.sleeperB);
+	}
+
+	/** Emit a box centred on a shifted world position with a frame orientation. */
+	private static void boxAtShifted(WorldRenderer wr, RailLocalFrame f,
+			double cx, double cy, double cz,
+			double minX, double minZ, double minY, double maxX, double maxZ, double maxY,
+			int r, int g, int b) {
+		// local axes: right (x), forward (z), up (y), origin at (cx,cy,cz).
+		double[][][] faces = {
+				{ { minX, minY, minZ }, { maxX, minY, minZ }, { maxX, maxY, minZ }, { minX, maxY, minZ } }, // -z
+				{ { minX, minY, maxZ }, { maxX, minY, maxZ }, { maxX, maxY, maxZ }, { minX, maxY, maxZ } }, // +z
+				{ { minX, minY, minZ }, { minX, minY, maxZ }, { minX, maxY, maxZ }, { minX, maxY, minZ } }, // -x
+				{ { maxX, minY, minZ }, { maxX, minY, maxZ }, { maxX, maxY, maxZ }, { maxX, maxY, minZ } }, // +x
+				{ { minX, maxY, minZ }, { maxX, maxY, minZ }, { maxX, maxY, maxZ }, { minX, maxY, maxZ } }, // +y
+				{ { minX, minY, minZ }, { maxX, minY, minZ }, { maxX, minY, maxZ }, { minX, minY, maxZ } }  // -y
+		};
+		double[][] w = new double[4][3];
+		for (double[][] face : faces) {
+			for (int i = 0; i < 4; i++) {
+				double[] p = face[i];
+				w[i][0] = cx + f.rx * p[0] + f.fx * p[2] + f.ux * p[1];
+				w[i][1] = cy + f.ry * p[0] + f.fy * p[2] + f.uy * p[1];
+				w[i][2] = cz + f.rz * p[0] + f.fz * p[2] + f.uz * p[1];
+			}
+			quad(wr, w[0], w[1], w[2], w[3], r, g, b);
+		}
 	}
 
 	/** Emit a box between two frames (rail span), offset by rail centre along right. */
@@ -169,31 +199,6 @@ public final class RailsysProduction3DRenderer {
 		// End caps on frames A and B (closes the prism).
 		quad(wr, A[0], A[1], A[2], A[3], r, g, b);
 		quad(wr, B[0], B[1], B[2], B[3], r, g, b);
-	}
-
-	/** Emit a box centred on one frame (sleeper). */
-	private static void boxAt(WorldRenderer wr, RailLocalFrame f,
-			double minX, double minZ, double minY, double maxX, double maxZ, double maxY,
-			int r, int g, int b) {
-		// local axes: right (x), forward (z), up (y)
-		double[][][] faces = {
-				{ { minX, minY, minZ }, { maxX, minY, minZ }, { maxX, maxY, minZ }, { minX, maxY, minZ } }, // -z
-				{ { minX, minY, maxZ }, { maxX, minY, maxZ }, { maxX, maxY, maxZ }, { minX, maxY, maxZ } }, // +z
-				{ { minX, minY, minZ }, { minX, minY, maxZ }, { minX, maxY, maxZ }, { minX, maxY, minZ } }, // -x
-				{ { maxX, minY, minZ }, { maxX, minY, maxZ }, { maxX, maxY, maxZ }, { maxX, maxY, minZ } }, // +x
-				{ { minX, maxY, minZ }, { maxX, maxY, minZ }, { maxX, maxY, maxZ }, { minX, maxY, maxZ } }, // +y
-				{ { minX, minY, minZ }, { maxX, minY, minZ }, { maxX, minY, maxZ }, { minX, minY, maxZ } }  // -y
-		};
-		double[][] w = new double[4][3];
-		for (double[][] face : faces) {
-			for (int i = 0; i < 4; i++) {
-				double[] p = face[i];
-				w[i][0] = f.x + f.rx * p[0] + f.fx * p[2] + f.ux * p[1];
-				w[i][1] = f.y + f.ry * p[0] + f.fy * p[2] + f.uy * p[1];
-				w[i][2] = f.z + f.rz * p[0] + f.fz * p[2] + f.uz * p[1];
-			}
-			quad(wr, w[0], w[1], w[2], w[3], r, g, b);
-		}
 	}
 
 	/** 4 rectangle corners in world space; local (right=x, up=y):
