@@ -3272,3 +3272,20 @@ STEP R13-08 - Normal World Acceptance
 - Screenshot SS-R13-PRODUCTION_DATA.png; JS error 1 = known headless
   pointer-lock warning. Docs + .gitignore updated.
 - Exit code 0. Discord: normal world acceptance notification sent.
+
+STEP R13-07b - Sol review hardening + re-run mutation guards
+--------------------------------------------------------------
+- Sol review (gpt-5.6-sol) raised concrete hardening points; all applied:
+  - RailSegment.confirm rejects NaN cant.
+  - RailSegmentValidator: path-sampled max-gradient check; cant rejects
+    non-finite; promoted-preview vs derived length consistency (phantom path).
+  - RailWorldData.register now VALIDATES at every write point (R12-J §2.3)
+    and records the validation result as derived metadata.
+  - RailSegment.withGaugeSnapshot refresh API (R12-A §2).
+- New tests d11..d15 (NaN cant, register-validates, promoted/derived
+  mismatch, path gradient, gauge refresh). R13 suite now 38 tests.
+- Harness after hardening: PASSED=245 FAILED=0 SKIPPED=3.
+- Mutation guards re-run (v2, 11 cases incl. new hardening paths):
+  11/11 detected and reverted byte-for-byte.
+- Docs updated: R13_MUTATION_GUARD_RESULTS (11/11), R13_R12_CONFORMANCE.
+- Discord: mutation guard + hardening notifications sent.

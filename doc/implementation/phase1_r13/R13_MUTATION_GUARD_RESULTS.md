@@ -6,12 +6,12 @@ contract is violated, then revert byte-for-byte.
 
 ## Method
 
-Each mutation was applied to a clean geometry-core/game source, the full
-harness was run, the matching R13 test was verified to FAIL, and the file was
-restored to exact prior bytes (`git diff --exit-code` clean afterwards).
-Driver is a temporary helper (never committed).
+Each mutation was applied to a clean geometry-core source, the full harness
+was run, the matching R13 test was verified to FAIL, and the file was restored
+to exact prior bytes (`git diff --exit-code` clean afterwards). Driver is a
+temporary helper (never committed).
 
-## Results: 9 / 9 violations detected and reverted
+## Results: 11 / 11 violations detected and reverted
 
 | # | Deliberate violation | Detected by | Detected |
 |---|---|---|---|
@@ -21,18 +21,19 @@ Driver is a temporary helper (never committed).
 | 4 | Retired id allowed (guard disabled) | `b05_retiredIdNotReused` | YES |
 | 5 | Too-short check disabled | `d02_tooShortRejected` | YES |
 | 6 | Too-long check disabled | `d03_tooLongRejected` | YES |
-| 7 | Cant limit disabled | `d07_cantLimitRejected` | YES |
+| 7 | Cant limit disabled (incl. NaN) | `d07_cantLimitRejected` | YES |
 | 8 | Fingerprint ignores asset id | `c02_confirmFingerprintEqual` | YES |
 | 9 | Exact promotion broken (promoted preview = null) | `c06_promotedPreviewIsExactObject` | YES |
+| 10 | Promoted/derived mismatch check disabled | `d13_promotedVsDerivedMismatchRejected` | YES |
+| 11 | NaN cant accepted at construction | `d11_nanCantRejected` | YES |
 
-Coverage of the section-13 violation list: preview-stable-id (covered by
-design: preview layer has no id; guard via b06 + f02 source guard), confirm
-different geometry (covered by c06 + f01 source guard), duplicate/retired id
-(#3/#4), NaN/limit validation disabled (#5/#6/#7 + d05), fingerprint
-comparison disabled (#8).
+Coverage: preview-stable-id (design + b06 + f02 source guard), confirm
+different geometry (c06 + f01 source guard), duplicate/retired id (#3/#4),
+NaN/limit validation disabled (#5/#6/#7 + d05/d11), fingerprint comparison
+disabled (#8), phantom-path guard (#10).
 
 ## Post-verification
 
-- Full harness after final restore: PASSED=240 FAILED=0 SKIPPED=3.
-- All mutated files byte-identical (`git diff` empty on each).
+- Full harness after final restore: PASSED=245 FAILED=0 SKIPPED=3.
+- All mutated files byte-identical (`git diff` empty on each after restore).
 - Protected files untouched and byte-identical.
