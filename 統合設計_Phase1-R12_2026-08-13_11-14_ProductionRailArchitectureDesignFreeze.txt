@@ -1,0 +1,248 @@
+====================================================================
+Phase 1-R12 Final Report
+Production Rail Architecture & Design Freeze
+====================================================================
+
+1. Title
+   Phase 1-R12: Production Rail Architecture & Design Freeze
+
+2. Phase
+   Phase 1-R12
+
+3. Status / Verdict
+   PHASE 1-R12 STATUS: COMPLETE
+   PHASE 1-R12 VERDICT: PASS
+   PHASE 1-R13 ENTRY GATE: OPEN
+
+4. Start JST
+   2026-08-13 10:20 (R12 initial audit + Discord start notice)
+
+5. End JST
+   2026-08-13 11:14 (Final Gate completed)
+
+6. Initial HEAD
+   f2f2f6b9e4640f29d66cbc2b07aa24eb447e0552 (R11 final sync).
+   local main == origin/main == GitHub main (3-way match).
+
+7. Final SHA
+   - Design commit: 5f330979  docs: R12 production rail architecture design
+     freeze (17 deliverables)
+   - Final Report commit: <FINAL_SHA> (recorded post-commit in FINAL_REPORT.txt)
+
+8. local / origin / GitHub final sync
+   At report creation: local HEAD == origin/main == GitHub main == 5f330979
+   (3-way match). Final Report commit pushed and re-verified.
+
+9. Initial Audit
+   - Branch main; HEAD f2f2f6b9; protected files byte-identical
+     (CommandRailSystem 1037f467..., EntityRailVehicle b2fb0ea3...).
+   - Existing dirty/untracked preserved verbatim; none staged.
+   - R11 requirements + R10F foundation reviewed as design inputs.
+
+10. R10F / R11 Input Inventory
+    - R10F: F1-F6 frozen contracts, Foundation suite + golden, classification,
+      change policy.
+    - R11: REQ-P0-01..11, REQ-P1-01..09, P2/DEFER (9); behaviour spec, gap
+      analysis, persistence matrix, modelpack compatibility matrix.
+
+11. R11 Requirement Summary
+    - P0 x11: data model, network, switch+route, switch animation, 3D rail,
+      ModelPack load, RTM compat, confirmed editing, delete/replace/repair,
+      persistence, validation limits.
+    - P1 x9, P2/DEFER x9 (signal logic, detectors, trains, ATS/ATC, undo/redo
+      etc → Phase 2).
+
+12. R12-A Production Rail Data Model
+    - PRODUCTION_RAIL_DATA_MODEL.md: authoritative/derived/cache split;
+      stable IDs (railId@confirm, nodeId@first-connection, connectorId@attach);
+      RailSegment/RailEndpoint(blockPos derived)/RailNode(explicit)/Connection/
+      Junction/InfrastructureConnector; confirm two-phase handoff with
+      acceptFingerprint==previewFingerprint exact-promotion rule (F2.4);
+      occupied/signalState schema-reserved (not persisted in Phase 1).
+
+13. R12-B Rail Network
+    - RAIL_NETWORK_ARCHITECTURE.md: connection is EXPLICIT production data
+      (separate from proximity); RailNode explicit persisted membership;
+      snap merges only endpoints satisfying F2 continuity; route = derived
+      query over node membership + junction committedRoute; invalid topology
+      rules; spatial index REPLACEABLE.
+
+14. R12-C Switch / Junction / Animation
+    - SWITCH_JUNCTION_ANIMATION_ARCHITECTURE.md: 5-way state separation
+      (TOPOLOGY / ROUTE / ANIMATION / RENDER / VEHICLE TRAVERSAL); Route type
+      with desiredRoute/committedRoute; vehicles traverse committedRoute;
+      branches = independent RailSegments via branchRailIds; animation =
+      transient smoothstep, NOT persisted; persistence stores geometry +
+      routeInput + owner state; families Basic/Single/Scissors/Diamond.
+
+15. R12-D Production 3D Rail
+    - PRODUCTION_3D_RAIL_ARCHITECTURE.md: RailPath = geometry source; frames
+      drive mesh; RailProfile (head/web/foot) + discrete sleeper/fastener/
+      ballast/accessory; mesh strategies REPLACEABLE; mesh derived + cached;
+      culling/LOD (REQ-P1-07); Eaglercraft constraints; tongue keyframe
+      authority (asset keyframes + junction binding).
+
+16. R12-E ModelPack / RTM Compatibility
+    - MODELPACK_COMPATIBILITY_ARCHITECTURE.md: DECIDED Runtime Compatibility
+      Adapter (B) + optional Offline Converter (C); RTM renderer JS NEVER
+      executed; import-boundary-only RTM format understanding; allowlist
+      rendererPath->rendererType mapping; Railsys Internal Asset Definition
+      (extension of R10F RailAssetDefinition); field mapping table; security
+      (size/depth limits, no JS); clean-room boundary.
+
+17. Compatibility方式決定
+    - **B (runtime import adapter) + optional C (offline converter).** RTM JS
+      scripts rejected. Post-import runtime core/renderer depends only on
+      Railsys-native definitions.
+
+18. R12-F Persistence
+    - PERSISTENCE_ARCHITECTURE.md: world-global RailWorldData (schemaVersion,
+      rails[], nodes[], connections[], connectors[]); save authoritative /
+      derive rest / cache only; versioned schema + migration; reload pipeline
+      (rebuild RailPath from full endpoint record, re-derive committedRoute,
+      idle animation, fallback on missing pack); mid-animation switch: save
+      stable route INPUT only (not animation) — frozen; orphan/corruption
+      handling; server-authoritative multiplayer (F6).
+
+19. R12-G Confirmed Editing / Delete / Repair
+    - EDIT_DELETE_REPAIR_ARCHITECTURE.md: transaction (select->edit->preview
+      ->validate->commit|cancel); F3 scoping via CC-5 (six-edit invariance
+      unchanged; one new reposition op with height sub-mode); delete
+      dependency check + retire id; replace asset-only vs geometry; repair
+      table; undo/redo DEFER (REQ-P2-02).
+
+20. R12-H Infrastructure Connector
+    - INFRASTRUCTURE_CONNECTOR_ARCHITECTURE.md: InfrastructureConnector
+      (connectorId/type/targetRailId/distanceS/side/routeRef/eventHooks);
+      rail hooks signalState/occupied (data only, Phase 2 writers); event-name
+      catalogue; Phase 1 ships connection + hooks; Phase 2 ships signal logic,
+      block-section, detectors, crossing automation, connector models.
+
+21. Signal/Crossing Phase境界
+    - Phase 1: connector data model + persistence + rail hooks + attach UX.
+    - Phase 2: signal model rendering+logic, train detection, block sections,
+      ATS/ATC, timetable, crossing automation, Relay/DSS connector models.
+
+22. R12-I Vehicle Interface
+    - VEHICLE_INTERFACE_CONTRACT.md: Rail Traversal API (resolve/frameAt/
+      resolveAt/traverse/gauge/cant/gradient/segmentAt/routeAt/occupancy/
+      signal); vehicle itself DEFER (REQ-P2-07); interface frozen.
+
+23. R12-J Validation / Performance
+    - VALIDATION_PERFORMANCE_ARCHITECTURE.md: guards (min/max length, height,
+      cant, NaN) with policy frozen and numeric defaults measured in R13;
+      structural rules (overlap/crossing/tolerance/gauge/obstacle/topology/
+      switch/asset/connector/orphan); validation runs at confirm/edit/load/
+      repair; caches REPLACEABLE; culling/LOD; numeric limits to MEASURE in
+      R13.
+
+24. Requirement Traceability
+    - REQUIREMENT_TRACEABILITY_MATRIX.md: P0 11/11 DESIGNED (REQ-P0-11 marked
+      policy-frozen/numeric-pending; REQ-P0-01 gate R13 data / R23 reload);
+      P1 9/9; P2/DEFER assigned. Trace gate satisfied.
+
+25. FROZEN / EXTENSIBLE / REPLACEABLE / DEFERRED
+    - DESIGN_FREEZE_CLASSIFICATION.md: FROZEN D-F1..12; EXTENSIBLE D-X1..6;
+      REPLACEABLE D-R1..6; DEFERRED D-D1..6; UNKNOWN-OPEN (R13 owners).
+
+26. R10F Contract Change Decisions
+    - R10F_CONTRACT_CHANGE_DECISIONS.md: CC-1 (cant profile) APPROVE ADDITIVE;
+      CC-2 (switch geometry) APPROVE ADDITIVE; CC-3 (F5) NO CHANGE; CC-4
+      (blockPos) APPROVE ADDITIVE; CC-5 (reposition op) APPROVE ADDITIVE as
+      Contract Change Proposal; CC-6 (confirm/edit handoff) APPROVE ADDITIVE.
+      NO frozen FROZEN item (R10F A1-A9) is changed.
+
+27. Open Questions
+    - OPEN_QUESTIONS.md: OQ-01..19; P0-blocking = 0 (numeric/implementation
+      details owned by R13+). Counts: P0-adjacent 9, P1 5, Phase 2 5.
+
+28. P0 blockers
+    - **0.** All P0 requirements have a frozen architecture; open items are
+      named R13+ owners.
+
+29. Architecture Consistency Review
+    - ARCHITECTURE_CONSISTENCY_REVIEW.md: 14/14 checks PASS after applying the
+      Sol-review resolutions; Sol independent review final GO (confidence
+      0.98).
+
+30. R13+ Implementation Roadmap
+    - PHASE1_IMPLEMENTATION_ROADMAP.md: R13 data+limits, R14 3D rail, R15
+      ModelPack/RTM compat, R16 network, R17 switch, R18 switch animation, R19
+      connector, R20 signal/crossing rail-side, R21 confirmed editing, R22
+      delete/replace/repair, R23 persistence, R24 performance, R25 UX
+      integration, R26 regression, R27 Phase 1 acceptance. Dependency graph +
+      gates + risks documented.
+
+31. Luna委任結果
+    - Luna not used for architecture judgment (design-only phase). Diagrams/
+      vision not required.
+
+32. Sol委任結果
+    - gpt-5.6-sol independent architecture review: 4 passes, NOGO -> GO
+      (confidence 0.98). All raised blockers resolved and re-verified.
+
+33. Git checkpoint一覧
+    - 5f330979  docs: R12 production rail architecture design freeze
+      (17 deliverables)
+    - <FINAL_SHA> Final Report commit
+
+34. Affected files
+    - doc/architecture/phase1_r12/* (17 docs) — all new.
+    - FINAL_REPORT.txt (running log).
+    - No product source changed (design-only phase).
+
+35. Clean-room
+    - PASS. No RTM source/model/texture/script/config copied. RTM pack schema
+      used as specification facts only; adapter design is Railsys-native.
+
+36. Secret scan
+    - PASS. Webhook URL never written to repo/docs/logs/commits; staged diffs
+      scanned at each checkpoint.
+
+37. Protected files
+    - CommandRailSystem.java = 1037f467...e832 (byte-identical)
+    - EntityRailVehicle.java = b2fb0ea3...acff (byte-identical)
+
+38. Known Issues
+    - Numeric defaults (max length/height, spacing, LOD, snap tolerance,
+      animation duration) are intentionally NOT frozen — measured in R13.
+    - Junction family scope for Phase 1 (Basic first) is an R13 decision.
+
+39. Remaining Risks
+    - mqo->native mesh fidelity (R15 converter iteration).
+    - Eaglercraft powered-input mapping for switch route (R13).
+    - Large-network scale on low-end web (R24 measure-first).
+
+40. R13 Entry Gate
+    - All R12 Exit Gate items satisfied: input inventory, P0 trace 11/11,
+      data/network/switch/animation/3D/modelpack/persistence/edit/connector/
+      vehicle/validation designs frozen, classification complete, contract
+      decisions complete, P0-blocking open = 0, consistency review PASS,
+      roadmap defined, Git integrated, secret scan + clean-room PASS,
+      protected files intact.
+    - PHASE 1-R13 ENTRY GATE: OPEN
+
+41. Final Verdict
+    PHASE 1-R12 VERDICT: PASS
+
+    An R13 engineer reading the R12 deliverables can now judge without
+    ambiguity:
+      1. how to hold Production Rail Data (R12-A),
+      2. how to connect the Rail Network (R12-B),
+      3. how to handle stable IDs (R12-A §3),
+      4. how to separate Switch/Junction/Route/Animation (R12-C),
+      5. how to build the Production 3D Rail (R12-D),
+      6. how to import RTM ModelPacks (R12-E),
+      7. what to save/reload (R12-F),
+      8. how to edit/delete/repair confirmed rails (R12-G),
+      9. how to attach signal/crossing (R12-H),
+     10. what to provide Phase 2 vehicles (R12-I),
+     11. how to protect via validation/performance (R12-J),
+     12. that R10F F1-F6 are NOT broken (CC-1..6 additive only),
+     13. in what order to implement R13-R27 (roadmap).
+
+====================================================================
+PHASE 1-R12 STATUS: COMPLETE
+PHASE 1-R12 VERDICT: PASS
+PHASE 1-R13 ENTRY GATE: OPEN
+====================================================================
