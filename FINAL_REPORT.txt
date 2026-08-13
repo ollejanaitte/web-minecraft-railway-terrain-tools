@@ -3628,3 +3628,17 @@ STEP R16-01..04 + R16-07..16 core - geometry correction + network
   K R15 ModelPack regression, L R10F/R13/R14 regression). Harness 333/0/3.
 - R14 loop06 test updated: total now ~222.84m (quarter-circle) vs old 216.64m
   (chord) — documented improvement, not weakening.
+
+STEP R16-05/06 - normal world geometry visual acceptance + ModelPack regression
+--------------------------------------------------------------------------------
+- r16_acceptance.mjs: normal world, /railsys16 build -> 8 segments, 222.84m,
+  topology nodes=8 connections=8; verify -> VERIFIED (no dangling/orphan/dup);
+  forward (9 steps closed=true rail-1..8->rail-1); reverse (9 steps closed=true).
+- 5 screenshots (TOP/PERSPECTIVE/SMOOTH_90_CURVE/STRAIGHT_CURVE_BOUNDARY/
+  MODELPACK_LOOP). Luna VERDICT: ROUNDED_RECTANGLE (4 straights + smooth 90deg
+  corners, NOT octagonal, no gaps/twists/overlaps). SHA-256 recorded.
+- R15 ModelPack regression: concrete asset applied to the SAME corrected loop,
+  geometry unchanged (R16K contract test + modelpack loop screenshot).
+- Game commands: /railsys16 build|topology|status|verify|forward|reverse|snap.
+- Network store: RailsysNetworkStore (world-scoped ProductionRailNetwork),
+  rebuilt topology attaches endpoints via coalescing (8 nodes x 2 endpoints).

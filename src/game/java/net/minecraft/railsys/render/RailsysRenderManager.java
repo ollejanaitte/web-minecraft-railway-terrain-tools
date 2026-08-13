@@ -138,6 +138,7 @@ public final class RailsysRenderManager {
 			// rail store (R13 world-scoping; per-world persistence is R23).
 			currentRestoreWorld = world;
 			net.minecraft.railsys.placement.RailsysProductionRailStore.onWorldEnter();
+			net.minecraft.railsys.network.RailsysNetworkStore.getInstance().resetForNewWorld();
 		}
 		if (world.isRemote) {
 			return; // server-side persistence restore only
