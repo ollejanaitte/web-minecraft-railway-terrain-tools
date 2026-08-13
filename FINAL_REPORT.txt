@@ -3521,3 +3521,12 @@ STEP R15-17/18/19 - closed loop ModelPack acceptance + screenshots
 - 10 screenshots captured (7 R15-series + BEFORE/AFTER pair), SHA-256 recorded.
 - Luna vision VERDICT: PASS (continuous loop, concrete-grey rail+ballast,
   no missing texture/gap/twist/overlap).
+
+STEP R15-19 - selector GUI screenshot + final visual proof
+----------------------------------------------------------
+- Selector open deferred to next client tick (RailsysAssetSelector.onClientTick)
+  so GuiChat's own close doesn't immediately close it; /railsys15 open added.
+- r15_closed_loop.mjs final: 10 screenshots (01..07 + BEFORE/AFTER + selector),
+  all captured in one run. Luna confirms selector GUI visible with [LOADED]/
+  [PARTIAL] asset list, and BEFORE vs AFTER = SAME_GEOMETRY_DIFFERENT_APPEARANCE.
+- SHA-256 recorded for all screenshots.

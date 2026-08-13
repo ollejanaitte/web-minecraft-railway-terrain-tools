@@ -122,6 +122,11 @@ class CDP {
     await this.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
     await this.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
   }
+  async pressEscape() {
+    await this.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+    await this.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+    await sleep(800);
+  }
 }
 
 function launchChrome(guiMode, profileDir) {
@@ -257,7 +262,12 @@ async function tryOpenChat(c) {
 }
 
 async function chat(c, text) {
-  const opened = await tryOpenChat(c);
+  let opened = await tryOpenChat(c);
+  if (!opened.opened) {
+    await c.pressEscape();
+    await sleep(600);
+    opened = await tryOpenChat(c);
+  }
   if (!opened.opened) throw new Error('GuiChat could not be opened');
   await sleep(300); await sleep(1200);
   await c.typeText(opened.prefilled ? text : '/' + text);
@@ -360,7 +370,6 @@ async function main() {
       ['SS-R15-03_MODELPACK_CURVE.png', 'railsys3 camera 78 6 12 225 10'],
       ['SS-R15-04_STRAIGHT_CURVE_BOUNDARY.png', 'railsys3 camera 75 6 6 200 6'],
       ['SS-R15-05_RAIL_TEXTURE_CLOSEUP.png', 'railsys3 camera 70 4.8 12 180 20'],
-      ['SS-R15-06_ASSET_SELECTOR.png', 'railsys3 camera 70 6 18 180 8'],
       ['SS-R15-07_BEFORE_AFTER_DEFAULT.png', 'railsys3 camera 70 28 0 0 90'],
       ['SS-R15-07_BEFORE_AFTER_MODELPACK.png', 'railsys3 camera 70 28 0 0 90'],
     ];
@@ -410,11 +419,20 @@ async function main() {
     await sleep(2500);
     await c.shot(resolve(S, 'SS-R15-AFTER_MODELPACK.png'));
 
+    // Open the Asset Selector GUI (same UI as Shift+Right-click) and capture.
+    // This is the LAST screen action — the GUI blocks further chat.
+    const selIdx = c.lines.length;
+    await chat(c, 'railsys15 open');
+    await waitConsoleAfter(c, /railsys15: selector opened/, selIdx, 30000);
+    await sleep(2000);
+    await c.shot(resolve(S, 'SS-R15-06_ASSET_SELECTOR.png'));
+
     log('=== SUMMARY ===');
     log('testloop: ' + tLine);
     log('prod status: ' + prodLine);
     log('JS_ERROR_COUNT=' + c.jsErrors);
     log('=== R15 CLOSED LOOP ACCEPTANCE COMPLETE ===');
+    return 0;
     return 0;
   } catch (e) {
     log('FATAL: ' + e.message);

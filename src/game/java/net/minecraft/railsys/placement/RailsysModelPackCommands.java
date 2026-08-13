@@ -107,6 +107,10 @@ public final class RailsysModelPackCommands {
 			} else if ("clearloop".equals(action)) {
 				int n = RailsysProductionRailStore.getInstance().clearAllRails();
 				msg(player, "railsys15: cleared " + n + " production rails");
+			} else if ("open".equals(action)) {
+				// Open the asset selector GUI (same UI as Shift+Right-click).
+				net.minecraft.railsys.placement.RailsysAssetSelector.open(player);
+				msg(player, "railsys15: selector opened");
 			} else if ("help".equals(action) || "?".equals(action)) {
 				help(player);
 			} else {

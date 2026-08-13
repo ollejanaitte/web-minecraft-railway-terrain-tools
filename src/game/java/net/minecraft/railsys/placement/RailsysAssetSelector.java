@@ -98,10 +98,22 @@ public class RailsysAssetSelector extends GuiScreen {
 		return false;
 	}
 
+	/** Deferred-open flag so the command handler can request the GUI open on
+	 * the next client tick (after the chat screen closes itself). */
+	private static volatile boolean pendingOpen = false;
+
 	/** Open the selector for a player (client thread). */
 	public static void open(EntityPlayer player) {
 		RailsysModelPackClient.ensureInitialized();
-		Minecraft mc = Minecraft.getMinecraft();
+		pendingOpen = true;
+	}
+
+	/** Called each client tick; opens the selector when requested. */
+	public static void onClientTick(Minecraft mc) {
+		if (!pendingOpen) {
+			return;
+		}
+		pendingOpen = false;
 		if (mc != null) {
 			mc.displayGuiScreen(new RailsysAssetSelector());
 		}

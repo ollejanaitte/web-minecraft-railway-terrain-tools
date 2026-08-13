@@ -26,5 +26,7 @@ public final class RailsysClientRuntime {
 		net.minecraft.railsys.render.RailAssetRegistry.ensurePrototypePackLoaded();
 		// Phase 1-R15: ModelPack asset registry (fallback + imported assets).
 		net.minecraft.railsys.render.RailsysModelPackClient.ensureInitialized();
+		// Phase 1-R15: deferred asset selector open (Shift+Right-click / command).
+		net.minecraft.railsys.placement.RailsysAssetSelector.onClientTick(mc);
 	}
 }
