@@ -3763,3 +3763,11 @@ STEP R17-11 - Sol review round 1 fixes
 - l02 strengthened: verifies loop length + endpoint values + derived path
   samples unchanged after junction registration.
 - Harness 368/0/3.
+
+STEP R17-12 - Sol review round 2 fixes
+--------------------------------------
+- l02 rewritten: SNAPSHOTS original paths before registration, verifies loop
+  length + all 8 segments' endpointA/B values + derived path length + 11 sample
+  frames per segment unchanged after junction registration.
+- Docs updated: matrix 21 tests (j06/j07/j08 + strengthened l02), mutation doc
+  note. Harness 368/0/3.

@@ -255,14 +255,21 @@ public final class RailsysR17SwitchSuite {
 	public static void l02_switchGeometryNeverTouchesLoop() {
 		// Registering a junction must not modify the closed loop segments
 		// (length, endpoints, derived path samples, object identity).
+		// SNAPSHOT the original path BEFORE registration.
 		List<RailSegment> loop = StandardClosedLoopCourse.courseA(0.0D, 0.0D, 40.0D, 80.0D, 10.0D,
 				1.435D, "railsys.straight_1435_wood");
 		double before = StandardClosedLoopCourse.totalLength(loop);
-		double[] beforeEndA = new double[8 * 3];
+		double[][] beforeEndA = new double[8][3];
+		double[][] beforeEndB = new double[8][3];
+		net.minecraft.railsys.path.RailPath[] beforePaths = new net.minecraft.railsys.path.RailPath[8];
 		for (int i = 0; i < 8; i++) {
-			beforeEndA[i * 3] = loop.get(i).endpointA().anchor().x;
-			beforeEndA[i * 3 + 1] = loop.get(i).endpointA().anchor().y;
-			beforeEndA[i * 3 + 2] = loop.get(i).endpointA().anchor().z;
+			beforeEndA[i][0] = loop.get(i).endpointA().anchor().x;
+			beforeEndA[i][1] = loop.get(i).endpointA().anchor().y;
+			beforeEndA[i][2] = loop.get(i).endpointA().anchor().z;
+			beforeEndB[i][0] = loop.get(i).endpointB().anchor().x;
+			beforeEndB[i][1] = loop.get(i).endpointB().anchor().y;
+			beforeEndB[i][2] = loop.get(i).endpointB().anchor().z;
+			beforePaths[i] = loop.get(i).derivedPath();
 		}
 		RailSegment mainIn = loop.get(7);
 		RailSegment mainOut = loop.get(0);
@@ -276,20 +283,31 @@ public final class RailsysR17SwitchSuite {
 		net.registerJunction(1L, mainIn, mainOut, java.util.Collections.singletonList(branch));
 		double after = StandardClosedLoopCourse.totalLength(loop);
 		Assert.assertEquals(before, after, 1e-9, "R17L junction does not change loop length");
-		// endpoints identical (object identity + values)
+		// endpoints identical (values)
 		for (int i = 0; i < 8; i++) {
-			Assert.assertEquals(loop.get(i).endpointA().anchor().x, beforeEndA[i * 3], 0.0D,
+			Assert.assertEquals(beforeEndA[i][0], loop.get(i).endpointA().anchor().x, 0.0D,
 					"R17L endpointA x " + i);
-			Assert.assertEquals(loop.get(i).endpointA().anchor().z, beforeEndA[i * 3 + 2], 0.0D,
+			Assert.assertEquals(beforeEndA[i][1], loop.get(i).endpointA().anchor().y, 0.0D,
+					"R17L endpointA y " + i);
+			Assert.assertEquals(beforeEndA[i][2], loop.get(i).endpointA().anchor().z, 0.0D,
 					"R17L endpointA z " + i);
-		}
-		// derived path samples identical
-		RailPath pBefore = StandardClosedLoopCourse.courseA(0.0D, 0.0D, 40.0D, 80.0D, 10.0D,
-				1.435D, "railsys.straight_1435_wood").get(0).derivedPath();
-		RailPath pAfter = loop.get(0).derivedPath();
-		for (int k = 0; k <= 4; k++) {
-			Assert.assertEquals(pBefore.resolve(pBefore.totalLength() * k / 4.0D).frame.x,
-					pAfter.resolve(pAfter.totalLength() * k / 4.0D).frame.x, 1e-9, "R17L sample x " + k);
+			Assert.assertEquals(beforeEndB[i][0], loop.get(i).endpointB().anchor().x, 0.0D,
+					"R17L endpointB x " + i);
+			Assert.assertEquals(beforeEndB[i][1], loop.get(i).endpointB().anchor().y, 0.0D,
+					"R17L endpointB y " + i);
+			Assert.assertEquals(beforeEndB[i][2], loop.get(i).endpointB().anchor().z, 0.0D,
+					"R17L endpointB z " + i);
+			// derived path: same length + sample frames vs the SNAPSHOT path
+			Assert.assertEquals(beforePaths[i].totalLength(), loop.get(i).derivedPath().totalLength(), 1e-9,
+					"R17L derived path length " + i);
+			for (int k = 0; k <= 10; k++) {
+				double s = beforePaths[i].totalLength() * k / 10.0D;
+				net.minecraft.railsys.path.PathSample ps = beforePaths[i].resolve(s);
+				net.minecraft.railsys.path.PathSample pa = loop.get(i).derivedPath().resolve(s);
+				Assert.assertEquals(ps.frame.x, pa.frame.x, 1e-9, "R17L sample x " + i + "/" + k);
+				Assert.assertEquals(ps.frame.y, pa.frame.y, 1e-9, "R17L sample y " + i + "/" + k);
+				Assert.assertEquals(ps.frame.z, pa.frame.z, 1e-9, "R17L sample z " + i + "/" + k);
+			}
 		}
 	}
 

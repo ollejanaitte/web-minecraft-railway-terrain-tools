@@ -22,6 +22,10 @@ temporary helper in /tmp/opencode (never committed).
 | 11 | junction mutates loop geometry | l02_switchGeometryNeverTouchesLoop | YES |
 
 ## Post-verification
-- Full harness after restore: 365 PASS / 0 FAIL / 3 SKIP.
+- Full harness after restore: 368 PASS / 0 FAIL / 3 SKIP.
 - All mutated files byte-identical (git diff empty).
 - Protected files untouched.
+- Note: the three post-mutation hardening tests (j06 shared-node, j07 branch
+  position, j08 non-finite) and the strengthened l02 were added after the
+  mutation run; they are covered by the shared-node/non-finite production
+  guards verified by source review (Sol round 1).
