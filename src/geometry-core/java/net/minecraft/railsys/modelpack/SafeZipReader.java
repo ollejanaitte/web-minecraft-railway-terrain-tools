@@ -152,11 +152,16 @@ public final class SafeZipReader {
 	}
 
 	private static boolean hasEocd(byte[] data) {
-		// Search the last 65557+22 bytes (max comment) for the EOCD signature.
+		// Search the last 65557+22 bytes (max comment) for a FULL EOCD record.
+		// A valid EOCD is at least 22 bytes: signature(4) + disk(2+2) +
+		// entries(2+2) + cdSize(4) + cdOffset(4) + commentLen(2) + comment.
 		int start = Math.max(0, data.length - (65557 + 22));
-		for (int i = start; i + 4 <= data.length; i++) {
+		for (int i = start; i + 22 <= data.length; i++) {
 			if (data[i] == 'P' && data[i + 1] == 'K' && data[i + 2] == 0x05 && data[i + 3] == 0x06) {
-				return true;
+				int commentLen = ((data[i + 20] & 0xFF)) | ((data[i + 21] & 0xFF) << 8);
+				if (i + 22 + commentLen <= data.length) {
+					return true;
+				}
 			}
 		}
 		return false;

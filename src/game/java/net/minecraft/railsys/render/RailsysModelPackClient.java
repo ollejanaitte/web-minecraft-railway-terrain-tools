@@ -157,10 +157,17 @@ public final class RailsysModelPackClient {
 	 */
 	public static net.minecraft.railsys.render.RailProfile profileForAsset(RailsysInternalAsset a,
 			double segmentGaugeM) {
-		if (a == null) {
-			return net.minecraft.railsys.render.RailProfile.default1435();
-		}
 		net.minecraft.railsys.render.RailProfile base = net.minecraft.railsys.render.RailProfile.default1435();
+		if (a == null) {
+			return new RailProfile(base.headWidthM, base.headHeightM, base.webWidthM, base.webHeightM,
+					base.footWidthM, base.footHeightM, segmentGaugeM,
+					base.railR, base.railG, base.railB,
+					base.hasSleeper, base.sleeperSpacingM, base.sleeperLengthM, base.sleeperWidthM,
+					base.sleeperHeightM, base.sleeperTopM, base.sleeperR, base.sleeperG, base.sleeperB,
+					base.hasFastener, base.fastenerSpacingM,
+					base.hasBallast, base.ballastWidthM, base.ballastDepthM, base.baseR, base.baseG, base.baseB,
+					base.materialId);
+		}
 		double gauge = segmentGaugeM;
 		// Asset gaugeM is NEVER applied to geometry — the segment snapshot wins.
 		// (R15 F4: gauge invariance — asset = look only.)

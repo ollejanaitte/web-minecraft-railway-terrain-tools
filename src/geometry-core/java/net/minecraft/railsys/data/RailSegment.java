@@ -22,8 +22,9 @@ import net.minecraft.railsys.path.RailPath;
  *     writers exist — R12 §2)
  *
  * DERIVED:
- *   - gaugeM snapshot (refreshed from asset at save/render; asset is
- *     authoritative for gauge)
+ *   - gaugeM snapshot (AUTHORITATIVE for rendering left/right rail offsets;
+ *     R15: asset gauge is metadata only and never overrides the snapshot —
+ *     F4 gauge invariance)
  *   - RailPath (rebuilt from endpoints via F2 fromMarkers; the confirm handoff
  *     promotes the EXACT preview RailPath as the initial derived geometry —
  *     R12 §5.1 / R10F F2.4)
@@ -188,7 +189,8 @@ public final class RailSegment {
 	 * Phase 1-R15: Asset-only replace — returns a copy with a new asset ref,
 	 * preserving railId, endpoints, cant, lifecycle, the derived RailPath AND
 	 * the authoritative gauge snapshot (F4: geometry NEVER changes, including
-	 * left/right rail offsets which depend on gauge).
+	 * left/right rail offsets which depend on gauge). The asset is LOOK only;
+	 * gauge authority stays with the segment (R13/R14).
 	 */
 	public RailSegment withAsset(String newAssetId) {
 		RailSegment copy = new RailSegment(this.railId, this.kind, this.endpointA, this.endpointB,

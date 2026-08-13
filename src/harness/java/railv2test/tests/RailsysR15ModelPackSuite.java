@@ -359,6 +359,17 @@ public final class RailsysR15ModelPackSuite {
 		Assert.assertEquals(true, bundle.startsWith("{\"schemaVersion\":1"), "R15B bundle schema header");
 		List<RailsysInternalAsset> round = net.minecraft.railsys.modelpack.RailsysAssetBundle.parseBundle(bundle);
 		Assert.assertEquals(res.assets.size(), round.size(), "R15B bundle round-trip count");
+		// The real pack contains 2 genuine duplicate railName pairs; the bundle
+		// round-trip must preserve them as distinct entries (registry rejects
+		// the duplicate at registration time).
+		java.util.Set<String> seen = new java.util.HashSet<String>();
+		int dupes = 0;
+		for (RailsysInternalAsset a : round) {
+			if (!seen.add(a.assetId)) {
+				dupes++;
+			}
+		}
+		Assert.assertEquals(true, dupes == 2, "R15B real-pack duplicate ids detected (2)");
 		// Concrete survives the round trip
 		RailsysInternalAsset concrete = null;
 		for (RailsysInternalAsset a : round) {
@@ -573,5 +584,15 @@ public final class RailsysR15ModelPackSuite {
 		Assert.assertEquals(true, RailsysAssetRegistry.register(parsed.get(0)), "R15B first registers");
 		Assert.assertEquals(false, RailsysAssetRegistry.register(parsed.get(1)), "R15B duplicate rejected");
 		RailsysAssetRegistry.clear();
+	}
+
+	@Test
+	public static void z09_shortLocalPlusEocdRejected() {
+		// 8-byte "PK\x03\x04 PK\x05\x06" — a local header followed by a
+		// truncated EOCD must be rejected (no crash).
+		byte[] data = new byte[] { 'P', 'K', 0x03, 0x04, 'P', 'K', 0x05, 0x06 };
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		SafeZipReader.Result r = SafeZipReader.read(data, d);
+		Assert.assertEquals(true, r.rejected, "R15Z local+truncated-EOCD rejected");
 	}
 }

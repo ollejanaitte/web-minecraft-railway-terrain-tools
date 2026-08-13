@@ -3566,3 +3566,18 @@ STEP R15-20 - Sol review round 1 fixes
 - Boundary tests: z07 truncated-PK (missing EOCD) rejected; z08 2000 entries.
   SafeZipReader now rejects inputs with no End-Of-Central-Directory.
 - Harness 299/0/3.
+
+STEP R15-21 - Sol review round 2 fixes
+--------------------------------------
+- profileForAsset(null, segmentGauge): now returns a profile with the SEGMENT
+  gauge (was default1435=1.435, ignoring segment gauge). F4 gauge invariance
+  fully enforced.
+- SafeZipReader.hasEocd: requires a FULL 22-byte EOCD record (checks comment
+  length fits); 8-byte "PK\x03\x04 PK\x05\x06" now rejected (z09 test).
+- Embedded bundle regenerated with gauge metadata (67,124 bytes; 1067/750 now
+  carry gaugeM as metadata — never applied to geometry).
+- RailSegment class doc clarified: gauge snapshot is authoritative for rendering;
+  asset gauge is metadata only (no contradiction with R15).
+- Real-pack duplicate railName pairs confirmed (2 pairs -> 88/90 registered;
+  duplicate rejection working as designed; b01 asserts dupes==2).
+- Harness 300/0/3; mutation 9/9 (re-verified after commit).
