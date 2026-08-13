@@ -139,6 +139,7 @@ public final class RailsysRenderManager {
 			currentRestoreWorld = world;
 			net.minecraft.railsys.placement.RailsysProductionRailStore.onWorldEnter();
 			net.minecraft.railsys.network.RailsysNetworkStore.getInstance().resetForNewWorld();
+			net.minecraft.railsys.junction.RailsysSwitchStore.getInstance().resetForNewWorld();
 		}
 		if (world.isRemote) {
 			return; // server-side persistence restore only

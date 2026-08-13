@@ -116,6 +116,17 @@ val r16Measure = tasks.register<JavaExec>("r16Measure") {
 	errorOutput = System.err
 }
 
+// R17: measure switch/junction geometry + route evidence.
+// Run explicitly: ./gradlew r17Measure
+val r17Measure = tasks.register<JavaExec>("r17Measure") {
+	group = "verification"
+	description = "Measure R17 switch divergence/lead-path/route evidence."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.tools.R17SwitchMeasurement")
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
 dependencies {
 	implementation(libs.bundles.common)
 }

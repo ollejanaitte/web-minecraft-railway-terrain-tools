@@ -3722,3 +3722,16 @@ STEP R17-01..05 - switch/junction core + contract tests
   invalid divergence rejected, no-branch rejected, retired, THROUGH/BRANCH/
   invalid-index routes, in-session route switch, closed-loop spur junction,
   junction never touches loop geometry). Harness 365/0/3.
+
+STEP R17-06/07 - game layer + normal world acceptance
+------------------------------------------------------
+- Game: RailsysSwitchStore (world-scoped SwitchNetwork, registerLoopSpur builds
+  a branch via confirmPreview exact-promotion), RailsysJunctionCommands
+  (/railsys17 spur|junctions|route|resolve|status), GuiChat /railsys17 root,
+  world-enter reset.
+- r17_acceptance.mjs: normal world, /railsys16 build (8 segments 222.84m),
+  /railsys17 spur 10 -> junction sw-1 (mainIn=rail-8 mainOut=rail-1
+  branches=1), route THROUGH -> resolve rail-8->rail-1, route BRANCH ->
+  resolve rail-8->rail-9, prod=9 (8 loop + 1 spur, loop geometry unchanged).
+- 5 screenshots; Luna VERDICT: SWITCH_VISIBLE (rounded rectangle loop +
+  diverging spur turnout, no defects). SHA-256 recorded.
