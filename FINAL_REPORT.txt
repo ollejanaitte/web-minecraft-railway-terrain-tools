@@ -3483,3 +3483,20 @@ STEP R15-01..09 - ModelPack import pipeline + real pack proof
   zipEntries=306, unzipped=12MB, mqo=78, assets=90, compat LOADED=47 PARTIAL=43
   Concrete: components[base,railL,sideL,railR,sideR] movable[ZungeL0/1,R0/1]
   textures[largeRailConcrete.png] ballast=gravel h=0.0625 renderer=RenderRailNB.js
+
+STEP R15-10/11/12 - game layer: selector, preview switching, asset apply
+-----------------------------------------------------------------------
+- RailsysModelPackClient (game): bridge geometry-core registry <-> game,
+  current asset selection, profileForAsset maps asset spec facts -> R14
+  appearance (gauge/ballast/rail colour derived from railId, NEVER path).
+- RailsysModelPackBundle: embedded Railsys-native bundle generated from the
+  real NR01 pack (spec facts only; 67KB in 3 chunk constants).
+- RailsysModelPackCommands: /railsys15 import/assets/packs/use/reset/status/
+  testloop/testloop_compact (apply current ModelPack asset to closed loop).
+- RailsysAssetSelector GUI: Shift+Right-click on AIR while holding the marker
+  wand opens the selector (pack + asset + compatibility + current selection);
+  block clicks keep R7/R10 confirm contract.
+- RailsysProduction3DRenderer.profileFor: uses ModelPack asset appearance when
+  the segment references one (F4: geometry unchanged).
+- /railsys15 root added to GuiChat local dispatch.
+- Harness still 292/0/3; production build green.

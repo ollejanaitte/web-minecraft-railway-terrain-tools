@@ -65,6 +65,14 @@ public final class RailsysProduction3DRenderer {
 	/** Profile for the segment: standard 1435 with the segment's gauge snapshot. */
 	public static RailProfile profileFor(RailSegment seg) {
 		RailProfile base = RailProfile.default1435();
+		// Phase 1-R15: if the segment references a ModelPack-derived asset
+		// (Railsys Internal Asset), use its appearance profile. The segment's
+		// RailPath/gauge stay authoritative; only look changes (F4).
+		net.minecraft.railsys.modelpack.RailsysInternalAsset asset =
+				RailsysModelPackClient.asset(seg.assetId());
+		if (asset != null && !asset.assetId.equals(net.minecraft.railsys.modelpack.RailsysAssetRegistry.FALLBACK_ASSET_ID)) {
+			return RailsysModelPackClient.profileForAsset(asset, seg.gaugeM());
+		}
 		return new RailProfile(base.headWidthM, base.headHeightM, base.webWidthM, base.webHeightM,
 				base.footWidthM, base.footHeightM, seg.gaugeM(),
 				base.railR, base.railG, base.railB,

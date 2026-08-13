@@ -24,5 +24,7 @@ public final class RailsysClientRuntime {
 			return;
 		}
 		net.minecraft.railsys.render.RailAssetRegistry.ensurePrototypePackLoaded();
+		// Phase 1-R15: ModelPack asset registry (fallback + imported assets).
+		net.minecraft.railsys.render.RailsysModelPackClient.ensureInitialized();
 	}
 }

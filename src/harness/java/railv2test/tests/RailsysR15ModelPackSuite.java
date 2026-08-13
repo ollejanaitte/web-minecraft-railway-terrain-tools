@@ -343,4 +343,36 @@ public final class RailsysR15ModelPackSuite {
 					"R15P no data-url script");
 		}
 	}
+
+	// ---- R15-02/16 Railsys-native asset bundle round-trip ----
+
+	@Test
+	public static void b01_bundleRoundTrip() {
+		byte[] inner = referencePackBytes();
+		if (inner == null) {
+			System.out.println("R15B: reference pack not present — skip");
+			return;
+		}
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		ModelPackImporter.ImportResult res = ModelPackImporter.importZip(inner, "NR01-NB-Rails.zip", d);
+		String bundle = net.minecraft.railsys.modelpack.RailsysAssetBundle.toJson(res, "NR01 NB-Rails");
+		Assert.assertEquals(true, bundle.startsWith("{\"schemaVersion\":1"), "R15B bundle schema header");
+		List<RailsysInternalAsset> round = net.minecraft.railsys.modelpack.RailsysAssetBundle.parseBundle(bundle);
+		Assert.assertEquals(res.assets.size(), round.size(), "R15B bundle round-trip count");
+		// Concrete survives the round trip
+		RailsysInternalAsset concrete = null;
+		for (RailsysInternalAsset a : round) {
+			if (a.railId.toLowerCase().equals("1435mm_nb_concrete")) {
+				concrete = a;
+			}
+		}
+		Assert.assertEquals(true, concrete != null, "R15B concrete in bundle");
+		Assert.assertEquals("nr01-nb-rails:1435mm_nb_concrete", concrete.assetId, "R15B bundle assetId");
+		Assert.assertEquals(true, concrete.hasComponent("railL"), "R15B components preserved");
+		Assert.assertEquals(true, concrete.movableComponents.size() == 4, "R15B movable parts preserved");
+		Assert.assertEquals(true, concrete.texturePaths.contains("textures/rail/largeRailConcrete.png"),
+				"R15B textures preserved");
+		Assert.assertEquals(RailsysInternalAsset.Compatibility.PARTIAL, concrete.compatibility,
+				"R15B compatibility preserved");
+	}
 }

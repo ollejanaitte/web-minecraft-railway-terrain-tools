@@ -2,6 +2,7 @@ package net.minecraft.item;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.railsys.placement.RailsysAssetSelector;
 import net.minecraft.railsys.placement.RailsysPlacementController;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -53,5 +54,18 @@ public class ItemRailsysMarkerWand extends Item {
 			RailsysPlacementController.selectOnFace(entityplayer, blockpos, enumfacing);
 		}
 		return true;
+	}
+
+	/**
+	 * Phase 1-R15: Shift + Right-click on AIR opens the Railsys ModelPack
+	 * Asset Selector (Rail Asset Selection UX). Appearance-only; the RailPath
+	 * is never changed. Block clicks keep the R7/R10 confirm contract.
+	 */
+	@Override
+	public ItemStack onItemRightClick(ItemStack itemstack, World world, EntityPlayer entityplayer) {
+		if (entityplayer != null && entityplayer.isSneaking() && world.isRemote) {
+			RailsysAssetSelector.open(entityplayer);
+		}
+		return itemstack;
 	}
 }

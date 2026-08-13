@@ -156,7 +156,11 @@ public class GuiChat extends GuiScreenVisualViewport {
 					if (isRailsysClientCommand(s)) {
 						System.out.println("RAILSYS: client placement command: " + s);
 						this.mc.ingameGUI.getChatGUI().addToSentMessages(s);
-						net.minecraft.railsys.placement.RailsysClientCommands.run(this.mc.thePlayer, s);
+						if (isRailsysRoot(s.trim(), "/railsys15")) {
+							net.minecraft.railsys.placement.RailsysModelPackCommands.run(this.mc.thePlayer, s);
+						} else {
+							net.minecraft.railsys.placement.RailsysClientCommands.run(this.mc.thePlayer, s);
+						}
 						this.mc.displayGuiScreen((GuiScreen) null);
 						return;
 					}
@@ -227,6 +231,9 @@ public class GuiChat extends GuiScreenVisualViewport {
 	 */
 	private static boolean isRailsysClientCommand(String s) {
 		String t = s.trim();
+		if (isRailsysRoot(t, "/railsys15")) {
+			return true;
+		}
 		return isRailsysRoot(t, "/railsys3") || isRailsysRoot(t, "/railsysplace");
 	}
 
