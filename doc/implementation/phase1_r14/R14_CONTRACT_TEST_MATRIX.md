@@ -1,13 +1,13 @@
 # R14_CONTRACT_TEST_MATRIX — Phase 1-R14
 
 Date: 2026-08-13 JST
-Suite: `railv2test.tests.RailsysR14Production3DSuite` (23 tests, registered in
+Suite: `railv2test.tests.RailsysR14Production3DSuite` (25 tests, registered in
 Runner). Gate: any FAILED R14 contract test = R15 NOGO.
 
 ## Results
 
-- R14 suite: 23/23 PASS
-- Full harness: PASSED=271 FAILED=0 SKIPPED=3 (248 baseline + 23 R14)
+- R14 suite: 25/25 PASS
+- Full harness: PASSED=273 FAILED=0 SKIPPED=3 (248 baseline + 25 R14)
 - Mutation Guards: 7/7 detected + reverted
 
 ## Contract -> test mapping
@@ -48,6 +48,10 @@ Runner). Gate: any FAILED R14 contract test = R15 NOGO.
 - m01 200m rail split into >1 section
 - m02 section boundary shares exact PathSample (no gap, no frame jump)
 - m03 no NaN/Inf anywhere (curve+gradient+cant)
+- m04 terminal section emits s=total sample even when length exactly divisible
+  by section length (no end gap)
+- m05 no sleeper double-count at section boundaries (half-open clipping);
+  total = floor(len/spacing)+1
 
 ### R14-05 Composite
 - comp01 curve+gradient+cant: mesh builds, frames orthonormal, gauge maintained

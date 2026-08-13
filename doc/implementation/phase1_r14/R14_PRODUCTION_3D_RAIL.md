@@ -30,7 +30,10 @@ RailPath frames + profile; changing the profile NEVER changes the RailPath
 ## 3. Rail profile (R14-02)
 
 - Per rail (left/right at +-gauge/2 along frame right): foot (wide base), web
-  (narrow middle), head (wide top), 3 stacked boxes per sample span.
+  (narrow middle), head (wide top). Each rail span is emitted as a CLOSED 3D
+  prism: a 4-corner rectangle cross-section swept between two adjacent frames
+  (4 longitudinal side faces + 2 end caps), so every rail is watertight with no
+  degenerate/duplicate corners.
 - Cross-section orientation follows RailLocalFrame (forward/right/up + roll);
   cant is frame attitude, never centerline deformation (R10F/R12).
 - Numeric tests: profile dims (c01), left/right symmetry (c02).
@@ -38,9 +41,15 @@ RailPath frames + profile; changing the profile NEVER changes the RailPath
 ## 4. Sleeper/Fastener (R14-03)
 
 - Sleepers placed at real distance s = 0, spacing, 2*spacing, ... (NOT sample
-  index). Measured sampling-independent (336 sleepers at 0.05/0.1/0.25/0.5m
-  steps).
-- Numeric tests: s01 (distance-based), s02 (sampling-independent).
+  index). Measured sampling-independent (334 sleepers at 0.05/0.1/0.25/0.5m
+  steps for 200m; floor(200/0.6)+1 = 334).
+- Each sleeper is DRAWN at its exact distance-based world position (not the
+  nearest sample frame), with orientation from the nearest sample frame.
+- Half-open section clipping: a sleeper at a section boundary belongs to
+  exactly one section (no double-count); the path-end sleeper is included once.
+- Numeric tests: s01 (distance-based count = floor(len/spacing)+1), s02
+  (sampling-independent), m04 (terminal s=total emitted when length exactly
+  divisible by section length), m05 (no boundary double-count).
 
 ## 5. Gauge (R14-04)
 

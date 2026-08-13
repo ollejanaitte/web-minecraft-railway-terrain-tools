@@ -31,6 +31,8 @@ matching R14 test verified to FAIL; restored byte-for-byte (git diff clean).
 
 ## Post-verification
 
-- Full harness after restore: 271 PASS / 0 FAIL / 3 SKIP.
+- Full harness after restore: 273 PASS / 0 FAIL / 3 SKIP.
 - All mutated files byte-identical (git diff empty).
 - Protected files untouched.
+- Re-run 2026-08-13 (post Sol-review): mutation #3 search string updated to the
+  half-open sleeper-loop code; 7/7 again detected and reverted.
