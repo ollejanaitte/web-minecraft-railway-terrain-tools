@@ -3660,3 +3660,11 @@ STEP R16-16 - Mutation Guard
   allowed, forward traversal broken, reverse traversal broken, crossing
   auto-connected, node coalesce disabled, asset changes geometry).
 - All restored byte-for-byte (git diff clean). Driver /tmp/opencode/mutation_r16.py.
+
+STEP R16-03/04/15/17 - docs + quality measurement + full regression
+--------------------------------------------------------------------
+- Docs: R16_ROOT_CAUSE, R16_CONTRACT_TEST_MATRIX (42 tests), R16_MUTATION_GUARD
+  (12/12), R16_NUMERIC_MEASUREMENT, R16_NORMAL_WORLD_ACCEPTANCE,
+  R16_PRODUCTION_RAIL_NETWORK.
+- Full regression: harness 342/0/3, mutation 12/12, r16Measure green
+  (corner 15.71m, sagitta 2.929, radius <=0.078, continuity/closure 0).
