@@ -3735,3 +3735,12 @@ STEP R17-06/07 - game layer + normal world acceptance
   resolve rail-8->rail-9, prod=9 (8 loop + 1 spur, loop geometry unchanged).
 - 5 screenshots; Luna VERDICT: SWITCH_VISIBLE (rounded rectangle loop +
   diverging spur turnout, no defects). SHA-256 recorded.
+
+STEP R17-08 - Mutation Guard
+----------------------------
+- 11/11 deliberate violations detected + reverted (min/max divergence, gauge
+  tolerance, divergence wrap, diverging path broken, divergence validation
+  disabled, duplicate junction id, invalid branch index accepted,
+  resolveRoute ignores committed branch, branch input ignored, junction
+  mutates loop). All restored byte-for-byte.
+- Driver /tmp/opencode/mutation_r17.py (temporary). Harness 365/0/3.
