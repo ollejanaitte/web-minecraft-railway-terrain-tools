@@ -3048,3 +3048,143 @@ STEP R11-K - Final sync record
 - Final sync verified: local HEAD == origin/main == git ls-remote GitHub main
   == d71e5fa5 (3-way match); staging empty.
 - Verdict recorded: PHASE 1-R11 VERDICT PASS. R12 ENTRY GATE OPEN.
+
+====================================================================
+PHASE 1-R12 - Production Rail Architecture & Design Freeze
+Authoritative running log (appended at EOF as work progresses)
+====================================================================
+
+STEP R12-00 - Initial Baseline Audit
+--------------------------------------
+- Head: f2f2f6b9e4640f29d66cbc2b07aa24eb447e0552 (R11 final sync).
+  local main == origin/main == GitHub main (3-way match).
+- Protected SHA256 byte-identical: CommandRailSystem 1037f467... /
+  EntityRailVehicle b2fb0ea3...
+- Existing dirty/untracked preserved verbatim; none staged.
+- R11 deliverables present (15 files under doc/research/phase1_r11); R10F
+  foundation + golden present.
+- Discord: R12 start + baseline audit notifications sent.
+
+STEP R12-01 - Input Inventory + Master Architecture
+-----------------------------------------------------
+- Reviewed R11 requirements (REQ-P0-01..11, REQ-P1-01..09, P2/DEFER) and R10F
+  F1-F6. Current source: geometry-core RailPath/geometry + Railsys placement.
+- Wrote doc/architecture/phase1_r12/PRODUCTION_RAIL_ARCHITECTURE.md
+  (master: layers, authoritative/derived/cache split, stable identity,
+  cross-cutting decisions 1-8).
+- Wrote doc/architecture/phase1_r12/PRODUCTION_RAIL_DATA_MODEL.md
+  (R12-A: RailSegment/RailEndpoint/RailConnection/Junction/Connector; stable
+  ids issued at confirm; preview/confirmed boundary; R10F impact none).
+- Key decisions frozen: connection explicit (REQ-P0-02); route derived from
+  powered input not persisted (REQ-P0-03); stable ids at confirm; compat =
+  import adapter never JS (REQ-P0-07); world-global versioned persistence
+  (REQ-P0-10); rail signal/occupancy hooks (REQ-P1-06).
+- Discord: R12-A notification sent.
+
+STEP R12-B - Rail Network Architecture
+----------------------------------------
+- Wrote doc/architecture/phase1_r12/RAIL_NETWORK_ARCHITECTURE.md.
+- Decisions: connection is EXPLICIT production data (RailConnection), separate
+  from coordinate proximity; RailNode membership 1..n; snap merges only
+  endpoints satisfying F2 continuity (pos 1e-4, angle 0.5, gauge policy);
+  crossing-without-connection gated by allowCrossing; route = derived query
+  (no persisted route table, RTM-aligned); index/cache REPLACEABLE.
+- Discord: R12-B notification sent.
+
+STEP R12-C + R12-D - Switch/Animation + 3D Rail Architecture
+--------------------------------------------------------------
+- Wrote doc/architecture/phase1_r12/SWITCH_JUNCTION_ANIMATION_ARCHITECTURE.md:
+  - 5-way state separation (TOPOLOGY / ROUTE / ANIMATION / RENDER / VEHICLE
+    TRAVERSAL) never one boolean.
+  - Junction data model (root+branches+points+routeInput+family Basic/Single/
+    Scissors/Diamond); activeRoute DERIVED from powered input (RTM-aligned);
+    animation = transient progress, smoothstep, NOT persisted; movable =
+    tongue + middle rails with clean-room keyframes.
+  - Vehicle resolves branch via resolveRoute; persistence stores geometry +
+    input only.
+- Wrote doc/architecture/phase1_r12/PRODUCTION_3D_RAIL_ARCHITECTURE.md:
+  - RailPath = geometry source; frames drive mesh; RailProfile (head/web/foot)
+    + discrete sleeper/fastener/ballast/accessory.
+  - Mesh strategies (extrusion/segmented/hybrid/chunking) REPLACEABLE; mesh
+    DERIVED + cached by (railId, assetVersion, rebuildId).
+  - Culling/LOD REQ-P1-07; Eaglercraft constraints (single tessellator,
+    PNG textures, no JS scripts).
+- Discord: R12-C + R12-D notifications sent.
+
+STEP R12-E + R12-F - ModelPack Compat + Persistence Architecture
+-------------------------------------------------------------------
+- Wrote doc/architecture/phase1_r12/MODELPACK_COMPATIBILITY_ARCHITECTURE.md:
+  - DECIDED: Runtime Compatibility Adapter (B) + optional Offline Converter
+    (C). RTM renderer JS NEVER executed at runtime.
+  - Railsys Internal Asset Definition (extension of R10F RailAssetDefinition;
+    gauge explicit; coordinate transform; switchProfile; compatMeta).
+  - RTM Import Layer: discovery/parse/model->native/texture/transform/JS-policy/
+    validation/error/fallback. Clean-room + security (no JS, size/depth limits).
+  - Field mapping table (railName->assetId etc).
+- Wrote doc/architecture/phase1_r12/PERSISTENCE_ARCHITECTURE.md:
+  - Save vs derive vs cache table. World-global RailWorldData (not chunk-local).
+  - Schema versioning + migration; reload pipeline (rebuild RailPath from
+    endpoints, derive route, idle animation, fallback on missing pack).
+  - Mid-animation switch: save STABLE route only (derived), NOT animation —
+    frozen decision.
+  - Orphan/corruption handling; multiplayer server-authoritative (F6).
+- Discord: R12-E + R12-F notifications sent.
+
+STEP R12-G + R12-H + R12-I + R12-J - Editing/Connector/Vehicle/Validation
+----------------------------------------------------------------------------
+- Wrote EDIT_DELETE_REPAIR_ARCHITECTURE.md: transaction (select->edit->preview
+  ->validate->commit|cancel); edit kinds with F3/F4 invariants; delete
+  dependency check + retire id; replace asset-only vs geometry; repair table;
+  undo/redo DEFER (REQ-P2-02).
+- Wrote INFRASTRUCTURE_CONNECTOR_ARCHITECTURE.md: InfrastructureConnector
+  (connectorId/type/targetRailId/distanceS/side/routeRef/eventHooks); rail-side
+  hooks signalState/occupied (data only); event-name catalogue; Phase 1 ships
+  connection + hooks, Phase 2 ships signal/crossing logic (REQ-P2-03..06,08).
+- Wrote VEHICLE_INTERFACE_CONTRACT.md: Rail Traversal API (resolve/frameAt/
+  resolveAt/traverse/gauge/cant/route/occupancy/signal); vehicle itself DEFER
+  (REQ-P2-07).
+- Wrote VALIDATION_PERFORMANCE_ARCHITECTURE.md: guards (min/max length,
+  height, cant, NaN); structural rules (overlap/crossing/tolerance/gauge/
+  obstacle/topology/switch/asset/connector/orphan); run at confirm/edit/load/
+  repair; caches REPLACEABLE; culling/LOD; numeric limits to MEASURE in R13.
+- Discord: R12-G/H/I/J notifications sent.
+
+STEP R12-K - Traceability + Classification + Contract Decisions + Roadmap
+----------------------------------------------------------------------------
+- Wrote REQUIREMENT_TRACEABILITY_MATRIX.md: P0 11/11 DESIGNED (no
+  DESIGN UNASSIGNED); P1 9/9; P2/DEFER assigned. Trace gate satisfied.
+- Wrote DESIGN_FREEZE_CLASSIFICATION.md: FROZEN D-F1..12, EXTENSIBLE D-X1..6,
+  REPLACEABLE D-R1..6, DEFERRED D-D1..6, UNKNOWN-OPEN (R13 owners).
+- Wrote R10F_CONTRACT_CHANGE_DECISIONS.md: CC-1 APPROVE ADDITIVE (cant
+  profile), CC-2 APPROVE ADDITIVE (switch geometry), CC-3 NO CHANGE, CC-4
+  APPROVE ADDITIVE (block origin). No frozen FROZEN item changed.
+- Wrote OPEN_QUESTIONS.md: OQ-01..19; P0-blocking = 0 (all numeric/impl owned
+  by R13+).
+- Wrote PHASE1_IMPLEMENTATION_ROADMAP.md: R13..R27 with dependencies,
+  gates, validation, risks; dependency graph documented.
+- Discord: notifications sent.
+
+STEP R12-L - Sol architecture review + resolutions
+-----------------------------------------------------
+- Independent review (gpt-5.6-sol) found design-level gaps. Iteratively
+  resolved across 4 review passes:
+  - CC-5 reframed as APPROVED ADDITIVE Contract Change Proposal (one reposition
+    operation + height sub-mode; F3 six-edit invariance unchanged).
+  - F6 confirm handoff spec'd (CC-6): two-phase, acceptFingerprint ==
+    previewFingerprint promotion rule (endpoints+asset+cant+geometry);
+    server-corrected path re-derives.
+  - RailNode explicit persisted record; position derived from members;
+    no silent member movement.
+  - ID lifecycle normalized (railId@confirm / nodeId@connect /
+    connectorId@attach) across DATA_MODEL/CLASSIFICATION/PERSISTENCE/ROADMAP.
+  - Junction branches = independent RailSegments via branchRailIds;
+    junction owns points/route/input only; §9 persist list corrected.
+  - occupied/signalState schema-reserved, NOT persisted in Phase 1.
+  - Route terminology normalized to committedRoute everywhere.
+  - R17/R18 exit gates in-session; reload restore at R23.
+  - blockPos added to endpoint + persistence matrix (CC-4).
+  - F2 exact promotion with fingerprint; ModelPack import-boundary wording;
+    tongue keyframe authority (asset keyframes + junction binding).
+- Sol final verdict: GO (confidence 0.98) — all 14 consistency checks pass,
+  P0 traceability 11/11, no design-blocking open questions.
+- Wrote ARCHITECTURE_CONSISTENCY_REVIEW.md (incl. Sol resolution table).
