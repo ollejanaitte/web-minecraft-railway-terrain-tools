@@ -3744,3 +3744,10 @@ STEP R17-08 - Mutation Guard
   resolveRoute ignores committed branch, branch input ignored, junction
   mutates loop). All restored byte-for-byte.
 - Driver /tmp/opencode/mutation_r17.py (temporary). Harness 365/0/3.
+
+STEP R17-09/10 - docs + regression
+-----------------------------------
+- Docs: R17_SWITCH_DESIGN, R17_CONTRACT_TEST_MATRIX (18), R17_MUTATION_GUARD
+  (11/11), R17_NUMERIC_MEASUREMENT, R17_NORMAL_WORLD_ACCEPTANCE.
+- Full regression: harness 365/0/3, mutation 11/11, r17Measure green,
+  makeMainOfflineDownload green, protected SHA-256 unchanged.
