@@ -36,7 +36,7 @@ Production Rail Data + Stable ID + Validation Limits
    - 7707a9b8  feat: R13 normal world re-verified with validate-before-issue
    - 2d31e56b  feat: R13 world-scoping fix (reset fires on client world)
    - f1e286e0  feat: R13 store onWorldEnter hook
-   - <FINAL_SHA> Final Report commit (recorded post-commit)
+   - 815f32353a04feb824a06d86e35bbf58d24937d4 Final Report commit (recorded post-commit)
 
 8. local / origin / GitHub final sync
    At report creation: local HEAD == origin/main == GitHub main == f1e286e0
@@ -172,7 +172,7 @@ Production Rail Data + Stable ID + Validation Limits
 31. Git checkpoints
     - f5c01e1c, 16cdb198, e8c5fb3b, 84f26510, a4127b41, dd309e5b, 7707a9b8,
       2d31e56b, f1e286e0 (all pushed).
-    - <FINAL_SHA> Final Report commit.
+    - 815f32353a04feb824a06d86e35bbf58d24937d4 Final Report commit.
 
 32. Affected files
     - src/geometry-core/java/net/minecraft/railsys/data/* (8 new classes)
