@@ -82,6 +82,17 @@ val limitMeasure = tasks.register<JavaExec>("limitMeasure") {
 	errorOutput = System.err
 }
 
+// R14: measure production mesh numeric values (spacing, sections, sleepers).
+// Run explicitly: ./gradlew r14Measure
+val r14Measure = tasks.register<JavaExec>("r14Measure") {
+	group = "verification"
+	description = "Measure R14 production 3D rail mesh numeric values."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.tools.R14MeshMeasurement")
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
 dependencies {
 	implementation(libs.bundles.common)
 }

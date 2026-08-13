@@ -3388,3 +3388,15 @@ STEP R14-14 - Game-layer production renderer + closed-loop command
   segments via the production 3D renderer (R14 path).
 - /railsys3 testloop [w] [l] [r] builds the course; help updated.
 - Harness 271 PASS / 0 FAIL / 3 SKIP; production build green.
+
+STEP R14-15 - Numeric measurement + docs + mutation guards
+-------------------------------------------------------------
+- ./gradlew r14Measure: straight 200m -> 7 sections / 807 samples / 336
+  sleepers; sleeper count sampling-independent (336 at 0.05..0.5m steps);
+  section count linear with section length (8m->25, 32m->7, 64m->4).
+- Frozen R14 defaults: sample step 0.25m, section length 32m, sleeper spacing
+  0.60m (evidence-based).
+- Mutation guards: 7/7 detected + reverted byte-for-byte.
+- Docs: R14_PRODUCTION_3D_RAIL, R14_CONTRACT_TEST_MATRIX,
+  R14_MUTATION_GUARD_RESULTS, R14_NUMERIC_MEASUREMENT.
+- Discord: measurement + mutation guard notifications sent.
