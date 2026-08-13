@@ -309,7 +309,39 @@ public final class RailsysR14Production3DSuite {
 		}
 	}
 
-	// ===================== Standard Closed-Loop Course =====================
+	@Test
+	public static void m04_terminalSectionNoGap() {
+		// A path whose length is EXACTLY divisible by sectionLengthM (e.g.
+		// 64m with 32m sections) must still emit the terminal sample at s=total
+		// (no gap at the very end).
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(64.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailPath path = RailPath.fromMarkers(pa, pb, 0.0D, 8001);
+		ProductionRailMesh mesh = ProductionRailMeshBuilder.build(path, RailProfile.default1435(),
+				0.25D, 32.0D);
+		// 64 = exactly 2 sections of 32; the last sample of the last section
+		// must be at s=64 (the path end).
+		RailMeshSection last = mesh.section(mesh.sectionCount() - 1);
+		PathSample end = last.lastSample();
+		Assert.assertEquals(64.0D, end.sample.x, 1e-6, "R14M terminal sample present (no gap)");
+		Assert.assertEquals(mesh.totalLengthM, 64.0D, 1e-9, "R14M terminal total length");
+		// Sleepers: floor(64/0.6)+1 = 107.
+		Assert.assertEqualsInt(107, mesh.totalSleeperCount(), "R14M terminal sleeper count");
+	}
+
+	@Test
+	public static void m05_sleeperCountNoDoubleAtBoundary() {
+		// A sleeper at a section boundary belongs to exactly ONE section
+		// (half-open clipping); total count must equal floor(len/spacing)+1.
+		AnchorDefinition pa = a(0.0D, 4.0D, 0.0D, 90.0D, 0.0D, 1.0D);
+		AnchorDefinition pb = a(100.0D, 4.0D, 0.0D, 270.0D, 0.0D, 1.0D);
+		RailPath path = RailPath.fromMarkers(pa, pb, 0.0D, 8001);
+		RailProfile profile = RailProfile.default1435();
+		ProductionRailMesh mesh = ProductionRailMeshBuilder.build(path, profile, 0.25D, 32.0D);
+		int expected = (int) Math.floor(100.0D / profile.sleeperSpacingM) + 1;
+		Assert.assertEqualsInt(expected, mesh.totalSleeperCount(),
+				"R14M no sleeper double-count at boundaries");
+	}
 
 	@Test
 	public static void loop01_courseAClosedGeometry() {

@@ -3413,3 +3413,24 @@ STEP R14-16 - Normal World Closed-Loop + screenshots + Discord
 - Screenshots (4) + Luna vision PASS on overview/corner/closeup.
 - Discord: screenshots sent (HTTP 200) + notification.
 - Docs: R14_NORMAL_WORLD_ACCEPTANCE.
+
+STEP R14-17 - Sol review round 1 + fixes
+------------------------------------------
+- Sol review found: (1) terminal mesh-section gap when length exactly
+  divisible by section length, (2) sleeper double-count at section boundaries
+  (336 vs expected 334 for 200m), (3) GL rail boxes were degenerate (duplicate
+  corners, open sheets instead of closed prisms), (4) sleepers rendered at
+  nearest sample frame instead of exact position.
+- Fixed:
+  - ProductionRailMeshBuilder: terminal section emits the s=total sample;
+    half-open [sStart,sEnd) sleeper clipping (no boundary double-count; the
+    path-end sleeper is included exactly once). 200m sleeper count now 334.
+  - RailsysProduction3DRenderer: box() now emits a closed 4-corner prism
+    (4 side faces + 2 end caps); corners() returns the 4 distinct rectangle
+    corners; sleepers drawn at their exact world position via the nearest
+    frame.
+- New tests m04 (terminal no-gap at exact-divisible length), m05 (no sleeper
+  double-count). R14 suite now 25 tests.
+- Harness 273 PASS / 0 FAIL / 3 SKIP. Normal world closed loop re-verified
+  with the fixed renderer (screenshots regenerated, rail/brown pixels present).
+- Discord: Sol-review + fixes notification.

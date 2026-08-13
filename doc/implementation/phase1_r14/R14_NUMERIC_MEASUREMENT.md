@@ -12,16 +12,16 @@ load sanity, NOT guessed.
 |--------|-------|
 | Mesh sections (sectionLen 32m) | 7 |
 | Sample count (step 0.25m) | 807 |
-| Sleeper count | 336 |
+| Sleeper count | 334 |
 | Total length | 200.0 m |
 
 ### Sleeper spacing is distance-based (sampling-independent)
 | Sample step | Sleeper count |
 |------------|---------------|
-| 0.05 m | 336 |
-| 0.10 m | 336 |
-| 0.25 m | 336 |
-| 0.50 m | 336 |
+| 0.05 m | 334 |
+| 0.10 m | 334 |
+| 0.25 m | 334 |
+| 0.50 m | 334 |
 
 Sleeper count is identical across sample densities — placement is by real
 distance s (0, spacing, 2*spacing...), never sample index.
@@ -49,7 +49,7 @@ Sections scale linearly; a long rail is never one giant buffer.
 
 ## Evidence
 
-- Distance-based sleeper placement proven sampling-independent (336/336/336/336).
+- Distance-based sleeper placement proven sampling-independent (334/334/334/334).
 - Section split is linear and small (7 sections for 200m) — memory sane.
 - Curve sample/frame continuity verified in R14 contract suite (no NaN, frame
   orthonormal, gauge maintained under cant).

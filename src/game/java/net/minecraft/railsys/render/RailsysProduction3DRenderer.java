@@ -91,12 +91,11 @@ public final class RailsysProduction3DRenderer {
 			emitRail(wr, fa, fb, profile, +1);
 		}
 
-		// Sleepers: distance-based positions from the mesh section.
+		// Sleepers: distance-based positions from the mesh section. Each
+		// sleeper is emitted at its EXACT world position (sleeper[0..2]) using
+		// the section sample frame nearest in distance for orientation.
 		if (profile.hasSleeper) {
 			for (double[] s : section.sleepers) {
-				// s = [x,y,z,roll]; build a sleeper box centred at (x,y,z) with
-				// the section frame orientation approximated by the nearest
-				// sample frame (sleeper spans along frame right).
 				RailLocalFrame f = nearestFrame(section, s[0], s[1], s[2]);
 				if (f != null) {
 					emitSleeper(wr, f, profile);
@@ -157,20 +156,19 @@ public final class RailsysProduction3DRenderer {
 	private static void box(WorldRenderer wr, RailLocalFrame fa, RailLocalFrame fb, int side,
 			double gaugeHalf, double minX, double minY, double maxX, double maxY,
 			int r, int g, int b) {
-		// Corners in local (right, up) for each frame; 8 corners total.
-		double[][] A = corners(fa, side, gaugeHalf, minX, minY, maxX, maxY);
-		double[][] B = corners(fb, side, gaugeHalf, minX, minY, maxX, maxY);
-		int[] bottom = { 0, 1, 2, 3 };
-		int[] top = { 4, 5, 6, 7 };
+		// The rail is a PRISM: a rectangle cross-section (right x up) swept
+		// along the path between the two frames. corners() returns the 4 corners
+		// of that rectangle at a frame.
+		double[][] A = corners(fa, side, gaugeHalf, minX, minY, maxX, maxY); // 4 corners
+		double[][] B = corners(fb, side, gaugeHalf, minX, minY, maxX, maxY); // 4 corners
+		// 4 side faces connecting A to B.
 		for (int i = 0; i < 4; i++) {
 			int n = (i + 1) % 4;
-			quad(wr, A[bottom[i]], A[bottom[n]], B[bottom[n]], B[bottom[i]], r, g, b);
-			quad(wr, A[top[i]], A[top[n]], B[top[n]], B[top[i]], r, g, b);
+			quad(wr, A[i], A[n], B[n], B[i], r, g, b);
 		}
-		quad(wr, A[bottom[0]], A[bottom[1]], A[top[1]], A[top[0]], r, g, b);
-		quad(wr, A[bottom[2]], A[bottom[3]], A[top[3]], A[top[2]], r, g, b);
-		quad(wr, B[bottom[0]], B[bottom[1]], B[top[1]], B[top[0]], r, g, b);
-		quad(wr, B[bottom[2]], B[bottom[3]], B[top[3]], B[top[2]], r, g, b);
+		// End caps on frames A and B (closes the prism).
+		quad(wr, A[0], A[1], A[2], A[3], r, g, b);
+		quad(wr, B[0], B[1], B[2], B[3], r, g, b);
 	}
 
 	/** Emit a box centred on one frame (sleeper). */
@@ -198,16 +196,16 @@ public final class RailsysProduction3DRenderer {
 		}
 	}
 
-	/** 8 box corners in world space; local (right=x, up=y). */
+	/** 4 rectangle corners in world space; local (right=x, up=y):
+	 * 0=(minX,minY) 1=(maxX,minY) 2=(maxX,maxY) 3=(minX,maxY). */
 	private static double[][] corners(RailLocalFrame f, int side, double gaugeHalf,
 			double minX, double minY, double maxX, double maxY) {
 		double rc = side * gaugeHalf;
 		double[][] local = {
-				{ minX, minY }, { maxX, minY }, { maxX, minY }, { minX, minY },
-				{ minX, maxY }, { maxX, maxY }, { maxX, maxY }, { minX, maxY }
+				{ minX, minY }, { maxX, minY }, { maxX, maxY }, { minX, maxY }
 		};
-		double[][] out = new double[8][3];
-		for (int i = 0; i < 8; i++) {
+		double[][] out = new double[4][3];
+		for (int i = 0; i < 4; i++) {
 			double rx = rc + local[i][0];
 			out[i][0] = f.x + f.rx * rx + f.ux * local[i][1];
 			out[i][1] = f.y + f.ry * rx + f.uy * local[i][1];

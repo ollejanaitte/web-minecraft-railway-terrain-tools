@@ -58,6 +58,9 @@ public final class ProductionRailMeshBuilder {
 		while (sectionStart < total - 1.0E-9D) {
 			double sectionEnd = Math.min(sectionStart + sectionLengthM, total);
 			sections.add(buildSection(path, profile, sampleStepM, sectionStart, sectionEnd, sectionIndex));
+			if (sectionEnd >= total - 1.0E-9D) {
+				break;
+			}
 			sectionStart = sectionEnd;
 			sectionIndex++;
 		}
@@ -72,17 +75,23 @@ public final class ProductionRailMeshBuilder {
 		for (double s = sStart; s <= sEnd + 1.0E-9D; s += step) {
 			PathSample ps = path.resolve(Math.min(s, sEnd));
 			samples.add(ps);
-			if (s >= sEnd) {
+			if (s >= sEnd - 1.0E-9D) {
 				break;
 			}
 		}
 		// Sleepers at distance-based s: s = 0, spacing, 2*spacing, ... across the
-		// WHOLE path (not sample-index based), clipped to this section.
+		// WHOLE path (not sample-index based), clipped to this section. The
+		// EXACT path-end sleeper is included; section-internal duplicates are
+		// prevented by strict half-open clipping [sStart, sEnd).
 		if (profile.hasSleeper) {
 			double sp = profile.sleeperSpacingM > 0.0D ? profile.sleeperSpacingM : 0.6D;
 			double first = 0.0D;
-			for (double s = first; s <= path.totalLength() + 1.0E-9D; s += sp) {
-				if (s >= sStart - 1.0E-9D && s <= sEnd + 1.0E-9D) {
+			double last = path.totalLength();
+			// s=0 belongs to section 0 only.
+			for (double s = first; s <= last + 1.0E-9D; s += sp) {
+				boolean inSection = (s >= sStart - 1.0E-9D) && (s < sEnd - 1.0E-9D)
+						|| (s >= last - 1.0E-9D && s <= last + 1.0E-9D && sEnd >= last - 1.0E-9D);
+				if (inSection) {
 					PathSample ps = path.resolve(Math.min(s, path.totalLength()));
 					sleepers.add(new double[] { ps.frame.x, ps.frame.y, ps.frame.z, ps.frame.rollDeg });
 					sleeperCount++;
