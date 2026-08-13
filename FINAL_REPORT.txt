@@ -3651,3 +3651,12 @@ STEP R16-10/14 - continuous placement + validation/edge cases
   NaN/Infinity, malformed ids, disconnected component, empty topology,
   world reset clears network.
 - R16 suite now 42 tests. Harness 342/0/3.
+
+STEP R16-16 - Mutation Guard
+----------------------------
+- 12/12 deliberate violations detected + reverted (corner handle back to 1.0,
+  too-short handle, closure tangent shift, duplicate connection allowed,
+  position tolerance inflated, tangent tolerance inflated, self connection
+  allowed, forward traversal broken, reverse traversal broken, crossing
+  auto-connected, node coalesce disabled, asset changes geometry).
+- All restored byte-for-byte (git diff clean). Driver /tmp/opencode/mutation_r16.py.
