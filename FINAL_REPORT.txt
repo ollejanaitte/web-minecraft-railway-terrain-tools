@@ -3400,3 +3400,16 @@ STEP R14-15 - Numeric measurement + docs + mutation guards
 - Docs: R14_PRODUCTION_3D_RAIL, R14_CONTRACT_TEST_MATRIX,
   R14_MUTATION_GUARD_RESULTS, R14_NUMERIC_MEASUREMENT.
 - Discord: measurement + mutation guard notifications sent.
+
+STEP R14-16 - Normal World Closed-Loop + screenshots + Discord
+------------------------------------------------------------------
+- /railsys3 testloop (40x80,r10): 8 segments, 216.64m; testloop_compact
+  (20x30,r6 at (70,0)): 8 segments, 86.04m. Production renderer fired for all
+  (R14RENDER rail-1..16); loop = rounded rectangle 4 straights + 4 corners.
+- Root causes found during validation: (1) RenderGlobal early-return skipped
+  store rendering when no preview/path existed — fixed gate to include
+  production rails; (2) rail/sleeper vertical offset placed them below the
+  support surface — fixed to sit ON the surface (R10F F1).
+- Screenshots (4) + Luna vision PASS on overview/corner/closeup.
+- Discord: screenshots sent (HTTP 200) + notification.
+- Docs: R14_NORMAL_WORLD_ACCEPTANCE.

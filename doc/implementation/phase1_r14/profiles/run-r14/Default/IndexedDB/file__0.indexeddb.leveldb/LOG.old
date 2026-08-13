@@ -1,0 +1,17 @@
+2026/08/13-16:45:13.119 34ab3 Reusing MANIFEST /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/implementation/phase1_r14/profiles/run-r14/Default/IndexedDB/file__0.indexeddb.leveldb/MANIFEST-000001
+2026/08/13-16:45:13.119 34ab3 Recovering log #45
+2026/08/13-16:45:13.147 34ab3 Reusing old log /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/implementation/phase1_r14/profiles/run-r14/Default/IndexedDB/file__0.indexeddb.leveldb/000045.log 
+2026/08/13-16:45:13.147 34ab3 Delete type=2 #42
+2026/08/13-16:45:13.147 34ab3 Delete type=2 #46
+2026/08/13-16:45:13.147 34ab3 Delete type=2 #43
+2026/08/13-16:46:18.593 34ab5 Level-0 table #52: started
+2026/08/13-16:46:18.647 34ab5 Level-0 table #52: 1248410 bytes OK
+2026/08/13-16:46:18.688 34ab5 Delete type=0 #45
+2026/08/13-16:46:28.822 34aba Compacting 1@1 + 2@2 files
+2026/08/13-16:46:28.898 34aba Generated table #53@1: 8800 keys, 2142476 bytes
+2026/08/13-16:46:28.967 34aba Generated table #54@1: 17882 keys, 1180400 bytes
+2026/08/13-16:46:28.967 34aba Compacted 1@1 + 2@2 files => 3322876 bytes
+2026/08/13-16:46:29.005 34aba compacted to: files[ 0 0 2 0 0 0 0 ]
+2026/08/13-16:46:29.005 34aba Delete type=2 #48
+2026/08/13-16:46:29.005 34aba Delete type=2 #49
+2026/08/13-16:46:29.005 34aba Delete type=2 #52

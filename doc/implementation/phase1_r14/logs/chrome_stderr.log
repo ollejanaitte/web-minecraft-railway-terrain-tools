@@ -1,0 +1,166 @@
+[0813/154154.888295:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/c9c149c0-5619-4050-9388-dab8194e198c
+[187053:187072:0813/154159.737814:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[187083:187083:0813/154203.323873:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[187053:187072:0813/154226.342517:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[187053:187072:0813/154322.176907:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[187053:187072:0813/154355.840061:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/154449.286252:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/686c2895-cd04-4662-b85f-76949f8537d7
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[189552:189576:0813/154458.110853:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[189591:189591:0813/154501.502641:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[189552:189576:0813/154520.464354:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[189552:189576:0813/154539.024311:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/154549.145176:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/9483c21f-af38-4cf9-8988-c8e0a635dca9
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[191903:191921:0813/154555.097104:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[191933:191933:0813/154558.076592:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[191903:191921:0813/154617.301440:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[191903:191921:0813/154700.545854:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[191903:191921:0813/154759.443222:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/154908.925879:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/fbbe5afe-f877-4819-ad1e-bd3eb743fbdd
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[194738:194755:0813/154913.499041:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[194768:194768:0813/154916.185004:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[194738:194755:0813/154934.453743:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[194738:194755:0813/155015.383101:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[194738:194755:0813/155107.651595:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/155205.359474:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/d430c821-9fec-4725-b900-9773c83a5dbc
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[195719:195735:0813/155209.923104:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[195749:195749:0813/155212.662756:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[195719:195735:0813/155234.036313:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[195719:195735:0813/155327.480492:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[195719:195735:0813/155405.719601:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/155527.158485:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/77501624-92a6-4a2b-8658-9daaaa504d6a
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[197354:197371:0813/155531.658715:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+[197383:197383:0813/155534.090053:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[197354:197371:0813/155726.705572:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/155810.113785:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/f3271c0d-f938-45fe-b4de-02caf85f73fb
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[198173:198189:0813/155814.595900:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[198202:198202:0813/155817.112569:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[198173:198189:0813/155839.146867:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[198173:198189:0813/155938.555695:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[198173:198189:0813/160021.097588:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/160138.186484:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/e5476476-fecf-4833-b834-fb12e6b17d50
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[199766:199784:0813/160142.681935:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[199797:199797:0813/160145.121326:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[199766:199784:0813/160209.028402:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[199766:199784:0813/160256.438729:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[199766:199766:0813/160346.441505:ERROR:content/common/zygote/zygote_communication_linux.cc:291] Failed to send GetTerminationStatus message to zygote
+[199766:199784:0813/160346.445164:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/160437.100925:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/80cee264-8ee6-42fa-825c-4e36a07808d5
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[200716:200734:0813/160441.637984:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+[200747:200747:0813/160444.146224:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[200716:200734:0813/160649.064336:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/161035.434203:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/96c12769-2fa8-4a1f-8c16-c2b2b7d7eaf7
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[203638:203654:0813/161040.053048:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[203667:203667:0813/161042.600397:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[203638:203654:0813/161109.636902:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[203638:203654:0813/161207.896187:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[203638:203654:0813/161248.461999:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/161414.177827:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/1f279856-ee5c-4590-b103-97f13c99ab71
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[205066:205082:0813/161418.656053:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[205096:205096:0813/161421.077251:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[205066:205082:0813/161441.288517:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[205066:205082:0813/161523.476852:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[205066:205066:0813/161623.783214:ERROR:content/common/zygote/zygote_communication_linux.cc:291] Failed to send GetTerminationStatus message to zygote
+[205066:205082:0813/161623.794061:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/161900.114486:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/ac3f7d6a-f528-4bf3-bffd-fcc90f130f69
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[207429:207445:0813/161904.609886:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[207460:207460:0813/161907.063837:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[207429:207445:0813/161929.254267:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[207429:207445:0813/162013.257788:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[207429:207445:0813/162110.588260:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/162316.857044:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/5d3ec556-0557-466c-a4fa-5db496a26138
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[209353:209369:0813/162321.366715:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+[209383:209383:0813/162323.835970:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[0813/162631.874482:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+[211164:211164:0813/162631.915349:ERROR:chrome/browser/process_singleton_posix.cc:347] Failed to create /home/masaharu/Web Minecraft with Railway Mod & Terrain Editing Tools/doc/implementation/phase1_r14/profiles/run-r14/SingletonLock: ファイルが存在します (17)
+[211164:211164:0813/162631.915775:ERROR:chrome/app/chrome_main_delegate.cc:520] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.
+[0813/162955.230964:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/72957e9a-210d-4aa0-bc47-99602c2a662b
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[211527:211543:0813/162959.703941:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[211557:211557:0813/163002.235499:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[211527:211543:0813/163020.835768:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+[211527:211543:0813/163228.264432:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/163337.800492:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/db77bde9-96f6-4caa-9771-5d2873050b6b
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[212875:212891:0813/163342.306712:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[212904:212904:0813/163344.660500:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[212875:212891:0813/163405.120987:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[212875:212891:0813/163455.035962:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[212875:212891:0813/163601.718300:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/163623.864279:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/419e6f02-86c5-43ab-b7bb-7a635a4e9604
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[213330:213346:0813/163628.323348:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[213361:213361:0813/163630.704243:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[213330:213346:0813/163653.853692:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[213330:213346:0813/163752.906755:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[213330:213346:0813/163847.423352:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/163955.873962:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/8ee64b39-cb79-48df-b82c-ddf2a658636c
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[214187:214203:0813/164000.349127:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[214216:214216:0813/164002.709584:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[214187:214203:0813/164022.581047:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: QUOTA_EXCEEDED
+[214187:214203:0813/164218.487961:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/164504.745047:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/cf291011-179f-4610-82f6-99fba9c67ead
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[215717:215734:0813/164509.222746:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[215748:215748:0813/164511.516750:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[215717:215734:0813/164535.976966:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[215717:215734:0813/164620.161427:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[215717:215734:0813/164700.011249:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2
+[0813/164721.666272:WARNING:chrome/app/chrome_main_linux.cc:84] Read channel stable from /opt/google/chrome/CHROME_VERSION_EXTRA
+
+DevTools listening on ws://127.0.0.1:9541/devtools/browser/b8fff40d-5ffe-4c8a-bd91-d3d170b95f5d
+Created TensorFlow Lite XNNPACK delegate for CPU.
+[216153:216170:0813/164726.120582:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[216183:216183:0813/164728.461072:ERROR:gpu/command_buffer/service/gles2_cmd_decoder_passthrough.cc:1211] []Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.
+[216153:216170:0813/164751.875488:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[216153:216170:0813/164850.027038:ERROR:google_apis/gcm/engine/registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+[216153:216170:0813/165022.671262:ERROR:google_apis/gcm/engine/connection_factory_impl.cc:484] ConnectionHandler failed with net error: -2

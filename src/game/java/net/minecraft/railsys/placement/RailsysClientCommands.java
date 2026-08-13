@@ -192,6 +192,18 @@ public final class RailsysClientCommands {
 						+ String.format("%.2f", total) + "m (prod store="
 						+ net.minecraft.railsys.placement.RailsysProductionRailStore.getInstance().worldData().size()
 						+ ")");
+			} else if ("testloop_compact".equals(action)) {
+				// R14 screenshot-demonstration variant: a SMALLER closed loop
+				// (20x30, r=6) placed at (70,0) so it does not overlap the
+				// standard 40x80 loop, for clear single-frame visual evidence.
+				double gauge = net.minecraft.railsys.placement.RailsysProductionRailStore.clampGaugeForDefaults(
+						net.minecraft.railsys.render.RailsysRenderManager.getActiveAsset().gaugeM);
+				java.util.List<net.minecraft.railsys.data.RailSegment> loop = net.minecraft.railsys.placement.RailsysProductionRailStore
+						.getInstance().registerClosedLoopCourse(70.0D, 0.0D, 20.0D, 30.0D, 6.0D, gauge,
+								"railsys.straight_1435_wood");
+				msg(player, "railsys: testloop_compact built " + loop.size() + " segments, total "
+						+ String.format("%.2f", net.minecraft.railsys.course.StandardClosedLoopCourse.totalLength(loop))
+						+ "m");
 			} else if ("status".equals(action)) {
 				RailsysPlacementState st = RailsysPlacementState.getInstance();
 				String prodInfo = "";

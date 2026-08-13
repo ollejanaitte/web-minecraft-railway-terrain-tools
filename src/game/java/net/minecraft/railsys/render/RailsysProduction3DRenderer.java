@@ -42,6 +42,9 @@ public final class RailsysProduction3DRenderer {
 		RailProfile profile = profileFor(seg);
 		RailPath path = seg.derivedPath();
 		ProductionRailMesh mesh = ProductionRailMeshBuilder.build(path, profile, SAMPLE_STEP_M, SECTION_LENGTH_M);
+		System.out.println("railsys: R14RENDER " + seg.railId() + " len=" + String.format("%.2f", seg.lengthM())
+				+ " gauge=" + seg.gaugeM() + " sections=" + mesh.sectionCount()
+				+ " samples=" + mesh.totalSampleCount() + " sleepers=" + mesh.totalSleeperCount());
 
 		GlStateManager.disableTexture2D();
 		GlStateManager.disableLighting();
@@ -122,32 +125,30 @@ public final class RailsysProduction3DRenderer {
 	private static void emitRail(WorldRenderer wr, RailLocalFrame fa, RailLocalFrame fb,
 			RailProfile p, int side) {
 		double gaugeHalf = p.gaugeM * 0.5D;
-		// Stacked boxes measured DOWN from the rail head top (origin at head top).
-		// Head: [-headH, 0]; Web: [-headH-webH, -headH]; Foot: [-headH-webH-footH, -headH-webH].
-		double headTop = 0.0D;
-		double headBottom = -p.headHeightM;
-		double webBottom = headBottom - p.webHeightM;
-		double footBottom = webBottom - p.footHeightM;
-		// Up offsets relative to frame origin (path centreline at rail bed).
-		// We place the rail with its foot base near the frame origin + tiny up.
-		double baseUp = 0.02D; // rail base just above the bed
-		box(wr, fa, fb, side, gaugeHalf, -p.headWidthM / 2.0D, baseUp + headBottom, p.headWidthM / 2.0D,
-				baseUp + headTop, p.railR, p.railG, p.railB);
-		box(wr, fa, fb, side, gaugeHalf, -p.webWidthM / 2.0D, baseUp + webBottom, p.webWidthM / 2.0D,
-				baseUp + headBottom, p.railR, p.railG, p.railB);
-		box(wr, fa, fb, side, gaugeHalf, -p.footWidthM / 2.0D, baseUp + footBottom, p.footWidthM / 2.0D,
-				baseUp + webBottom, p.railR, p.railG, p.railB);
+		// The frame origin (path centreline) IS the support/rail-bed surface
+		// (R10F F1). Rails sit ON that surface, going UP:
+		//   foot: y [0, footH]; web: [footH, footH+webH]; head: top.
+		double footTop = p.footHeightM;
+		double webTop = footTop + p.webHeightM;
+		double headTop = webTop + p.headHeightM;
+		double up0 = 0.02D; // tiny lift above the bed to avoid z-fighting
+		box(wr, fa, fb, side, gaugeHalf, -p.footWidthM / 2.0D, up0, p.footWidthM / 2.0D,
+				up0 + footTop, p.railR, p.railG, p.railB);
+		box(wr, fa, fb, side, gaugeHalf, -p.webWidthM / 2.0D, up0 + footTop, p.webWidthM / 2.0D,
+				up0 + webTop, p.railR, p.railG, p.railB);
+		box(wr, fa, fb, side, gaugeHalf, -p.headWidthM / 2.0D, up0 + webTop, p.headWidthM / 2.0D,
+				up0 + headTop, p.railR, p.railG, p.railB);
 	}
 
 	private static void emitSleeper(WorldRenderer wr, RailLocalFrame f, RailProfile p) {
 		// Sleeper box centred on the frame origin (path centreline), spanning
-		// +-sleeperLength/2 along right and small depth/height.
+		// +-sleeperLength/2 along right and small depth/height, sitting on the
+		// support surface (R10F F1): bottom = 0 (surface), top = sleeperHeight.
 		double halfLen = p.sleeperLengthM * 0.5D;
 		double halfW = p.sleeperWidthM * 0.5D;
-		double top = p.sleeperTopM;
-		double bottom = top - p.sleeperHeightM;
-		// A sleeper is a box: along right (-halfLen..+halfLen), along forward
-		// (-halfW..+halfW), up (bottom..top).
+		double up0 = 0.01D; // tiny lift above the bed to avoid z-fighting
+		double bottom = up0;
+		double top = up0 + p.sleeperHeightM;
 		boxAt(wr, f, -halfLen, -halfW, bottom, halfLen, halfW, top,
 				p.sleeperR, p.sleeperG, p.sleeperB);
 	}

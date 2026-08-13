@@ -1661,7 +1661,12 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		net.minecraft.railsys.placement.RailsysPlacementState st = net.minecraft.railsys.placement.RailsysPlacementState
 				.getInstance();
 		boolean hasPreview = st != null && st.hasPreview();
-		if (paths.isEmpty() && !hasPreview) {
+		// Phase 1-R14: production rails registered in the authoritative world
+		// store (R13 RailSegments) render via the PRODUCTION 3D rail renderer.
+		net.minecraft.railsys.data.RailWorldData wd = net.minecraft.railsys.placement.RailsysProductionRailStore
+				.getInstance().worldData();
+		boolean hasProductionRails = wd != null && wd.size() > 0;
+		if (paths.isEmpty() && !hasPreview && !hasProductionRails) {
 			return;
 		}
 
@@ -1688,8 +1693,6 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 		// store (R13 RailSegments) render via the PRODUCTION 3D rail renderer.
 		// Entry is the RailSegment; the renderer uses its derived RailPath +
 		// gauge snapshot (never a separate geometry pipeline).
-		net.minecraft.railsys.data.RailWorldData wd = net.minecraft.railsys.placement.RailsysProductionRailStore
-				.getInstance().worldData();
 		if (wd != null && wd.size() > 0) {
 			for (net.minecraft.railsys.data.RailSegment seg : wd.rails()) {
 				if (seg != null && seg.lifecycle() == net.minecraft.railsys.data.RailSegment.Lifecycle.ACTIVE) {
