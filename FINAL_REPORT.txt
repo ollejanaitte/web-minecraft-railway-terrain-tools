@@ -3341,3 +3341,38 @@ STEP R13-10 - Final sync record
 - Final sync verified: local HEAD == origin/main == git ls-remote GitHub main
   == be496c41d96dedda376b8437ec40a522f1f5da95 (3-way match); staging empty.
 - Verdict recorded: PHASE 1-R13 VERDICT PASS. R14 ENTRY GATE OPEN.
+
+====================================================================
+PHASE 1-R14 - Production 3D Rail + Standard Closed-Loop Test Course
+Authoritative running log (appended at EOF as work progresses)
+====================================================================
+
+STEP R14-00 - Initial Baseline Audit
+--------------------------------------
+- Head: 471ccfd3bd578b2f3c2a883dc09304ed22bff6fe (R13 final). local ==
+  origin/main == GitHub main (3-way match).
+- Protected SHA256 byte-identical (CommandRailSystem 1037f467... /
+  EntityRailVehicle b2fb0ea3...). Existing dirty/untracked preserved.
+- R13 RailSegment / derived RailPath + R12 3D-rail/asset-boundary docs
+  reviewed. Discord: R14 start + audit sent.
+
+STEP R14-01..13 - Production 3D Rail + Closed-Loop Course implementation
+--------------------------------------------------------------------------
+- geometry-core net.minecraft.railsys.render:
+  - RailProfile (Railsys-native asset boundary: head/web/foot, gauge, sleeper,
+    fastener, ballast, material id; default1435 / narrow1000).
+  - ProductionRailMeshBuilder (path -> mesh sections; cornerWorld/railCentre
+    cross-section math from RailLocalFrame).
+  - ProductionRailMesh + RailMeshSection (DERIVED/CACHE, sectioned long rails).
+- geometry-core net.minecraft.railsys.course:
+  - StandardClosedLoopCourse (courseA flat / courseB cant; rounded rectangle
+    4 straights + 4 smooth 90-degree corners; exact tangent-point geometry;
+    production RailSegment only).
+- harness net.minecraft.railsys.RailsysR14Production3DSuite: 23 numeric tests
+  (pipeline, profile dims, symmetry, gauge incl. cant, centerline invariance,
+  frame orthonormality, cant sign, gradient, distance-based sleeper +
+  sampling-independence, mesh segmentation + boundary continuity, no NaN,
+  composite curve+gradient+cant, closed-loop closure position/tangent/frame,
+  course B cant, loop gauge continuity, F2-consistent total length).
+- Harness: PASSED=271 FAILED=0 SKIPPED=3 (248 baseline + 23 R14).
+- Discord: pipeline/profile/gauge/segmentation/closed-loop notifications sent.
