@@ -27,7 +27,7 @@ Production Rail Architecture & Design Freeze
 7. Final SHA
    - Design commit: 5f330979  docs: R12 production rail architecture design
      freeze (17 deliverables)
-   - Final Report commit: <FINAL_SHA> (recorded post-commit in FINAL_REPORT.txt)
+   - Final Report commit: 3f07f0b42c4b20ae213e20e30e40a7cf4b7fe371 (recorded post-commit in FINAL_REPORT.txt)
 
 8. local / origin / GitHub final sync
    At report creation: local HEAD == origin/main == GitHub main == 5f330979
@@ -184,7 +184,7 @@ Production Rail Architecture & Design Freeze
 33. Git checkpoint一覧
     - 5f330979  docs: R12 production rail architecture design freeze
       (17 deliverables)
-    - <FINAL_SHA> Final Report commit
+    - 3f07f0b42c4b20ae213e20e30e40a7cf4b7fe371 Final Report commit
 
 34. Affected files
     - doc/architecture/phase1_r12/* (17 docs) — all new.
