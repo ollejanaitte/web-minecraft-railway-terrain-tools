@@ -1,0 +1,171 @@
+================================================================================
+ マイクラ鉄道 Railing System v2 — Phase 1-R15 完了報告
+ ModelPack / RTM Compatibility + Rail Asset Selection
+================================================================================
+
+日時 (JST): 開始 2026-08-13 (R14完了直後) / 終了 2026-08-13 20:28 JST
+Initial HEAD: 71a103e4
+Final SHA:   e34a80c8
+local == origin/main == GitHub main: e34a80c8 (3-way sync確認済)
+リポジトリ: https://github.com/ollejanaitte/web-minecraft-railway-terrain-tools.git
+================================================================================
+
+1. 判定: GO (PASS)
+   - R15契約スイート 27/27 PASS
+   - 全ハーネス 300 PASS / 0 FAIL / 3 SKIP (273 baseline + 27 R15)
+   - ミューテーションガード 9/9 検出+復元
+   - 実物Reference ModelPack (NR01 NB-Rails v3.0) 読取専用でimport検証
+   - 通常World閉ループ全周へModelPack外観適用・描画 PASS
+   - Geometry = SAME / Appearance = CHANGED を数値+画像で証明
+   - Sol レビュー: GO (99% confidence) — 3ラウンドの指摘をすべて解決
+   - プロテクト対象 SHA-256 一致 / シークレット・クリーンルーム・大容量スキャンOK
+
+2. Initial Audit (R15-00)
+   - 3-way sync 71a103e4 / プロテクト対象 byte-identical
+   - ベースライン: harness 273/0/3, production build green, R14閉ループ217m
+   - リポジトリサイズ: .git 273M (大容量ファイルは全て既存のdesktopRuntime等)
+   - ローカルReference ModelPack候補: [unzip]NR01_v3.0.zip -> NR01-NB-Rails.zip
+     (316 entries: 78 MQO, 99 JSON, 104 PNG, 13 renderer JS, 10 ini)
+   - ModelPack Git Policy をFreeze: アダプタ/テスト/evidenceのみGitへ。
+     実物ZIP/MQO/Texture/JS/本体jarはGitへ入れない (.gitignore追記済)
+
+3. Reference Pack Inventory (R15-01)
+   - RTM 1.12.2形式 (pack.json無し, mods/RTM/ModelRail_*.json)
+   - ModelRail JSON: railName/model{modelFile,textures,rendererPath}/buttonTexture/
+     defaultBallast/accuracy/tags
+   - MQO: Material/Object/vertex/face(V+M+UV)/scale/rotation/translation
+   - コンポーネント: base/railL/railR/sideL/sideR + Zunge*(スイッチ)
+   - Mapping Matrix (RTM <-> Railsys) を doc/ に保存
+
+4. Installation / Discovery Contract (R15-02)
+   - TeaVM Web実行環境の制約から、JVM側アダプタが実物Packをread-onlyで変換し
+     Railsys-native Asset Bundle (JSON, 仕様事実のみ) を生成
+   - ゲーム実行時は埋込bundleを自動import + `/railsys15 import <bundleJson>` で
+     将来のブラウザfile選択にも対応する契約
+
+5. Safe Import Boundary (R15-03)
+   - SafeZipReader: パストラバーサル/絶対パス/重複entry/サイズ(32MiB/entry,
+     128MiB総計, 4096件)/ZIP爆弾/PK署名/EOCD完全検査
+   - 壊れ入力はクラッシュせず診断 (REJECT/WARN/SKIP)
+
+6. RTM Compatibility Adapter (R15-04/05)
+   - ModelPackImporter: ZIP -> JSON -> MQO -> texture -> RailsysInternalAsset
+   - RailsysInternalAsset: assetId/packId/railId/components/movable/textures/
+     behaviour/compat/gauge(メタデータ)/ballast — RailPathは一切持たない
+
+7. MQO / Mesh Import (R15-06)
+   - MqoParser: vertex/face(3-4角)/UV/material/object/transformサブセット
+     (65536 verts, 131072 faces cap) — 未知構文はWARN, クラッシュしない
+
+8. Texture / Material Import (R15-07)
+   - texture path解決 (JSON + MQO material), 欠落はWARN + アセット維持
+   - レンダラはRailsysネイティブ色 (railId/ballast由来) を使用し紫/黒破綻なし
+   - 実テクスチャ画素のruntime適用は将来のbrowser file-selection経路として契約化
+
+9. Renderer Compatibility Mapping (R15-08)
+   - RendererCompatibilityMapper: RenderRailNB系 -> STATIC_PARTS,
+     RenderRail_NB_SB -> STATIC_SWITCH_META, 未知 -> FALLBACK_STATIC
+   - RTM JSは絶対に実行しない (referenceのみ)
+
+10. Asset Registry + Stable Asset ID (R15-09)
+    - id = sanitize(packId):sanitize(railId) (決定的)
+    - 重複拒否 / リロード置換 / 欠落 -> railsys:fallback_default
+
+11. Shift+右クリック Asset Selection (R15-10)
+    - 杖を空中でShift+右クリック -> RailsysAssetSelector GUI (Pack/Asset/
+      compatibility/current 一覧)。ブロック右クリックはR7/R10 confirm契約維持
+
+12. Preview Asset Switching (R15-11)
+    - /railsys15 use <id> + preview: RailPath SAME, 外観変更 (g01で数値証明)
+
+13. Confirmed Asset Replace (R15-12)
+    - /railsys15 replace <railId> <assetId>: RailSegment.withAsset で
+      railId/RailPath/endpoints/length/gauge/cant 全て不変、assetのみ変更
+      (r12テストで数値証明)
+
+14. Missing/Broken Pack Handling (R15-13)
+    - broken zip/bad json/missing mqo/missing texture/unknown renderer/dup id/
+      removed pack: 分類 (LOADED/PARTIAL/REJECTED/FALLBACK/MISSING)、クラッシュ無し
+
+15. R15 Contract Suite (R15-14): 27テスト全てPASS
+
+16. Mutation Guard (R15-15): 9/9 (traversal/絶対パス/renderer allowlist/stable id/
+    dup id/texture normalize/gauge->geometry/missing-mqo/F4 cant)
+
+17. Real Reference ModelPack Proof (R15-16)
+    - NR01 import: rejected=false, 306 entries, 78 MQO, 90 assets
+      (LOADED=47, PARTIAL=43; 実Packに重複railName 2組 -> 88 unique, 重複拒否動作)
+    - Concrete: components[base,railL,sideL,railR,sideR], movable[Zunge*4],
+      textures[largeRailConcrete.png], ballast=gravel h=0.0625
+    - 1067/750等はrailNameからgauge metadata (メタデータのみ、geometry不変)
+
+18. R14 Closed Loop ModelPack Acceptance (R15-17)
+    - 通常World: /railsys15 testloop -> 8 segments, 216.64m,
+      asset=nr01-nb-rails:1435mm_nb_concrete; コンパクトループ追加、prod=16
+    - Straight/Curve/Boundary/Closeup表示、欠けテクスチャ/ギャップ/ねじれ無し (Luna PASS)
+
+19. Geometry / Asset Invariance (R15-18)
+    - 数値: レール足跡ピクセル BEFORE=284095 AFTER=284029 (同一),
+      グレー外観 BEFORE=511 AFTER=6893 (変化)
+    - Luna: SAME_GEOMETRY_DIFFERENT_APPEARANCE PASS
+    - 契約テスト g01/r12 で数値証明 (section/sample/sleeper count + frame同一,
+      gauge/cant/length/endpoints同一)
+
+20. Screenshot / Visual Evidence (R15-19)
+    - 10枚取得 (OVERVIEW/STRAIGHT/CURVE/BOUNDARY/CLOSEUP/SELECTOR/BEFORE/AFTER等)
+    - SHA-256記録 (git history内)
+    - Discordへ7枚実ファイル送信 (HTTP 200)
+    - Luna: PASS (閉ループ可視, コンクリ外観, 欠け無し, セレクタGUI可視)
+
+21. Luna結果: PASS
+22. Sol結果: GO (99%) — 3ラウンド (NOGO x2 -> GO)。gauge権限/F4/EOCD/dup-idを解決
+
+23. Regression / Build Gate
+    - 全ハーネス 300/0/3 (R10F Foundation + R13 + R14 + R15 全て含む)
+    - makeMainOfflineDownload green (JAVA_HOME java-17-openjdk-amd64)
+    - Launcher smoke: ヘッドレス起動 + /railsys15系コマンド実行 + 描画PASS
+
+24. Git checkpoints (全てGitHub mainへ統合・同期確認)
+    b8536515 (gitignore) c0557cb8 (initial audit) 39859d42 (inventory)
+    1ea3d7fb (import pipeline) fec1a0d9 (game layer) a834492f (invariance tests)
+    1ef6ad3d (closed-loop acceptance) 08f3b04f (selector GUI) 25296223 (asset replace)
+    1cca50df (docs) c20b51e5 (Sol r1) 1c38911c (Sol r2) 3fc92484 (Sol r3)
+    e34a80c8 (wording fix)
+
+25. Affected files (主要)
+    - geometry-core modelpack/: SafeZipReader, MqoParser, RtmModelRailParser,
+      RendererCompatibilityMapper, RailsysInternalAsset, RailsysAssetRegistry,
+      StableAssetId, ModelPackImporter, RailsysAssetBundle, ImportDiagnostic
+    - geometry-core: MiniJson (public化), RailSegment.withAsset, RailWorldData.replaceSegment
+    - game: RailsysModelPackClient, RailsysModelPackBundle, RailsysModelPackCommands,
+      RailsysAssetSelector, RailsysProduction3DRenderer.profileFor, GuiChat dispatch,
+      ItemRailsysMarkerWand, RailsysProductionRailStore.replaceAsset/clearAllRails
+    - harness: RailsysR15ModelPackSuite (27 tests), R15ModelPackMeasurement (r15Measure)
+
+26. Protected file hashes (byte-identical)
+    - CommandRailSystem.java: 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+    - EntityRailVehicle.java:  b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+
+27. Clean-room / License
+    - Reference Pack (NR01 ZIP) は read-only。Gitへ一切混入せず (.gitignore: /rtm_reference/)
+    - src/ に RTM MQO/texture/script 無し。desktopRuntime/*.ogg はvanilla既存資産
+    - Railsysコードは独自実装。JSONフィールド名/挙動のみspec事実として利用
+    - ライセンス不明のPack資産はrepoへ再配布していない
+
+28. Secret scan: webhook URL等の秘密情報なし (git grep空)
+29. Large-file / ModelPack contamination scan: PASS (R15で追加された大容量/汚染なし)
+
+30. Known Issues / Remaining Risks
+    - 実ModelPackの高精細テクスチャ画素のruntime適用はPARTIAL (browser file選択
+      経路は契約化済、実装は将来Phase)。見た目はRailsysネイティブ色/バラスト由来
+    - 実Packの重複railName (1067mm rille tram 2組) は意図通り重複拒否され
+      88/90 assets が登録される (仕様動作)
+    - スイッチ(Zunge)はmetadataのみ (R17/R18で実装)
+    - ゲーム実行時bundle importは `/railsys15 import` でJSON注入可能 (dev経路)
+
+31. R16 Entry Gate: OPEN
+    - R15全終了条件を満たし、R16 (Rail Network / RailNode / RailConnection) へ
+      進む資格あり
+
+Final Verdict: GO (PASS)
+================================================================================
