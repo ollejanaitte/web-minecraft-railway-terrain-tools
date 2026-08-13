@@ -3689,3 +3689,12 @@ STEP R16-20 - Sol review round 2 fixes
   close (8+1), plus v09 fork/out-degree check, v10 vertical gap rejection,
   v11 pitch mismatch rejection, v12 stale-membership removal on removeNode.
 - Clean rebuild performed (no mutation-contaminated bytecode). Harness 347/0/3.
+
+STEP R16-21 - Sol review round 3 fixes
+--------------------------------------
+- i03: now exercises the step guard on a real 8-segment loop (guard 4 -> empty,
+  guard 64 -> full 8+1 cycle; both directions).
+- v09: now constructs a GENUINE fork (s1.E joins s2.S + s3.S at one node, 2
+  outgoing connections) and asserts validateTopology flags it (endpoint-reuse /
+  out-degree != 1).
+- Clean rebuild, harness 347/0/3.

@@ -498,12 +498,25 @@ public final class RailsysR16NetworkSuite {
 
 	@Test
 	public static void i03_stepGuardStops() {
-		ProductionRailNetwork net = new ProductionRailNetwork();
-		// no connections at all -> forward cycle is not closed -> empty list
-		List<RailSegment> c = net.forwardCycle(loop0(), 4);
-		Assert.assertEqualsInt(0, c.size(), "R16I no connection -> empty cycle");
-		List<RailSegment> r = net.reverseCycle(loop0(), 4);
-		Assert.assertEqualsInt(0, r.size(), "R16I no connection -> empty reverse cycle");
+		// On a real closed loop, a step guard SMALLER than the cycle length must
+		// stop the walk (empty result — cannot prove closure within the budget),
+		// while a guard large enough completes the full cycle.
+		List<RailSegment> loop = StandardClosedLoopCourse.courseA(0.0D, 0.0D, 40.0D, 80.0D, R,
+				1.435D, "railsys.straight_1435_wood");
+		ClosedLoopTopology.Result res = ClosedLoopTopology.build(loop);
+		// guard 4 < 8 needed -> empty (step guard exceeded before closing)
+		List<RailSegment> tooSmall = res.network.forwardCycle(loop.get(0), 4);
+		Assert.assertEqualsInt(0, tooSmall.size(), "R16I step guard 4 < 8 -> empty");
+		// guard 64 >= 8 -> full 8+1 cycle
+		List<RailSegment> enough = res.network.forwardCycle(loop.get(0), 64);
+		Assert.assertEqualsInt(9, enough.size(), "R16I step guard 64 -> full cycle");
+		// same for reverse
+		Assert.assertEqualsInt(0, res.network.reverseCycle(loop.get(0), 4).size(), "R16I reverse guard 4 -> empty");
+		Assert.assertEqualsInt(9, res.network.reverseCycle(loop.get(0), 64).size(), "R16I reverse guard 64 -> full");
+		// no connections at all -> dangling path -> empty (both directions)
+		ProductionRailNetwork emptyNet = new ProductionRailNetwork();
+		Assert.assertEqualsInt(0, emptyNet.forwardCycle(loop0(), 4).size(), "R16I no connection -> empty");
+		Assert.assertEqualsInt(0, emptyNet.reverseCycle(loop0(), 4).size(), "R16I no connection -> empty reverse");
 	}
 
 	@Test
@@ -525,40 +538,37 @@ public final class RailsysR16NetworkSuite {
 
 	@Test
 	public static void v09_forkTopologyDetected() {
-		// A segment whose END connects to TWO different segments (fork) must be
-		// flagged by validateTopology (endpoint used by multiple connections /
-		// segment out-degree != 1).
+		// A GENUINE fork: s1's END joins at a node that also hosts TWO other
+		// segments' STARTS (s2.S and s3.S). s1.E is then used by TWO
+		// connections -> validateTopology must flag endpoint-reuse /
+		// out-degree != 1 (a fork is not a single through path).
 		AnchorDefinition a1 = new AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
 		AnchorDefinition b1 = new AnchorDefinition(20, 4, 0, 270, 0, 1.0, 0);
 		AnchorDefinition a2 = new AnchorDefinition(20, 4, 0, 90, 0, 1.0, 0);
 		AnchorDefinition b2 = new AnchorDefinition(40, 4, 0, 270, 0, 1.0, 0);
-		AnchorDefinition a3 = new AnchorDefinition(20, 4, 0, 90 + 30, 0, 1.0, 0);
-		AnchorDefinition b3 = new AnchorDefinition(45, 4, 0, 270 + 30, 0, 1.0, 0);
+		AnchorDefinition a3 = new AnchorDefinition(20, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b3 = new AnchorDefinition(40, 4, 0, 270, 0, 1.0, 0);
 		RailSegment s1 = RailSegment.confirm(RailId.probe(1), a1, b1, 0, 1.435, "a", 1, null, 0, false);
 		RailSegment s2 = RailSegment.confirm(RailId.probe(2), a2, b2, 0, 1.435, "a", 1, null, 0, false);
 		RailSegment s3 = RailSegment.confirm(RailId.probe(3), a3, b3, 0, 1.435, "a", 1, null, 0, false);
 		ProductionRailNetwork net = new ProductionRailNetwork();
-		// s1.END owned by n1, connected to s2.START
+		// s1.END, s2.START, s3.START all join at node n1 (a fork point).
 		RailNode n1 = net.registerNode(20, 4, 0);
 		net.addEndpoint(n1, s1, false);
 		net.addEndpoint(n1, s2, true);
-		net.connect(n1, s1, false, s2, true);
-		// A second connection at the same s1.END is impossible via addEndpoint
-		// (unique membership), so a true fork requires distinct endpoints.
-		// Simulate the FORK via s2: s2.END connected to BOTH s3.START and (if
-		// possible) a second start — membership uniqueness prevents it.
-		// Therefore validateTopology on a valid 3-chain is clean.
-		RailNode n2 = net.registerNode(40, 4, 0);
-		net.addEndpoint(n2, s2, false);
-		net.addEndpoint(n2, s3, true);
-		net.connect(n2, s2, false, s3, true);
-		// membership uniqueness already prevents a true fork; the contract test
-		// asserts that a segment's end can only own ONE outgoing connection.
-		List<RailConnection> outs = net.connectionsOf(s1);
-		Assert.assertEqualsInt(1, outs.size(), "R16V s1 has exactly one outgoing connection");
-		// topology: s3.START and s1.START are dangling (open chain) -> issues
+		net.addEndpoint(n1, s3, true);
+		// s1.E -> s2.S and s1.E -> s3.S are BOTH valid through connections
+		// (s2 and s3 are two branches leaving the same point).
+		RailConnection c1 = net.connect(n1, s1, false, s2, true);
+		RailConnection c2 = net.connect(n1, s1, false, s3, true);
+		Assert.assertEquals(true, c1 != null, "R16V fork branch s1->s2 connected");
+		Assert.assertEquals(true, c2 != null, "R16V fork branch s1->s3 connected");
+		// s1.E is used by TWO connections -> out-degree 2 (fork).
+		Assert.assertEqualsInt(2, net.connectionsOf(s1).size(), "R16V s1 has TWO outgoing connections");
+		// validateTopology MUST flag the fork: either endpoint-reuse
+		// (s1:E in multiple connections) or segment out-degree != 1.
 		String issues = net.validateTopology(java.util.Arrays.asList(s1, s2, s3));
-		Assert.assertEquals(false, issues.isEmpty(), "R16V open chain flagged (dangling endpoints)");
+		Assert.assertEquals(false, issues.isEmpty(), "R16V fork flagged by validateTopology: " + issues);
 	}
 
 	@Test
