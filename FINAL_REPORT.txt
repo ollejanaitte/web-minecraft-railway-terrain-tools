@@ -3508,3 +3508,16 @@ STEP R15-11/13/14/18 - preview switching, missing/broken handling, invariance
   sample/sleeper counts and identical sample frames for default vs ModelPack
   profile). R15 suite now 23 tests.
 - Harness 295/0/3.
+
+STEP R15-17/18/19 - closed loop ModelPack acceptance + screenshots
+-------------------------------------------------------------------
+- r15_closed_loop.mjs: normal world, embedded NR01 bundle auto-imports,
+  /railsys15 assets shows nr01-nb-rails:1435mm_nb_concrete[PARTIAL],
+  /railsys15 use selects concrete, /railsys15 testloop builds 8 segments
+  216.64m with asset=nr01-nb-rails:1435mm_nb_concrete, prod store=16.
+- clearloop command added for BEFORE/AFTER (default vs ModelPack compact loop
+  at same camera). Geometry SAME (rail footprint pixels 284095 vs 284029),
+  Appearance CHANGED (grey rail pixels 511 -> 6893).
+- 10 screenshots captured (7 R15-series + BEFORE/AFTER pair), SHA-256 recorded.
+- Luna vision VERDICT: PASS (continuous loop, concrete-grey rail+ballast,
+  no missing texture/gap/twist/overlap).

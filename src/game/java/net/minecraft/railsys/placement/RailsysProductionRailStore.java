@@ -129,4 +129,11 @@ public final class RailsysProductionRailStore {
 		}
 		return registered;
 	}
+
+	/** Delete all production rails in the store (R15 clear-loop helper). */
+	public synchronized int clearAllRails() {
+		int n = this.worldData.size();
+		this.worldData.clearAll();
+		return n;
+	}
 }

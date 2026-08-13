@@ -104,6 +104,9 @@ public final class RailsysModelPackCommands {
 				msg(player, "railsys15: testloop_compact built " + loop.size() + " segments, total "
 						+ String.format("%.2f", net.minecraft.railsys.course.StandardClosedLoopCourse.totalLength(loop))
 						+ "m asset=" + a.assetId);
+			} else if ("clearloop".equals(action)) {
+				int n = RailsysProductionRailStore.getInstance().clearAllRails();
+				msg(player, "railsys15: cleared " + n + " production rails");
 			} else if ("help".equals(action) || "?".equals(action)) {
 				help(player);
 			} else {
