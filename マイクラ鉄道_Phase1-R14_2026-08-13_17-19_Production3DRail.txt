@@ -1,0 +1,88 @@
+================================================================================
+ マイクラ鉄道 Railing System v2 — Phase 1-R14 完了報告
+ Production 3D Rail + Standard Closed-Loop Production Rail Test Course
+================================================================================
+
+日時 (JST): 2026-08-13 17:19 JST
+HEAD:       7704b7c2 (main, local == origin/main == GitHub main)
+リポジトリ: https://github.com/ollejanaitte/web-minecraft-railway-terrain-tools.git
+前フェーズ: Phase 1-R13 (PASS) -> 今回 R14 を実行
+================================================================================
+
+1. 判定: GO (PASS)
+   - R14 契約スイート 25/25 PASS
+   - 全ハーネス 273 PASS / 0 FAIL / 3 SKIP
+   - ミューテーションガード 7/7 検出+復元
+   - 数値計測 (r14Measure) 合格
+   - 通常ワールド閉ループ受入: 8 セグメント / 216.64 m (標準), 86.04 m (コンパクト)
+   - プロテクト対象ファイル SHA-256 一致 (byte-identical)
+   - シークレットスキャン: クリーン
+   - Sol レビュー: GO (99% confidence) — 指摘 4 件すべて解決確認済み
+
+2. スコープ
+   - geometry-core: RailProfile, ProductionRailMeshBuilder, ProductionRailMesh,
+     RailMeshSection, StandardClosedLoopCourse (courseA flat / courseB cant)
+   - game: RailsysProduction3DRenderer, RailsysProductionRailStore
+     (registerClosedLoopCourse / resetForNewWorld / onWorldEnter),
+     /railsys3 testloop + testloop_compact, RenderGlobal R14 描画ブロック
+   - harness: RailsysR14Production3DSuite (25 テスト), R14MeshMeasurement +
+     r14Measure タスク
+
+3. 実装内容
+   - プロダクション 3D レール: プロファイル別 (head/web/foot) レール断面を
+     隣接フレーム間でスイープした閉じた 3D プリズムとして描画 (4 側面+両端蓋、
+     退化コーナーなし)
+   - 枕木: 実距離 s = 0, spacing, 2*spacing, ... で配置し、正確な距離ベース
+     ワールド座標に描画 (最寄りサンプルフレームでなく、向きのみ最寄りフレーム)
+   - 半開区間クリップ: セクション境界の枕木を二重カウントしない
+     (200 m で floor(200/0.6)+1 = 334 本)
+   - 終端セクション: 全長がセクション長で割り切れる場合も s=total の最終
+     サンプルを必ず出力 (末端ギャップなし)
+   - 標準閉ループコース: 4 直線 + 4 F2 90° コーナー、接線点で完全閉合
+     (courseA カント 0 / courseB コーナー カント 6°)
+   - 通常ワールドで描画受入、4 枚スクリーンショット + SHA-256 記録
+
+4. 数値計測 (r14Measure)
+   - 直線 200 m: sections=7, samples=807, sleepers=334, len=200.0
+   - 枕木数はサンプリング非依存 (0.05/0.1/0.25/0.5 m で 334/334/334/334)
+   - 既定値凍結: sampleStep 0.25 m / sectionLength 32 m / sleeperSpacing 0.60 m
+
+5. Sol レビュー対応 (ラウンド1指摘 -> 修正 -> GO)
+   1) 終端セクションの欠落 (割り切れる長さで最終サンプル消失) -> m04 新設で解決
+   2) セクション境界での枕木二重カウント (336 vs 期待 334) -> 半開クリップで解決
+   3) GL レールボックスの退化 (コーナー重複・縦面欠落) -> 閉じた 4 コーナー
+      プリズム化で解決
+   4) 枕木が最寄りサンプルフレーム位置に描画 -> 正確な距離ベース座標に描画
+      するよう修正 (boxAtShifted)、dead code 削除
+   -> Sol 再検証: 4 件すべて RESOLVED、新規矛盾なし。VERDICT: GO (99%)
+
+6. 品質ゲート
+   - R14 契約テスト: 25/25 (m01..m05, s01/s02, g01..g04, f01..f03, p01/p02,
+     c01/c02, comp01, loop01..loop06)
+   - ミューテーションガード: 7/7 (gauge符号 / cantフレーム / 枕木index化 /
+     境界ギャップ / プロファイル不正 / 閉合ずれ / 接線破損)
+   - 全ハーネス: 273/0/3
+   - プロテクト対象: CommandRailSystem.java
+     1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832,
+     EntityRailVehicle.java
+     b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+     (byte-identical、未コミットのまま)
+   - ビルド: makeMainOfflineDownload 成功 (JAVA_HOME java-17-openjdk-amd64)
+   - ランチャースモーク: ヘッドレス起動 + /railsys3 コマンド実行成功
+   - シークレットスキャン: webhook URL 等の秘密情報なし
+   - クリーンルーム: src/ 内に RTM アセット (png/jpg/ogg/nbt/dat/ttf) なし
+
+7. 既知の注意事項
+   - Chrome 実行プロファイル (~159MB) と logs/, instrumented.html が一度誤って
+     コミットされたが、HEAD から除去し .gitignore に追加済み (履歴書き換え禁止
+     ルールのため中間コミットの履歴には残存)。リポジトリサイズには影響するが
+     機能/セキュリティ上の問題なし。
+   - 枕木/ファスナー/バラストの RTM 一致品質、LOD/カリング、大量ネットワーク
+     描画は R24 以降に延期 (設計上明記済み)。
+   - FINAL_REPORT.md (untracked の旧ヘルパー) は本フェーズ対象外。
+
+8. R15 エントリーゲート (PASS)
+   - R14 全終了条件を満たし、R15 へ進む資格あり。
+   - R15 は RTM ModelPack アダプタ (assetId -> プロファイル/テクスチャ) の
+     設計・実装を想定。
+================================================================================
