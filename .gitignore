@@ -77,6 +77,11 @@ doc/testing/phase1_r10f/logs/
 doc/testing/phase1_r10f/scripts/instrumented.html
 doc/testing/phase1_2_2/scripts/validation_instrumented.html
 
+# Phase 1-R13 runtime profiles / chrome logs / generated instrumented HTML
+doc/implementation/phase1_r13/profiles/
+doc/implementation/phase1_r13/logs/
+doc/implementation/phase1_r13/instrumented.html
+
 # Phase 1.2.3 validation runtime artifacts (profiles, chrome logs)
 doc/testing/phase1_2_3/profiles/
 doc/testing/phase1_2_3/logs/chrome_*.log
