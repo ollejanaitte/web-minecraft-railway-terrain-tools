@@ -2817,3 +2817,196 @@ STEP R10F-08 - Final sync record
 - Final sync verified: local HEAD == origin/main == git ls-remote GitHub main
   == 33d81706 (3-way match); staging empty.
 - Verdict recorded: PHASE 1-R10F VERDICT PASS. R11 ENTRY GATE OPEN.
+
+====================================================================
+PHASE 1-R11 - RTM Behavioural Reverse Engineering
+Authoritative running log (appended at EOF as work progresses)
+====================================================================
+
+STEP R11-00 - Initial Baseline Audit
+--------------------------------------
+- Head: 555b0ae348f4f3334380cc8dca86306e18e62ff6 (R10F final sync).
+  local main == origin/main == GitHub main (3-way match).
+- Protected SHA256 recomputed byte-identical to R10F records:
+  CommandRailSystem.java = 1037f467...e832
+  EntityRailVehicle.java = b2fb0ea3...acff
+- Existing dirty/untracked preserved verbatim (protected files, phase0_1
+  screenshots, R4 report, many untracked validation artifacts).
+- RTM reference assets present (read-only, never committed):
+  RTM1.7.10.46_Forge10.13.4.1558.jar (RTM 1.7.10.46, public mod),
+  [unzip]NR01_v3.0.zip (NR01-NB-Rails v3.0 ModelPack, 2024-11-30).
+- Prior research: doc/research/phase0_7_rtm_1_12_2/* (16 docs),
+  doc/rtm-reference/RTM_RAIL_RENDERING_ANALYSIS.md.
+- Discord: R11 start + baseline audit notifications sent.
+
+STEP R11-00b - Source Inventory + jar/pack inspection
+-------------------------------------------------------
+- Catalogued sources: PRIMARY (RTM jar 1.7.10.46, NR01 v3.0 pack, prior phase
+  0.7 research), SECONDARY (gamerch/wiki/akikawaken JSON docs/rtmwiki.kotl.io,
+  faithful open-source ports 325-Sunnygo/RealTrainModUnofficial LGPL-3.0 +
+  Kai-Z-JP/KaizPatchX), DIRECT OBSERVATION (community videos/images), REFERENCE.
+- Read-only inspection under /tmp/opencode (clean-room; no RTM assets copied
+  into repo):
+  - RTM jar javap: RailPosition (direction/height/anchorDirection/anchorLength/
+    switchType, NBT read/write), Point (rpRoot/rmMain/rmBranch/branchDir),
+    RailDir (RIGHT/LEFT/NONE), SwitchType + 4 subclasses (SwitchBasic id0,
+    SingleCross id1, ScissorsCross id2, DiamondCross id3), RailMap/RailMapSlope/
+    RailMapSwitch (MAX_COUNT=80), RailMaker, RailProperty (railModel/block/
+    metadata/height + NBT), TileEntityLargeRailCore (getSignal/setSignal(int),
+    isCollidedTrain), TileEntityLargeRailSwitchCore (Size+RP0..RPn NBT),
+    TileEntityMarker (displayDistance/followMouseMoving/getRailMaps), electric
+    Connection (isRoot/x/y/z/type/wireName + NBT), MachineType (Gate/Point/
+    Turnstile/Vendor/Light/BumpingPost/Antenna), ModelConfig/ModelSource/
+    RailConfig (ballastWidth/allowCrossing/defaultBallast/railModel), Formation
+    /FormationData (WorldSavedData), BlockCrossingGate/TileEntityCrossingGate
+    (barMoveCount/lightCount/onActivate), BlockRailroadSign, electric wiring.
+  - RTM README: config rail.GeneratingDistance (max rail generation distance),
+    useServerModelPack, ModelPack_ server-download prefix, sound crossing gate
+    0/1. mcmod.info = RTM 1.7.10.46 / MC 1.7.10.
+  - RTM LICENSE.txt: redistribution of mod + internal files prohibited; videos/
+    images permitted; secondary works permitted if not violating terms; ModPack
+    bundling needs author permission; sales prohibited.
+  - NR01 v3.0 pack: pack.json (name/homepage/updateURL/version 3.0),
+    mods/RTM/ModelRail_*.json (99 files; railName/model{modelFile,textures,
+    rendererPath}/buttonTexture/defaultBallast[{blockName,blockMetadata,height}]
+    /accuracy/tags), assets/minecraft/models/*.mqo (Metasequoia; parts base/
+    railL/railR/sideL/sideR/ZungeL0/1/ZungeR0/1; mm-scale, e.g. base
+    x[-124.65,124.65] y[0,18] z[-12.5,12.5], ZungeL0 x~[68.6,71.7] z to 100),
+    assets/minecraft/scripts/RenderRail*.js (per-asset renderer: sample spacing
+    0.5m via max=floor(len*2); parts registration; switch tongue animation
+    TONG_MOVE=0.35/TONG_POS=1/10/YAW_RATE=600, sigmoid2(separateRate) tongue
+    spread; halfMax 4/5 for tram variant), ModelConnector_*.json (DSS: name/
+    model{modelFile,textures}/buttonTexture/connectorType Relay/wirePos/smoothing
+    /doCulling/accuracy/tags), textures/rail/* + textures/connector/*.
+  - Public web research (delegated, reviewed): marker GUI fields (anchorYaw
+    A_Direction, anchorPitch A_Pitch, anchorLengthHorizontal A_Length,
+    anchorLengthVertical A_LenV, cantCenter C_Center, cantEdge C_Edge,
+    cantRandom C_Random, height 1/16-block, direction 8-dir, switchType;
+    Const_Limit_HP/HN/WP/WN; anchorYaw default dir*45, anchorLengthHorizontal
+    default -1 auto); railGeneratingDistance default 64 max 256; switch
+    creation 1 blue + reds; runtime route = checkRSInput (bestNeighborSignal>0)
+    every tick; switch animation ~80 ticks (~4s) partial-tick interpolation;
+    switch route NOT stored in NBT (recomputed from redstone on load); signals
+    are model blocks not self-detecting, separate train detector + signal
+    converter network (RS<->Signal, +1, -1, insulators, wires, last-input-wins);
+    crossing gate = safety-device model, crossingGateSoundType 0/1,
+    crossingGateSoundRange 32; persistence via tile-entity NBT (rails survive
+    reload; train couplings break on re-login by design); ModelPack pack.json +
+    mods/RTM/Model*.json + assets (mqo/obj/mtl, render_*.js scripts); gauge is
+    NOT in RTM pack JSON (implicit in model + RailMap); trains follow RailMap
+    (nearest rail map; switch tile returns branch by proximity; cannot cross
+    gaps).
+- Discord: SOURCE_INVENTORY notification sent.
+
+STEP R11-A - Basic Rail Behaviour research
+--------------------------------------------
+- Wrote doc/research/phase1_r11/SOURCE_INVENTORY.md (SRC-1..SRC-12).
+- Wrote doc/research/phase1_r11/R11_A_BASIC_RAIL_BEHAVIOUR.md.
+- Findings: marker families (red/blue, center/edge), placement flow matches
+  Railsys F5, direction contract matches F2, datum matches F1, preview/edit is
+  PARTIAL (Railsys numeric vs RTM visual handles), limits (64/256 length,
+  8/256 height) NOT IMPLEMENTED in Railsys -> R-P0, continuous placement ->
+  R-P0 (network).
+
+STEP R11-B - Network / Switch / Switch Animation research
+-----------------------------------------------------------
+- Wrote doc/research/phase1_r11/RTM_SWITCH_AND_ANIMATION.md.
+- Findings (RTM 1.7.10.46 jar + NR01 scripts + faithful port):
+  - Endpoint = RailPosition (block+double+height+direction+anchors+switchType,
+    NBT-persisted); RailMap per segment; connection via shared position +
+    canConnect; no global graph.
+  - SwitchType: Basic(0)/SingleCross(1)/ScissorsCross(2)/DiamondCross(3).
+  - Point = root+rmMain+rmBranch+branchDir+dir-positive flags.
+  - Route = redstone per tick (checkRSInput bestNeighborSignal>0), NOT
+    persisted (recomputed from power on load).
+  - Animation: MAX_COUNT=80 samples (~4s), partial-tick getMovement(),
+    tongue parts (Zunge) + sigmoid spread in renderer scripts
+    (TONG_MOVE=0.35, YAW_RATE=600 etc — reference values, not copied).
+- Discord: R11-A + R11-B notifications sent.
+
+STEP R11-C - 3D Rail / Gauge / ModelPack research
+---------------------------------------------------
+- Wrote doc/research/phase1_r11/RTM_MODEL_PACK_BEHAVIOUR.md.
+- Wrote doc/research/phase1_r11/MODELPACK_COMPATIBILITY_MATRIX.md.
+- Findings:
+  - RTM renders rails as 0.5 m samples placing a short 3D model (base/railL/
+    railR/sideL/sideR/Zunge*); distance-based (not progress).
+  - Gauge NOT in RTM pack JSON (implicit via model + HALF_GAUGE); Railsys has
+    explicit gaugeM -> KEEP RAILSYS.
+  - ModelPack: pack.json + mods/RTM/ModelRail_*.json + assets (mqo, renderer
+    scripts, textures); RailConfig fields catalogued.
+  - Renderer scripts are the hard compatibility boundary (NGT/LWJGL APIs;
+    cannot run in Eaglercraft). Compatibility approach comparison
+    A-direct / B-adapter / C-offline-converter documented; R12 recommendation:
+    B runtime adapter (+ optional C converter), never execute RTM scripts.
+  - Licensing: RTM LICENSE + per-pack terms recorded.
+- Discord: R11-C notification sent.
+
+STEP R11-D - Confirmed Editing / Delete / Persistence research
+----------------------------------------------------------------
+- Wrote doc/research/phase1_r11/RTM_PERSISTENCE.md.
+- Wrote doc/research/phase1_r11/PERSISTENCE_DATA_MATRIX.md.
+- Findings:
+  - RTM post-confirm editing via marker GUI (anchorYaw/Pitch/LenH/LenV/height/
+    cant) + wrench shape edit; Railsys R10F has pre-confirm edits only ->
+    R-P0 confirmed editing.
+  - Delete via breakRail; asset replace via RailProperty.railModel swap.
+  - Persistence: RailPosition NBT (BlockPos/Direction/Height/A_Direction/
+    A_Pitch/A_Length/A_LenV/C_Center/C_Edge/C_Random/SwitchType) per endpoint;
+    rail tile RP0..RPn + RailProperty; switch Size+RP0..RPn+fixRTMRailMapVersion;
+    route NOT persisted (derived from redstone). Train couplings break on
+    re-login (by design). Missing pack -> dummy/black rails.
+  - Railsys has minimal WorldRailData restore; needs full data contract ->
+    R-P0 persistence.
+- Discord: R11-D notification sent.
+
+STEP R11-E - Signal / Crossing / Connector research
+-----------------------------------------------------
+- Wrote doc/research/phase1_r11/RTM_SIGNAL_CROSSING_CONNECTOR.md.
+- Findings:
+  - Signals are model blocks on poles; do NOT self-detect. Separate train
+    detector + block-section wiring (signal + detector + insulators + +1
+    connectors; last-input-wins). Signal converter network bridges vanilla
+    redstone (RS<->Signal, +1, -1).
+  - Rail core carries signal/occupancy: getSignal/setSignal(int) +
+    isCollidedTrain — key rail-side data hook.
+  - Crossing gate = MachineType.Gate (TileEntityCrossingGate barMoveCount/
+    lightCount/onActivate); sound config 0/1 + range 32; internals INFERRED.
+  - Connector: electric Connection {isRoot,x,y,z,type,wireName} NBT; NR01
+    ModelConnector JSON (Relay, DSS, wirePos).
+  - Railsys Phase 1: add signal/occupancy + connection data + stable rail id
+    (R-P1); full signal/crossing logic DEFER Phase 2.
+- Discord: R11-E notification sent.
+
+STEP R11-F - Vehicle Interface / Edge Cases research
+------------------------------------------------------
+- Wrote doc/research/phase1_r11/R11_F_VEHICLE_AND_EDGE_CASES.md.
+- Findings:
+  - Trains follow nearest RailMap (SwitchType.getRailMap by proximity); bogies
+    + Formation/FormationData (WorldSavedData). Railsys F2 geometry already
+    supplies position/tangent/frame/gauge/cant/gradient/forward-reverse; missing
+    = switch route resolution (R-P0), occupancy/signal hooks (R-P1), persisted
+    network (R-P0).
+  - Edge cases: max length/height configurable (R-P0 validation); missing/
+    broken pack handling (R-P1); connection.isAvailable check; route derived
+    (matches RTM); Railsys keeps its own zero-length/NaN guards.
+- Discord: R11-F notification sent.
+
+STEP R11-G - Behaviour Specification + Gap Analysis
+------------------------------------------------------
+- Wrote doc/research/phase1_r11/RTM_BEHAVIOUR_SPECIFICATION.md (B1..B7 +
+  cross-cutting unknowns; ID per behaviour with Evidence/Class/Confidence).
+- Wrote doc/research/phase1_r11/RTM_RAILSYS_GAP_ANALYSIS.md (A..G; MATCH 11 /
+  PARTIAL 10 / NOT IMPLEMENTED 12 / DIFFERENT 5 / N-A-DEFER 4 with decisions).
+- Discord: Behaviour Specification + Gap Analysis notifications sent.
+
+STEP R11-H - Requirements + Contract Impact + Open Questions
+--------------------------------------------------------------
+- Wrote doc/research/phase1_r11/RAILSYS_PHASE1_REQUIREMENTS.md
+  (P0 x11, P1 x9, P2/DEFER x9).
+- Wrote doc/research/phase1_r11/R10F_CONTRACT_IMPACT.md
+  (F1-F6 reviewed; no frozen change needed; CC-1..CC-4 additive/EXTENSIBLE
+  candidates for R12).
+- Wrote doc/research/phase1_r11/UNKNOWN_AND_OPEN_QUESTIONS.md
+  (23 items; NO P0 blocker; medium items are R12 design decisions).
+- Discord: notifications sent.
