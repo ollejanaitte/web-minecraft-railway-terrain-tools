@@ -37,13 +37,30 @@ public final class SwitchNetwork {
 				|| mainOut.lifecycle() != RailSegment.Lifecycle.ACTIVE) {
 			return null;
 		}
-		double mainForward = mainOut.endpointA().anchor().yawDeg;
+		// Shared-node verification: mainIn.END, mainOut.START and every
+		// branch.START must be at the SAME position (within coalesce
+		// tolerance). A junction that joins disconnected segments is rejected.
+		net.minecraft.railsys.geometry.AnchorDefinition mainInEnd = mainIn.endpointB().anchor();
+		net.minecraft.railsys.geometry.AnchorDefinition mainOutStart = mainOut.endpointA().anchor();
+		double nodeX = (mainInEnd.x + mainOutStart.x) / 2.0D;
+		double nodeZ = (mainInEnd.z + mainOutStart.z) / 2.0D;
+		if (Math.hypot(mainInEnd.x - mainOutStart.x, mainInEnd.z - mainOutStart.z)
+				> net.minecraft.railsys.network.ProductionRailNetwork.NodeCoalesceTolerance) {
+			return null; // mainIn.END and mainOut.START do not share a node
+		}
+		double mainForward = mainOutStart.yawDeg;
 		for (RailSegment b : branches) {
 			if (b == null || b.railId() == null || b.lifecycle() != RailSegment.Lifecycle.ACTIVE) {
 				return null;
 			}
+			net.minecraft.railsys.geometry.AnchorDefinition bStart = b.endpointA().anchor();
+			// branch.START must share the node position too.
+			if (Math.hypot(bStart.x - nodeX, bStart.z - nodeZ)
+					> net.minecraft.railsys.network.ProductionRailNetwork.NodeCoalesceTolerance) {
+				return null;
+			}
 			SwitchGeometry.Validation v = SwitchGeometry.validateDivergence(
-					mainForward, b.endpointA().anchor().yawDeg, mainOut.gaugeM(), b.gaugeM(), maxAllowedDeg);
+					mainForward, bStart.yawDeg, mainOut.gaugeM(), b.gaugeM(), maxAllowedDeg);
 			if (!v.valid) {
 				return null;
 			}

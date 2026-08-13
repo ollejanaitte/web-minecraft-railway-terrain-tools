@@ -50,18 +50,27 @@ public final class SwitchGeometry {
 
 	/**
 	 * Compute the signed divergence angle from a main forward heading to a
-	 * branch forward heading, wrapped to (-180, 180].
+	 * branch forward heading, wrapped to (-180, 180]. Non-finite headings
+	 * return NaN (never hang wrapYaw).
 	 */
 	public static double divergenceDeg(double mainForwardDeg, double branchForwardDeg) {
+		if (!RailMath.isFinite(mainForwardDeg) || !RailMath.isFinite(branchForwardDeg)) {
+			return Double.NaN;
+		}
 		return RailMath.wrapYaw(branchForwardDeg - mainForwardDeg);
 	}
 
 	/**
 	 * Validate a divergence between a main-out segment and a branch segment at
-	 * a shared node.
+	 * a shared node. Non-finite inputs are rejected.
 	 */
 	public static Validation validateDivergence(double mainForwardDeg, double branchForwardDeg,
 			double mainGaugeM, double branchGaugeM, double maxAllowedDeg) {
+		if (!RailMath.isFinite(mainForwardDeg) || !RailMath.isFinite(branchForwardDeg)
+				|| !RailMath.isFinite(mainGaugeM) || !RailMath.isFinite(branchGaugeM)
+				|| !RailMath.isFinite(maxAllowedDeg)) {
+			return new Validation(false, "non-finite divergence input", Double.NaN, 0.0D, 0.0D);
+		}
 		double div = Math.abs(divergenceDeg(mainForwardDeg, branchForwardDeg));
 		if (div < MIN_SWITCH_ANGLE_DEG) {
 			return new Validation(false, "divergence " + String.format("%.2f", div)

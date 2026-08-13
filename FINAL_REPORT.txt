@@ -3751,3 +3751,15 @@ STEP R17-09/10 - docs + regression
   (11/11), R17_NUMERIC_MEASUREMENT, R17_NORMAL_WORLD_ACCEPTANCE.
 - Full regression: harness 365/0/3, mutation 11/11, r17Measure green,
   makeMainOfflineDownload green, protected SHA-256 unchanged.
+
+STEP R17-11 - Sol review round 1 fixes
+--------------------------------------
+- SwitchGeometry: non-finite divergence input (NaN/Inf) rejected (never hangs
+  wrapYaw). New test j08.
+- SwitchNetwork.registerJunction: verifies mainIn.END / mainOut.START / every
+  branch.START share the node position (within coalesce tolerance); disconnected
+  junctions rejected. New tests j06 (disconnected mainIn/mainOut), j07 (branch
+  not at node).
+- l02 strengthened: verifies loop length + endpoint values + derived path
+  samples unchanged after junction registration.
+- Harness 368/0/3.

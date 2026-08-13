@@ -253,10 +253,17 @@ public final class RailsysR17SwitchSuite {
 
 	@Test
 	public static void l02_switchGeometryNeverTouchesLoop() {
-		// Registering a junction must not modify the closed loop segments.
+		// Registering a junction must not modify the closed loop segments
+		// (length, endpoints, derived path samples, object identity).
 		List<RailSegment> loop = StandardClosedLoopCourse.courseA(0.0D, 0.0D, 40.0D, 80.0D, 10.0D,
 				1.435D, "railsys.straight_1435_wood");
 		double before = StandardClosedLoopCourse.totalLength(loop);
+		double[] beforeEndA = new double[8 * 3];
+		for (int i = 0; i < 8; i++) {
+			beforeEndA[i * 3] = loop.get(i).endpointA().anchor().x;
+			beforeEndA[i * 3 + 1] = loop.get(i).endpointA().anchor().y;
+			beforeEndA[i * 3 + 2] = loop.get(i).endpointA().anchor().z;
+		}
 		RailSegment mainIn = loop.get(7);
 		RailSegment mainOut = loop.get(0);
 		RailSegment branch = RailSegment.confirm(RailId.probe(90),
@@ -269,5 +276,54 @@ public final class RailsysR17SwitchSuite {
 		net.registerJunction(1L, mainIn, mainOut, java.util.Collections.singletonList(branch));
 		double after = StandardClosedLoopCourse.totalLength(loop);
 		Assert.assertEquals(before, after, 1e-9, "R17L junction does not change loop length");
+		// endpoints identical (object identity + values)
+		for (int i = 0; i < 8; i++) {
+			Assert.assertEquals(loop.get(i).endpointA().anchor().x, beforeEndA[i * 3], 0.0D,
+					"R17L endpointA x " + i);
+			Assert.assertEquals(loop.get(i).endpointA().anchor().z, beforeEndA[i * 3 + 2], 0.0D,
+					"R17L endpointA z " + i);
+		}
+		// derived path samples identical
+		RailPath pBefore = StandardClosedLoopCourse.courseA(0.0D, 0.0D, 40.0D, 80.0D, 10.0D,
+				1.435D, "railsys.straight_1435_wood").get(0).derivedPath();
+		RailPath pAfter = loop.get(0).derivedPath();
+		for (int k = 0; k <= 4; k++) {
+			Assert.assertEquals(pBefore.resolve(pBefore.totalLength() * k / 4.0D).frame.x,
+					pAfter.resolve(pAfter.totalLength() * k / 4.0D).frame.x, 1e-9, "R17L sample x " + k);
+		}
+	}
+
+	@Test
+	public static void j06_disconnectedSegmentsRejected() {
+		// mainIn.END and mainOut.START far apart -> NOT a shared node -> rejected.
+		RailSegment mainIn = seg(1, 0, 0, 90, 20, 0, 270);
+		RailSegment mainOut = seg(2, 100, 0, 90, 120, 0, 270); // 80m away
+		RailSegment branch = seg(3, 100, 0, 100, 120, 4, 280);
+		SwitchNetwork net = new SwitchNetwork();
+		SwitchJunction j = net.registerJunction(1L, mainIn, mainOut, java.util.Collections.singletonList(branch));
+		Assert.assertEquals(null, j, "R17J disconnected mainIn/mainOut rejected");
+	}
+
+	@Test
+	public static void j07_branchNotAtNodeRejected() {
+		// branch.START far from the shared node -> rejected.
+		RailSegment mainIn = seg(1, 0, 0, 90, 20, 0, 270);
+		RailSegment mainOut = seg(2, 20, 0, 90, 40, 0, 270);
+		RailSegment branch = seg(3, 50, 0, 100, 70, 4, 280); // 30m from node
+		SwitchNetwork net = new SwitchNetwork();
+		SwitchJunction j = net.registerJunction(1L, mainIn, mainOut, java.util.Collections.singletonList(branch));
+		Assert.assertEquals(null, j, "R17J branch not at shared node rejected");
+	}
+
+	@Test
+	public static void j08_nonFiniteHeadingRejected() {
+		// NaN divergence input must be rejected (never hang / never accepted).
+		SwitchGeometry.Validation v = SwitchGeometry.validateDivergence(
+				Double.NaN, 100.0D, 1.435D, 1.435D, 30.0D);
+		Assert.assertEquals(false, v.valid, "R17J NaN divergence rejected");
+		Assert.assertEquals(true, Double.isNaN(v.divergenceDeg), "R17J NaN divergence result");
+		SwitchGeometry.Validation v2 = SwitchGeometry.validateDivergence(
+				90.0D, Double.POSITIVE_INFINITY, 1.435D, 1.435D, 30.0D);
+		Assert.assertEquals(false, v2.valid, "R17J Infinity divergence rejected");
 	}
 }
