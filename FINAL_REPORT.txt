@@ -3207,3 +3207,46 @@ STEP R12-N - Final sync record
 - Final sync verified: local HEAD == origin/main == git ls-remote GitHub main
   == c062592ecfd8f62d7d1dc2884bf685e0a349eed3 (3-way match); staging empty.
 - Verdict recorded: PHASE 1-R12 VERDICT PASS. R13 ENTRY GATE OPEN.
+
+====================================================================
+PHASE 1-R13 - Production Rail Data + Stable ID + Validation Limits
+Authoritative running log (appended at EOF as work progresses)
+====================================================================
+
+STEP R13-00 - Initial Baseline Audit
+--------------------------------------
+- Head: b9fcec7ace119cb8ea25c2a7e700af0209cad593 (R12 final). local ==
+  origin/main == GitHub main (3-way match).
+- Protected SHA256 byte-identical (CommandRailSystem 1037f467... /
+  EntityRailVehicle b2fb0ea3...). Existing dirty/untracked preserved.
+- R12 data model + validation docs reviewed. Discord: R13 start + audit sent.
+
+STEP R13-01..05 - Production Data + Stable ID + Handoff + Validation + Limits
+------------------------------------------------------------------------------
+- New geometry-core package net.minecraft.railsys.data (TeaVM-safe):
+  - RailId (stable id value; positive long + rail- prefix; parse/isValid)
+  - RailIdIssuer (world-scoped; issue at confirm; retire; never reuse)
+  - RailEndpointData (anchor authoritative; markerType/placement; derived
+    blockPos CC-4)
+  - RailSegment (record: id/kind/endpoints/asset/cant/gauge snapshot/signal/
+    occupied schema-reserved/metadata/lifecycle; promotedPreview transient;
+    derivedPath via F2 fromMarkers)
+  - RailFingerprint (deterministic endpoints+asset+cant+path identity)
+  - RailWorldData (schema version, issuer, register/get/delete/retire)
+  - RailLimits (frozen numeric limits)
+  - RailSegmentValidator (rail-level pure validation)
+- New harness tool railv2test.tools.R13LimitMeasurement + ./gradlew limitMeasure.
+- Game-layer wiring: RailsysProductionRailStore (issues id at confirm via world
+  issuer, validates, registers, promotes EXACT preview path object);
+  RailsysPlacementController.confirm registers the production segment and
+  surfaces the stable id in the chat message; /railsys3 status reports
+  production ids.
+- Numeric limit measurement results (R13_LIMIT_MEASUREMENT_RESULTS.md):
+  straight exact to 2000m; pitch finite to 80; cant orthonormal to 89; endpoint
+  exact at 1M coords; preview/confirm rebuild diff 0. Frozen limits:
+  MIN 0.25 m, MAX 256 m, gradient 45, cant 45, gauge [0.6,1.8].
+- Docs: R13_PRODUCTION_DATA_IMPLEMENTATION, R13_STABLE_ID_CONTRACT,
+  R13_PREVIEW_CONFIRM_HANDOFF, R13_VALIDATION_LIMITS,
+  R13_LIMIT_MEASUREMENT_RESULTS, R13_CONTRACT_TEST_MATRIX.
+- R13 contract suite: RailsysR13ProductionDataSuite (33 tests a..f).
+- Harness: PASSED=240 FAILED=0 SKIPPED=3 (207 baseline + 33 R13).

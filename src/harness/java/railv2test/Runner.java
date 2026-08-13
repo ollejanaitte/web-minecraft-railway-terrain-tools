@@ -23,6 +23,7 @@ import railv2test.tests.RailModelPackTest;
 import railv2test.tests.RailPathTest;
 import railv2test.tests.R10SourceContractTest;
 import railv2test.tests.RailsysFoundationContractSuite;
+import railv2test.tests.RailsysR13ProductionDataSuite;
 import railv2test.tests.RepeatedSegmentProofTest;
 import railv2test.tests.StraightMathTest;
 import railv2test.tests.StraightRailSegmentProofTest;
@@ -58,6 +59,7 @@ public final class Runner {
             RailModelPackTest.class,
             R10SourceContractTest.class,
             RailsysFoundationContractSuite.class,
+            RailsysR13ProductionDataSuite.class,
     };
 
     private static final class Case {

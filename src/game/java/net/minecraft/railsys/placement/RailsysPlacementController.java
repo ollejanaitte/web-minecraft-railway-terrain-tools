@@ -98,9 +98,14 @@ public final class RailsysPlacementController {
 
 	/**
 	 * Confirm: promote the exact preview RailPath to confirmed, set the
-	 * production render path, then clear the transient markers/preview so the
+	 * production render path, then tidy the transient markers/preview so the
 	 * arrow overlays and edit handles are tidied. Confirmed anchors + asset
 	 * metadata are preserved by RailsysPlacementState.
+	 *
+	 * R13: after the exact promotion, the final preview is registered as a
+	 * PRODUCTION RailSegment in the world store, which issues the stable railId
+	 * (R12 §3) and validates the segment (R12-J rail-level scope). The exact
+	 * preview RailPath object is promoted — no rebuild (R10F F2.4).
 	 */
 	public static boolean confirm(EntityPlayer player) {
 		RailsysPlacementState st = RailsysPlacementState.getInstance();
@@ -111,13 +116,34 @@ public final class RailsysPlacementController {
 			return false;
 		}
 		st.confirm();
+		// R13: production registration (stable id + validation) using the exact
+		// promoted preview path object.
+		RailPath promoted = st.getConfirmedPath();
+		net.minecraft.railsys.data.RailSegment prod = null;
+		String prodId = null;
+		if (promoted != null) {
+			String assetId = st.getConfirmedAssetId();
+			double gauge = net.minecraft.railsys.placement.RailsysProductionRailStore.clampGaugeForDefaults(
+					net.minecraft.railsys.render.RailsysRenderManager.getActiveAsset().gaugeM);
+			prod = net.minecraft.railsys.placement.RailsysProductionRailStore.getInstance()
+					.confirmPreview(st.getConfirmedAnchorA(), st.getConfirmedAnchorB(),
+							st.getCantDeg(), gauge, assetId, 1, promoted);
+			if (prod != null) {
+				prodId = prod.railId().toString();
+			}
+		}
 		// Tidy the transient placement visuals; the confirmed rail (the SAME
 		// RailPath object) is preserved and re-set on the production renderer.
 		st.clearTransientSession();
 		RailsysRenderManager.setRenderPath(st.getConfirmedPath());
 		if (player != null) {
-			player.addChatMessage(new ChatComponentText("railsys: confirmed (length "
-					+ String.format("%.2f", st.getConfirmedPath().totalLength()) + "m)"));
+			if (prodId != null) {
+				player.addChatMessage(new ChatComponentText("railsys: confirmed (" + prodId + " length "
+						+ String.format("%.2f", st.getConfirmedPath().totalLength()) + "m)"));
+			} else {
+				player.addChatMessage(new ChatComponentText("railsys: confirmed (length "
+						+ String.format("%.2f", st.getConfirmedPath().totalLength()) + "m)"));
+			}
 		}
 		return true;
 	}

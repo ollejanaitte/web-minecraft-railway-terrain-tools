@@ -177,12 +177,23 @@ public final class RailsysClientCommands {
 				RailsysPlacementController.clear(player);
 			} else if ("status".equals(action)) {
 				RailsysPlacementState st = RailsysPlacementState.getInstance();
+				String prodInfo = "";
+				net.minecraft.railsys.data.RailWorldData wd = net.minecraft.railsys.placement.RailsysProductionRailStore
+						.getInstance().worldData();
+				if (wd.size() > 0) {
+					StringBuilder ids = new StringBuilder();
+					for (net.minecraft.railsys.data.RailSegment s : wd.rails()) {
+						ids.append(ids.length() == 0 ? "" : ",").append(s.railId());
+					}
+					prodInfo = " prod=" + wd.size() + "(" + ids + ")";
+				}
 				msg(player, "railsys: A=" + (st.hasMarkerA() ? "set" : "none")
 						+ " B=" + (st.hasMarkerB() ? "set" : "none")
 						+ " preview=" + (st.hasPreview() ? "yes" : "no")
 						+ " confirmed=" + (st.hasConfirmed() ? "yes" : "no")
 						+ " asset=" + net.minecraft.railsys.render.RailsysRenderManager.getActiveAssetId()
-						+ " cant=" + String.format("%.1f", st.getCantDeg()) + "deg");
+						+ " cant=" + String.format("%.1f", st.getCantDeg()) + "deg"
+						+ prodInfo);
 			} else if ("help".equals(action) || "?".equals(action)) {
 				help(player);
 			} else {

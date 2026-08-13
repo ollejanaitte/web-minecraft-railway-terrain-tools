@@ -71,6 +71,17 @@ val goldenGenerate = tasks.register<JavaExec>("goldenGenerate") {
 	errorOutput = System.err
 }
 
+// R13: measure geometry capability to justify the frozen production limits.
+// Run explicitly: ./gradlew limitMeasure
+val limitMeasure = tasks.register<JavaExec>("limitMeasure") {
+	group = "verification"
+	description = "Measure Railsys geometry numeric capability for R13 production limits."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.tools.R13LimitMeasurement")
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
 dependencies {
 	implementation(libs.bundles.common)
 }
