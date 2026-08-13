@@ -1,0 +1,209 @@
+================================================================================
+ マイクラ鉄道 Railing System v2 — Phase 1-R16 完了報告
+ Closed Loop Geometry Correction + Production Rail Network / RailNode / RailConnection
+================================================================================
+
+日時 (JST): 開始 2026-08-13 21:00 / 終了 2026-08-14 01:01 JST
+Initial HEAD: 34610b02
+Final SHA:   57b4fc44
+local == origin/main == GitHub main: 57b4fc44 (3-way sync確認済)
+リポジトリ: https://github.com/ollejanaitte/web-minecraft-railway-terrain-tools.git
+================================================================================
+
+1. 判定: GO (PASS)
+   - R16契約スイート 47/47 PASS
+   - 全ハーネス 347 PASS / 0 FAIL / 3 SKIP (300 baseline + 47 R16)
+   - ミューテーションガード 12/12 検出+復元
+   - 閉ループ: 角丸長方形に修正 (八角形でない), 数値品質Gate全PASS
+   - Production RailNode / RailConnection / Explicit Topology / Traversal成立
+   - 通常World受入: 8 segments, 222.84m, nodes=8, connections=8,
+     forward/reverse閉合 traversal
+   - Sol: GO (100%) / Luna: ROUNDED_RECTANGLE PASS
+   - プロテクト対象 SHA-256 一致 / シークレット・クリーンルーム・大容量OK
+
+2. Initial Audit (R16-00)
+   - 3-way sync 34610b02 / プロテクト対象 byte-identical
+   - ベースライン: harness 300/0/3, production build green
+   - 既存dirty/untrackedは保護 (phase0_1, R4 report, プロテクト2ファイル等)
+
+3. Closed Loop issue summary (R14/R15)
+   - R14 Standard Closed Loop (40x80, r=10) は真上から見ると八角形に近い
+   - cornerが真の90°カーブでなく短い斜め直線に近かった
+
+4. Root Cause (R16-01)
+   - StandardClosedLoopCourse.corner() がanchor handle=1.0mで固定
+   - F2 (HorizontalBezierGeometry.fromAnchors) は C1=P0+T0/3, |T0|=handle
+     -> 制御点が端点から0.33mで曲がれず、コーナーが弦(chord)に近似
+   - 数値: corner長14.16m vs 真の1/4円15.71m / sagitta 0.18 vs 2.93m /
+     中央半径307m vs 10m / 閉合は端点のみ正確だった
+
+5. Geometry Correction (R16-02)
+   - corner anchorのhandleを handle = 3*k*r, k=4/3*(√2-1)=0.55228475 に設定
+     (標準的な1/4円 cubic Bezier 係数)
+   - F2パイプラインは不変 (RailPath.fromMarkers -> HorizontalBezierGeometry)
+     のみ。anchor handleパラメータのみ変更 (既存Production AnchorDefinition)
+
+6. Curve mathematical parameters (R16-02/03)
+   - k = 4/3*(sqrt(2)-1) ≈ 0.55228475 (1/4円Bezier制御係数)
+   - handle = 3*k*r ≈ 1.656854*r (r=10 -> 16.5685m)
+   - corner半径 r = 10m (Standard Courseパラメータ明示)
+
+7. Position continuity result
+   - max position error across 8 boundaries = 0.000000 m (< 1e-6契約)
+
+8. Tangent continuity result
+   - max tangent angle error = 0.000000 deg (< 1e-3契約)
+
+9. Curve quality result
+   - corner長 15.7102 m vs 真の1/4円 15.708 m (err 0.0022)
+   - sagitta 2.9289 m vs 真円 2.9289 m (err 0.0000)
+   - corner局所半径誤差 (10..90%) max 0.0782 m (< 0.2契約)
+   - inflectionなし / 斜め直線近似なし (b03)
+
+10. Symmetry result
+    - 4 corner同一長 (15.7102 m 全て)
+    - 対向straight同一長 (南==北, 東==西)
+    - bounding box 対称 (X中心0, Z中心0, 40x80)
+
+11. Closure result
+    - closure position error = 0.000000 m
+    - closure tangent error  = 0.000000 deg
+    - total loop length = 222.8406 m
+
+12. Mesh/Sleeper continuity
+    - R14 mesh契約 (gauge距離一定) PASS (l02)
+    - NaN/Inf無し, sleeper連続 (l03)
+
+13. Visual Acceptance (R16-05)
+    - 通常World: /railsys16 build -> 8 segments, 222.84m
+    - 真上: Luna VERDICT = ROUNDED_RECTANGLE (八角形でない, 滑らかな90°curve,
+      ギャップ/ねじれ/重なりなし)
+    - SS-R16-01..04 撮影 (TOP/PERSPECTIVE/SMOOTH_90_CURVE/STRAIGHT_CURVE_BOUNDARY)
+
+14. R15 ModelPack Regression (R16-06)
+    - ModelPack (NR01 Concrete) を同一ループへ適用
+    - Geometry不変: length 222.84m同値, サンプル位置同一 (k01契約)
+    - SS-R16-05_MODELPACK_LOOP.png
+
+15. Production RailNode (R16-07)
+    - NodeId (stable, positive, retired-never-reused, parse/isValid)
+    - RailNode: nodeId/x/y/z/endpoint memberships/lifecycle/connectionEligible
+    - registerNode (position coalesce 0.5m), node lookup, removeNode
+
+16. Production RailConnection (R16-08)
+    - ConnectionId (stable, positive, retired-never-reused)
+    - RailConnection: explicit validate (self/dup/retired/position 3D/tangent
+      yaw+pitch/gauge), carries measured errors
+    - connect(): explicit, duplicates rejected
+
+17. Stable Node/Connection ID lifecycle
+    - issued by per-network monotonic counters; remove/clear retire without
+      reset; never reused
+
+18. Endpoint Snap (R16-09)
+    - EndpointSnap: position + tangent + gauge candidate check, unique vs
+      ambiguous, nearEndpoint helper
+    - snap tolerance: position 0.25m, tangent 2.0 deg (frozen R16-03)
+
+19. Snap tolerance
+    - POSITION_TOLERANCE_M = 0.25, TANGENT_TOLERANCE_DEG = 2.0,
+      GAUGE_TOLERANCE_M = 0.01 (測定・記録済み)
+
+20. Continuous Placement (R16-10)
+    - g01: 既存Endpointへsnap -> node -> connection
+    - g02: s1->s2->s3 chain, full reachability + forward traversal
+
+21. Explicit Closed Loop Topology (R16-11)
+    - ClosedLoopTopology.build: 8 nodes + 8 connections
+    - validateTopology: 全エンドポイント割当, orphan/dangling/duplicate/
+      disconnected/endpoint-reuse/in-out-degree検出
+    - 幾何閉合 AND 位相閉合を別々に証明 (h02)
+
+22. Network Query (R16-12)
+    - find rail by id (store), node by id, connected endpoints, connected
+      segments, next/previous segment, forward/reverse traversal, cycle
+      detection, step guard
+    - forwardCycle/reverseCycle: 閉合時のみ完全サイクル, 非閉合は空
+
+23. Forward Traversal (R16-12)
+    - rail-1 -> rail-2 -> ... -> rail-8 -> rail-1 (9 steps, closed=true)
+
+24. Reverse Traversal
+    - rail-1 -> rail-8 -> ... -> rail-2 -> rail-1 (9 steps, closed=true)
+
+25. Crossing Without Connection (R16-13)
+    - j01: 幾何交差してもRailNode/RailConnection無ければ接続されない
+    - 交差点でのtanmismatchはauto-connectされない
+
+26. Validation / Edge Cases (R16-14)
+    - v01 zero-distance, v02 duplicate node, v03 retired, v04 NaN/Inf,
+      v05 malformed ids, v06 disconnected component, v07 empty, v08 world
+      reset, v09 fork detection, v10 vertical gap, v11 pitch mismatch,
+      v12 stale membership removal
+
+27. R16 Contract Suite (R16-15): 47 tests (A-L + edge cases) 全てPASS
+
+28. Mutation Guard (R16-16): 12/12 (corner handle/octagon, sagitta, closure
+    tangent, dup connection, position/tangent/self tolerance, forward/reverse
+    traversal, crossing auto-connect, node coalesce, asset->geometry)
+
+29. R10F regression: PASS (F1-F6 契約含む, ハーネス内)
+30. R13 regression: PASS
+31. R14 regression: PASS (loop06 updated to quarter-circle total 222.84m)
+32. R15 regression: PASS (k01 + 実Pack適用不変)
+33. Existing Harness: 347/0/3
+34. Production Build: makeMainOfflineDownload green (java-17-openjdk-amd64)
+35. Launcher smoke: ヘッドレス起動 + /railsys16系コマンド + 描画PASS
+36. Normal World Acceptance: PASS (上記)
+
+37. Screenshot list + SHA-256 (最終run後の値, git history内に全量)
+    - SS-R16-01_ROUNDED_LOOP_TOP.png         8a79628d...
+    - SS-R16-02_ROUNDED_LOOP_PERSPECTIVE.png 963e8923...
+    - SS-R16-03_SMOOTH_90_CURVE.png          8a587187...
+    - SS-R16-04_STRAIGHT_CURVE_BOUNDARY.png  c76bb6b9...
+    - SS-R16-05_MODELPACK_LOOP.png           e24d21a5...
+
+38. Discord Screenshot Upload result: 5枚 HTTP 200
+39. Luna result: PASS (ROUNDED_RECTANGLE, 八角形でない, 欠け無し)
+40. Sol result: GO (100%) — 4ラウンドのNOGO指摘 (3D位置/pitch, トポロジー検証,
+    removeNode stale, cycle閉合, step guard, fork) をすべて解決
+
+41. Git checkpoints (全てGitHub mainへ統合・同期確認)
+    c6330671 (root cause doc) 9f36f947 (geometry+network core) 9ab25747
+    (game acceptance) c8e8e85d (edge cases) f45b0ae5 (mutation 12/12)
+    2971f9cd (docs) 338784aa (Sol r1) c88ca4ce (Sol r2) 6d26f084 (Sol r3)
+    57b4fc44 (matrix+screenshots final)
+
+42. Affected files
+    - geometry-core course/: StandardClosedLoopCourse (quarter-circle handle)
+    - geometry-core network/ (new): NodeId, ConnectionId, RailNode,
+      RailConnection, ProductionRailNetwork, EndpointSnap, ClosedLoopTopology
+    - game: RailsysNetworkStore, RailsysNetworkCommands, GuiChat dispatch,
+      RailsysRenderManager (network reset)
+    - harness: RailsysR16NetworkSuite (47), R16LoopQualityMeasurement (r16Measure)
+
+43. Protected file hashes (byte-identical)
+    - CommandRailSystem.java: 1037f467c400d6d313f575250e27e1d41a58c197ee9058bf52855ab06365e832
+    - EntityRailVehicle.java:  b2fb0ea33a997ee4266619eefe695df80306481c4f62d8cd61dd9daf8420acff
+
+44. Clean-room result: PASS (RTM/ModelPack資産の混入なし)
+45. Secret scan: PASS (webhook URL等なし)
+46. Large-file scan: PASS (R16で新規大容量なし)
+47. ModelPack contamination: なし
+
+48. Known Issues
+    - R15スクリーンショット (SS-R15-*) がR15終了時の再生成でtracked-dirty
+      (R16変更ではない, 保存対象)
+    - R16-05 top camera高さはFOV制約のため1画面に全ループが収まらない場合が
+      あり、カメラ高さ70mで全体を確認 (Luna判定はこのTOP画像でPASS)
+
+49. Remaining Risks
+    - スイッチ分岐 (fork) の本格実装はR17。v09はfork検出の基盤のみ
+    - Node/ConnectionのPersistenceはR23
+    - 高カーブ速度でのVehicle走行試験はPhase 2
+
+50. R17 Entry Gate: OPEN
+    - R16全終了条件を満たし、R17 (Switch Geometry / Junction) へ進む資格あり
+
+Final Verdict: GO (PASS)
+================================================================================
