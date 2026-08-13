@@ -505,8 +505,9 @@ public final class RailsysR15ModelPackSuite {
 
 	@Test
 	public static void r12_assetReplaceInvariance() {
-		// RailSegment.withAsset must preserve railId, endpoints, cant, lifecycle
-		// and derived path while changing the asset ref + gauge snapshot.
+		// RailSegment.withAsset must preserve railId, endpoints, cant, lifecycle,
+		// the derived path AND the authoritative gauge snapshot (F4) while
+		// changing only the asset ref/version (look).
 		net.minecraft.railsys.geometry.AnchorDefinition pa =
 				new net.minecraft.railsys.geometry.AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
 		net.minecraft.railsys.geometry.AnchorDefinition pb =
