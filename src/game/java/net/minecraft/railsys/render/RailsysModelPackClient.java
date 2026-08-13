@@ -57,13 +57,25 @@ public final class RailsysModelPackClient {
 	/**
 	 * Import a Railsys-native bundle JSON (dev/command path). Returns the
 	 * number of assets registered; invalid bundles return 0 (never throws).
+	 * Duplicate asset ids WITHIN one bundle are rejected (a second registration
+	 * of the same id is refused — see RailsysAssetRegistry.register). Reload of
+	 * an existing pack is handled by first removing the old pack's assets.
 	 */
 	public static synchronized int importBundle(String bundleJson) {
 		ensureInitialized();
 		List<RailsysInternalAsset> assets = RailsysAssetBundle.parseBundle(bundleJson);
 		int registered = 0;
+		java.util.Set<String> seen = new java.util.HashSet<String>();
 		for (RailsysInternalAsset a : assets) {
-			if (RailsysAssetRegistry.registerOrReplace(a)) {
+			if (!seen.add(a.assetId)) {
+				System.out.println("railsys: modelpack duplicate assetId rejected: " + a.assetId);
+				continue;
+			}
+			// Reload semantics: if the id already exists (same pack re-import),
+			// replace it; a fresh id is registered. Duplicates WITHIN this
+			// bundle are already rejected above.
+			RailsysAssetRegistry.remove(a.assetId);
+			if (RailsysAssetRegistry.register(a)) {
 				registered++;
 			}
 		}
@@ -138,9 +150,10 @@ public final class RailsysModelPackClient {
 
 	/**
 	 * Map a RailsysInternalAsset to an R14 appearance profile. Geometry NEVER
-	 * changes; only gauge + colours + ballast/sleeper flags are derived from
-	 * the asset's spec facts. Gauge comes from the segment's authoritative
-	 * snapshot when the asset has no gauge metadata.
+	 * changes: the RAIL OFFSETS (left/right) come from the segment's
+	 * AUTHORITATIVE gauge snapshot (segmentGaugeM), NOT the asset's gauge
+	 * metadata. Asset gauge (when present) is metadata only. Only colours,
+	 * ballast/sleeper flags and material are derived from the asset facts.
 	 */
 	public static net.minecraft.railsys.render.RailProfile profileForAsset(RailsysInternalAsset a,
 			double segmentGaugeM) {
@@ -149,9 +162,8 @@ public final class RailsysModelPackClient {
 		}
 		net.minecraft.railsys.render.RailProfile base = net.minecraft.railsys.render.RailProfile.default1435();
 		double gauge = segmentGaugeM;
-		if (a.gaugeM != null && a.gaugeM > 0.6D && a.gaugeM < 1.8D) {
-			gauge = a.gaugeM;
-		}
+		// Asset gaugeM is NEVER applied to geometry — the segment snapshot wins.
+		// (R15 F4: gauge invariance — asset = look only.)
 		// Ballast: pack defaultBallast blockName -> base slab.
 		boolean hasBallast = a.ballastBlock != null && !a.ballastBlock.isEmpty()
 				&& !a.ballastBlock.equalsIgnoreCase("air");

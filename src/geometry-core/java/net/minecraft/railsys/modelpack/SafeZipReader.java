@@ -141,7 +141,25 @@ public final class SafeZipReader {
 				}
 			}
 		}
+		// A valid ZIP must contain an End-Of-Central-Directory record
+		// (PK\x05\x06). Inputs with a PK header but no EOCD are truncated/
+		// malformed and rejected, even when the entry iterator did not throw.
+		if (!rejected && !hasEocd(zipBytes)) {
+			diag.reject("zip", "MALFORMED_ZIP", "", "missing End-Of-Central-Directory (truncated ZIP)");
+			rejected = true;
+		}
 		return new Result(entries, diag.snapshot(), rejected, total);
+	}
+
+	private static boolean hasEocd(byte[] data) {
+		// Search the last 65557+22 bytes (max comment) for the EOCD signature.
+		int start = Math.max(0, data.length - (65557 + 22));
+		for (int i = start; i + 4 <= data.length; i++) {
+			if (data[i] == 'P' && data[i + 1] == 'K' && data[i + 2] == 0x05 && data[i + 3] == 0x06) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private static byte[] readEntry(InputStream in, int max) throws IOException {

@@ -46,17 +46,6 @@ public final class RailsysAssetRegistry {
 		return true;
 	}
 
-	/** Register (or replace when reloading a pack). */
-	public static synchronized boolean registerOrReplace(RailsysInternalAsset asset) {
-		if (asset == null || asset.assetId == null || asset.assetId.isEmpty()) {
-			return false;
-		}
-		if (ASSETS.containsKey(asset.assetId)) {
-			ASSETS.remove(asset.assetId);
-		}
-		return register(asset);
-	}
-
 	public static synchronized RailsysInternalAsset get(String assetId) {
 		RailsysInternalAsset a = ASSETS.get(assetId);
 		if (a == null) {
@@ -89,6 +78,22 @@ public final class RailsysAssetRegistry {
 				ASSETS.remove(id);
 			}
 		}
+	}
+
+	/** Remove a single asset by id (used for reload/replace semantics). */
+	public static synchronized boolean remove(String assetId) {
+		RailsysInternalAsset a = ASSETS.remove(assetId);
+		if (a == null) {
+			return false;
+		}
+		List<String> l = PACK_IDS.get(a.packId);
+		if (l != null) {
+			l.remove(assetId);
+			if (l.isEmpty()) {
+				PACK_IDS.remove(a.packId);
+			}
+		}
+		return true;
 	}
 
 	public static synchronized void clear() {

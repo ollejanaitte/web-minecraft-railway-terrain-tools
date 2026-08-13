@@ -139,15 +139,15 @@ public final class RailsysProductionRailStore {
 
 	/**
 	 * Phase 1-R15: Asset-only replace on a confirmed rail. The railId, RailPath
-	 * (derived), endpoints, length, gauge and cant are unchanged; only the
+	 * (derived), endpoints, length, gauge, cant are ALL unchanged; only the
 	 * asset ref (look) changes. Returns the new segment or null on failure.
 	 */
-	public synchronized RailSegment replaceAsset(RailId id, String newAssetId, double newGaugeM) {
+	public synchronized RailSegment replaceAsset(RailId id, String newAssetId) {
 		RailSegment old = this.worldData.get(id);
 		if (old == null || old.lifecycle() != RailSegment.Lifecycle.ACTIVE) {
 			return null;
 		}
-		RailSegment rep = old.withAsset(newAssetId, newGaugeM);
+		RailSegment rep = old.withAsset(newAssetId);
 		return this.worldData.replaceSegment(rep);
 	}
 }

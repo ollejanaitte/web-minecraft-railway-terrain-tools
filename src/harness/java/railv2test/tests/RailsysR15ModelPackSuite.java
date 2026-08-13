@@ -509,11 +509,13 @@ public final class RailsysR15ModelPackSuite {
 		String origId = seg.railId().toString();
 		double origCant = seg.cantDeg();
 
-		net.minecraft.railsys.data.RailSegment rep = seg.withAsset("nr01:1435mm_nb_concrete", 1.435D);
+		net.minecraft.railsys.data.RailSegment rep = seg.withAsset("nr01:1435mm_nb_concrete");
 		Assert.assertEquals(origId, rep.railId().toString(), "R15R12 railId unchanged");
 		Assert.assertEquals("nr01:1435mm_nb_concrete", rep.assetId(), "R15R12 asset changed");
 		Assert.assertEquals(origCant, rep.cantDeg(), 1e-9, "R15R12 cant unchanged");
 		Assert.assertEquals(origLen, rep.lengthM(), 1e-9, "R15R12 length unchanged");
+		Assert.assertEquals(seg.gaugeM(), rep.gaugeM(), 1e-12, "R15R12 gauge unchanged");
+		Assert.assertEquals(1.435D, rep.gaugeM(), 1e-12, "R15R12 gauge snapshot preserved");
 		// derived path identity: same endpoints (geometry authority)
 		Assert.assertEquals(seg.endpointA().anchor().x, rep.endpointA().anchor().x, 1e-9, "R15R12 endpointA x");
 		Assert.assertEquals(seg.endpointA().anchor().z, rep.endpointA().anchor().z, 1e-9, "R15R12 endpointA z");
@@ -521,5 +523,55 @@ public final class RailsysR15ModelPackSuite {
 		Assert.assertEquals(seg.endpointB().anchor().z, rep.endpointB().anchor().z, 1e-9, "R15R12 endpointB z");
 		Assert.assertEquals(2, rep.assetVersion(), "R15R12 assetVersion bumped");
 		Assert.assertEquals(seg.lifecycle(), rep.lifecycle(), "R15R12 lifecycle preserved");
+	}
+
+	// ---- R15-03 additional boundary cases (Sol review round 1) ----
+
+	@Test
+	public static void z07_truncatedPkRejected() {
+		// Valid PK signature but truncated body -> rejected, no crash.
+		byte[] data = new byte[16];
+		data[0] = 'P'; data[1] = 'K';
+		data[2] = 0x03; data[3] = 0x04;
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		SafeZipReader.Result r = SafeZipReader.read(data, d);
+		Assert.assertEquals(true, r.rejected, "R15Z truncated PK rejected");
+	}
+
+	@Test
+	public static void z08_manyEntriesNoOverflow() {
+		// Many small entries must not crash and must be counted (bounded).
+		java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+		try {
+			java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(bos);
+			for (int i = 0; i < 2000; i++) {
+				zos.putNextEntry(new java.util.zip.ZipEntry("f" + i + ".txt"));
+				zos.write("x".getBytes());
+				zos.closeEntry();
+			}
+			zos.close();
+		} catch (java.io.IOException e) {
+			throw new RuntimeException(e);
+		}
+		ImportDiagnostic.Collector d = new ImportDiagnostic.Collector();
+		SafeZipReader.Result r = SafeZipReader.read(bos.toByteArray(), d);
+		Assert.assertEquals(2000, r.entries.size(), "R15Z 2000 entries read");
+		Assert.assertEquals(false, r.rejected, "R15Z 2000 entries not rejected");
+	}
+
+	@Test
+	public static void b02_duplicateWithinBundleRejected() {
+		// Two assets with the SAME id inside one bundle: only one registers.
+		String bundle = "{\"schemaVersion\":1,\"packId\":\"duppack\",\"assets\":["
+				+ "{\"assetId\":\"duppack:railx\",\"railId\":\"railx\",\"displayName\":\"X\",\"components\":[\"base\"]},"
+				+ "{\"assetId\":\"duppack:railx\",\"railId\":\"railx2\",\"displayName\":\"X2\",\"components\":[\"base\"]}]}";
+		List<RailsysInternalAsset> parsed = net.minecraft.railsys.modelpack.RailsysAssetBundle.parseBundle(bundle);
+		Assert.assertEquals(2, parsed.size(), "R15B parse keeps both (registry dedups)");
+		RailsysAssetRegistry.clear();
+		RailsysAssetRegistry.ensureFallback();
+		RailsysAssetRegistry.remove("duppack:railx");
+		Assert.assertEquals(true, RailsysAssetRegistry.register(parsed.get(0)), "R15B first registers");
+		Assert.assertEquals(false, RailsysAssetRegistry.register(parsed.get(1)), "R15B duplicate rejected");
+		RailsysAssetRegistry.clear();
 	}
 }

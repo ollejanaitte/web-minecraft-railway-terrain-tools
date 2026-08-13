@@ -3551,3 +3551,18 @@ STEP R15-15/16/17/18/19 - mutation guard + docs + Final Gate prep
 - Final Gate: harness 296/0/3, mutation 9/9, protected SHA-256 unchanged,
   secret scan clean, clean-room clean (no RTM assets), build green,
   3-way sync at 25296223.
+
+STEP R15-20 - Sol review round 1 fixes
+--------------------------------------
+- CRITICAL gauge invariance: withAsset now preserves the authoritative gauge
+  snapshot (only asset ref + version change); profileForAsset ALWAYS uses the
+  segment gauge snapshot (asset gaugeM = metadata only, never geometry);
+  replaceAsset signature dropped the gauge parameter. r12 test asserts gauge
+  preserved.
+- Duplicate ids within a bundle: importBundle rejects intra-bundle duplicates;
+  registry.remove() added; registerOrReplace removed. New test b02.
+- Narrow-gauge metadata: ModelPackImporter infers gaugeM from rail name
+  (1067/750/1000/1435) as metadata only (never applied to geometry).
+- Boundary tests: z07 truncated-PK (missing EOCD) rejected; z08 2000 entries.
+  SafeZipReader now rejects inputs with no End-Of-Central-Directory.
+- Harness 299/0/3.

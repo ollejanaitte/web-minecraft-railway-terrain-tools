@@ -185,13 +185,14 @@ public final class RailSegment {
 	}
 
 	/**
-	 * Phase 1-R15: Asset-only replace — returns a copy with a new asset ref and
-	 * refreshed gauge snapshot, preserving railId, endpoints, cant, lifecycle
-	 * and the derived RailPath. Appearance-only (F4): geometry NEVER changes.
+	 * Phase 1-R15: Asset-only replace — returns a copy with a new asset ref,
+	 * preserving railId, endpoints, cant, lifecycle, the derived RailPath AND
+	 * the authoritative gauge snapshot (F4: geometry NEVER changes, including
+	 * left/right rail offsets which depend on gauge).
 	 */
-	public RailSegment withAsset(String newAssetId, double newGaugeM) {
+	public RailSegment withAsset(String newAssetId) {
 		RailSegment copy = new RailSegment(this.railId, this.kind, this.endpointA, this.endpointB,
-				newAssetId, this.assetVersion + 1, this.cantDeg, newGaugeM,
+				newAssetId, this.assetVersion + 1, this.cantDeg, this.gaugeM,
 				this.signalState, this.occupied);
 		copy.promotedPreview = this.promotedPreview;
 		copy.metadata.putAll(this.metadata);

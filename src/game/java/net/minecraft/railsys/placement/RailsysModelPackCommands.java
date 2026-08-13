@@ -124,9 +124,8 @@ public final class RailsysModelPackCommands {
 						if (a == null || a.assetId.equals(RailsysAssetRegistry.FALLBACK_ASSET_ID)) {
 							msg(player, "railsys15: replace: unknown asset " + args[3]);
 						} else {
-							net.minecraft.railsys.data.RailSegment rep = RailsysProductionRailStore.getInstance()
-									.replaceAsset(id, a.assetId,
-											a.gaugeM != null ? a.gaugeM : 1.435D);
+						net.minecraft.railsys.data.RailSegment rep = RailsysProductionRailStore.getInstance()
+								.replaceAsset(id, a.assetId);
 							if (rep != null) {
 								msg(player, "railsys15: replaced " + id + " asset -> " + rep.assetId()
 										+ " (railId/path/length/gauge/cant unchanged)");

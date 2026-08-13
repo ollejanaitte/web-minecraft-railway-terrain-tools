@@ -206,12 +206,22 @@ public final class ModelPackImporter {
 		String assetId = StableAssetId.assetId(packId, cfg.railName, "");
 		String meshId = StableAssetId.sanitize(modelFile).replaceAll("_mqo$", "");
 
+		// Gauge metadata: inferred from the rail name (1067/750/1000) when the
+		// JSON carries none. METADATA ONLY — never applied to geometry by the
+		// renderer (segment gauge snapshot is authoritative; F4).
+		Double gauge = null;
+		String rn = cfg.railName.toLowerCase();
+		if (rn.contains("1067")) gauge = 1.067D;
+		else if (rn.contains("750")) gauge = 0.75D;
+		else if (rn.contains("1000")) gauge = 1.0D;
+		else if (rn.contains("1435")) gauge = 1.435D;
+
 		RailsysInternalAsset asset = new RailsysInternalAsset(
 				assetId, packId, cfg.railName, cfg.railName,
 				meshId, modelFile, texturePaths, cfg.buttonTexture,
 				"railsys.material." + StableAssetId.sanitize(packId) + "." + StableAssetId.sanitize(cfg.railName),
 				components, movable, behaviour, cfg.rendererPath, compat,
-				null, cfg.ballastBlock, cfg.ballastHeight,
+				gauge, cfg.ballastBlock, cfg.ballastHeight,
 				"", d.snapshot());
 		return asset;
 	}
