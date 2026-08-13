@@ -499,10 +499,44 @@ public final class RailsysR16NetworkSuite {
 	@Test
 	public static void i03_stepGuardStops() {
 		ProductionRailNetwork net = new ProductionRailNetwork();
-		// no connections at all
-		List<RailSegment> empty = java.util.Collections.emptyList();
+		// no connections at all -> forward cycle is not closed -> empty list
 		List<RailSegment> c = net.forwardCycle(loop0(), 4);
-		Assert.assertTrue(c.size() <= 4, "R16I step guard bounds forward");
+		Assert.assertEqualsInt(0, c.size(), "R16I no connection -> empty cycle");
+		List<RailSegment> r = net.reverseCycle(loop0(), 4);
+		Assert.assertEqualsInt(0, r.size(), "R16I no connection -> empty reverse cycle");
+	}
+
+	@Test
+	public static void i04_nonStartReentryReturnsEmpty() {
+		// A chain s1->s2->s3->s2 (loop back into a non-start segment) must NOT
+		// report a closed cycle on s1: re-entering s2 (not the start) returns
+		// an empty list (not a misleading partial cycle).
+		AnchorDefinition a1 = new AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b1 = new AnchorDefinition(20, 4, 0, 270, 0, 1.0, 0);
+		AnchorDefinition a2 = new AnchorDefinition(20, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b2 = new AnchorDefinition(40, 4, 0, 270, 0, 1.0, 0);
+		AnchorDefinition a3 = new AnchorDefinition(40, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b3 = new AnchorDefinition(60, 4, 0, 270, 0, 1.0, 0);
+		// connect s1.end->s2.start, s2.end->s3.start, and s3.end->s2.start
+		// (a branch back into s2) — s1 forms a lasso, not a clean cycle.
+		RailSegment s1 = RailSegment.confirm(RailId.probe(1), a1, b1, 0, 1.435, "a", 1, null, 0, false);
+		RailSegment s2 = RailSegment.confirm(RailId.probe(2), a2, b2, 0, 1.435, "a", 1, null, 0, false);
+		RailSegment s3 = RailSegment.confirm(RailId.probe(3), a3, b3, 0, 1.435, "a", 1, null, 0, false);
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		RailNode n1 = net.registerNode(20, 4, 0);
+		net.addEndpoint(n1, s1, false);
+		net.addEndpoint(n1, s2, true);
+		net.connect(n1, s1, false, s2, true);
+		RailNode n2 = net.registerNode(40, 4, 0);
+		net.addEndpoint(n2, s2, false);
+		net.addEndpoint(n2, s3, true);
+		net.connect(n2, s2, false, s3, true);
+		RailNode n3 = net.registerNode(60, 4, 0);
+		net.addEndpoint(n3, s3, false);
+		net.addEndpoint(n3, s2, true);
+		net.connect(n3, s3, false, s2, true);
+		List<RailSegment> c = net.forwardCycle(s1, 16);
+		Assert.assertEqualsInt(0, c.size(), "R16I lasso re-entry -> empty cycle (no clean closure)");
 	}
 
 	private static RailSegment loop0() {

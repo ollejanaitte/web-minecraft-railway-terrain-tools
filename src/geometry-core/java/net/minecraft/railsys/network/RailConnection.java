@@ -121,10 +121,12 @@ public final class RailConnection {
 				|| b.segment.lifecycle() != net.minecraft.railsys.data.RailSegment.Lifecycle.ACTIVE) {
 			return new Validation(false, "retired/non-active segment endpoint", -1, -1, -1);
 		}
-		// Position gap between the two endpoint anchor positions.
+		// Position gap between the two endpoint anchor positions (3D: X/Y/Z).
 		double[] pa = endpointPos(a);
 		double[] pb = endpointPos(b);
-		double posErr = Math.hypot(pa[0] - pb[0], pa[2] - pb[2]);
+		double posErr = Math.sqrt((pa[0] - pb[0]) * (pa[0] - pb[0])
+				+ (pa[1] - pb[1]) * (pa[1] - pb[1])
+				+ (pa[2] - pb[2]) * (pa[2] - pb[2]));
 		if (posErr > positionTolM) {
 			return new Validation(false, "position gap " + String.format("%.4f", posErr)
 					+ " exceeds tolerance " + positionTolM, posErr, -1, -1);
@@ -133,12 +135,15 @@ public final class RailConnection {
 		// headings must match (end of A continues as start of B in the same
 		// travel direction). Both endpointHeading() values are forward
 		// headings, so the mismatch is simply their wrapped difference.
+		// Yaw AND pitch are compared (gradient compatibility).
 		double angA = endpointHeading(a);
 		double angB = endpointHeading(b);
 		double tangErr = Math.abs(RailMath.wrapYaw(angA - angB));
-		if (tangErr > tangentTolDeg) {
-			return new Validation(false, "tangent mismatch " + String.format("%.4f", tangErr)
-					+ " deg exceeds tolerance " + tangentTolDeg, posErr, tangErr, -1);
+		double pitchErr = Math.abs(pitch(a) - pitch(b));
+		if (tangErr > tangentTolDeg || pitchErr > tangentTolDeg) {
+			return new Validation(false, "tangent mismatch yaw=" + String.format("%.4f", tangErr)
+					+ " pitch=" + String.format("%.4f", pitchErr)
+					+ " deg exceeds tolerance " + tangentTolDeg, posErr, Math.max(tangErr, pitchErr), -1);
 		}
 		// Gauge compatibility.
 		double gaugeErr = Math.abs(a.segment.gaugeM() - b.segment.gaugeM());
@@ -169,6 +174,16 @@ public final class RailConnection {
 			h = RailMath.wrapYaw(h + 180.0D);
 		}
 		return h;
+	}
+
+	/** Endpoint pitch (deg) — forward direction. End anchor pitch negated. */
+	public static double pitch(RailNode.EndpointRef e) {
+		net.minecraft.railsys.data.RailEndpointData d = e.isStart ? e.segment.endpointA() : e.segment.endpointB();
+		double p = d.anchor().pitchDeg;
+		if (!e.isStart) {
+			p = -p;
+		}
+		return p;
 	}
 
 	@Override

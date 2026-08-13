@@ -99,11 +99,12 @@ public final class RailsysNetworkCommands {
 					msg(player, "railsys16: no rails");
 				} else {
 					List<RailSegment> cyc = net.forwardCycle(start, 64);
+					boolean closed = !cyc.isEmpty()
+							&& cyc.get(cyc.size() - 1).railId().equals(start.railId());
 					StringBuilder sb = new StringBuilder();
 					for (RailSegment s : cyc) {
 						sb.append(sb.length() == 0 ? "" : " -> ").append(s.railId());
 					}
-					boolean closed = cyc.size() > 1 && cyc.get(cyc.size() - 1).railId().equals(start.railId());
 					msg(player, "railsys16: forward (" + cyc.size() + " steps, closed=" + closed + "): " + sb);
 				}
 			} else if ("reverse".equals(action)) {
@@ -116,11 +117,12 @@ public final class RailsysNetworkCommands {
 					msg(player, "railsys16: no rails");
 				} else {
 					List<RailSegment> cyc = net.reverseCycle(start, 64);
+					boolean closed = !cyc.isEmpty()
+							&& cyc.get(cyc.size() - 1).railId().equals(start.railId());
 					StringBuilder sb = new StringBuilder();
 					for (RailSegment s : cyc) {
 						sb.append(sb.length() == 0 ? "" : " -> ").append(s.railId());
 					}
-					boolean closed = cyc.size() > 1 && cyc.get(cyc.size() - 1).railId().equals(start.railId());
 					msg(player, "railsys16: reverse (" + cyc.size() + " steps, closed=" + closed + "): " + sb);
 				}
 			} else if ("snap".equals(action)) {

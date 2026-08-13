@@ -89,7 +89,11 @@ public final class ProductionRailNetwork {
 			return false;
 		}
 		n.retire();
-		// remove associated connections + endpoint mappings
+		// remove ALL endpoint mappings owned by this node (connected or not)
+		for (RailNode.EndpointRef e : n.endpoints()) {
+			endpointToNode.remove(endpointKey(e.segment, e.isStart));
+		}
+		// remove associated connections
 		List<Long> toRemove = new ArrayList<Long>();
 		for (Map.Entry<Long, RailConnection> e : connections.entrySet()) {
 			if (e.getValue().nodeId().equals(id)) {
@@ -98,11 +102,7 @@ public final class ProductionRailNetwork {
 			}
 		}
 		for (Long c : toRemove) {
-			RailConnection rc = connections.remove(c);
-			if (rc != null) {
-				endpointToNode.remove(endpointKey(rc.a().segment, rc.a().isStart));
-				endpointToNode.remove(endpointKey(rc.b().segment, rc.b().isStart));
-			}
+			connections.remove(c);
 		}
 		return true;
 	}
@@ -283,6 +283,31 @@ public final class ProductionRailNetwork {
 				}
 			}
 		}
+		// duplicate connections + connections to unregistered nodes +
+		// an endpoint used by more than one connection.
+		Set<String> connPairs = new LinkedHashSet<String>();
+		Set<String> connEndpoints = new LinkedHashSet<String>();
+		for (RailConnection c : connections.values()) {
+			if (c.lifecycle() != RailConnection.Lifecycle.ACTIVE) {
+				continue;
+			}
+			if (c.nodeId() == null || !nodes.containsKey(c.nodeId().value())) {
+				issues.add("connection " + c.connectionId() + " to unregistered node " + c.nodeId());
+			}
+			String pair = Math.min(c.a().segment.railId().value(), c.b().segment.railId().value()) + ":"
+					+ Math.max(c.a().segment.railId().value(), c.b().segment.railId().value());
+			if (!connPairs.add(pair)) {
+				issues.add("duplicate connection " + pair);
+			}
+			String ea = endpointKey(c.a().segment, c.a().isStart);
+			String eb = endpointKey(c.b().segment, c.b().isStart);
+			if (!connEndpoints.add(ea)) {
+				issues.add("endpoint used by multiple connections " + ea);
+			}
+			if (!connEndpoints.add(eb)) {
+				issues.add("endpoint used by multiple connections " + eb);
+			}
+		}
 		// reachability: BFS from first segment over connections
 		if (allSegments != null && !allSegments.isEmpty()) {
 			Set<Long> reachable = new LinkedHashSet<Long>();
@@ -305,6 +330,28 @@ public final class ProductionRailNetwork {
 			for (RailSegment s : allSegments) {
 				if (s.lifecycle() == RailSegment.Lifecycle.ACTIVE && !reachable.contains(s.railId().value())) {
 					issues.add("disconnected segment " + s.railId());
+				}
+			}
+			// one closed cycle: every ACTIVE segment must have exactly one
+			// outgoing and one incoming connection (via its end/start).
+			if (issues.isEmpty()) {
+				for (RailSegment s : allSegments) {
+					if (s.lifecycle() != RailSegment.Lifecycle.ACTIVE) {
+						continue;
+					}
+					int atStart = 0, atEnd = 0;
+					for (RailConnection c : connectionsOf(s)) {
+						if (c.a().segment == s && c.a().isStart) atStart++;
+						if (c.b().segment == s && c.b().isStart) atStart++;
+						if (c.a().segment == s && !c.a().isStart) atEnd++;
+						if (c.b().segment == s && !c.b().isStart) atEnd++;
+					}
+					if (atStart != 1) {
+						issues.add("segment " + s.railId() + " has " + atStart + " incoming(start) connections (want 1)");
+					}
+					if (atEnd != 1) {
+						issues.add("segment " + s.railId() + " has " + atEnd + " outgoing(end) connections (want 1)");
+					}
 				}
 			}
 		}
@@ -367,51 +414,43 @@ public final class ProductionRailNetwork {
 	/**
 	 * Walk forward from startSegment around the network until returning to
 	 * start (cycle detection with step guard). Returns the ordered segment
-	 * list (may include start twice for a closed cycle; empty when not closed).
+	 * list with the start repeated at the end when the walk CLOSES on start;
+	 * returns an EMPTY list when the walk dangles, re-enters a non-start
+	 * segment, or exceeds the step guard (never a misleading partial cycle).
 	 */
 	public synchronized List<RailSegment> forwardCycle(RailSegment start, int maxSteps) {
+		return cycle(start, maxSteps, false);
+	}
+
+	/** Reverse walk (previousSegment) until returning to start. Same contract. */
+	public synchronized List<RailSegment> reverseCycle(RailSegment start, int maxSteps) {
+		return cycle(start, maxSteps, true);
+	}
+
+	private synchronized List<RailSegment> cycle(RailSegment start, int maxSteps, boolean reverse) {
+		if (start == null || start.railId() == null) {
+			return Collections.<RailSegment>emptyList();
+		}
 		List<RailSegment> out = new ArrayList<RailSegment>();
 		RailSegment cur = start;
 		Set<Long> visited = new LinkedHashSet<Long>();
 		for (int i = 0; i < maxSteps; i++) {
-			out.add(cur);
 			if (!visited.add(cur.railId().value())) {
-				return out; // cycle detected
+				return Collections.<RailSegment>emptyList(); // re-entered a
+				// non-start segment -> not a single closed cycle
 			}
-			NextResult nx = nextSegment(cur);
+			out.add(cur);
+			NextResult nx = reverse ? previousSegment(cur) : nextSegment(cur);
 			if (nx == null) {
-				return out; // not closed (dangling)
+				return Collections.<RailSegment>emptyList(); // dangling
 			}
 			cur = nx.segment;
 			if (cur.railId().equals(start.railId())) {
 				out.add(cur);
-				return out; // closed
+				return out; // closed on start
 			}
 		}
-		return out; // step guard exceeded
-	}
-
-	/** Reverse walk (previousSegment) until returning to start. */
-	public synchronized List<RailSegment> reverseCycle(RailSegment start, int maxSteps) {
-		List<RailSegment> out = new ArrayList<RailSegment>();
-		RailSegment cur = start;
-		Set<Long> visited = new LinkedHashSet<Long>();
-		for (int i = 0; i < maxSteps; i++) {
-			out.add(cur);
-			if (!visited.add(cur.railId().value())) {
-				return out;
-			}
-			NextResult px = previousSegment(cur);
-			if (px == null) {
-				return out;
-			}
-			cur = px.segment;
-			if (cur.railId().equals(start.railId())) {
-				out.add(cur);
-				return out;
-			}
-		}
-		return out;
+		return Collections.<RailSegment>emptyList(); // step guard exceeded
 	}
 
 	/** Node-coalesce tolerance (m): endpoints closer than this share a node. */
