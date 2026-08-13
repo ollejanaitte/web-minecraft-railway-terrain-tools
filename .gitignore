@@ -88,3 +88,8 @@ doc/testing/phase1_2_3/logs/chrome_*.log
 
 # Local validation-artifact backups (Phase 1.2.1) - large, NOT pushed to GitHub
 /backup/
+
+# Phase 1-R14 runtime profiles / logs / generated instrumented HTML
+doc/implementation/phase1_r14/profiles/
+doc/implementation/phase1_r14/logs/
+doc/implementation/phase1_r14/instrumented.html
