@@ -93,6 +93,18 @@ val r14Measure = tasks.register<JavaExec>("r14Measure") {
 	errorOutput = System.err
 }
 
+// R15: measure real reference ModelPack import evidence (read-only).
+// Run explicitly: ./gradlew r15Measure
+val r15Measure = tasks.register<JavaExec>("r15Measure") {
+	group = "verification"
+	description = "Measure R15 real ModelPack import evidence."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.tools.R15ModelPackMeasurement")
+	standardOutput = System.out
+	errorOutput = System.err
+	workingDir = file(".")
+}
+
 dependencies {
 	implementation(libs.bundles.common)
 }

@@ -48,4 +48,17 @@ public final class Assert {
                     + " tolerance=" + tolerance + " diff=" + Math.abs(d));
         }
     }
+
+    public static void assertEquals(Object expected, Object actual, String message) {
+        boolean eq = expected == null ? actual == null : expected.equals(actual);
+        if (!eq) {
+            throw new AssertionError(message + " expected=" + expected + " actual=" + actual);
+        }
+    }
+
+    public static void assertNotNull(Object actual, String message) {
+        if (actual == null) {
+            throw new AssertionError(message + " (null)");
+        }
+    }
 }

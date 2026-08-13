@@ -9,7 +9,7 @@ package net.minecraft.railsys.geometry;
  * org.json (TeaVM/harness safe). Tolerates whitespace; throws on structural
  * errors, which the parser catches per asset.
  */
-final class MiniJson {
+public final class MiniJson {
 
 	private final String s;
 	private int i;
@@ -20,7 +20,7 @@ final class MiniJson {
 	}
 
 	/** Parse a JSON value; returns Object (JSONObject-like map / list / String / Double / Boolean / null). */
-	static Object parse(String text) {
+	public static Object parse(String text) {
 		if (text == null) {
 			throw new IllegalArgumentException("null json");
 		}
@@ -203,12 +203,12 @@ final class MiniJson {
 
 	// ---- typed accessors (object keys) ----
 
-	static String optString(java.util.Map<String, Object> o, String key, String dflt) {
+	public static String optString(java.util.Map<String, Object> o, String key, String dflt) {
 		Object v = o.get(key);
 		return v == null ? dflt : String.valueOf(v);
 	}
 
-	static double optDouble(java.util.Map<String, Object> o, String key, double dflt) {
+	public static double optDouble(java.util.Map<String, Object> o, String key, double dflt) {
 		Object v = o.get(key);
 		if (v instanceof Number) {
 			return ((Number) v).doubleValue();
@@ -216,7 +216,7 @@ final class MiniJson {
 		return dflt;
 	}
 
-	static int optInt(java.util.Map<String, Object> o, String key, int dflt) {
+	public static int optInt(java.util.Map<String, Object> o, String key, int dflt) {
 		Object v = o.get(key);
 		if (v instanceof Number) {
 			return (int) ((Number) v).doubleValue();
@@ -224,7 +224,7 @@ final class MiniJson {
 		return dflt;
 	}
 
-	static boolean optBoolean(java.util.Map<String, Object> o, String key, boolean dflt) {
+	public static boolean optBoolean(java.util.Map<String, Object> o, String key, boolean dflt) {
 		Object v = o.get(key);
 		if (v instanceof Boolean) {
 			return ((Boolean) v).booleanValue();
@@ -232,12 +232,12 @@ final class MiniJson {
 		return dflt;
 	}
 
-	static boolean has(java.util.Map<String, Object> o, String key) {
+	public static boolean has(java.util.Map<String, Object> o, String key) {
 		return o.containsKey(key);
 	}
 
 	@SuppressWarnings("unchecked")
-	static java.util.List<Object> optArray(java.util.Map<String, Object> o, String key) {
+	public static java.util.List<Object> optArray(java.util.Map<String, Object> o, String key) {
 		Object v = o.get(key);
 		if (v instanceof java.util.List) {
 			return (java.util.List<Object>) v;

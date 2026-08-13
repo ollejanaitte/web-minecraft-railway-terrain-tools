@@ -25,6 +25,7 @@ import railv2test.tests.R10SourceContractTest;
 import railv2test.tests.RailsysFoundationContractSuite;
 import railv2test.tests.RailsysR13ProductionDataSuite;
 import railv2test.tests.RailsysR14Production3DSuite;
+import railv2test.tests.RailsysR15ModelPackSuite;
 import railv2test.tests.RepeatedSegmentProofTest;
 import railv2test.tests.StraightMathTest;
 import railv2test.tests.StraightRailSegmentProofTest;
@@ -62,6 +63,7 @@ public final class Runner {
             RailsysFoundationContractSuite.class,
             RailsysR13ProductionDataSuite.class,
             RailsysR14Production3DSuite.class,
+            RailsysR15ModelPackSuite.class,
     };
 
     private static final class Case {

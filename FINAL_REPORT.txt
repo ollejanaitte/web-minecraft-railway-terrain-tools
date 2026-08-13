@@ -3460,3 +3460,26 @@ STEP R14-19 - Final Gate + Final Report (GO)
   committed (dfd747c6) and sent to Discord (HTTP 200); completion notice 204.
 - 3-way sync: HEAD == origin/main == GitHub main == dfd747c6.
 - VERDICT: GO (PASS) for R14. R15 entry gate passed.
+
+STEP R15-01..09 - ModelPack import pipeline + real pack proof
+--------------------------------------------------------------
+- geometry-core new package net.minecraft.railsys.modelpack:
+  - SafeZipReader: traversal/absolute/duplicate/size/bomb guards, PK-signature
+    check, MAX_ENTRIES=4096, 32MiB/entry, 128MiB total
+  - ImportDiagnostic: structured REJECT/WARN/SKIP with stable codes
+  - MqoParser: vertex/face(3-4)/UV/material/object subset, caps, no crash
+  - RtmModelRailParser: ModelRail_*.json -> RtmRailConfig (spec facts only)
+  - RendererCompatibilityMapper: RTM script path -> Railsys behaviour allowlist
+    (never executes JS); unknown -> FALLBACK_STATIC
+  - RailsysInternalAsset: native asset definition (assetId/packId/railId/
+    components/movable/textures/behaviour/compat/gauge/ballast)
+  - StableAssetId: deterministic <packId>:<railId> sanitized ids
+  - RailsysAssetRegistry: register/duplicate-reject/reload/fallback
+  - ModelPackImporter: full ZIP->JSON->MQO->texture->asset pipeline
+- MiniJson made public for reuse by modelpack package.
+- Harness suite RailsysR15ModelPackSuite: 18 tests (z01-z06, j01-j02, m01-m02,
+  r01-r02, i01-i03, p01-p03) all PASS. Harness now 291/0/3.
+- r15Measure tool: real NR01 pack import proof (read-only):
+  zipEntries=306, unzipped=12MB, mqo=78, assets=90, compat LOADED=47 PARTIAL=43
+  Concrete: components[base,railL,sideL,railR,sideR] movable[ZungeL0/1,R0/1]
+  textures[largeRailConcrete.png] ballast=gravel h=0.0625 renderer=RenderRailNB.js
