@@ -3445,3 +3445,18 @@ STEP R14-18 - Sleeper exact-position fix + Sol GO
 - Closed loop re-verified with exact-position sleepers (screenshots regenerated,
   rail/brown pixels solid).
 - Sol round-3 VERDICT: GO for R14 (99% confidence), no new contradictions.
+
+STEP R14-19 - Final Gate + Final Report (GO)
+--------------------------------------------
+- Final Gate all green: harness 273/0/3, mutation guards 7/7 (guard #3 updated
+  to half-open sleeper loop), r14Measure 200m=7/807/334, R10F/R13 regressions
+  included in 273, makeMainOfflineDownload OK, launcher smoke (headless closed
+  loop run), protected SHA-256 unchanged, secret scan clean (no webhook URL),
+  clean-room (no RTM assets in src/).
+- Docs updated: R14_CONTRACT_TEST_MATRIX (25 tests, m04/m05), R14_MUTATION_
+  GUARD_RESULTS (re-run note), R14_PRODUCTION_3D_RAIL (closed-prism renderer,
+  exact-position sleepers, 334).
+- Final Report: マイクラ鉄道_Phase1-R14_2026-08-13_17-19_Production3DRail.txt
+  committed (dfd747c6) and sent to Discord (HTTP 200); completion notice 204.
+- 3-way sync: HEAD == origin/main == GitHub main == dfd747c6.
+- VERDICT: GO (PASS) for R14. R15 entry gate passed.
