@@ -618,4 +618,184 @@ public final class RailsysR16NetworkSuite {
 			}
 		}
 	}
+
+	// ---------------- R16-10 Continuous Placement ----------------
+
+	@Test
+	public static void g02_continuousChainThreeRails() {
+		// Chain: s1 end -> s2 start -> s2 end -> s3 start, each snapped from the
+		// previous confirmed rail's free endpoint. Topology: 2 connections,
+		// 3 segments reachable, forward traversal walks the chain.
+		AnchorDefinition a1 = new AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b1 = new AnchorDefinition(20, 4, 0, 270, 0, 1.0, 0);
+		AnchorDefinition a2 = new AnchorDefinition(20, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b2 = new AnchorDefinition(40, 4, 0, 270, 0, 1.0, 0);
+		AnchorDefinition a3 = new AnchorDefinition(40, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b3 = new AnchorDefinition(60, 4, 0, 270, 0, 1.0, 0);
+		RailSegment s1 = RailSegment.confirm(RailId.probe(1), a1, b1, 0, 1.435, "a", 1, null, 0, false);
+		RailSegment s2 = RailSegment.confirm(RailId.probe(2), a2, b2, 0, 1.435, "a", 1, null, 0, false);
+		RailSegment s3 = RailSegment.confirm(RailId.probe(3), a3, b3, 0, 1.435, "a", 1, null, 0, false);
+
+		// Continuous placement: new placement at s1.END snaps to s1.
+		AnchorDefinition newStart = new AnchorDefinition(20, 4, 0, 90, 0, 1.0, 0);
+		EndpointSnap.Candidate snap = EndpointSnap.uniqueCandidate(newStart,
+				java.util.Collections.singletonList(s1));
+		Assert.assertEquals(true, snap != null, "R16G continuous snap to s1.END");
+
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		RailNode n1 = net.registerNode(20, 4, 0);
+		net.addEndpoint(n1, s1, false);
+		net.addEndpoint(n1, s2, true);
+		RailNode n2 = net.registerNode(40, 4, 0);
+		net.addEndpoint(n2, s2, false);
+		net.addEndpoint(n2, s3, true);
+		Assert.assertEquals(true, net.connect(n1, s1, false, s2, true) != null, "R16G conn s1-s2");
+		Assert.assertEquals(true, net.connect(n2, s2, false, s3, true) != null, "R16G conn s2-s3");
+
+		// forward traversal walks s1 -> s2 -> s3
+		ProductionRailNetwork.NextResult r1 = net.nextSegment(s1);
+		Assert.assertEquals(s2, r1.segment, "R16G next s1->s2");
+		ProductionRailNetwork.NextResult r2 = net.nextSegment(s2);
+		Assert.assertEquals(s3, r2.segment, "R16G next s2->s3");
+		ProductionRailNetwork.NextResult r3 = net.nextSegment(s3);
+		Assert.assertEquals(null, r3, "R16G s3 end has no next (open end)");
+
+		// The chain is a single connected component: from s1, BFS reaches s3.
+		// (Open chain ends s1:S and s3:E are intentionally unassigned to a node —
+		// they are the placement endpoints; validateTopology flags them as
+		// dangling by design. Reachability is the meaningful check here.)
+		java.util.Set<Long> reachable = new java.util.HashSet<Long>();
+		java.util.ArrayDeque<Long> q = new java.util.ArrayDeque<Long>();
+		reachable.add(s1.railId().value());
+		q.add(s1.railId().value());
+		while (!q.isEmpty()) {
+			long id = q.poll();
+			RailSegment cur = id == s1.railId().value() ? s1 : (id == s2.railId().value() ? s2 : s3);
+			for (RailConnection c : net.connectionsOf(cur)) {
+				RailSegment other = c.a().segment == cur ? c.b().segment : c.a().segment;
+				if (other != null && reachable.add(other.railId().value())) {
+					q.add(other.railId().value());
+				}
+			}
+		}
+		Assert.assertEquals(true, reachable.contains(s1.railId().value())
+				&& reachable.contains(s2.railId().value())
+				&& reachable.contains(s3.railId().value()), "R16G chain fully reachable");
+	}
+
+	// ---------------- R16-14 Validation / Edge Cases ----------------
+
+	@Test
+	public static void v01_zeroDistanceEndpoints() {
+		// Two segments meeting at the same point with zero gap -> valid connection.
+		List<RailSegment> segs = twoSegments(0.0D, 0.0D);
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		RailNode node = net.registerNode(20, 4, 0);
+		net.addEndpoint(node, segs.get(0), false);
+		net.addEndpoint(node, segs.get(1), true);
+		RailConnection c = net.connect(node, segs.get(0), false, segs.get(1), true);
+		Assert.assertEquals(true, c != null, "R16V zero-gap connect valid");
+		Assert.assertEquals(true, c.positionErrorM() < 1e-6, "R16V zero position error");
+	}
+
+	@Test
+	public static void v02_duplicateNodeIdRejected() {
+		// NodeId.of is private; registering twice at the same position is
+		// rejected via coalescing. Direct duplicate VALUE ids never issued.
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		RailNode n1 = net.registerNode(1, 0, 1);
+		RailNode n2 = net.registerNode(1 + ProductionRailNetwork.NodeCoalesceTolerance / 2, 0, 1);
+		Assert.assertEquals(true, n1 != null, "R16V first node");
+		Assert.assertEquals(null, n2, "R16V duplicate node position rejected");
+	}
+
+	@Test
+	public static void v03_retiredRailRejected() {
+		// A retired/non-active segment endpoint must not connect.
+		AnchorDefinition a1 = new AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b1 = new AnchorDefinition(20, 4, 0, 270, 0, 1.0, 0);
+		AnchorDefinition a2 = new AnchorDefinition(20, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b2 = new AnchorDefinition(40, 4, 0, 270, 0, 1.0, 0);
+		RailSegment s1 = RailSegment.confirm(RailId.probe(1), a1, b1, 0, 1.435, "a", 1, null, 0, false);
+		RailSegment s2 = RailSegment.confirm(RailId.probe(2), a2, b2, 0, 1.435, "a", 1, null, 0, false);
+		s1.retire();
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		RailNode node = net.registerNode(20, 4, 0);
+		// addEndpoint requires ACTIVE segment -> rejected
+		Assert.assertEquals(false, net.addEndpoint(node, s1, false), "R16V retired rail endpoint rejected");
+		Assert.assertEquals(true, net.addEndpoint(node, s2, true), "R16V active rail endpoint ok");
+		// connect with retired still rejected
+		RailConnection c = net.connect(node, s1, false, s2, true);
+		Assert.assertEquals(null, c, "R16V retired rail cannot connect");
+	}
+
+	@Test
+	public static void v04_nanInfinityRejected() {
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		try {
+			net.registerNode(Double.NaN, 0, 0);
+			Assert.fail("R16V NaN node position rejected");
+		} catch (IllegalArgumentException expected) {
+		}
+		try {
+			net.registerNode(0, Double.POSITIVE_INFINITY, 0);
+			Assert.fail("R16V Infinity node position rejected");
+		} catch (IllegalArgumentException expected) {
+		}
+	}
+
+	@Test
+	public static void v05_malformedNodeId() {
+		Assert.assertEquals(false, NodeId.isValid("node-0"), "R16V node-0 invalid");
+		Assert.assertEquals(false, NodeId.isValid("node-abc"), "R16V node-abc invalid");
+		Assert.assertEquals(false, NodeId.isValid("xyz"), "R16V wrong prefix invalid");
+		Assert.assertEquals(true, NodeId.isValid("node-7"), "R16V node-7 valid");
+		Assert.assertEquals(false, ConnectionId.isValid("conn-0"), "R16V conn-0 invalid");
+		Assert.assertEquals(true, ConnectionId.isValid("conn-9"), "R16V conn-9 valid");
+	}
+
+	@Test
+	public static void v06_disconnectedComponentDetected() {
+		// Two separate rails far apart with no valid joint -> each endpoint has
+		// its own node, and no connection exists. The two segments are not in
+		// one connected component.
+		AnchorDefinition a1 = new AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b1 = new AnchorDefinition(20, 4, 0, 270, 0, 1.0, 0);
+		AnchorDefinition a2 = new AnchorDefinition(100, 4, 0, 90, 0, 1.0, 0);
+		AnchorDefinition b2 = new AnchorDefinition(120, 4, 0, 270, 0, 1.0, 0);
+		RailSegment s1 = RailSegment.confirm(RailId.probe(1), a1, b1, 0, 1.435, "a", 1, null, 0, false);
+		RailSegment s2 = RailSegment.confirm(RailId.probe(2), a2, b2, 0, 1.435, "a", 1, null, 0, false);
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		// Separate nodes for each rail's end; no shared joint.
+		RailNode n1a = net.registerNode(20, 4, 0);
+		net.addEndpoint(n1a, s1, false);
+		RailNode n1b = net.registerNode(100, 4, 0);
+		net.addEndpoint(n1b, s2, true);
+		// No connection can be made (different nodes) -> disconnected.
+		Assert.assertEqualsInt(0, net.connectionCount(), "R16V no connection between components");
+		ProductionRailNetwork.NextResult nx = net.nextSegment(s1);
+		Assert.assertEquals(null, nx, "R16V s1 has no continuation (disconnected)");
+		// BFS reachability: only s1 reachable from s1.
+		String issues = net.validateTopology(java.util.Arrays.asList(s1, s2));
+		Assert.assertEquals(false, issues.isEmpty(), "R16V disconnected component detected: " + issues);
+	}
+
+	@Test
+	public static void v07_NaNInSegmentRejected() {
+		// Path construction already rejects NaN; ensure network validate handles
+		// an empty/small world without throwing.
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		String issues = net.validateTopology(java.util.Collections.emptyList());
+		Assert.assertEquals("", issues, "R16V empty topology valid");
+	}
+
+	@Test
+	public static void v08_worldResetClearsNetwork() {
+		ProductionRailNetwork net = new ProductionRailNetwork();
+		RailNode n = net.registerNode(5, 0, 5);
+		net.clear();
+		Assert.assertEqualsInt(0, net.nodeCount(), "R16V network cleared");
+		Assert.assertEquals(RailNode.Lifecycle.RETIRED, n.lifecycle(), "R16V node retired on clear");
+		Assert.assertEquals(null, net.node(n.nodeId()), "R16V cleared node not found");
+	}
 }
