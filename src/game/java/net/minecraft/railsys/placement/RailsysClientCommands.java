@@ -175,6 +175,23 @@ public final class RailsysClientCommands {
 			} else if ("clear".equals(action)) {
 				// clear = reset transient session; confirmed rail preserved.
 				RailsysPlacementController.clear(player);
+			} else if ("testloop".equals(action)) {
+				// R14: build the Standard Closed-Loop Production Rail Test Course
+				// (rounded rectangle: 4 straights + 4 smooth 90-degree curves).
+				// Production RailSegments only; registers into the world store.
+				double w = args.length >= 3 ? parseDouble(args[2], 40.0D) : 40.0D;
+				double l = args.length >= 4 ? parseDouble(args[3], 80.0D) : 80.0D;
+				double r = args.length >= 5 ? parseDouble(args[4], 10.0D) : 10.0D;
+				String asset = args.length >= 6 ? args[5] : "railsys.straight_1435_wood";
+				double gauge = net.minecraft.railsys.placement.RailsysProductionRailStore.clampGaugeForDefaults(
+						net.minecraft.railsys.render.RailsysRenderManager.getActiveAsset().gaugeM);
+				java.util.List<net.minecraft.railsys.data.RailSegment> loop = net.minecraft.railsys.placement.RailsysProductionRailStore
+						.getInstance().registerClosedLoopCourse(0.0D, 0.0D, w, l, r, gauge, asset);
+				double total = net.minecraft.railsys.course.StandardClosedLoopCourse.totalLength(loop);
+				msg(player, "railsys: testloop built " + loop.size() + " segments, total "
+						+ String.format("%.2f", total) + "m (prod store="
+						+ net.minecraft.railsys.placement.RailsysProductionRailStore.getInstance().worldData().size()
+						+ ")");
 			} else if ("status".equals(action)) {
 				RailsysPlacementState st = RailsysPlacementState.getInstance();
 				String prodInfo = "";
@@ -211,6 +228,14 @@ public final class RailsysClientCommands {
 		}
 	}
 
+	private static double parseDouble(String s, double dflt) {
+		try {
+			return Double.parseDouble(s);
+		} catch (NumberFormatException e) {
+			return dflt;
+		}
+	}
+
 	private static void help(EntityPlayer player) {
 		msg(player, "railsys /railsys3 commands:");
 		msg(player, "/railsys3 wand (marker wand; Shift+right-click = confirm)");
@@ -218,6 +243,7 @@ public final class RailsysClientCommands {
 		msg(player, "/railsys3 rot1|rot2 <deg> | handle <m> | pitch <deg> | cant <deg>");
 		msg(player, "/railsys3 preview | confirm | cancel (discard preview only)");
 		msg(player, "/railsys3 clear (reset session, keeps confirmed rail) | asset <id> | assets");
+		msg(player, "/railsys3 testloop [w] [l] [r] (Standard Closed-Loop course)");
 		msg(player, "/railsys3 camera x y z yaw pitch | camera reset (back to player)");
 		msg(player, "/railsys3 status | help");
 	}

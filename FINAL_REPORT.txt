@@ -3376,3 +3376,15 @@ STEP R14-01..13 - Production 3D Rail + Closed-Loop Course implementation
   course B cant, loop gauge continuity, F2-consistent total length).
 - Harness: PASSED=271 FAILED=0 SKIPPED=3 (248 baseline + 23 R14).
 - Discord: pipeline/profile/gauge/segmentation/closed-loop notifications sent.
+
+STEP R14-14 - Game-layer production renderer + closed-loop command
+--------------------------------------------------------------------
+- RailsysProduction3DRenderer (game): RailSegment -> derived RailPath ->
+  profile (gauge from segment snapshot) -> head/web/foot boxes + distance-based
+  sleepers, sectioned. Never touches the RailPath (F4).
+- RailsysProductionRailStore.registerClosedLoopCourse: builds the 8-segment
+  Standard Closed-Loop Course as production RailSegments with REAL issued ids.
+- RenderGlobal.renderRailSystemProduction now also renders all ACTIVE store
+  segments via the production 3D renderer (R14 path).
+- /railsys3 testloop [w] [l] [r] builds the course; help updated.
+- Harness 271 PASS / 0 FAIL / 3 SKIP; production build green.

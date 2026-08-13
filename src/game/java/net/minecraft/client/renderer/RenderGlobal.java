@@ -1684,6 +1684,19 @@ public class RenderGlobal implements IWorldAccess, IResourceManagerReloadListene
 				}
 			}
 		}
+		// Phase 1-R14: production rails registered in the authoritative world
+		// store (R13 RailSegments) render via the PRODUCTION 3D rail renderer.
+		// Entry is the RailSegment; the renderer uses its derived RailPath +
+		// gauge snapshot (never a separate geometry pipeline).
+		net.minecraft.railsys.data.RailWorldData wd = net.minecraft.railsys.placement.RailsysProductionRailStore
+				.getInstance().worldData();
+		if (wd != null && wd.size() > 0) {
+			for (net.minecraft.railsys.data.RailSegment seg : wd.rails()) {
+				if (seg != null && seg.lifecycle() == net.minecraft.railsys.data.RailSegment.Lifecycle.ACTIVE) {
+					net.minecraft.railsys.render.RailsysProduction3DRenderer.renderSegment(seg, camX, camY, camZ);
+				}
+			}
+		}
 		GlStateManager.enableLighting();
 		GlStateManager.enableTexture2D();
 	}

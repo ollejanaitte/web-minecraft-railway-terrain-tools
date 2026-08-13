@@ -108,4 +108,25 @@ public final class RailsysProductionRailStore {
 	public static void onWorldEnter() {
 		getInstance().resetForNewWorld();
 	}
+
+	/**
+	 * Register the Standard Closed-Loop Production Rail Test Course (R14-12)
+	 * into the world store. Uses ONLY production RailSegments. Returns the
+	 * registered segments (validated at registration).
+	 */
+	public java.util.List<RailSegment> registerClosedLoopCourse(double cx, double cz,
+			double widthM, double lengthM, double cornerRadiusM, double gaugeM, String assetId) {
+		java.util.List<RailSegment> loop = net.minecraft.railsys.course.StandardClosedLoopCourse
+				.courseA(cx, cz, widthM, lengthM, cornerRadiusM, gaugeM, assetId);
+		java.util.List<RailSegment> registered = new java.util.ArrayList<RailSegment>();
+		for (RailSegment s : loop) {
+			// Rebuild with a REAL issued id (the course used probe ids).
+			RailSegment real = RailSegment.confirm(this.worldData.nextRailId(),
+					s.endpointA().anchor(), s.endpointB().anchor(), s.cantDeg(), s.gaugeM(),
+					s.assetId(), s.assetVersion(), s.promotedPreview(), 0, false);
+			this.worldData.register(real);
+			registered.add(real);
+		}
+		return registered;
+	}
 }
