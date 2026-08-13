@@ -3250,3 +3250,14 @@ STEP R13-01..05 - Production Data + Stable ID + Handoff + Validation + Limits
   R13_LIMIT_MEASUREMENT_RESULTS, R13_CONTRACT_TEST_MATRIX.
 - R13 contract suite: RailsysR13ProductionDataSuite (33 tests a..f).
 - Harness: PASSED=240 FAILED=0 SKIPPED=3 (207 baseline + 33 R13).
+
+STEP R13-07 - Mutation Guards
+-------------------------------
+- 9 deliberate production-data violations applied + detected by the matching
+  R13 test + reverted byte-for-byte (git diff clean). Results:
+  doc/implementation/phase1_r13/R13_MUTATION_GUARD_RESULTS.md.
+- Covered: zero id, id collision, duplicate id, retired id reuse, too-short,
+  too-long, cant-limit disabled, fingerprint asset ignored, exact promotion
+  broken.
+- Full harness after restore: 240 PASS / 0 FAIL / 3 SKIP.
+- Discord: mutation guard notification sent.
