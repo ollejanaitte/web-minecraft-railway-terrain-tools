@@ -102,10 +102,11 @@ public final class RailsysPlacementController {
 	 * arrow overlays and edit handles are tidied. Confirmed anchors + asset
 	 * metadata are preserved by RailsysPlacementState.
 	 *
-	 * R13: after the exact promotion, the final preview is registered as a
-	 * PRODUCTION RailSegment in the world store, which issues the stable railId
-	 * (R12 §3) and validates the segment (R12-J rail-level scope). The exact
-	 * preview RailPath object is promoted — no rebuild (R10F F2.4).
+	 * R13: production registration happens FIRST (server side of the handoff).
+	 * Only a VALID production RailSegment (stable id issued, rail-level
+	 * validation passed) is allowed to promote the exact preview — an invalid
+	 * confirm is rejected and NO client-confirmed state is produced (no stable
+	 * id, no promotion). This is the R12 §3.1 accept-or-reject rule.
 	 */
 	public static boolean confirm(EntityPlayer player) {
 		RailsysPlacementState st = RailsysPlacementState.getInstance();
@@ -115,35 +116,30 @@ public final class RailsysPlacementController {
 			}
 			return false;
 		}
-		st.confirm();
-		// R13: production registration (stable id + validation) using the exact
-		// promoted preview path object.
-		RailPath promoted = st.getConfirmedPath();
-		net.minecraft.railsys.data.RailSegment prod = null;
-		String prodId = null;
-		if (promoted != null) {
-			String assetId = st.getConfirmedAssetId();
-			double gauge = net.minecraft.railsys.placement.RailsysProductionRailStore.clampGaugeForDefaults(
-					net.minecraft.railsys.render.RailsysRenderManager.getActiveAsset().gaugeM);
-			prod = net.minecraft.railsys.placement.RailsysProductionRailStore.getInstance()
-					.confirmPreview(st.getConfirmedAnchorA(), st.getConfirmedAnchorB(),
-							st.getCantDeg(), gauge, assetId, 1, promoted);
-			if (prod != null) {
-				prodId = prod.railId().toString();
+		// R13: validate + issue stable id FIRST (authoritative side).
+		String assetId = net.minecraft.railsys.render.RailsysRenderManager.getActiveAssetId();
+		double gauge = net.minecraft.railsys.placement.RailsysProductionRailStore.clampGaugeForDefaults(
+				net.minecraft.railsys.render.RailsysRenderManager.getActiveAsset().gaugeM);
+		RailPath preview = st.getPreviewPath();
+		net.minecraft.railsys.data.RailSegment prod = net.minecraft.railsys.placement.RailsysProductionRailStore
+				.getInstance()
+				.confirmPreview(st.getMarkerA(), st.getMarkerB(), st.getCantDeg(), gauge, assetId, 1, preview);
+		if (prod == null) {
+			// Invalid confirm: reject WITHOUT promoting / clearing / issuing a
+			// committed id.
+			if (player != null) {
+				player.addChatMessage(new ChatComponentText(
+						"railsys: confirm rejected — rail fails production validation"));
 			}
+			return false;
 		}
-		// Tidy the transient placement visuals; the confirmed rail (the SAME
-		// RailPath object) is preserved and re-set on the production renderer.
+		// Accept: promote the exact preview (R10F F2.4) and tidy the session.
+		st.confirm();
 		st.clearTransientSession();
 		RailsysRenderManager.setRenderPath(st.getConfirmedPath());
 		if (player != null) {
-			if (prodId != null) {
-				player.addChatMessage(new ChatComponentText("railsys: confirmed (" + prodId + " length "
-						+ String.format("%.2f", st.getConfirmedPath().totalLength()) + "m)"));
-			} else {
-				player.addChatMessage(new ChatComponentText("railsys: confirmed (length "
-						+ String.format("%.2f", st.getConfirmedPath().totalLength()) + "m)"));
-			}
+			player.addChatMessage(new ChatComponentText("railsys: confirmed (" + prod.railId()
+					+ " length " + String.format("%.2f", st.getConfirmedPath().totalLength()) + "m)"));
 		}
 		return true;
 	}

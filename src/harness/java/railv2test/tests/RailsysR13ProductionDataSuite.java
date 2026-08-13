@@ -630,22 +630,29 @@ public final class RailsysR13ProductionDataSuite {
 				"R13C confirm never rebuilds a RailPath");
 		Assert.assertTrue(confirmTail.contains("st.getConfirmedPath()"),
 				"R13C confirm reads the promoted confirmed path");
-		Assert.assertTrue(confirmTail.contains("RailsysProductionRailStore.getInstance()"),
+		Assert.assertTrue(confirmTail.contains("RailsysProductionRailStore"),
 				"R13C confirm registers the production segment via the store");
-		Assert.assertTrue(confirmTail.contains("prod.railId().toString()"),
+		Assert.assertTrue(confirmTail.contains(".confirmPreview("),
+				"R13C confirm calls the store confirm (validate+issue) BEFORE promotion");
+		Assert.assertTrue(confirmTail.contains("prod.railId()"),
 				"R13C confirm surfaces the stable railId");
+		Assert.assertTrue(confirmTail.contains("confirm rejected"),
+				"R13C invalid confirm is rejected (no promotion)");
 	}
 
 	@Test
 	public static void f02_productionStoreIssuesIdAtConfirm() {
-		// R13-B source guard: the production store issues the stable id at the
-		// confirm boundary via the world issuer, validates, then registers.
+		// R13-B source guard: the production store validates the request BEFORE
+		// issuing the stable id (a rejected confirm consumes no id), then
+		// issues at the confirm boundary via the world issuer and registers.
 		String store = stripComments(
 				readSource("src/game/java/net/minecraft/railsys/placement/RailsysProductionRailStore.java"));
+		Assert.assertTrue(store.contains("RailSegmentValidator.validate(probe, null)"),
+				"R13D store pre-validates BEFORE issuing id");
+		Assert.assertTrue(store.indexOf("RailSegmentValidator.validate(probe, null)") < store.indexOf("nextRailId()"),
+				"R13B validate happens BEFORE id issuance (rejected confirm consumes no id)");
 		Assert.assertTrue(store.contains("worldData.nextRailId()"),
 				"R13B store issues id at confirm via world issuer");
-		Assert.assertTrue(store.contains("RailSegmentValidator.validate(seg, this.worldData)"),
-				"R13D store validates before registration");
 		Assert.assertTrue(store.contains("worldData.register(seg)"),
 				"R13B store registers the validated segment");
 	}

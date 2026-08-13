@@ -48,8 +48,10 @@ public final class RailsysProductionRailStore {
 	 * Confirm the final preview into a production RailSegment.
 	 *
 	 * Exact-handoff contract: the returned segment promotes the SAME preview
-	 * RailPath object (no rebuild). If the segment fails rail-level validation
-	 * the confirm is rejected and no stable id is issued.
+	 * RailPath object (no rebuild). The stable id is issued ONLY after the
+	 * rail-level validation passes — a rejected confirm consumes no id (the
+	 * issuer counter does not advance past an unused value because we validate
+	 * the request BEFORE {@link RailWorldData#nextRailId()}).
 	 *
 	 * @return the confirmed segment with its stable id, or null on rejection.
 	 */
@@ -58,17 +60,19 @@ public final class RailsysProductionRailStore {
 		if (a == null || b == null || previewPath == null) {
 			return null;
 		}
-		// Pre-validate the geometry against the frozen limits before issuing an id.
+		// Validate the request BEFORE issuing an id: build a probe segment with
+		// a placeholder id only for validator purposes, then discard it.
+		RailSegment probe = RailSegment.confirm(RailId.of(1L) /* placeholder, discarded */,
+				a, b, cantDeg, gaugeM, assetId, assetVersion, previewPath, 0, false);
+		RailSegmentValidator.RailValidation pre = RailSegmentValidator.validate(probe, null);
+		if (!pre.valid()) {
+			return null; // rejected before any id is issued
+		}
+		// Issue the stable id and register the authoritative segment.
 		RailId id = this.worldData.nextRailId();
 		RailSegment seg = RailSegment.confirm(id, a, b, cantDeg, gaugeM, assetId, assetVersion,
 				previewPath, 0, false);
-		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(seg, this.worldData);
-		if (!v.valid()) {
-			// Rejection: no segment registered, id not committed (issuer counter
-			// advanced but unused; acceptable and safe — ids are never reused).
-			return null;
-		}
-		this.worldData.register(seg);
+		this.worldData.register(seg); // register re-validates (R12-J §2.3)
 		return seg;
 	}
 
@@ -86,5 +90,15 @@ public final class RailsysProductionRailStore {
 			return RailLimits.MAX_GAUGE_M;
 		}
 		return g;
+	}
+
+	/**
+	 * R13 world-binding note (Sol review, R23 owner): R13 holds ONE in-memory
+	 * store for the running world (persistence + per-world binding land in R23).
+	 * This reset is provided so a world-session change can clear rails + ids
+	 * explicitly; it is NOT a production persistence API.
+	 */
+	public synchronized void resetForNewWorld() {
+		this.worldData.clearAll();
 	}
 }

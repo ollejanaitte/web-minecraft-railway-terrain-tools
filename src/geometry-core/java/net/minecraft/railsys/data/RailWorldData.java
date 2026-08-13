@@ -119,4 +119,15 @@ public final class RailWorldData {
 	public boolean isEmpty() {
 		return this.rails.isEmpty();
 	}
+
+	/**
+	 * Clear all rails + retired ids (world-session reset). NOT a persistence
+	 * API; R23 owns per-world binding/persistence. Kept for explicit world
+	 * changes so data/id counters do not leak across sessions.
+	 */
+	public void clearAll() {
+		this.rails.clear();
+		this.byId.clear();
+		this.issuer.retireAll();
+	}
 }

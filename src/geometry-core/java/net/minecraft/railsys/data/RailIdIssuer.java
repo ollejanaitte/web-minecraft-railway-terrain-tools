@@ -51,4 +51,9 @@ public final class RailIdIssuer {
 	public int retiredCount() {
 		return this.retired.size();
 	}
+
+	/** Clear the retired set (world-session reset). Issued ids are not re-issued. */
+	public void retireAll() {
+		this.retired.clear();
+	}
 }

@@ -125,7 +125,9 @@ public final class RailSegmentValidator {
 
 		// promoted-preview vs authoritative-endpoint consistency: if a promoted
 		// preview exists it MUST describe the same line as the endpoints (a
-		// phantom/mismatched path is rejected, not silently accepted).
+		// phantom/mismatched path is rejected, not silently accepted). Compare
+		// length AND start/end world positions + tangents (a same-length but
+		// shifted/differently-shaped path is still rejected).
 		RailPath promoted = seg.promotedPreview();
 		if (promoted != null) {
 			double derivedLen = derived.totalLength();
@@ -135,9 +137,31 @@ public final class RailSegmentValidator {
 				return RailValidation.invalid("promoted preview length " + promotedLen
 						+ " != derived length " + derivedLen);
 			}
+			net.minecraft.railsys.path.PathSample d0 = derived.resolve(0.0D);
+			net.minecraft.railsys.path.PathSample d1 = derived.resolve(derivedLen);
+			net.minecraft.railsys.path.PathSample p0 = promoted.resolve(0.0D);
+			net.minecraft.railsys.path.PathSample p1 = promoted.resolve(promotedLen);
+			if (!samePos(d0, p0) || !samePos(d1, p1)) {
+				return RailValidation.invalid("promoted preview start/end positions differ from derived");
+			}
+			if (!sameTangent(d0, p0) || !sameTangent(d1, p1)) {
+				return RailValidation.invalid("promoted preview start/end tangents differ from derived");
+			}
 		}
 
 		return RailValidation.ok();
+	}
+
+	private static boolean samePos(net.minecraft.railsys.path.PathSample a, net.minecraft.railsys.path.PathSample b) {
+		return Math.abs(a.sample.x - b.sample.x) <= 1.0E-4D
+				&& Math.abs(a.sample.y - b.sample.y) <= 1.0E-4D
+				&& Math.abs(a.sample.z - b.sample.z) <= 1.0E-4D;
+	}
+
+	private static boolean sameTangent(net.minecraft.railsys.path.PathSample a, net.minecraft.railsys.path.PathSample b) {
+		return Math.abs(a.sample.tx - b.sample.tx) <= 1.0E-4D
+				&& Math.abs(a.sample.ty - b.sample.ty) <= 1.0E-4D
+				&& Math.abs(a.sample.tz - b.sample.tz) <= 1.0E-4D;
 	}
 
 	private static boolean finite(RailEndpointData e) {
