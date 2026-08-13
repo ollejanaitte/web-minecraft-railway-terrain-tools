@@ -136,4 +136,18 @@ public final class RailsysProductionRailStore {
 		this.worldData.clearAll();
 		return n;
 	}
+
+	/**
+	 * Phase 1-R15: Asset-only replace on a confirmed rail. The railId, RailPath
+	 * (derived), endpoints, length, gauge and cant are unchanged; only the
+	 * asset ref (look) changes. Returns the new segment or null on failure.
+	 */
+	public synchronized RailSegment replaceAsset(RailId id, String newAssetId, double newGaugeM) {
+		RailSegment old = this.worldData.get(id);
+		if (old == null || old.lifecycle() != RailSegment.Lifecycle.ACTIVE) {
+			return null;
+		}
+		RailSegment rep = old.withAsset(newAssetId, newGaugeM);
+		return this.worldData.replaceSegment(rep);
+	}
 }

@@ -489,4 +489,37 @@ public final class RailsysR15ModelPackSuite {
 			Assert.assertEquals(0.0D, d1, 1e-9, "R15G sample frame identical across asset switch");
 		}
 	}
+
+	// ---- R15-12 Confirmed asset-only replace invariance ----
+
+	@Test
+	public static void r12_assetReplaceInvariance() {
+		// RailSegment.withAsset must preserve railId, endpoints, cant, lifecycle
+		// and derived path while changing the asset ref + gauge snapshot.
+		net.minecraft.railsys.geometry.AnchorDefinition pa =
+				new net.minecraft.railsys.geometry.AnchorDefinition(0, 4, 0, 90, 0, 1.0, 0);
+		net.minecraft.railsys.geometry.AnchorDefinition pb =
+				new net.minecraft.railsys.geometry.AnchorDefinition(40, 4, 0, 270, 0, 1.0, 0);
+		net.minecraft.railsys.data.RailSegment seg = net.minecraft.railsys.data.RailSegment.confirm(
+				net.minecraft.railsys.data.RailId.probe(77),
+				pa, pb, 3.0D, 1.435D, "old:asset", 1,
+				net.minecraft.railsys.path.RailPath.fromMarkers(pa, pb, 0.0D, 8001), 0, false);
+		Assert.assertEquals("old:asset", seg.assetId(), "R15R12 original asset");
+		double origLen = seg.lengthM();
+		String origId = seg.railId().toString();
+		double origCant = seg.cantDeg();
+
+		net.minecraft.railsys.data.RailSegment rep = seg.withAsset("nr01:1435mm_nb_concrete", 1.435D);
+		Assert.assertEquals(origId, rep.railId().toString(), "R15R12 railId unchanged");
+		Assert.assertEquals("nr01:1435mm_nb_concrete", rep.assetId(), "R15R12 asset changed");
+		Assert.assertEquals(origCant, rep.cantDeg(), 1e-9, "R15R12 cant unchanged");
+		Assert.assertEquals(origLen, rep.lengthM(), 1e-9, "R15R12 length unchanged");
+		// derived path identity: same endpoints (geometry authority)
+		Assert.assertEquals(seg.endpointA().anchor().x, rep.endpointA().anchor().x, 1e-9, "R15R12 endpointA x");
+		Assert.assertEquals(seg.endpointA().anchor().z, rep.endpointA().anchor().z, 1e-9, "R15R12 endpointA z");
+		Assert.assertEquals(seg.endpointB().anchor().x, rep.endpointB().anchor().x, 1e-9, "R15R12 endpointB x");
+		Assert.assertEquals(seg.endpointB().anchor().z, rep.endpointB().anchor().z, 1e-9, "R15R12 endpointB z");
+		Assert.assertEquals(2, rep.assetVersion(), "R15R12 assetVersion bumped");
+		Assert.assertEquals(seg.lifecycle(), rep.lifecycle(), "R15R12 lifecycle preserved");
+	}
 }

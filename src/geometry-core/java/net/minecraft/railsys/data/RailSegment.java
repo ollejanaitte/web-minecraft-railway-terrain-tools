@@ -184,6 +184,21 @@ public final class RailSegment {
 		this.metadata.put("validationResult", result == null ? "" : result);
 	}
 
+	/**
+	 * Phase 1-R15: Asset-only replace — returns a copy with a new asset ref and
+	 * refreshed gauge snapshot, preserving railId, endpoints, cant, lifecycle
+	 * and the derived RailPath. Appearance-only (F4): geometry NEVER changes.
+	 */
+	public RailSegment withAsset(String newAssetId, double newGaugeM) {
+		RailSegment copy = new RailSegment(this.railId, this.kind, this.endpointA, this.endpointB,
+				newAssetId, this.assetVersion + 1, this.cantDeg, newGaugeM,
+				this.signalState, this.occupied);
+		copy.promotedPreview = this.promotedPreview;
+		copy.metadata.putAll(this.metadata);
+		copy.lifecycle = this.lifecycle;
+		return copy;
+	}
+
 	/** Read the recorded validation result metadata (may be null). */
 	public String validationResult() {
 		return this.metadata.get("validationResult");

@@ -97,9 +97,39 @@ public final class RailWorldData {
 		return id != null && this.byId.containsKey(id.value());
 	}
 
+	/**
+	 * Phase 1-R15: Asset-only replace — swap a segment's record for a copy with
+	 * the same RailId but a new asset ref (appearance-only). The replacement
+	 * must keep the SAME id and geometry-relevant fields; validated on write.
+	 * Returns the new record (or null when the id is unknown/invalid).
+	 */
+	public RailSegment replaceSegment(RailSegment replacement) {
+		if (replacement == null || replacement.railId() == null) {
+			return null;
+		}
+		RailId id = replacement.railId();
+		RailSegment old = this.byId.get(id.value());
+		if (old == null) {
+			return null;
+		}
+		RailSegmentValidator.RailValidation v = RailSegmentValidator.validate(replacement, this);
+		if (!v.valid()) {
+			replacement.recordValidationResult(v.toString());
+			return null;
+		}
+		replacement.recordValidationResult("VALID");
+		int idx = this.rails.indexOf(old);
+		this.byId.put(id.value(), replacement);
+		if (idx >= 0) {
+			this.rails.set(idx, replacement);
+		} else {
+			this.rails.add(replacement);
+		}
+		return replacement;
+	}
+
 	/** Delete: retire the id (not reused) and remove the segment record. */
-	public RailSegment delete(RailId id) {
-		RailSegment seg = id == null ? null : this.byId.remove(id.value());
+	public RailSegment delete(RailId id) {		RailSegment seg = id == null ? null : this.byId.remove(id.value());
 		if (seg != null) {
 			this.rails.remove(seg);
 			seg.retire();

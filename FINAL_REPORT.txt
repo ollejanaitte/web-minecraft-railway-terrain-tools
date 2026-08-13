@@ -3530,3 +3530,12 @@ STEP R15-19 - selector GUI screenshot + final visual proof
   all captured in one run. Luna confirms selector GUI visible with [LOADED]/
   [PARTIAL] asset list, and BEFORE vs AFTER = SAME_GEOMETRY_DIFFERENT_APPEARANCE.
 - SHA-256 recorded for all screenshots.
+
+STEP R15-12 - Confirmed asset-only replace
+------------------------------------------
+- RailSegment.withAsset(newAssetId, newGaugeM): preserves railId/endpoints/cant/
+  lifecycle/derived path; only asset ref + version change (F4).
+- RailWorldData.replaceSegment: in-place swap by same RailId (validated).
+- RailsysProductionRailStore.replaceAsset + /railsys15 replace <railId> <assetId>.
+- Test r12_assetReplaceInvariance: railId/cant/length/endpoints unchanged,
+  asset changed, version bumped. Harness 296/0/3.

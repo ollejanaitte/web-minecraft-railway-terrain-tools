@@ -111,6 +111,33 @@ public final class RailsysModelPackCommands {
 				// Open the asset selector GUI (same UI as Shift+Right-click).
 				net.minecraft.railsys.placement.RailsysAssetSelector.open(player);
 				msg(player, "railsys15: selector opened");
+			} else if ("replace".equals(action)) {
+				// /railsys15 replace <railId> <assetId> — appearance-only
+				// replace on a CONFIRMED rail (F4: geometry unchanged).
+				if (args.length >= 4) {
+					net.minecraft.railsys.data.RailId id = null;
+					if (!net.minecraft.railsys.data.RailId.isValid(args[2])) {
+						msg(player, "railsys15: replace: malformed railId '" + args[2] + "'");
+					} else {
+						id = net.minecraft.railsys.data.RailId.parse(args[2]);
+						RailsysInternalAsset a = RailsysModelPackClient.asset(args[3]);
+						if (a == null || a.assetId.equals(RailsysAssetRegistry.FALLBACK_ASSET_ID)) {
+							msg(player, "railsys15: replace: unknown asset " + args[3]);
+						} else {
+							net.minecraft.railsys.data.RailSegment rep = RailsysProductionRailStore.getInstance()
+									.replaceAsset(id, a.assetId,
+											a.gaugeM != null ? a.gaugeM : 1.435D);
+							if (rep != null) {
+								msg(player, "railsys15: replaced " + id + " asset -> " + rep.assetId()
+										+ " (railId/path/length/gauge/cant unchanged)");
+							} else {
+								msg(player, "railsys15: replace failed (unknown/retired rail?)");
+							}
+						}
+					}
+				} else {
+					msg(player, "railsys15: replace <railId> <assetId>");
+				}
 			} else if ("help".equals(action) || "?".equals(action)) {
 				help(player);
 			} else {
