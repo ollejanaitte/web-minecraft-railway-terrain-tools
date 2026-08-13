@@ -3539,3 +3539,15 @@ STEP R15-12 - Confirmed asset-only replace
 - RailsysProductionRailStore.replaceAsset + /railsys15 replace <railId> <assetId>.
 - Test r12_assetReplaceInvariance: railId/cant/length/endpoints unchanged,
   asset changed, version bumped. Harness 296/0/3.
+
+STEP R15-15/16/17/18/19 - mutation guard + docs + Final Gate prep
+------------------------------------------------------------------
+- Mutation Guard: 9/9 violations detected + reverted (traversal, absolute path,
+  renderer allowlist, stable id, duplicate id, texture normalize, gauge->geom,
+  missing-mqo, F4 cant). Driver /tmp/opencode/mutation_r15.py (temp).
+- Docs written: R15_CONTRACT_TEST_MATRIX (25 tests), R15_MUTATION_GUARD_RESULTS
+  (9/9), R15_REAL_REFERENCE_PACK_PROOF, R15_NORMAL_WORLD_ACCEPTANCE,
+  R15_PRODUCTION_MODELPACK (design).
+- Final Gate: harness 296/0/3, mutation 9/9, protected SHA-256 unchanged,
+  secret scan clean, clean-room clean (no RTM assets), build green,
+  3-way sync at 25296223.
