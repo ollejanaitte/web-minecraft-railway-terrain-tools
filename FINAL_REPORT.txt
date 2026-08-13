@@ -3336,8 +3336,8 @@ STEP R13-09 - Final Validation + Final Report
 
 STEP R13-10 - Final sync record
 ----------------------------------
-- Final Report commit (pushed): 815f32353a04feb824a06d86e35bbf58d24937d4
+- Final Report commit (pushed): be496c41d96dedda376b8437ec40a522f1f5da95
   "docs: publish R13 final report + completion sync".
 - Final sync verified: local HEAD == origin/main == git ls-remote GitHub main
-  == 815f32353a04feb824a06d86e35bbf58d24937d4 (3-way match); staging empty.
+  == be496c41d96dedda376b8437ec40a522f1f5da95 (3-way match); staging empty.
 - Verdict recorded: PHASE 1-R13 VERDICT PASS. R14 ENTRY GATE OPEN.
