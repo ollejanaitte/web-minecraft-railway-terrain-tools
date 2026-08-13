@@ -105,6 +105,17 @@ val r15Measure = tasks.register<JavaExec>("r15Measure") {
 	workingDir = file(".")
 }
 
+// R16: measure corrected closed-loop geometry quality (quarter circle).
+// Run explicitly: ./gradlew r16Measure
+val r16Measure = tasks.register<JavaExec>("r16Measure") {
+	group = "verification"
+	description = "Measure R16 closed-loop corner/continuity/symmetry/closure."
+	classpath = sourceSets["harness"].runtimeClasspath
+	mainClass.set("railv2test.tools.R16LoopQualityMeasurement")
+	standardOutput = System.out
+	errorOutput = System.err
+}
+
 dependencies {
 	implementation(libs.bundles.common)
 }

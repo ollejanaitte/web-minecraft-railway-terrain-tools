@@ -3602,3 +3602,29 @@ STEP R15-23 - Final Gate + Sol GO + Final Report
 - Final Report: マイクラ鉄道_Phase1-R15_2026-08-13_20-28_ModelPackRTMCompatibility.txt
   Discordへ送信 + 完了通知。
 - VERDICT: GO (PASS). R16 entry gate OPEN.
+
+STEP R16-01..04 + R16-07..16 core - geometry correction + network
+-------------------------------------------------------------------
+- R16-01 root cause: StandardClosedLoopCourse.corner() used anchor handle=1.0
+  -> F2 Bezier controls at 0.33m from endpoints, corner hugged the chord
+  (14.16m vs true quarter-circle 15.71m) -> octagonal look. Proven numerically
+  (sagitta 0.18 vs 2.93m, mid radius 307 vs 10m).
+- R16-02 fix: corner anchors use handle = 3*k*r, k=4/3*(sqrt2-1)=0.5523
+  (standard quarter-circle cubic Bezier). Same F2 pipeline; only the handle
+  parameter changed. Verified: corner length 15.7102 vs 15.708, sagitta exact,
+  radius error <=0.078m, tangents exact, closure 0.
+- r16Measure tool + build.gradle task: all quality gates green
+  (corner lengths, sagitta, radius, position/tangent continuity 0, closure 0).
+- R16-07/08/09/11/12: network package (geometry-core):
+  NodeId, ConnectionId (stable, retired-never-reused), RailNode, RailConnection
+  (explicit connect: self/dup/position/tangent/gauge validation),
+  ProductionRailNetwork (registerNode/addEndpoint/connect/nodes/connections/
+  validateTopology/forwardCycle/reverseCycle/nextSegment/previousSegment),
+  EndpointSnap (position+tangent, ambiguous rejection), ClosedLoopTopology
+  (8 nodes + 8 connections for the loop).
+- R16-15 contract suite: RailsysR16NetworkSuite 33 tests (A geometry correction,
+  B curve continuity, C symmetry/closure, D node, E connection, F snap,
+  G continuous placement, H topology, I traversal, J crossing-without-connection,
+  K R15 ModelPack regression, L R10F/R13/R14 regression). Harness 333/0/3.
+- R14 loop06 test updated: total now ~222.84m (quarter-circle) vs old 216.64m
+  (chord) — documented improvement, not weakening.

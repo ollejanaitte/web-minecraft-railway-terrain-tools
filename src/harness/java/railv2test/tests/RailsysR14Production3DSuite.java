@@ -446,18 +446,18 @@ public final class RailsysR14Production3DSuite {
 
 	@Test
 	public static void loop06_totalLengthReasonable() {
-		// Rounded rectangle outer 40 x 80, corner r=10. The F2 corner is a
-		// Hermite->Bezier 90-degree arc (NOT a circular arc): measured arc
-		// length ~14.16 m vs circular 15.71 m. Loop total (4 straights + 4
-		// corners) is therefore:
-		//   4 corners * 14.16 + 2*(40-2r) + 2*(80-2r)
-		//   = 56.64 + 2*20 + 2*60 = 216.64 m.
+		// Rounded rectangle outer 40 x 80, corner r=10. R16-02 corrected the
+		// F2 corner to a TRUE quarter circle (handle = 3*k*r with
+		// k=4/3*(sqrt2-1)); measured corner arc ~15.71 m == circular arc.
+		// Loop total (4 straights + 4 corners):
+		//   4 corners * 15.71 + 2*(40-2r) + 2*(80-2r)
+		//   = 62.84 + 2*20 + 2*60 = 222.84 m.
 		List<RailSegment> loop = StandardClosedLoopCourse.courseA(0.0D, 0.0D, 40.0D, 80.0D, 10.0D,
 				1.435D, "railsys.straight_1435_wood");
 		double total = StandardClosedLoopCourse.totalLength(loop);
-		double expectedF2 = 4.0D * 14.159D + 2.0D * (40.0D - 20.0D) + 2.0D * (80.0D - 20.0D);
-		Assert.assertTrue(Math.abs(total - expectedF2) < 1.0D,
-				"R14Loop total ~F2 rounded-rect perimeter: " + total + " vs " + expectedF2);
+		double expectedQuarter = 4.0D * 15.708D + 2.0D * (40.0D - 20.0D) + 2.0D * (80.0D - 20.0D);
+		Assert.assertTrue(Math.abs(total - expectedQuarter) < 1.0D,
+				"R14Loop total ~quarter-circle rounded-rect perimeter: " + total + " vs " + expectedQuarter);
 	}
 
 	// ===================== helpers =====================

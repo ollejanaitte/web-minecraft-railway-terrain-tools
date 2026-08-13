@@ -39,6 +39,15 @@ public final class StandardClosedLoopCourse {
 	/** Support surface Y used by the course. */
 	public static final double COURSE_Y = 4.0D;
 
+	/**
+	 * Quarter-circle cubic Bezier control factor (R16-02).
+	 * k = 4/3*(sqrt(2)-1) ~= 0.55228475. For a circular arc of radius r the
+	 * optimal Bezier control distance from each endpoint is k*r. F2
+	 * (HorizontalBezierGeometry.fromAnchors) places controls at C1=P0+T0/3 with
+	 * |T0|=handle, so the corner anchors must use handle = 3*k*r ~= 1.656854*r.
+	 */
+	public static final double QUARTER_CIRCLE_K = 4.0D / 3.0D * (Math.sqrt(2.0D) - 1.0D);
+
 	private StandardClosedLoopCourse() {
 	}
 
@@ -163,6 +172,11 @@ public final class StandardClosedLoopCourse {
 	 * heading is startYaw is startYaw-90 for this CCW loop]; end point is
 	 * C + r*unit(endYaw-90). POS2 faces BACK (endYaw+180) so F2 reversed() end
 	 * tangent == endYaw.
+	 *
+	 * R16-02: the anchors use the quarter-circle-optimal handle
+	 * handle = 3*k*r (k = 4/3*(sqrt(2)-1)) so the F2 cubic Bezier follows a
+	 * true quarter circle instead of hugging the chord (the R14 "octagonal"
+	 * look). Same F2 pipeline, corrected control distance.
 	 */
 	private static RailSegment corner(int id, double ccx, double ccz, double r,
 			double startYaw, double endYaw, double gaugeM, String assetId, double maxCantDeg) {
@@ -174,10 +188,11 @@ public final class StandardClosedLoopCourse {
 		// endYaw-90.
 		double endX = ccx + r * unitX(endYaw - 90.0D);
 		double endZ = ccz + r * unitZ(endYaw - 90.0D);
+		double handle = 3.0D * QUARTER_CIRCLE_K * r;
 
-		AnchorDefinition a = new AnchorDefinition(startX, COURSE_Y, startZ, startYaw, 0.0D, 1.0D, 0.0D);
+		AnchorDefinition a = new AnchorDefinition(startX, COURSE_Y, startZ, startYaw, 0.0D, handle, 0.0D);
 		AnchorDefinition b = new AnchorDefinition(endX, COURSE_Y, endZ,
-				RailMath.wrapYaw(endYaw + 180.0D), 0.0D, 1.0D, 0.0D);
+				RailMath.wrapYaw(endYaw + 180.0D), 0.0D, handle, 0.0D);
 		double cant = Math.abs(maxCantDeg) > 1.0E-9D ? maxCantDeg : 0.0D;
 		return RailSegment.confirm(RailId.probe(id), a, b, cant, gaugeM, assetId, 1, null, 0, false);
 	}
