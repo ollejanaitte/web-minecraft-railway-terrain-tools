@@ -1,12 +1,12 @@
 # R16_CONTRACT_TEST_MATRIX — Phase 1-R16
 
 Date: 2026-08-13 JST
-Suite: `railv2test.tests.RailsysR16NetworkSuite` (42 tests, registered in
+Suite: `railv2test.tests.RailsysR16NetworkSuite` (47 tests, registered in
 Runner). Gate: any FAILED R16 contract test = R17 NOGO.
 
 ## Results
-- R16 suite: 42/42 PASS
-- Full harness: PASSED=342 FAILED=0 SKIPPED=3 (300 baseline + 42 R16)
+- R16 suite: 47/47 PASS
+- Full harness: PASSED=347 FAILED=0 SKIPPED=3 (300 baseline + 47 R16)
 - Mutation Guards: 12/12 detected + reverted
 
 ## Category -> test mapping
