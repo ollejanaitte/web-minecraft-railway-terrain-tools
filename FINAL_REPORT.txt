@@ -3026,3 +3026,17 @@ STEP R11-I - Screenshot / Visual Evidence
   only in combined batch (verified images are pixel-identical structure);
   RAIL_SAMPLING PASS. Screenshots recorded with SHA-256.
 - Commit: doc/research/phase1_r11/screenshots/ added.
+
+STEP R11-J - Final Validation + Final Report
+------------------------------------------------
+- Final Gate checks:
+  - Harness 207 PASS / 0 FAIL / 3 SKIP (R10F baseline intact; R11 changed no
+    product source).
+  - Production Build makeMainOfflineDownload BUILD SUCCESSFUL.
+  - Protected SHA-256 byte-identical.
+  - Secret scan clean; clean-room PASS (no RTM assets in repo).
+  - local == origin/main == GitHub main (3-way at report creation).
+- Final Report (actual JST 2026-08-13 10:19):
+  マイクラ_Phase1-R11_2026-08-13_10-19_RTMBehaviouralReverseEngineering.txt
+- Verdict: PHASE 1-R11 VERDICT PASS. R12 ENTRY GATE OPEN.
+- Discord: completion notification + Final Report txt + diagram PNGs sent.

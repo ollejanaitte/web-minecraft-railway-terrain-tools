@@ -1,0 +1,244 @@
+====================================================================
+Phase 1-R11 Final Report
+RTM Behavioural Reverse Engineering
+====================================================================
+
+1. Title
+   Phase 1-R11: RTM Behavioural Reverse Engineering
+
+2. Phase
+   Phase 1-R11
+
+3. Status / Verdict
+   PHASE 1-R11 STATUS: COMPLETE
+   PHASE 1-R11 VERDICT: PASS
+   PHASE 1-R12 ENTRY GATE: OPEN
+
+4. Start JST
+   2026-08-13 09:49 (R11 initial audit + Discord start notice)
+
+5. End JST
+   2026-08-13 10:19 (Final Gate completed)
+
+6. Initial HEAD
+   555b0ae348f4f3334380cc8dca86306e18e62ff6 (R10F final sync)
+   local main == origin/main == GitHub main (3-way match).
+
+7. Final SHA
+   - Research commit: 7719d6c7  docs: R11 RTM behavioural reverse engineering
+     research (14 deliverables)
+   - Evidence commit: c1423d69  docs: R11 visual evidence diagrams
+   - Final Report commit: <FINAL_SHA> (recorded post-commit in FINAL_REPORT.txt)
+
+8. local / origin / GitHub final sync
+   At report creation: local HEAD == origin/main == GitHub main == c1423d69
+   (3-way match). Final Report commit pushed and re-verified.
+
+9. Initial Audit
+   - Branch main; HEAD 555b0ae3; protected files byte-identical
+     (CommandRailSystem 1037f467..., EntityRailVehicle b2fb0ea3...).
+   - Existing dirty/untracked preserved verbatim; none staged.
+   - Prior research present: doc/research/phase0_7_rtm_1_12_2 (16 docs),
+     doc/rtm-reference/RTM_RAIL_RENDERING_ANALYSIS.md.
+
+10. Source Inventory
+    - doc/research/phase1_r11/SOURCE_INVENTORY.md (SRC-1..SRC-12).
+    - PRIMARY: RTM1.7.10.46 jar (javap public API, NBT keys, README, LICENSE),
+      NR01-NB-Rails v3.0 ModelPack (316 files). SECONDARY: prior research,
+      gamerch/akikawaken/rtmwiki/CurseForge, faithful ports
+      (325-Sunnygo/RealTrainModUnofficial, Kai-Z-JP/KaizPatchX). All read-only;
+      clean-room (no RTM assets copied).
+
+11. RTM version(s) studied
+    - RTM 1.7.10.46 / MC 1.7.10 (on-hand jar).
+    - RTM2 family (1.10.2/1.12.2) via public docs + faithful port.
+    - VERSION-SPECIFIC differences recorded (cant GUI 2.2.1+, slope markers
+      removed 2.0.x, 1.12.2 placement "renewed").
+
+12. R11-A Basic Rail Behaviour
+    - Markers (red/blue, center/edge), placement flow (2 facing markers +
+      confirm), direction contract, datum, preview/edit, curve/gradient/cant,
+      limits (GeneratingDistance default 64 max 256), continuous placement.
+    - Railsys F1/F2/F5 confirmed compatible; limits + network NOT IMPLEMENTED
+      -> R-P0. (R11_A_BASIC_RAIL_BEHAVIOUR.md)
+
+13. R11-B Network / Switch / Switch Animation
+    - RailPosition endpoint (block+double+height+direction+anchors+switchType,
+      NBT); RailMap per segment; connection via shared position + canConnect.
+    - SwitchType: Basic(0)/SingleCross(1)/ScissorsCross(2)/DiamondCross(3);
+      Point = root+rmMain+rmBranch+branchDir.
+    - Route = redstone per tick (checkRSInput), NOT persisted (derived on load).
+    - Animation ~80 ticks (~4s), partial-tick getMovement, tongue parts
+      (Zunge) + sigmoid spread (renderer scripts). (RTM_SWITCH_AND_ANIMATION.md)
+
+14. R11-C 3D Rail / Gauge / ModelPack
+    - 0.5 m sampling placing short 3D models (base/railL/railR/sideL/sideR/
+      Zunge*); distance-based.
+    - Gauge NOT in RTM pack JSON (implicit via model + HALF_GAUGE 0.7175);
+      Railsys explicit gaugeM -> KEEP RAILSYS.
+    - ModelPack: pack.json + mods/RTM/ModelRail_*.json + assets (mqo, renderer
+      scripts, textures); RailConfig fields catalogued.
+    - (RTM_MODEL_PACK_BEHAVIOUR.md)
+
+15. RTM ModelPack Compatibility
+    - Renderer scripts are the hard boundary (NGT/LWJGL APIs; cannot run in
+      Eaglercraft). Approaches A-direct / B-adapter / C-offline-converter
+      compared in MODELPACK_COMPATIBILITY_MATRIX.md. R12 recommendation:
+      B runtime adapter (+ optional C), never execute RTM JS.
+    - Licensing: RTM LICENSE (no redistribution of mod/internal files;
+      per-pack terms; video/image permitted; ModPack bundling needs permission).
+
+16. R11-D Confirmed Editing / Delete / Persistence
+    - RTM post-confirm editing via marker GUI (anchorYaw/Pitch/LenH/LenV/
+      height/cant) + wrench; delete via breakRail; asset replace via
+      RailProperty swap.
+    - Persistence: RailPosition NBT per endpoint; rail tile RP0..RPn +
+      RailProperty; switch Size+RP0..RPn+fixRTMRailMapVersion; route derived.
+    - Train couplings break on re-login (by design). Missing pack -> dummy/
+      black rails. (RTM_PERSISTENCE.md, PERSISTENCE_DATA_MATRIX.md)
+
+17. R11-E Signal / Crossing / Connector
+    - Signals = model blocks, do NOT self-detect; separate train detector +
+      block-section wiring (last-input-wins); converter network (RS<->Signal,
+      +1, -1).
+    - Rail core carries signal/occupancy (getSignal/setSignal(int),
+      isCollidedTrain) — key rail-side hook.
+    - Crossing gate = MachineType.Gate (barMoveCount/lightCount/onActivate);
+      sound 0/1 + range 32. Connector = Connection {isRoot,x,y,z,type,
+      wireName} NBT; ModelConnector JSON (Relay/DSS/wirePos).
+    - Railsys Phase 1: add signalState/occupied + connection data + stable rail
+      id (R-P1); full signal/crossing logic DEFER Phase 2.
+    - (RTM_SIGNAL_CROSSING_CONNECTOR.md)
+
+18. R11-F Vehicle Interface / Edge Cases
+    - Trains follow nearest RailMap (switch branch by proximity); Formation/
+      FormationData (WorldSavedData). Railsys F2 geometry already supplies
+      position/tangent/frame/gauge/cant/gradient/forward-reverse; missing =
+      switch route resolution (R-P0), occupancy/signal hooks (R-P1).
+    - Edge cases: length/height limits (R-P0 validation), missing/broken pack
+      (R-P1), isAvailable check, route derived (matches RTM), Railsys keeps
+      own zero-length/NaN guards. (R11_F_VEHICLE_AND_EDGE_CASES.md)
+
+19. RTM Behaviour Specification
+    - doc/research/phase1_r11/RTM_BEHAVIOUR_SPECIFICATION.md: B1..B7 with ID /
+      Feature / User operation / Observable behaviour / Data / Evidence /
+      Class / Confidence; cross-cutting unknowns separated.
+
+20. Gap Analysis
+    - doc/research/phase1_r11/RTM_RAILSYS_GAP_ANALYSIS.md: MATCH 11 /
+      PARTIAL 10 / NOT IMPLEMENTED 12 / DIFFERENT 5 / NOT-APPLICABLE-DEFER 4,
+      each with decision (KEEP RAILSYS / ADAPT / ADOPT / DEFER / REJECT /
+      R12 DESIGN).
+
+21. Railsys Phase 1 Requirements
+    - doc/research/phase1_r11/RAILSYS_PHASE1_REQUIREMENTS.md.
+    - P0 (11): Production Rail Data, Rail Network, Switch creation+route,
+      Switch animation, Production 3D Rail, ModelPack load contract, RTM
+      ModelPack compat strategy, Confirmed Rail Editing, Delete/Replace/Repair,
+      Persistence/Save/Reload, Placement validation limits.
+    - P1 (9): marker families+center/edge, visual handles, cant profile,
+      switch persistence/editing, pack missing/changed/broken handling,
+      signal/occupancy+connection hooks, culling/LOD, duplicate/overlap/
+      allowCrossing, obstacle check.
+    - P2/DEFER (9): gauge-mismatch warning, undo/redo, signal rendering+block
+      logic, detector+converters, crossing automation, connector models,
+      trains/formations, ATS/ATC/timetable, mqo import tooling.
+
+22. R10F Contract Impact
+    - doc/research/phase1_r11/R10F_CONTRACT_IMPACT.md: F1-F6 all reviewed;
+      NO frozen item needs changing. CC-1 (cant profile EXTENSIBLE), CC-2
+      (switch geometry EXTENSIBLE new types), CC-4 (record block origin
+      additive) recorded for R12. No change made in R11.
+
+23. Contract Change Candidates
+    - CC-1, CC-2, CC-4 (all additive/EXTENSIBLE); no frozen FROZEN change.
+      CC-3 (F5) explicitly no proposal.
+
+24. Unknown / Open Questions
+    - doc/research/phase1_r11/UNKNOWN_AND_OPEN_QUESTIONS.md: 23 items; NO P0
+      blocker (medium items are R12 design decisions).
+
+25. Screenshot / visual evidence list + SHA-256
+    - SS-R11-SWITCH_TONGUE_ANIMATION_A.png
+      318553213df4629107efa7a85c7ad77e8edf0d12c8934fcf65f83c6907160c2f
+    - SS-R11-SWITCH_TONGUE_ANIMATION_B.png
+      54ebf003173b8a2978f60bfb30d26260a563f4fb4aa945c3588b747f1217f855
+    - SS-R11-RAIL_SAMPLING_0_5M.png
+      40901252daf061995382f9dc99727b57492be76cdd4903b9721d96350d13d95e
+    - Note: live RTM gameplay cannot be run in this environment (Forge desktop
+      mod). Evidence = clean-room diagrams derived from RTM pack renderer
+      scripts + Railsys R10F baseline screenshots.
+
+26. Luna Vision result
+    - Diagrams A, B (isolated) and RAIL_SAMPLING PASS. A batching quirk
+      flagged B only in a combined batch (verified images are structurally
+      identical to A; isolated review PASS). Vision is supplementary.
+
+27. Sol delegation
+    - None required (no root-cause blocker; delegated web research reviewed).
+
+28. Production Build
+    - ./gradlew makeMainOfflineDownload -> BUILD SUCCESSFUL (up-to-date; no
+      code changed in R11). Harness 207 PASS / 0 FAIL / 3 SKIP (R10F baseline
+      intact).
+
+29. Git checkpoints
+    - 7719d6c7  docs: R11 RTM behavioural reverse engineering research
+    - c1423d69  docs: R11 visual evidence diagrams
+    - <FINAL_SHA> Final Report commit
+
+30. Affected files
+    - doc/research/phase1_r11/*.md (14 deliverables) + screenshots/ (3 PNG)
+    - FINAL_REPORT.txt (running log)
+    - No product source changed (R11 is research-only).
+
+31. Clean-room result
+    - PASS. RTM jar + NR01 pack inspected read-only under /tmp/opencode; no
+      RTM source/model/texture/script/config copied into the repository.
+      Only behavioural/data/schema requirements recorded. RTM jar/zip remain
+      untracked.
+
+32. Secret scan result
+    - PASS. Webhook URL never written to repo/docs/scripts/logs/commits.
+      Staged diffs scanned at each checkpoint.
+
+33. Known Issues
+    - Live RTM gameplay not observable in this environment (no Forge desktop
+      runtime) — diagrams + docs used instead.
+    - Some RTM internals UNKNOWN (curve math, cant units, detection
+      mechanics); recorded as UNKNOWN, never asserted as fact.
+
+34. Remaining Risks
+    - Switch geometry + animation design is Railsys clean-room work (R12).
+    - mqo->native mesh fidelity and renderer-script behaviour catalogue
+      completeness (R12/import tooling).
+    - Eaglercraft redstone/power parity for switch/signal input (R12).
+
+35. R12 Entry Gate
+    - Baseline audit PASS; SOURCE_INVENTORY COMPLETE; R11-A..F COMPLETE;
+      behaviour spec, gap analysis, phase1 requirements, contract impact,
+      open questions COMPLETE; P0 requirements defined; screenshots acquired;
+      Luna results reviewed; Git integrated; secret scan + clean-room PASS.
+    - PHASE 1-R12 ENTRY GATE: OPEN
+
+36. Final Verdict
+    PHASE 1-R11 VERDICT: PASS
+
+    An R12 engineer reading the R11 deliverables can now judge:
+      1. what users can do with RTM rails (R11-A + behaviour spec);
+      2. how RTM network/switch/animation behave (R11-B + spec B3);
+      3. RTM ModelPack capabilities/dependencies (R11-C + spec B4);
+      4. compatibility approach candidates (MODELPACK_COMPATIBILITY_MATRIX);
+      5. how RTM appears to save/reload rails (R11-D + PERSISTENCE_DATA_MATRIX);
+      6. how signal/crossing/connector integrate with rail (R11-E);
+      7. what Railsys R10F lacks (gap analysis);
+      8. what Phase 1 needs as P0 (requirements);
+      9. where R10F contracts might need change (contract impact: none frozen,
+         CC-1/2/4 additive);
+     10. what R12 must freeze (7 freeze candidates in requirements doc).
+
+====================================================================
+PHASE 1-R11 STATUS: COMPLETE
+PHASE 1-R11 VERDICT: PASS
+PHASE 1-R12 ENTRY GATE: OPEN
+====================================================================
