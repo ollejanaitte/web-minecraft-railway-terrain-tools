@@ -87,11 +87,11 @@ public final class RailProfile {
 	/** Default Railsys 1435 profile (R14 production baseline, original). */
 	public static RailProfile default1435() {
 		return new RailProfile(
-				0.070D, 0.045D,  // head w/h
-				0.040D, 0.070D,  // web w/h
-				0.110D, 0.020D,  // foot w/h
+				0.120D, 0.055D,  // head w/h
+				0.055D, 0.080D,  // web w/h
+				0.160D, 0.025D,  // foot w/h
 				1.435D,          // gauge
-				70, 70, 75,      // rail colour
+				88, 88, 100,     // rail colour
 				true, 0.60D, 2.20D, 0.20D, 0.16D, 0.02D, 120, 90, 60,  // sleeper
 				true, 0.60D,     // fastener
 				false, 0.0D, 0.0D, 0, 0, 0,  // ballast off
