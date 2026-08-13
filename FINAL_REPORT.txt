@@ -3581,3 +3581,13 @@ STEP R15-21 - Sol review round 2 fixes
 - Real-pack duplicate railName pairs confirmed (2 pairs -> 88/90 registered;
   duplicate rejection working as designed; b01 asserts dupes==2).
 - Harness 300/0/3; mutation 9/9 (re-verified after commit).
+
+STEP R15-22 - Sol review round 3 fixes
+--------------------------------------
+- RailSegment javadoc: gauge snapshot is AUTHORITATIVE for rendering; asset
+  gauge is metadata only; withGaugeSnapshot documented as an explicit R12
+  geometry-changing gauge refresh (never called by R15 asset replace).
+- g01 test wording: asset gauge NEVER applied to geometry (segment snapshot
+  used), matching the game bridge exactly.
+- Clean rebuild performed (eliminates any mutation-contaminated bytecode).
+  Harness 300/0/3, mutation 9/9.

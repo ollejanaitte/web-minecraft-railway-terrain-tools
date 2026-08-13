@@ -160,15 +160,19 @@ public final class RailSegment {
 		return this.cantDeg;
 	}
 
-	/** DERIVED gauge snapshot (asset is authoritative). */
+	/** DERIVED gauge snapshot — AUTHORITATIVE for rendering rail offsets
+	 * (R15 F4: asset gauge is metadata only; never overrides this snapshot). */
 	public double gaugeM() {
 		return this.gaugeM;
 	}
 
 	/**
 	 * DERIVED gauge refresh API (R12-A §2): returns a copy with the gauge
-	 * snapshot refreshed from the (authoritative) asset at save/render. The
-	 * rail id, endpoints, asset ref, cant and lifecycle are preserved.
+	 * snapshot updated to an EXPLICIT new value (e.g. a deliberate gauge edit,
+	 * NOT an asset switch). The rail id, endpoints, asset ref, cant and
+	 * lifecycle are preserved. This is a geometry-changing operation by
+	 * design (R12 gauge refresh). Phase 1-R15 asset-only replace
+	 * (RailSegment.withAsset) NEVER calls this and preserves the snapshot.
 	 */
 	public RailSegment withGaugeSnapshot(double newGaugeM) {
 		RailSegment copy = new RailSegment(this.railId, this.kind, this.endpointA, this.endpointB,

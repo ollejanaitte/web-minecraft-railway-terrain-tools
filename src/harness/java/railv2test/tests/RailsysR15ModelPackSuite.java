@@ -464,13 +464,13 @@ public final class RailsysR15ModelPackSuite {
 		net.minecraft.railsys.render.ProductionRailMesh m1 =
 				net.minecraft.railsys.render.ProductionRailMeshBuilder.build(path, defProfile, 0.25D, 32.0D);
 
-		// ModelPack asset profile (concrete). The appearance profile maps gauge
-		// from the asset and NEVER touches the path (F4). We build a
-		// geometry-core-only profile that mimics the game bridge: same
-		// cross-section dims, gauge from the asset (1.435), ballast on, and a
-		// rail colour derived from the rail id.
+		// ModelPack asset profile (concrete). The appearance profile NEVER
+		// touches the path or the gauge (F4): the game bridge keeps the SEGMENT
+		// gauge snapshot authoritative and uses asset gauge only as metadata.
+		// We mirror that here: same cross-section dims, SAME gauge (segment
+		// snapshot 1.435), ballast on, and a rail colour derived from the id.
 		net.minecraft.railsys.render.RailProfile def = net.minecraft.railsys.render.RailProfile.default1435();
-		double g = concrete.gaugeM != null ? concrete.gaugeM : 1.435D;
+		double g = 1.435D; // segment gauge snapshot (asset gauge NEVER applied)
 		boolean ballast = concrete.ballastBlock != null && !concrete.ballastBlock.isEmpty()
 				&& !concrete.ballastBlock.equalsIgnoreCase("air");
 		net.minecraft.railsys.render.RailProfile mp = new net.minecraft.railsys.render.RailProfile(
