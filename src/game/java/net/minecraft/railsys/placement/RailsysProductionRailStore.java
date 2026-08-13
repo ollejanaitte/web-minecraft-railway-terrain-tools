@@ -93,12 +93,19 @@ public final class RailsysProductionRailStore {
 	}
 
 	/**
-	 * R13 world-binding note (Sol review, R23 owner): R13 holds ONE in-memory
-	 * store for the running world (persistence + per-world binding land in R23).
-	 * This reset is provided so a world-session change can clear rails + ids
-	 * explicitly; it is NOT a production persistence API.
+	 * R13 world-binding (Sol review, R23 owner): R13 holds ONE in-memory store
+	 * for the running world; per-world persistence/binding lands in R23. This
+	 * is invoked by the render-manager world-restore hook when a NEW world is
+	 * entered, so rails + retired ids do not leak across world sessions. The id
+	 * COUNTER is intentionally NOT reset (monotonic across worlds prevents any
+	 * reuse/collision); only active rails + retired set are cleared.
 	 */
 	public synchronized void resetForNewWorld() {
 		this.worldData.clearAll();
+	}
+
+	/** Invoked when the integrated world restore sees a new world object. */
+	public static void onWorldEnter() {
+		getInstance().resetForNewWorld();
 	}
 }
