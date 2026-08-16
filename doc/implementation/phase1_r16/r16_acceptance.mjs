@@ -134,7 +134,12 @@ function launchChrome(guiMode, profileDir) {
   const args = ['--no-sandbox', '--no-first-run', '--no-default-browser-check',
     '--autoplay-policy=no-user-gesture-required', '--mute-audio', '--hide-scrollbars',
     '--window-size=1280,720', `--user-data-dir=${profileDir}`, `--remote-debugging-port=${PORT}`];
-  if (guiMode !== 'gui') args.push('--headless=new', '--use-gl=angle', '--use-angle=swiftshader');
+  if (guiMode !== 'gui') {
+    args.push('--headless=new', '--use-gl=angle');
+    const gpu = process.env.GPU_MODE || 'vulkan';
+    if (gpu === 'swiftshader') args.push('--use-angle=swiftshader', '--enable-unsafe-swiftshader');
+    else args.push('--use-angle=vulkan');
+  }
   args.push('file://' + INSTR);
   const child = spawn('/opt/google/chrome/chrome', args, { detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
   child.stdout.on('data', (d) => writeFileSync(resolve(LOGD, 'chrome_stdout.log'), d.toString(), { flag: 'a' }));

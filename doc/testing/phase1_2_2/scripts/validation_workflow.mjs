@@ -291,7 +291,10 @@ function launchChrome(guiMode) {
   const args = ['--no-sandbox', '--no-first-run', '--no-default-browser-check', '--autoplay-policy=no-user-gesture-required', '--mute-audio', '--hide-scrollbars', '--window-size=1280,720', `--user-data-dir=${PROFILE}`];
   if (!isGui) {
     args.push('--headless=new', `--remote-debugging-port=${PORT}`);
-    args.push('--use-gl=angle', '--use-angle=swiftshader');
+    args.push('--use-gl=angle');
+    const gpu = process.env.GPU_MODE || 'vulkan';
+    if (gpu === 'swiftshader') args.push('--use-angle=swiftshader', '--enable-unsafe-swiftshader');
+    else args.push('--use-angle=vulkan');
   } else {
     args.push('--remote-debugging-port=' + PORT);
   }
