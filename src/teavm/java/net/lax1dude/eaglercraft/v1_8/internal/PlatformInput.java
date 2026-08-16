@@ -94,6 +94,7 @@ public class PlatformInput {
 	private static EventListener<?> gamepaddisconnected = null;
 	private static EventListener<?> keydown = null;
 	private static EventListener<?> keyup = null;
+	private static EventListener<?> compositionend = null;
 	private static EventListener<?> touchKeyboardOpenZone_touchstart = null;
 	private static EventListener<?> touchKeyboardOpenZone_touchend = null;
 	private static EventListener<?> touchKeyboardOpenZone_touchmove = null;
@@ -578,6 +579,27 @@ public class PlatformInput {
 				}
 			}
 		});
+		// IME (composition) committed text support: browsers deliver committed
+		// Japanese/Unicode text via compositionend (not keydown), so route it
+		// through the same paste path (pastedStrings -> CLIPBOARD_PASTE).
+		win.addEventListener("compositionend", compositionend = new EventListener<Event>() {
+			@Override
+			public void handleEvent(Event evt) {
+				if(!ClientMain.integratedServerCrashPanelShowing) {
+					evt.preventDefault();
+					evt.stopPropagation();
+				}
+				String data = getCompositionEventData(evt);
+				if(data != null && data.length() > 0) {
+					synchronized(pastedStrings) {
+						pastedStrings.add(data);
+						if(pastedStrings.size() > 64) {
+							pastedStrings.remove(0);
+						}
+					}
+				}
+			}
+		});
 		touchKeyboardOpenZone.addEventListener("touchstart", touchKeyboardOpenZone_touchstart = new EventListener<TouchEvent>() {
 			@Override
 			public void handleEvent(TouchEvent evt) {
@@ -813,6 +835,9 @@ public class PlatformInput {
 
 	@JSBody(params = { "evt" }, script = "return (typeof evt.code === \"string\");")
 	private static native boolean hasCodeVar(KeyboardEvent evt);
+
+	@JSBody(params = { "evt" }, script = "return evt.data;")
+	private static native String getCompositionEventData(Event evt);
 
 	@JSBody(params = { "evt" }, script = "return evt.keyIdentifier;")
 	private static native String getKeyIdentifier(KeyboardEvent evt);
@@ -1511,6 +1536,10 @@ public class PlatformInput {
 		if(keyup != null) {
 			win.removeEventListener("keyup", keyup);
 			keyup = null;
+		}
+		if(compositionend != null) {
+			win.removeEventListener("compositionend", compositionend);
+			compositionend = null;
 		}
 		if(focus != null) {
 			win.removeEventListener("focus", focus);

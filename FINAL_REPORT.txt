@@ -3832,3 +3832,14 @@ STEP VVF-05 - FULL gate 実測
   実測 69〜75秒 (Chrome起動→タイトル→ワールド作成→チャット6回→6スクリーンショット→クリーンアップ)。
 - 従来 (SwiftShader, R16/R17 acceptance): 1回5〜8分, かつPhase毎に2〜3回実行。
 - FAST gate: 実測約11秒 (build + harness 368/0/3)。
+
+STEP VVF-06 - 日本語IME (composition) 確定文字の入力対応
+-------------------------------------------------------
+- 実機検証の結果、日本語表示は正常 (グリフIoU=1.000) だったが、デスクトップIMEの
+  確定文字は keydown でなく compositionend で届くため、ゲームが受け取れず
+  日本語を入力できないケースがあることが判明。
+- 修正: PlatformInput.java に compositionend リスナーを追加。確定文字列を
+  既存の貼り付け経路 (pastedStrings -> CLIPBOARD_PASTE -> GuiTextField) へ投入。
+- 検証: 合成 CompositionEvent (data=日本語) を window へ dispatch し、
+  チャット入力欄へ「日本語」が挿入・描画されることを実機確認 (glyph形状一致)。
+- 変換中プレビューは意図的に未対応 (確定時のみ挿入。混入を防止)。

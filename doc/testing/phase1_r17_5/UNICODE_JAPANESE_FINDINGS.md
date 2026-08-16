@@ -58,17 +58,43 @@
    → チャットログに `<PlayerName> 日本語テスト...` が表示 → グリフIoU=1.000
 3. 対照として ASCII メッセージ送信 → 正常描画（回帰なし）
 
-## 3. 残課題（入力側・既知の制限）
+## 3. 修正: IME (composition) 確定文字の入力対応
 
-- デスクトップの日本語IMEの composition（変換中・確定）イベントには未対応。
-  直接のキーボード入力が一部環境で確定文字が届かない可能性がある。
-  - 代替: モバイル/タッチキーボードは composition 対応済み。
-  - 代替: Ctrl+V の貼り付け（CLIPBOARD_PASTE 経由）で日本語を入力可能。
-- これは表示ではなく入力側の制限であり、本作業の「表示」要件には影響しない。
+表示は正常に動作する一方、デスクトップ日本語IMEの確定文字は keydown ではなく
+`compositionend` イベントで届くため、ゲームが受け取れず日本語を入力できない
+ケースがあった。これを修正した。
 
-## 4. 成果物
+### 変更内容 (src/teavm/.../PlatformInput.java)
 
-- `doc/testing/phase1_r17_5/unicode_font_test.mjs` … 日本語表示の最小確認テスト
-- `doc/testing/phase1_r17_5/screenshots/fonttest3_*.png` … 実機スクリーンショット
+- `window` に `compositionend` リスナーを追加。
+- 確定文字列 (`event.data`) を既存の貼り付け経路 `pastedStrings` へ投入。
+- ゲームは毎tick `Touch.getPastedString()` をポーリングし、
+  `CLIPBOARD_PASTE` → GuiTextField.writeText() でフォーカス中の入力欄へ挿入。
+  （既存のペースト/タッチキーボードと同一の安全な経路を再利用）
+- `@JSBody` で `event.data` を取得（TeaVM JSO API に CompositionEvent が無いため）。
+
+### 検証 (実機)
+
+- CDP の `Input.imeSetComposition` / `Input.insertText` は canvas ページでは
+  イベントが発火しないため、実ブラウザ相当の合成 `CompositionEvent` を
+  `window` へ dispatch して検証。
+- 結果: チャット入力欄に「日本語」が正しく挿入・描画された（グリフ形状一致、
+  日・本・語の位置も想定どおり）。
+- 実ブラウザのIMEで `compositionend` がページへ届く構成（Chrome/Firefox の
+  canvas ゲーム向け挙動）であれば、確定した日本語がそのまま入力される。
+
+## 4. 残課題・既知の制限
+
+- IMEの変換中プレビュー（compositionupdate）のライブ表示には未対応。
+  確定時（compositionend）のみ挿入する仕様（変換中の文字が消える・混ざる問題を回避）。
+- 一部ブラウザ/OS で compositionend がページへ届かない場合は、従来どおり
+  Ctrl+V 貼り付け（CLIPBOARD_PASTE）で入力可能。
+- 表示側は完全に正常（グリフIoU=1.000で確認済み）。
+
+## 5. 成果物
+
+- `doc/testing/phase1_r17_5/unicode_font_test.mjs` … 日本語表示 + IME確定の確認テスト
+- `doc/testing/phase1_r17_5/screenshots/fonttest3_*.png` … 表示確認スクリーンショット
+- `doc/testing/phase1_r17_5/screenshots/imetest4_*.png` … IME確定確認スクリーンショット
 - 実行: `./run-full-gate.sh doc/testing/phase1_r17_5/unicode_font_test.mjs`
-  （既定 HW Vulkan、全体タイムアウト付き、実測約69秒）
+  （既定 HW Vulkan、全体タイムアウト付き、実測約70〜100秒）

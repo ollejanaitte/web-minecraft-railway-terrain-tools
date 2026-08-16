@@ -120,6 +120,14 @@ class CDP {
     await this.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
     await this.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
   }
+  async imeComposition(text, selStart, selEnd) {
+    await this.send('Input.imeSetComposition', { text, selectionStart: selStart, selectionEnd: selEnd });
+    await sleep(200);
+  }
+  async insertText(text) {
+    await this.send('Input.insertText', { text });
+    await sleep(200);
+  }
   async pressEscape() {
     await this.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
     await this.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
@@ -317,6 +325,29 @@ async function main() {
     await c.enter();
     await sleep(1800);
     await c.shot(resolve(S, RUN_ID + '_CHAT_ASCII_SENT.png'));
+
+    // 4) IME composition path: emulate Japanese IME via CDP composition events.
+    const op4 = await openChatRobust(c);
+    if (op4.prefilled) {
+      await c.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 });
+      await c.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 });
+      await sleep(200);
+    }
+    // debug: capture composition/input events fired on window
+    await c.eval(`window.__evtLog = []; for (const t of ['compositionstart','compositionupdate','compositionend','input','keydown','keyup']) { window.addEventListener(t, (e) => { window.__evtLog.push(t + ':' + (e.data||'') + ':' + (e.isComposing?'C':'')); }); } 'ok'`);
+    await c.imeComposition('にほん', 3, 3);          // composing: nihon
+    await sleep(400);
+    await c.insertText('日本語');                      // commit -> 日本語
+    await sleep(600);
+    const evtLog1 = await c.eval('(window.__evtLog||[]).join(" | ")');
+    log('EVTLOG_CDP ' + evtLog1);
+    // Direct synthetic compositionend (delivered to the game window handler):
+    // verifies the handler -> pastedStrings -> CLIPBOARD_PASTE path end-to-end.
+    await c.eval(`window.__evtLog = []; window.dispatchEvent(new CompositionEvent('compositionend', { data: '日本語', bubbles: true })); 'ok'`);
+    await sleep(800);
+    const evtLog2 = await c.eval('(window.__evtLog||[]).join(" | ")');
+    log('EVTLOG_SYNTHETIC ' + evtLog2);
+    await c.shot(resolve(S, RUN_ID + '_CHAT_IME_COMMITTED.png'));
 
     log('=== SUMMARY ===');
     log('japanese="' + JAPANESE + '"');
