@@ -110,3 +110,8 @@ doc/implementation/phase1_r16/instrumented.html
 doc/implementation/phase1_r17/profiles/
 doc/implementation/phase1_r17/logs/
 doc/implementation/phase1_r17/instrumented.html
+
+# Phase 1.17.5 runtime profiles / generated instrumented HTML / diagnostic logs
+/doc/testing/phase1_r17_5/profiles/
+/doc/testing/phase1_r17_5/instrumented.html
+/doc/testing/phase1_r17_5/logs/

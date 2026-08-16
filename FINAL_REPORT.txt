@@ -3812,3 +3812,23 @@ STEP VVF-03 - FAST/FULL分離 + タイムアウト実装
 - acceptance.mjs (r16/r17) と validation_workflow.mjs の headless GPU を
   vulkan 標準へ修正。swiftshader は明示フォールバック (--enable-unsafe-swiftshader)。
 - 設計: doc/testing/VISUAL_VALIDATION_FAST_FULL.md
+
+STEP VVF-04 - 日本語Unicode表示の調査（実機検証）
+------------------------------------------------
+- EPK解析: glyph_sizes.bin / unicode_page_*.png / ja_JP.lang は正しく梱包済み。
+  日本語ページは実グリフを保持。資産欠落は無し (最初期コミットから追跡)。
+- 描画経路: FontRenderer.renderUnicodeChar が日本語を描画。EaglerFontRenderer は
+  ASCII最適化のみで日本語はバニラ経路へ正しくフォールバック。
+- 実機テスト (unicode_font_test.mjs, FULL gate経由 実測69秒):
+  - チャット入力欄に「日本語テスト 鉄道 車両 接続 分岐器」→ グリフIoU=1.000
+  - 送信メッセージのチャットログ → グリフIoU=1.000
+  - ASCII対照 → 正常 (回帰なし)
+- 結論: 現行ビルドでは日本語表示は正常動作。入力側のIME composition制限は
+  既知の制限 (表示に非影響、ペーストで代替可能)。軽量テストを追加。
+
+STEP VVF-05 - FULL gate 実測
+-----------------------------
+- run-full-gate.sh + unicode_font_test.mjs (HW Vulkan headless):
+  実測 69〜75秒 (Chrome起動→タイトル→ワールド作成→チャット6回→6スクリーンショット→クリーンアップ)。
+- 従来 (SwiftShader, R16/R17 acceptance): 1回5〜8分, かつPhase毎に2〜3回実行。
+- FAST gate: 実測約11秒 (build + harness 368/0/3)。
