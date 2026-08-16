@@ -3843,3 +3843,16 @@ STEP VVF-06 - 日本語IME (composition) 確定文字の入力対応
 - 検証: 合成 CompositionEvent (data=日本語) を window へ dispatch し、
   チャット入力欄へ「日本語」が挿入・描画されることを実機確認 (glyph形状一致)。
 - 変換中プレビューは意図的に未対応 (確定時のみ挿入。混入を防止)。
+
+STEP VVF-07 - FULL gate 実測の補正と回帰確認
+---------------------------------------------
+- R17 acceptance を同一スクリプトで比較:
+  HW Vulkan 194秒 / SwiftShader 209秒 (約7%差, いずれもPASS)。
+  acceptance は固定スリープ・チャット待機が主体のため単発の壁時計は近い。
+  HW Vulkan の効果はCPU負荷低減とフリーズ・ハング起因の失敗/リトライ減少(安定化)。
+- 遅延の主因は「開発ループ毎にFULL実行+失敗時リトライ+Phase毎2〜3回実行」。
+  FAST gate (4〜11秒) で通常開発を軽量化。
+- 回帰: FAST gate PASS (harness 368/0/3), r16Measure/r17Measure PASS,
+  R17 acceptance PASS (FULL gate 194秒), ビルド PASS。
+- 保護ファイル (CommandRailSystem/EntityRailVehicle) は未変更のまま維持。
+- コミット: 4c7fe0b0 (gates/GPU), 12eca63a (日本語表示テスト), 6c0daf56 (IME対応)。

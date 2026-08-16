@@ -39,15 +39,35 @@ R16/R17 の実測ログ（`doc/implementation/phase1_r16/logs/`、
 ### 結論
 
 - **Visual Validation（実機スクリーンショット）自体は有用であり、廃止しない。**
-- 主因は **運用・テストルールの問題**（FULL を毎回・複数回実行、FAST ルール欠如、
-  非標準の GPU パス使用、過剰な固定待ち、全体タイムアウト無し）。
+- 主因は **運用・テストルールの問題**:
+  - 通常開発ループで毎回 FULL（ゲーム起動）を実行していた（FAST な harness が
+    ルールに無かった）。
+  - Phase 毎に FULL を2〜3回、さらに失敗時にリトライしていた。
+  - R16/R17 acceptance が headless 時に SwiftShader（ソフトウェア描画）を使用し、
+    高CPU・フリーズ・ハングで失敗率が上がっていた（Phase 0.2 標準の HW Vulkan から逸脱）。
+  - シェルレベルに全体タイムアウトが無く、ハング時に長時間滞留し得た。
 
 ## 2. 改善方針
+
+### 実測 (2026-08-17, R17 acceptance を同一スクリプトで比較)
+
+| 実行 | GPU | 全体経過 | 備考 |
+|---|---|---|---|
+| run-full-gate.sh + r17_acceptance.mjs | HW Vulkan (既定) | 194秒 | PASS, ビルド省略 |
+| run-full-gate.sh + r17_acceptance.mjs | SwiftShader | 209秒 | PASS, ビルド省略 |
+| run-full-gate.sh + unicode_font_test.mjs | HW Vulkan | 約70〜100秒 | 日本語表示+IME確認のみ |
+| run-fast-gate.sh | (不要) | 4〜11秒 | build + harness 368/0/3 |
+
+- acceptance スクリプト自体は固定スリープ・チャット待機が主体のため、単発実行の
+  壁時計は GPU 差が小さい（約7%）。HW Vulkan の実質的な効果は CPU 負荷低減と
+  フリーズ・ハング起因の失敗・リトライ減少（安定化）。
+- 大きな遅延要因は「開発ループのたびに FULL を実行し、失敗時に複数回リトライ、
+  Phase 毎に2〜3回実行」という運用だった。FAST gate で通常開発を11秒に短縮。
 
 ### FAST gate（通常開発中）
 
 - ブラウザ / ゲーム起動なし。コンパイル + 軽量テスト + 数値測定のみ。
-- 実測: ビルド(インクリメンタル)約 14 秒 + harnessTest 約 4 秒 ≈ 20 秒。
+- 実測: ビルド(インクリメンタル)約14秒 + harnessTest 約4秒 ≈ 20秒。
 - コマンド: `./run-fast-gate.sh [measure-task]`
 
 実行内容:
