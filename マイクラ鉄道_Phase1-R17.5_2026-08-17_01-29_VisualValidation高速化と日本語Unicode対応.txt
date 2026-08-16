@@ -1,0 +1,221 @@
+====================================================================
+FINAL REPORT
+====================================================================
+タイトル     : Visual Validation高速化＋日本語Unicode対応
+Phase / ID  : Phase1-R17.5（R17完了〜R18前の品質・検証基盤整備）
+開始日時 JST : 2026-08-17 00:08
+完了日時 JST : 2026-08-17 01:29
+対象リポジトリ: ollejanaitte/web-minecraft-railway-terrain-tools (main)
+Job ID      : AI-RIM 20260816-235445-1a00b110cd40e294
+
+====================================================================
+1. 作業前の状態
+====================================================================
+- main ブランチ, HEAD 32c5d16f (Phase 1-R17 完了) と同期済み。
+- 保護対象の未コミット変更あり:
+  CommandRailSystem.java (+117/-6), EntityRailVehicle.java (+16/-3)
+  ※ AGENTS.md により検証専用の既存作業。ステージ・コミット・編集しない。
+- ビルド済みオフラインHTML (EaglercraftX_1.8_Offline_International.html)
+  は最新コードと同期 (makeMainOfflineDownload UP-TO-DATE)。
+
+====================================================================
+2. Visual Validation 遅延の原因（調査結果）
+====================================================================
+実体: run-validation.sh / run-validation-workflow.sh /
+      validation_workflow.mjs / 各Phaseの *_acceptance.mjs
+      （headless Chrome + Eaglercraft 起動 → ワールド作成 → チャット操作
+        → スクリーンショット取得 → 画像判定）
+
+遅延要因（複合）:
+1. 運用・テストルール: 通常開発ループで毎回FULL（ゲーム起動）を実行。
+   Phase 1.1以降は主要な数値検証が harnessTest（純JVM・実測4秒）で可能なのに
+   利用されておらず、実質毎回ゲーム実機確認へ行っていた。
+2. 運用: Phase 毎にFULLを2〜3回実行（R16: 3回, R17: 2回）。失敗時は
+   メニュー回復レース起因でリトライし、時間が倍増していた。
+3. 実装: R16/R17 acceptance.mjs が headless 時に SwiftShader（ソフトウェア
+   描画）を使用。Phase 0.2で確立した HW Vulkan（NVIDIA GTX 1050）から逸脱。
+   高CPU（99〜658%相当）・フリーズ・ハングにより失敗率が上がっていた。
+4. 安全対策: シェルレベルに全体タイムアウトが無く、ハング時に長時間滞留し得た。
+5. 固定スリープ: ワールド入場後20秒、スクリーンショット前2.5秒など。
+
+実測（R17 acceptance を同一スクリプムで比較）:
+- HW Vulkan: 194秒（PASS）
+- SwiftShader: 209秒（PASS）
+- acceptance は固定スリープ・チャット待機が主体のため単発の壁時計は近い。
+  HW Vulkan の実質的効果は CPU負荷低減・フリーズ/ハング起因の失敗・リトライ減少
+  （安定化）。遅延の主因は「開発ループでFULL実行＋失敗リトライ＋Phase毎複数回」。
+
+====================================================================
+3. Visual Validation の設計問題か、運用・テストルール問題かの結論
+====================================================================
+- Visual Validation（実機スクリーンショット）方式自体は有用で正しい。廃止しない。
+- 主因は運用・テストルールの問題:
+  (a) FAST な代替（harnessTest）が開発ルールに組み込まれていなかった
+  (b) FULL を毎回・複数回・リトライ込みで実行していた
+  (c) 非標準の GPU パス（SwiftShader）を使用し失敗率が上がっていた
+  (d) 全体タイムアウトが無くハング時に滞留した
+=> 設計（方式）は妥当。運用とスクリプトの GPU 指定・安全対策の問題。
+
+====================================================================
+4. 実施した Visual Validation 改善
+====================================================================
+1. run-fast-gate.sh を新設（FAST gate）:
+   ビルド + harnessTest + 任意の measure タスク。ブラウザ不使用。
+   実測 4〜11秒。通常開発ループの標準検証。
+2. run-full-gate.sh を新設（FULL gate）:
+   FAST に加え acceptance.mjs を HW Vulkan で実行。
+   `timeout` による全体強制タイムアウト（既定1500秒, FULL_TIMEOUT で変更）を必須化。
+   クリーンアップは検証用プロファイルのみ対象（ユーザーChromeに触れない）。
+3. R16/R17 acceptance.mjs と validation_workflow.mjs の headless GPU を
+   HW Vulkan（--use-angle=vulkan）標準へ修正。SwiftShader は明示指定時のみ
+   （--enable-unsafe-swiftshader 併用）。
+4. 設計ドキュメント: doc/testing/VISUAL_VALIDATION_FAST_FULL.md
+
+====================================================================
+5. FAST/FULL 検証の最終仕様
+====================================================================
+| Gate | 用途 | 内容 | ブラウザ/ゲーム | 実測 |
+|---|---|---|---|---|
+| FAST | 通常開発中・細かい修正 | build + harness + measure | 不要 | 4〜11秒 |
+| FULL | Phase完了・実機確認 | FAST + acceptance + screenshot | HW Vulkan | 約3.5分 (R17 acceptance) / 70〜100秒 (日本語テスト) |
+
+- 実行: ./run-fast-gate.sh [measure] / ./run-full-gate.sh <acceptance.mjs> [--skip-build]
+- 既定 GPU: HW Vulkan。GPU_MODE=swiftshader で明示フォールバック。
+
+====================================================================
+6. timeout 等の安全対策
+====================================================================
+- FULL gate: シェルレベル `timeout --foreground`（既定1500秒）で永久待機を防止。
+  超過時はクリーンアップ後に FAIL（exit 1）で終了。
+- 各 acceptance のステージ待機は上限付き（title 90〜120回, create 180〜300秒,
+  chat 30秒等）。FAIL時はログと exit code で原因追跡可能。
+- 終了時・失敗時に検証用 Chrome プロファイルのみを強制クリーンアップ。
+
+====================================================================
+7. 日本語が表示されなかった原因（調査結果）
+====================================================================
+結論: 現行ビルドでは日本語表示は正常に動作している。
+
+確認内容:
+- EPK 解析（自作デコンパイラ）: 
+  - font/glyph_sizes.bin (65536B, U+3042 あ=0x0F 等 日本語グリフ幅データ)
+  - textures/font/unicode_page_*.png (日本語ページ 0x30-0x5f 等 実グリフあり)
+  - ja_JP.lang (140KB)
+  - いずれも正しく梱包済み（最初期コミット 784a776d から追跡）。欠落なし。
+- 描画経路: FontRenderer.renderUnicodeChar が日本語を描画。
+  EaglerFontRenderer は ASCII のみ最適化し、日本語を含む文字列はバニラ経路へ
+  正しくフォールバック。
+- 実機確認（headless Chrome + HW Vulkan）:
+  - チャット入力欄「日本語テスト 鉄道 車両 接続 分岐器」:
+    フォントソースとのピクセル一致 IoU = 1.000（全15グリフ完全一致）
+  - 送信メッセージのチャットログ: 15/16グリフで IoU = 1.000
+
+推測される本来の原因:
+- 過去のビルド/状態でフォント資産が未梱包だった、または
+- デスクトップ日本語IMEの確定文字（compositionend）がゲームに届かず
+  「日本語が入力できない・出ない」ように見えた（表示自体は正常）、または
+- 誤認
+
+====================================================================
+8. Unicode対応内容（実施した修正）
+====================================================================
+表示は正常なため表示コードの変更は不要だった。入力側の欠陥を修正:
+- src/teavm/java/.../PlatformInput.java:
+  window に `compositionend` リスナーを追加。IME確定文字列（event.data）を
+  既存の貼り付け経路 pastedStrings → CLIPBOARD_PASTE → GuiTextField.writeText
+  へ投入（ゲーム毎tickのポーリングでフォーカス中の入力欄へ挿入）。
+  @JSBody で event.data を取得（TeaVM JSO API に CompositionEvent が無いため）。
+- 変換中プレビュー（compositionupdate）は意図的に未対応（確定時のみ挿入し、
+  変換中文字の混入を防止）。
+- 検証: 合成 CompositionEvent(data=日本語) を window へ dispatch し、
+  チャット入力欄へ「日本語」が挿入・描画されることを実機確認（グリフ形状一致）。
+- CDP の Input.imeSetComposition / insertText は canvas ページではイベントが
+  発火しないため、実ブラウザ相当の合成イベントで検証した。
+
+日本語最小確認手段:
+- doc/testing/phase1_r17_5/unicode_font_test.mjs
+  （run-full-gate.sh 経由、実測約70〜100秒。ワールド作成→チャット日本語入力・
+   送信→スクリーンショット。レール構築なしの軽量構成）
+
+====================================================================
+9. 変更ファイル
+====================================================================
+- run-fast-gate.sh           … 新規 (FAST gate)
+- run-full-gate.sh           … 新規 (FULL gate)
+- doc/testing/VISUAL_VALIDATION_FAST_FULL.md … 新規 (設計・原因・実測)
+- doc/implementation/phase1_r16/r16_acceptance.mjs … GPUパス修正
+- doc/implementation/phase1_r17/r17_acceptance.mjs … GPUパス修正
+- doc/testing/phase1_2_2/scripts/validation_workflow.mjs … GPUパス修正
+- src/teavm/java/net/lax1dude/eaglercraft/v1_8/internal/PlatformInput.java
+  … IME compositionend 対応
+- doc/testing/phase1_r17_5/unicode_font_test.mjs … 新規 (日本語最小確認)
+- doc/testing/phase1_r17_5/UNICODE_JAPANESE_FINDINGS.md … 新規 (調査結果)
+- doc/testing/phase1_r17_5/screenshots/ … 実機確認スクリーンショット
+- .gitignore … phase1_r17_5 の profiles/logs/instrumented.html を除外
+- FINAL_REPORT.txt … 作業ログ更新
+
+====================================================================
+10. 主なコミット（すべて GitHub main へ push 済み）
+====================================================================
+- 4c7fe0b0 feat: Visual Validation FAST/FULL gate separation + HW Vulkan default + global timeout
+- 12eca63a test: Japanese/Unicode font display verification (minimal game check)
+- 6c0daf56 feat: IME composition-end support for Japanese/Unicode input (desktop)
+- a94e0382 docs: refine measured FULL gate timings + regression notes
+（push 後、local == origin/main == GitHub main を確認）
+
+====================================================================
+11. テスト内容・結果
+====================================================================
+- FAST gate (build + harnessTest): PASS (harness PASSED=368 FAILED=0 SKIPPED=3)
+  - build: makeMainOfflineDownload PASS (再ビルドも含め複数回)
+- 数値 measure: r16Measure PASS, r17Measure PASS (FAST gate 経由)
+- FULL gate + R17 acceptance.mjs: PASS（194秒, HW Vulkan, 8 segment 222.84m,
+  spur sw-1 branches=1, THROUGH/BRANCH resolve, prod=9, 5枚スクリーンショット）
+- FULL gate + SwiftShader 比較: PASS（209秒）
+- FULL gate + unicode_font_test.mjs: PASS（約70〜100秒, 複数回）
+- 保護対象ファイル: 未変更のまま維持（diff 117/16 = 開始時と同一）
+
+====================================================================
+12. 日本語表示確認結果
+====================================================================
+- 「日本語テスト」→ 入力欄・チャットログともグリフIoU=1.000
+- 「鉄道」「車両」「接続」「分岐器」→ 同上（全15グリフでIoU=1.000）
+- ASCII（英数字）: 正常描画（回帰なし）
+- IME確定（compositionend）: 合成イベントで「日本語」が入力欄へ挿入・描画
+
+====================================================================
+13. 回帰確認結果
+====================================================================
+- プロジェクトビルド: PASS（makeMainOfflineDownload）
+- Eaglercraft/Minecraft 起動: PASS（タイトル→ワールド作成→ゲーム画面）
+- 英数字表示: PASS（ASCII テストメッセージ描画確認）
+- 日本語表示: PASS（IoU=1.000）
+- Railsys 既存機能: R17 acceptance 全工程 PASS（build/spur/route/resolve/status）
+- FAST gate: PASS
+- FULL gate: PASS（R17 acceptance・日本語テストとも）
+- timeout: 動作確認（FULL_TIMEOUT 指定で実行、無限待機なし）
+- 永久待機なし: 全実行が正常終了（timeout 強制含む）
+
+====================================================================
+14. 残課題
+====================================================================
+- IME変換中のライブプレビュー（compositionupdate）は未対応（確定時のみ挿入）。
+- 一部ブラウザ/OSで compositionend がページへ届かない場合は Ctrl+V 貼り付けで
+  代替（実装は既存の CLIPBOARD_PASTE 経路）。
+- acceptance の固定スリープ（入場後20秒等）は残存。さらに高速化する場合は
+  条件待機化が望ましい（リスク管理のため今回のスコープでは実施せず）。
+- wasm-gc-teavm ターゲットには IME 対応を未適用（現行ビルドは teavm-javascript）。
+
+====================================================================
+15. 最終判定
+====================================================================
+VERDICT: PASS
+- Visual Validation 遅延原因の特定と高速化・安定化（FAST/FULL分離・全体タイム
+  アウト・HW Vulkan標準）: 完了
+- 日本語Unicode: 表示は正常（ピクセル一致検証）、IME入力対応を追加
+- 対象文字列「日本語テスト 鉄道 車両 接続 分岐器」の表示確認: 完了
+- 回帰確認: 完了（build / harness / FULL acceptance / 日本語テスト / ASCII）
+- 保護ファイル維持: 確認済み
+====================================================================
+END OF REPORT
+====================================================================
